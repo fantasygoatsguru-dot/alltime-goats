@@ -23,12 +23,11 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { fetchAllPlayers, fetchFilteredPlayerAverages } from "../api";
+import EzoicAd from "../components/EzoicAd";
 
 const AlltimeTable = () => {
   const [loading, setLoading] = useState(false);
-  const [players, setPlayers] = useState([]);
   const [playerStats, setPlayerStats] = useState([]);
-  const [topPlayers, setTopPlayers] = useState([]);
   const [filterType, setFilterType] = useState(null);
   const [filterValue, setFilterValue] = useState([]); // For multiselect (e.g., position, teamNames, nationalities)
   const [filterOperator, setFilterOperator] = useState("=");
@@ -662,25 +661,28 @@ const AlltimeTable = () => {
         </Grid> */}
       </Grid>
 
-      {/* Display Applied Filters */}
-      <Box sx={{ mb: 3 }}>
-        {filters.map((filter, index) => (
-          <Chip
-            key={index}
-            label={filter.label}
-            onDelete={() => handleDeleteFilter(index)}
-            sx={{
-              mr: 1,
-              mb: 1,
-              backgroundColor: "#1E1E1E",
-              color: "#E0E0E0",
-              border: "1px solid #333333",
-            }}
-          />
-        ))}
-      </Box>
+              {/* Display Applied Filters */}
+              <Box sx={{ mb: 3 }}>
+                {filters.map((filter, index) => (
+                  <Chip
+                    key={index}
+                    label={filter.label}
+                    onDelete={() => handleDeleteFilter(index)}
+                    sx={{
+                      mr: 1,
+                      mb: 1,
+                      backgroundColor: "#1E1E1E",
+                      color: "#E0E0E0",
+                      border: "1px solid #333333",
+                    }}
+                  />
+                ))}
+              </Box>
 
-      {/* Table */}
+              {/* Ezoic Ad - under_first_paragraph */}
+              <EzoicAd placeholderId="ezoic-pub-ad-placeholder-110" />
+
+              {/* Table */}
       <TableContainer
         component={Paper}
         sx={{ backgroundColor: "#121212", border: "1px solid #333333" }}

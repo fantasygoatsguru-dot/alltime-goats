@@ -24,6 +24,7 @@ import {
   TablePagination,
 } from "@mui/material";
 import { fetchAllPlayers, fetchFilteredPlayerGameStats } from "../api";
+import EzoicAd from "../components/EzoicAd";
 
 const AlltimeGames = () => {
   const [players, setPlayers] = useState([]);
@@ -372,6 +373,7 @@ const AlltimeGames = () => {
 
   return (
     <Box sx={{ p: 3, backgroundColor: "#121212", minHeight: "100vh" }}>
+
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Typography
@@ -522,7 +524,9 @@ const AlltimeGames = () => {
               Clear Filters
             </Button>
           </Box>
-
+      {/* Ezoic Ad - under_first_paragraph */}
+      <EzoicAd placeholderId="ezoic-pub-ad-placeholder-110" />
+      
           {/* Display Applied Filters */}
           <Box sx={{ mb: 3 }}>
             {filters.map((filter, index) => (

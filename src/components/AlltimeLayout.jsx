@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
+import EzoicAd from './EzoicAd';
 
 const AlltimeLayout = () => {
     const navigate = useNavigate();
