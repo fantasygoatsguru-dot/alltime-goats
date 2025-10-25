@@ -3,46 +3,48 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import DatabaseLoader from "./components/DatabaseLoader";
-import TagManager from 'react-gtm-module';
+import TagManager from "react-gtm-module";
 import React from "react";
 import { Box } from "@mui/material";
+import PrivacyPolicy from "./Pages/PrivacyPolicy";
 
 const theme = createTheme({
-    palette: {
-        primary: { main: "#4a90e2" },
-        secondary: { main: "#37474f" },
-        background: { default: "#121212", paper: "#1e1e1e" },
-        text: { primary: "#e0e0e0", secondary: "#b0bec5" },
-    },
-    typography: { h6: { fontWeight: 600 } },
+  palette: {
+    primary: { main: "#4a90e2" },
+    secondary: { main: "#37474f" },
+    background: { default: "#121212", paper: "#1e1e1e" },
+    text: { primary: "#e0e0e0", secondary: "#b0bec5" },
+  },
+  typography: { h6: { fontWeight: 600 } },
 });
 
 const tagManagerArgs = {
-    gtmId: "GTM-NL93ZTKQ",
+  gtmId: "GTM-NL93ZTKQ",
 };
 
 TagManager.initialize(tagManagerArgs);
 
 const App = () => {
-    return (
-        <ThemeProvider theme={theme}>
-            <GoogleAnalytics />
-            <DatabaseLoader>
-                <Box sx={{ flexGrow: 1 }}>
-                    <Routes>
-                        <Route path="/" element={<Navigate to="/teams" replace />} />
-                        <Route path="/*" element={<AlltimeLayout />} />
-                    </Routes>
-                </Box>
-            </DatabaseLoader>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider theme={theme}>
+      <GoogleAnalytics />
+      <DatabaseLoader>
+        <Box sx={{ flexGrow: 1 }}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/teams" replace />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} /> {/* New route */}
+            <Route path="/*" element={<AlltimeLayout />} />
+          </Routes>
+        </Box>
+      </DatabaseLoader>
+    </ThemeProvider>
+  );
 };
 
 export default function AppWrapper() {
-    return (
-        <Router>
-            <App />
-        </Router>
-    );
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
 }
