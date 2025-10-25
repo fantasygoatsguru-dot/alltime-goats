@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Tabs, Tab } from '@mui/material';
+import { Box, Container, Typography, Tabs, Tab, CircularProgress } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
@@ -10,6 +10,7 @@ const AlltimeLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [tabValue, setTabValue] = useState(0);
+    const [isPageLoading, setIsPageLoading] = useState(false);
 
     useEffect(() => {
         if (location.pathname === '/seasons' || location.pathname === '/table') {
@@ -24,21 +25,32 @@ const AlltimeLayout = () => {
         }
     }, [location.pathname]);
 
+    // Reset loading state when location changes (direct navigation)
+    useEffect(() => {
+        setIsPageLoading(false);
+    }, [location.pathname]);
+
     const handleTabChange = (_, newValue) => {
+        setIsPageLoading(true);
         setTabValue(newValue);
-        switch (newValue) {
-            case 0:
-                navigate('/teams');
-                break;
-            case 1:
-                navigate('/seasons');
-                break;
-            case 2:
-                navigate('/games');
-                break;
-            default:
-                navigate('/teams');
-        }
+        
+        // Simulate loading time for better UX
+        setTimeout(() => {
+            switch (newValue) {
+                case 0:
+                    navigate('/teams');
+                    break;
+                case 1:
+                    navigate('/seasons');
+                    break;
+                case 2:
+                    navigate('/games');
+                    break;
+                default:
+                    navigate('/teams');
+            }
+            setIsPageLoading(false);
+        }, 300); // 300ms delay for smooth transition
     };
 
     const renderContent = () => {
@@ -130,7 +142,38 @@ const AlltimeLayout = () => {
                 </Tabs>
             </Box>
             <Container maxWidth={false} disableGutters>
-                {renderContent()}
+                {isPageLoading ? (
+                    <Box 
+                        sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center', 
+                            minHeight: '400px',
+                            backgroundColor: '#121212'
+                        }}
+                    >
+                        <Box sx={{ textAlign: 'center' }}>
+                            <CircularProgress 
+                                size={60} 
+                                sx={{ 
+                                    color: '#4a90e2',
+                                    mb: 2
+                                }} 
+                            />
+                            <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                    color: '#e0e0e0',
+                                    fontFamily: '"Roboto Mono", monospace'
+                                }}
+                            >
+                                Loading...
+                            </Typography>
+                        </Box>
+                    </Box>
+                ) : (
+                    renderContent()
+                )}
             </Container>
         </Box>
     );
