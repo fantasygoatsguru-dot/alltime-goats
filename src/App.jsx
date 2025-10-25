@@ -30,7 +30,7 @@ const App = () => {
             <DatabaseLoader>
                 <Box sx={{ flexGrow: 1 }}>
                     <Routes>
-                        <Route path="/" element={<Navigate to="/seasons" replace />} />
+                        <Route path="/" element={<Navigate to="/teams" replace />} />
                         <Route path="/*" element={<AlltimeLayout />} />
                     </Routes>
                 </Box>
