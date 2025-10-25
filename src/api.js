@@ -23,10 +23,10 @@ export const fetchAllPlayers = async () => {
     });
     
     return Array.from(playersMap.values());
-  } catch (error) {
+    } catch (error) {
     console.error('Error fetching all players:', error);
-    throw error;
-  }
+        throw error;
+    }
 };
 
 export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
@@ -151,10 +151,10 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
         total_value: row.total_value
       }
     }));
-  } catch (error) {
+    } catch (error) {
     console.error('Error fetching filtered player averages:', error);
-    throw error;
-  }
+        throw error;
+    }
 };
 
 export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
@@ -266,14 +266,14 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
         fantasy_points: row.fantasy_points
       }
     }));
-  } catch (error) {
+    } catch (error) {
     console.error('Error fetching filtered player game stats:', error);
-    throw error;
-  }
+        throw error;
+    }
 };
 
 export const fetchAllTimePlayerStats = async (players) => {
-  try {
+    try {
     if (!players || players.length === 0) {
       return [];
     }
@@ -348,7 +348,7 @@ export const fetchAllTimePlayerStats = async (players) => {
     
     const calculateTeamStats = (teamPlayers, statsResults) => {
       const teamStats = statsResults.filter(stat => 
-        teamPlayers.some(p => p.id === stat.playerId && p.season === stat.season)
+        teamPlayers.some(p => parseInt(p.id) === stat.playerId && p.season === stat.season)
       );
       
       if (teamStats.length === 0) {
@@ -376,7 +376,7 @@ export const fetchAllTimePlayerStats = async (players) => {
     
     const calculateTeamZScores = (teamPlayers, statsResults) => {
       const teamStats = statsResults.filter(stat => 
-        teamPlayers.some(p => p.id === stat.playerId && p.season === stat.season)
+        teamPlayers.some(p => parseInt(p.id) === stat.playerId && p.season === stat.season)
       );
       
       if (teamStats.length === 0) {
@@ -401,7 +401,7 @@ export const fetchAllTimePlayerStats = async (players) => {
     
     const calculateTeamContributions = (teamPlayers, statsResults) => {
       const teamStats = statsResults.filter(stat => 
-        teamPlayers.some(p => p.id === stat.playerId && p.season === stat.season)
+        teamPlayers.some(p => parseInt(p.id) === stat.playerId && p.season === stat.season)
       );
       
       const contributions = {};
@@ -432,6 +432,11 @@ export const fetchAllTimePlayerStats = async (players) => {
       return contributions;
     };
     
+    console.log('About to calculate team averages...');
+    console.log('team1Players:', team1Players);
+    console.log('team2Players:', team2Players);
+    console.log('playerStats length:', playerStats.length);
+    
     const teamAverages = {
       team1Averages: calculateTeamStats(team1Players, playerStats),
       team2Averages: calculateTeamStats(team2Players, playerStats),
@@ -441,12 +446,14 @@ export const fetchAllTimePlayerStats = async (players) => {
       team2Contributions: calculateTeamContributions(team2Players, playerStats)
     };
     
+    console.log('Final teamAverages:', teamAverages);
+    
     return [
       ...playerStats,
       { teamAverages }
     ];
-  } catch (error) {
+    } catch (error) {
     console.error('Error fetching all time player stats:', error);
-    throw error;
-  }
+        throw error;
+    }
 };
