@@ -1271,15 +1271,6 @@ const AlltimeTable = () => {
                         return `${normalizedLastName.substring(0, 5)}${normalizedFirstName.substring(0, 2)}01`;
                       })()}.jpg`}
                       onError={(e) => {
-                        const [firstName, lastName] = stat.playerName.split(' ');
-                        const normalizedLastName = normalizeName(lastName);
-                        const normalizedFirstName = normalizeName(firstName);
-                        const formattedId = `${normalizedLastName.substring(0, 5)}${normalizedFirstName.substring(0, 2)}01`;
-                        console.log('Avatar load error:', {
-                          player: stat.playerName,
-                          normalizedName: `${normalizedLastName}${normalizedFirstName}`,
-                          formattedId
-                        });
                         e.target.src = 'https://www.basketball-reference.com/req/202106291/images/headshots/default.jpg';
                       }}
                       sx={{ 
