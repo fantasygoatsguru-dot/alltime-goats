@@ -4,6 +4,7 @@ import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
+import Matchup from '../Pages/Matchup';
 import EzoicAd from './EzoicAd';
 
 const AlltimeLayout = () => {
@@ -17,6 +18,8 @@ const AlltimeLayout = () => {
       setTabValue(1);
     } else if (location.pathname === '/games') {
       setTabValue(2);
+    } else if (location.pathname === '/matchup') {
+      setTabValue(3);
     } else if (location.pathname === '/teams' || location.pathname === '/charts') {
       setTabValue(0);
     } else {
@@ -45,6 +48,9 @@ const AlltimeLayout = () => {
         case 2:
           navigate('/games');
           break;
+        case 3:
+          navigate('/matchup');
+          break;
         default:
           navigate('/teams');
       }
@@ -58,6 +64,8 @@ const AlltimeLayout = () => {
         return <AlltimeTable />;
       case 2:
         return <AlltimeGames />;
+      case 3:
+        return <Matchup />;
       default:
         return <Alltime />;
     }
@@ -133,6 +141,7 @@ const AlltimeLayout = () => {
           <Tab label="Teams" />
           <Tab label="Seasons" />
           <Tab label="Games" />
+          <Tab label="Matchup" />
         </Tabs>
       </Box>
 

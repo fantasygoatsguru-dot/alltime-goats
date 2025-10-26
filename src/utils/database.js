@@ -20,7 +20,7 @@ const initDatabase = async (onProgress) => {
         locateFile: file => `https://sql.js.org/dist/${file}`
       });
 
-      console.log('Downloading database (435MB)...');
+      console.log('Downloading database');
       const response = await fetch('https://uvnmetoqxxfxmvyvcphu.supabase.co/storage/v1/object/public/posts/nba_db/nba_historical_stats.db');
       if (!response.ok) {
         throw new Error(`Failed to load database: ${response.status} ${response.statusText}`);

@@ -105,7 +105,7 @@ const DatabaseLoader = ({ children }) => {
 
         {progress > 0 && (
           <Typography variant="body2" sx={{ color: '#b0bec5' }}>
-            {Math.round(progress)}% - Please wait while we load 435MB of data...
+            {Math.round(progress)}% - Please wait while we load our data...
           </Typography>
         )}
 
