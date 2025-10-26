@@ -65,7 +65,7 @@ serve(async (req) => {
       // - openid: Required to access user info endpoint
       // - profile: Get user profile data
       // - fspt-w: Fantasy Sports read/write access
-      const scopes = "fspt-r profile";
+      const scopes = "fspt-r profile email openid";
       const authUrl = `https://api.login.yahoo.com/oauth2/request_auth?client_id=${YAHOO_CLIENT_ID}&redirect_uri=${encodeURIComponent(YAHOO_REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&language=en-us`;
       
       console.log("Generated auth URL with scopes:", scopes);
@@ -130,10 +130,14 @@ serve(async (req) => {
       }
 
       const userInfo = await userInfoResponse.json();
+      console.log("User info received:", JSON.stringify(userInfo, null, 2));
+      
       const userId = userInfo.sub;
       console.log("User ID:", userId);
+      console.log("Email:", userInfo.email || "Not provided");
+      console.log("Name:", userInfo.name || "Not provided");
 
-      console.log("Storing tokens in database...");
+      console.log("Storing tokens and user profile in database...");
       const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
       
       const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
@@ -147,6 +151,14 @@ serve(async (req) => {
           refresh_token: tokenData.refresh_token,
           token_type: tokenData.token_type,
           expires_at: expiresAt.toISOString(),
+          // Store user profile information
+          email: userInfo.email || null,
+          name: userInfo.name || null,
+          given_name: userInfo.given_name || null,
+          family_name: userInfo.family_name || null,
+          nickname: userInfo.nickname || null,
+          profile_picture: userInfo.picture || null,
+          locale: userInfo.locale || null,
         }, {
           onConflict: "user_id",
         });
@@ -156,12 +168,14 @@ serve(async (req) => {
         throw new Error(`Database error: ${upsertError.message}`);
       }
       
-      console.log("Tokens stored successfully");
+      console.log("Tokens and user profile stored successfully");
 
       return new Response(
         JSON.stringify({
           success: true,
           userId: userId,
+          email: userInfo.email || null,
+          name: userInfo.name || null,
           expiresAt: expiresAt.toISOString(),
         }),
         {
