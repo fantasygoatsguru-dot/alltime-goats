@@ -44,9 +44,9 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const STAT_CATEGORIES = {
-    "5": "FG%",
-    "8": "FT%",
-    "10": "3PT",
+    "9004": "FG%",  // FGM/FGA
+    "9005": "FT%",  // FTM/FTA
+    "10": "3PTM",
     "12": "PTS",
     "15": "REB",
     "16": "AST",
@@ -59,25 +59,34 @@ const StatsComparisonGraph = ({ team1Data, team2Data, team1Name, team2Name }) =>
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
 
-    const categories = ["PTS", "3PT", "AST", "ST", "FT%", "FG%", "TO", "BLK", "REB"];
+    const categories = ["PTS", "3PTM", "AST", "ST", "FT%", "FG%", "TO", "BLK", "REB"];
 
     const calculateTeamAverage = (players, statId) => {
         if (!players || players.length === 0) return 0;
         const activeP = players.filter((p) => p.active);
         if (activeP.length === 0) return 0;
         
-        const sum = activeP.reduce((acc, player) => {
-            const stat = player.stats?.find((s) => s.statId === statId);
-            return acc + (parseFloat(stat?.value) || 0);
-        }, 0);
-        
-        return statId === "5" || statId === "8" ? sum / activeP.length : sum;
+        if (statId === "9004" || statId === "9005") {
+            // For percentages: average of individual percentages
+            const sum = activeP.reduce((acc, player) => {
+                const stat = player.stats?.find((s) => s.statId === statId);
+                return acc + (parseFloat(stat?.value) || 0);
+            }, 0);
+            return sum / activeP.length;
+        } else {
+            // For counts: sum
+            const sum = activeP.reduce((acc, player) => {
+                const stat = player.stats?.find((s) => s.statId === statId);
+                return acc + (parseFloat(stat?.value) || 0);
+            }, 0);
+            return sum;
+        }
     };
 
     const normalizeValue = (value, category) => {
         const ranges = {
             PTS: [0, 150],
-            "3PT": [0, 15],
+            "3PTM": [0, 15],
             AST: [0, 30],
             ST: [0, 10],
             "FT%": [0, 1],
@@ -94,11 +103,11 @@ const StatsComparisonGraph = ({ team1Data, team2Data, team1Name, team2Name }) =>
     const getStatId = (category) => {
         const mapping = {
             PTS: "12",
-            "3PT": "10",
+            "3PTM": "10",
             AST: "16",
             ST: "17",
-            "FT%": "8",
-            "FG%": "5",
+            "FT%": "9005",
+            "FG%": "9004",
             TO: "19",
             BLK: "18",
             REB: "15",
@@ -862,4 +871,3 @@ const Matchup = () => {
 };
 
 export default Matchup;
-
