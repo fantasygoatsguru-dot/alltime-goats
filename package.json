@@ -21,6 +21,8 @@
     "@supabase/supabase-js": "^2.76.1",
     "dotenv": "^16.4.7",
     "framer-motion": "^12.5.0",
+    "nba-api-client": "^1.1.2",
+    "node-fetch": "^3.3.2",
     "react": "^19.0.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",
