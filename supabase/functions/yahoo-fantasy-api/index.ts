@@ -31,6 +31,21 @@ async function getAccessToken(userId: string) {
   return tokenData.access_token;
 }
 
+async function getNbaIdFromYahooId(supabase: any, yahooId: number) {
+  const { data, error } = await supabase
+    .from("yahoo_nba_mapping")
+    .select("nba_id")
+    .eq("yahoo_id", yahooId)
+    .single();
+
+  if (error || !data) {
+    console.warn(`No NBA ID found for Yahoo ID ${yahooId}`);
+    return null;
+  }
+
+  return data.nba_id;
+}
+
 async function makeYahooRequest(accessToken: string, endpoint: string) {
   // Remove ?format=json_f from endpoint if already present to avoid duplication
   const cleanEndpoint = endpoint.replace(/\?format=json_f$/, "");
@@ -86,12 +101,12 @@ serve(async (req) => {
       
       // Corrected parsing logic
       const leagues = data?.fantasy_content?.users?.[0]?.user?.games?.[0]?.game?.leagues || [];
-        console.log("Leagues found:", leagues.length);
+      console.log("Leagues found:", leagues.length);
       
       const leagueList = leagues
-        .filter((item: any) => item?.league && typeof item.league === 'object') // Ensure league is a valid object
+        .filter((item: any) => item?.league && typeof item.league === 'object')
         .map((item: any) => {
-          const league = item.league; // league is an object, not an array
+          const league = item.league;
           return {
             leagueKey: league.league_key,
             leagueId: league.league_id,
@@ -132,14 +147,14 @@ serve(async (req) => {
       const teams = userTeamsData?.fantasy_content?.league?.teams || [];
       console.log("Number of teams:", teams.length);
       
-      // Filter out any invalid entries (though not strictly necessary with this response)
+      // Filter out any invalid entries
       const allTeams = teams.filter((item) => item?.team);
       
       console.log("Filtered teams count:", allTeams.length);
       
       // Iterate over the teams array
       allTeams.forEach((item, index) => {
-        const team = item.team; // Access the team object directly
+        const team = item.team;
         console.log(`Team ${index + 1}:`, {
           name: team.name,
           teamKey: team.team_key,
@@ -172,65 +187,66 @@ serve(async (req) => {
       );
 
       console.log("Raw matchup response:", JSON.stringify(matchupData, null, 2));
-// Access the matchups array directly from fantasy_content.team.matchups
-const matchups = matchupData?.fantasy_content?.team?.matchups || [];
-console.log("Number of matchups:", matchups.length);
+      // Access the matchups array directly from fantasy_content.team.matchups
+      const matchups = matchupData?.fantasy_content?.team?.matchups || [];
+      console.log("Number of matchups:", matchups.length);
 
-// Ensure we have at least one matchup
-if (!matchups.length || !matchups[0]?.matchup) {
-  console.error("No current matchup found in response");
-  throw new Error("No current matchup found");
-}
+      // Ensure we have at least one matchup
+      if (!matchups.length || !matchups[0]?.matchup) {
+        console.error("No current matchup found in response");
+        throw new Error("No current matchup found");
+      }
 
-// Get the first matchup (since we're querying for the current week)
-const currentMatchup = matchups[0].matchup;
-console.log("Current week:", currentMatchup.week);
+      // Get the first matchup (since we're querying for the current week)
+      const currentMatchup = matchups[0].matchup;
+      console.log("Current week:", currentMatchup.week);
 
-// Access the teams in the matchup
-const matchupTeams = currentMatchup.teams || [];
-console.log("Number of teams in matchup:", matchupTeams.length);
+      // Access the teams in the matchup
+      const matchupTeams = currentMatchup.teams || [];
+      console.log("Number of teams in matchup:", matchupTeams.length);
 
-if (matchupTeams.length < 2) {
-  console.error("Expected two teams in matchup, found:", matchupTeams.length);
-  throw new Error("Incomplete matchup data");
-}
+      if (matchupTeams.length < 2) {
+        console.error("Expected two teams in matchup, found:", matchupTeams.length);
+        throw new Error("Incomplete matchup data");
+      }
 
-// Extract team data
-const team1 = matchupTeams[0]?.team;
-const team2 = matchupTeams[1]?.team;
+      // Extract team data
+      const team1 = matchupTeams[0]?.team;
+      const team2 = matchupTeams[1]?.team;
 
-console.log("Team 1:", {
-  name: team1?.name,
-  teamKey: team1?.team_key,
-  points: team1?.team_points?.total,
-  stats: team1?.team_stats?.stats?.map((stat) => ({
-    stat_id: stat.stat.stat_id,
-    value: stat.stat.value,
-  })),
-});
+      console.log("Team 1:", {
+        name: team1?.name,
+        teamKey: team1?.team_key,
+        points: team1?.team_points?.total,
+        stats: team1?.team_stats?.stats?.map((stat) => ({
+          stat_id: stat.stat.stat_id,
+          value: stat.stat.value,
+        })),
+      });
 
-console.log("Team 2:", {
-  name: team2?.name,
-  teamKey: team2?.team_key,
-  points: team2?.team_points?.total,
-  stats: team2?.team_stats?.stats?.map((stat) => ({
-    stat_id: stat.stat.stat_id,
-    value: stat.stat.value,
-  })),
-});
+      console.log("Team 2:", {
+        name: team2?.name,
+        teamKey: team2?.team_key,
+        points: team2?.team_points?.total,
+        stats: team2?.team_stats?.stats?.map((stat) => ({
+          stat_id: stat.stat.stat_id,
+          value: stat.stat.value,
+        })),
+      });
 
-console.log("Matchup Details:", {
-  week: currentMatchup.week,
-  startDate: currentMatchup.week_start,
-  endDate: currentMatchup.week_end,
-  status: currentMatchup.status,
-  isPlayoffs: currentMatchup.is_playoffs,
-  winnerTeamKey: currentMatchup.winner_team_key,
-  statWinners: currentMatchup.stat_winners?.map((winner) => ({
-    stat_id: winner.stat_winner.stat_id,
-    winner_team_key: winner.stat_winner.winner_team_key,
-  })),
-});
+      console.log("Matchup Details:", {
+        week: currentMatchup.week,
+        startDate: currentMatchup.week_start,
+        endDate: currentMatchup.week_end,
+        status: currentMatchup.status,
+        isPlayoffs: currentMatchup.is_playoffs,
+        winnerTeamKey: currentMatchup.winner_team_key,
+        statWinners: currentMatchup.stat_winners?.map((winner) => ({
+          stat_id: winner.stat_winner.stat_id,
+          winner_team_key: winner.stat_winner.winner_team_key,
+        })),
+      });
+
       console.log("Team 1:", team1?.name);
       console.log("Team 2:", team2?.name);
 
@@ -248,7 +264,7 @@ console.log("Matchup Details:", {
       );
       console.log("Team 2 roster fetched");
       
-      const extractPlayers = (rosterData) => {
+      const extractPlayers = async (rosterData) => {
         // Access the roster object directly
         const roster = rosterData?.fantasy_content?.team?.roster;
         if (!roster) {
@@ -260,26 +276,31 @@ console.log("Matchup Details:", {
         const players = roster.players || [];
         console.log(`Number of players: ${players.length}`);
       
-        return players
-          .filter((item) => item?.player) // Ensure player object exists
-          .map((item) => {
-            const player = item.player; // Access player object directly
-            return {
-              playerKey: player.player_key,
-              playerId: player.player_id,
-              name: player.name?.full,
-              position: player.primary_position,
-              selectedPosition: player.selected_position?.position,
-              eligiblePositions: player.eligible_positions?.map((pos) => pos.position) || [],
-              team: player.editorial_team_abbr,
-              status: player.status || "Active",
-              injuryNote: player.injury_note || null,
-            };
-          });
+        return await Promise.all(
+          players
+            .filter((item) => item?.player) // Ensure player object exists
+            .map(async (item) => {
+              const player = item.player;
+              const yahooId = player.player_id;
+              const nbaId = await getNbaIdFromYahooId(supabase, yahooId);
+              return {
+                playerKey: player.player_key,
+                yahooPlayerId: yahooId,
+                nbaPlayerId: nbaId,
+                name: player.name?.full,
+                position: player.primary_position,
+                selectedPosition: player.selected_position?.position,
+                eligiblePositions: player.eligible_positions?.map((pos) => pos.position) || [],
+                team: player.editorial_team_abbr,
+                status: player.status || "Active",
+                injuryNote: player.injury_note || null,
+              };
+            })
+        );
       };
       
-      const team1Players = extractPlayers(team1Roster);
-      const team2Players = extractPlayers(team2Roster);
+      const team1Players = await extractPlayers(team1Roster);
+      const team2Players = await extractPlayers(team2Roster);
       
       console.log("Team 1 Players:", team1Players);
       console.log("Team 2 Players:", team2Players);
@@ -366,6 +387,94 @@ console.log("Matchup Details:", {
 
       return new Response(
         JSON.stringify({ players: playerStats }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
+    if (action === "getAllTeamsInLeague") {
+      console.log("=== Getting All Teams in League ===");
+      
+      if (!leagueId) {
+        console.error("No league ID provided");
+        throw new Error("League ID is required");
+      }
+
+      const leagueKey = `${GAME_ID}.l.${leagueId}`;
+      console.log("League key:", leagueKey);
+      
+      console.log("Fetching all teams in league...");
+      const teamsData = await makeYahooRequest(accessToken, `/league/${leagueKey}/teams`);
+      
+      console.log("Raw teams response:", JSON.stringify(teamsData, null, 2));
+      
+      const teams = teamsData?.fantasy_content?.league?.teams || [];
+      console.log("Number of teams:", teams.length);
+      
+      const allTeams = teams.filter((item: any) => item?.team);
+      console.log("Filtered teams count:", allTeams.length);
+      
+      const extractPlayers = async (rosterData: any) => {
+        const roster = rosterData?.fantasy_content?.team?.roster;
+        if (!roster) {
+          console.error("No roster found in response");
+          return [];
+        }
+      
+        const players = roster.players || [];
+        console.log(`Number of players: ${players.length}`);
+      
+        return await Promise.all(
+          players
+            .filter((item: any) => item?.player)
+            .map(async (item: any) => {
+              const player = item.player;
+              const yahooId = player.player_id;
+              const nbaId = await getNbaIdFromYahooId(supabase, yahooId);
+              return {
+                playerKey: player.player_key,
+                yahooPlayerId: yahooId,
+                nbaPlayerId: nbaId,
+                name: player.name?.full,
+                position: player.primary_position,
+                selectedPosition: player.selected_position?.position,
+                eligiblePositions: player.eligible_positions?.map((pos: any) => pos.position) || [],
+                team: player.editorial_team_abbr,
+                status: player.status || "Active",
+                injuryNote: player.injury_note || null,
+              };
+            })
+        );
+      };
+
+      const teamsWithRosters = await Promise.all(
+        allTeams.map(async (item: any) => {
+          const team = item.team;
+          const teamKey = team.team_key;
+          
+          console.log(`Fetching roster for team: ${team.name} (${teamKey})`);
+          const rosterData = await makeYahooRequest(
+            accessToken,
+            `/team/${teamKey}/roster;week=current`
+          );
+          
+          const players = await extractPlayers(rosterData);
+          
+          return {
+            key: team.team_key,
+            name: team.name,
+            logo: team.team_logos?.team_logo?.url,
+            players: players,
+          };
+        })
+      );
+
+      console.log("Teams with rosters prepared successfully");
+
+      return new Response(
+        JSON.stringify({ teams: teamsWithRosters }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,

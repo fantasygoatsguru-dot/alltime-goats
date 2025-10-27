@@ -48,16 +48,16 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Default player IDs (from yahoo_nba_mapping) - current season 2024-25
-const CURRENT_SEASON = "2024-25";
+const CURRENT_SEASON = "2025-26";
 
 const DEFAULT_PLAYERS = {
     team1: [
-        { id: 201939, name: "Stephen Curry" },
-        { id: 2544, name: "LeBron James" }
+        { nbaPlayerId: 201939, yahooPlayerId: 4612, name: "Stephen Curry" },
+        { nbaPlayerId: 203076, yahooPlayerId: 5007, name: "Anthony Davis" }
     ],
     team2: [
-        { id: 1629029, name: "Luka Doncic" },
-        { id: 203076, name: "Anthony Davis" }
+        { nbaPlayerId: 1629029, yahooPlayerId: 6014, name: "Luka Doncic" },
+        { nbaPlayerId: 201566, yahooPlayerId: 4563, name: "James Harden" }
     ]
 };
 
@@ -377,6 +377,9 @@ const PlayerComparisonGraph = ({
 
     const colors = ["#4CAF50", "#ff6f61", "#4a90e2", "#ffc107"];
 
+    console.log('PlayerComparisonGraph - players:', players);
+    console.log('PlayerComparisonGraph - playerNames:', playerNames);
+    
     const playerDataMap = players.reduce((acc, player) => {
         if (!player || !player.stats || !player.playerName) return acc;
         const playerIdentifier = player.playerName;
@@ -384,9 +387,13 @@ const PlayerComparisonGraph = ({
         return acc;
     }, {});
 
+    console.log('PlayerComparisonGraph - playerDataMap:', playerDataMap);
+
     const validPlayerNames = playerNames.filter(name => 
         name && typeof name === "string" && playerDataMap[name]
     );
+    
+    console.log('PlayerComparisonGraph - validPlayerNames:', validPlayerNames);
 
     const playerData = categories.map((category) => {
         const dataPoint = { skill: category };
@@ -694,10 +701,10 @@ const PlayerComparisonGraph = ({
 const Matchup = () => {
     // Team state
     const [team1Players, setTeam1Players] = useState(
-        DEFAULT_PLAYERS.team1.map(p => ({ ...p, active: true }))
+        DEFAULT_PLAYERS.team1.map(p => ({ ...p, id: p.nbaPlayerId || p.yahooPlayerId, active: true }))
     );
     const [team2Players, setTeam2Players] = useState(
-        DEFAULT_PLAYERS.team2.map(p => ({ ...p, active: true }))
+        DEFAULT_PLAYERS.team2.map(p => ({ ...p, id: p.nbaPlayerId || p.yahooPlayerId, active: true }))
     );
     const [team1Name, setTeam1Name] = useState("Team 1");
     const [team2Name, setTeam2Name] = useState("Team 2");
@@ -722,6 +729,9 @@ const Matchup = () => {
     const [userLeagues, setUserLeagues] = useState([]);
     const [selectedLeague, setSelectedLeague] = useState("");
     const [isConnected, setIsConnected] = useState(false);
+    const [allLeagueTeams, setAllLeagueTeams] = useState([]);
+    const [selectedTeam1, setSelectedTeam1] = useState("");
+    const [selectedTeam2, setSelectedTeam2] = useState("");
     
     // Ref to prevent double-processing of OAuth callback
     const hasProcessedCallback = useRef(false);
@@ -757,7 +767,9 @@ const Matchup = () => {
             const team2Players = players.filter(p => p.team === 'team2');
 
             // Get unique player IDs
-            const playerIds = [...new Set(players.map(p => p.id))];
+            const playerIds = [...new Set(players.map(p => p.id).filter(id => id))];
+
+            if (playerIds.length === 0) return [];
 
             // Fetch stats for all players at once (current season)
             const { data, error } = await supabase
@@ -936,42 +948,80 @@ const Matchup = () => {
         }
     };
 
-    const handleLoadMatchup = async () => {
+    const handleLoadLeague = async () => {
         if (!selectedLeague || !userId) return;
 
         setLoading(true);
         setError(null);
         try {
             const data = await callSupabaseFunction("yahoo-fantasy-api", {
-                action: "getCurrentMatchup",
+                action: "getAllTeamsInLeague",
                 userId: userId,
                 leagueId: selectedLeague,
             });
 
-            if (data.matchup) {
-                const { team1, team2 } = data.matchup;
+            if (data.teams && data.teams.length > 0) {
+                setAllLeagueTeams(data.teams);
+                // Set first two teams as default
+                setSelectedTeam1(data.teams[0].name);
+                setSelectedTeam2(data.teams.length > 1 ? data.teams[1].name : data.teams[0].name);
                 
-                setTeam1Name(team1.name);
-                setTeam2Name(team2.name);
+                setTeam1Name(data.teams[0].name);
+                setTeam2Name(data.teams.length > 1 ? data.teams[1].name : data.teams[0].name);
                 
                 setTeam1Players(
-                    team1.players.map((p) => ({
-                        ...p,
+                    data.teams[0].players.map((p) => ({
+                        id: p.nbaPlayerId || p.yahooPlayerId,
+                        name: p.name,
+                        yahooPlayerId: p.yahooPlayerId,
+                        nbaPlayerId: p.nbaPlayerId,
                         active: true,
                     }))
                 );
                 
                 setTeam2Players(
-                    team2.players.map((p) => ({
-                        ...p,
-                        active: true,
-                    }))
+                    data.teams.length > 1 
+                        ? data.teams[1].players.map((p) => ({
+                            id: p.nbaPlayerId || p.yahooPlayerId,
+                            name: p.name,
+                            yahooPlayerId: p.yahooPlayerId,
+                            nbaPlayerId: p.nbaPlayerId,
+                            active: true,
+                        }))
+                        : []
                 );
             }
         } catch (err) {
-            setError(err.message || "Failed to load matchup");
+            setError(err.message || "Failed to load league");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleTeamSelect = async (teamPosition, teamName) => {
+        if (teamPosition === "team1") {
+            setSelectedTeam1(teamName);
+        } else {
+            setSelectedTeam2(teamName);
+        }
+
+        const selectedTeam = allLeagueTeams.find(t => t.name === teamName);
+        if (!selectedTeam) return;
+
+        const players = selectedTeam.players.map((p) => ({
+            id: p.nbaPlayerId || p.yahooPlayerId,
+            name: p.name,
+            yahooPlayerId: p.yahooPlayerId,
+            nbaPlayerId: p.nbaPlayerId,
+            active: true,
+        }));
+
+        if (teamPosition === "team1") {
+            setTeam1Name(teamName);
+            setTeam1Players(players);
+        } else {
+            setTeam2Name(teamName);
+            setTeam2Players(players);
         }
     };
 
@@ -999,6 +1049,10 @@ const Matchup = () => {
         setTeam1Name(team2Name);
         setTeam2Name(tempName);
 
+        const tempSelected = selectedTeam1;
+        setSelectedTeam1(selectedTeam2);
+        setSelectedTeam2(tempSelected);
+
         const tempPlayers = team1Players;
         setTeam1Players(team2Players);
         setTeam2Players(tempPlayers);
@@ -1008,7 +1062,14 @@ const Matchup = () => {
         if (team1AddPlayer) {
             const playerToAdd = allPlayers.find(p => p.name === team1AddPlayer);
             if (playerToAdd) {
-                setTeam1Players(prev => [...prev, { ...playerToAdd, active: true }]);
+                console.log('Adding player to team1:', playerToAdd);
+                setTeam1Players(prev => [...prev, { 
+                    id: playerToAdd.id,
+                    name: playerToAdd.name,
+                    nbaPlayerId: playerToAdd.id,
+                    yahooPlayerId: null,
+                    active: true 
+                }]);
                 setTeam1AddPlayer("");
             }
         }
@@ -1018,38 +1079,70 @@ const Matchup = () => {
         if (team2AddPlayer) {
             const playerToAdd = allPlayers.find(p => p.name === team2AddPlayer);
             if (playerToAdd) {
-                setTeam2Players(prev => [...prev, { ...playerToAdd, active: true }]);
+                console.log('Adding player to team2:', playerToAdd);
+                setTeam2Players(prev => [...prev, { 
+                    id: playerToAdd.id,
+                    name: playerToAdd.name,
+                    nbaPlayerId: playerToAdd.id,
+                    yahooPlayerId: null,
+                    active: true 
+                }]);
                 setTeam2AddPlayer("");
             }
         }
     };
 
-    const handleAddToComparison = (playerName, playerId) => {
+    const handleAddToComparison = (playerName, playerId, nbaPlayerId, yahooPlayerId) => {
+        console.log('=== handleAddToComparison CALLED ===');
+        console.log('Player Name:', playerName);
+        console.log('Player ID:', playerId);
+        console.log('NBA Player ID:', nbaPlayerId);
+        console.log('Yahoo Player ID:', yahooPlayerId);
+        console.log('Current selectedPlayerNames BEFORE:', selectedPlayerNames);
+        console.log('Current selectedPlayers BEFORE:', selectedPlayers);
+        
         const playerIdentifier = playerName;
         const existingIndex = selectedPlayerNames.indexOf(playerIdentifier);
+        console.log('Player identifier:', playerIdentifier);
+        console.log('Existing index:', existingIndex);
 
         if (existingIndex !== -1) {
             // Unselect player
+            console.log('REMOVING player from comparison');
             const newPlayers = [...selectedPlayers];
             const newNames = [...selectedPlayerNames];
             newPlayers.splice(existingIndex, 1);
             newNames.splice(existingIndex, 1);
+            console.log('New players AFTER removal:', newPlayers);
+            console.log('New names AFTER removal:', newNames);
             setSelectedPlayers(newPlayers);
             setSelectedPlayerNames(newNames);
             return;
         }
 
         // Select player (max 4)
+        const newPlayer = { 
+            id: nbaPlayerId || yahooPlayerId || playerId, 
+            name: playerName, 
+            nbaPlayerId, 
+            yahooPlayerId 
+        };
+        console.log('New player object created:', newPlayer);
+        
         if (selectedPlayers.length < 4) {
-            const newPlayer = { id: playerId, name: playerName };
             const updatedPlayers = [...selectedPlayers, newPlayer];
             const updatedNames = [...selectedPlayerNames, playerIdentifier];
+            console.log('ADDING player to comparison (< 4 players)');
+            console.log('Updated players:', updatedPlayers);
+            console.log('Updated names:', updatedNames);
             setSelectedPlayers(updatedPlayers);
             setSelectedPlayerNames(updatedNames);
         } else {
-            const newPlayer = { id: playerId, name: playerName };
             const updatedPlayers = [...selectedPlayers.slice(1), newPlayer];
             const updatedNames = [...selectedPlayerNames.slice(1), playerIdentifier];
+            console.log('REPLACING player in comparison (>= 4 players)');
+            console.log('Updated players:', updatedPlayers);
+            console.log('Updated names:', updatedNames);
             setSelectedPlayers(updatedPlayers);
             setSelectedPlayerNames(updatedNames);
         }
@@ -1069,24 +1162,40 @@ const Matchup = () => {
         loadPlayers();
     }, [fetchAllPlayersFromSupabase]);
 
+    // Auto-load league when selected
+    useEffect(() => {
+        if (selectedLeague && userId && isConnected && allLeagueTeams.length === 0 && !loading) {
+            handleLoadLeague();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedLeague, userId, isConnected]);
+
     // Fetch player stats whenever teams change
     useEffect(() => {
+        console.log('=== useEffect TRIGGERED for player stats fetch ===');
+        console.log('team1Players:', team1Players);
+        console.log('team2Players:', team2Players);
+        console.log('selectedPlayers:', selectedPlayers);
+        
         const fetchStats = async () => {
             try {
                 const activeTeam1Players = team1Players.filter((player) => player.active);
                 const activeTeam2Players = team2Players.filter((player) => player.active);
 
+                console.log('Active team1 players:', activeTeam1Players);
+                console.log('Active team2 players:', activeTeam2Players);
+
                 const allPlayersToFetch = [
                     ...activeTeam1Players.map((player) => ({
-                        id: player.id,
+                        id: player.nbaPlayerId || player.yahooPlayerId || player.id,
                         team: "team1",
                     })),
                     ...activeTeam2Players.map((player) => ({
-                        id: player.id,
+                        id: player.nbaPlayerId || player.yahooPlayerId || player.id,
                         team: "team2",
                     })),
                     ...selectedPlayers.map((player) => ({
-                        id: player.id,
+                        id: player.nbaPlayerId || player.yahooPlayerId || player.id,
                         team: null,
                     })),
                 ];
@@ -1100,10 +1209,20 @@ const Matchup = () => {
                     return false;
                 });
 
+                console.log('Fetching stats for unique players:', uniquePlayers);
+                console.log('Selected players:', selectedPlayers);
+                console.log('Team1 players:', team1Players);
+                console.log('Team2 players:', team2Players);
+                
                 const data = await fetchPlayerStatsFromSupabase(uniquePlayers);
+                
+                console.log('Fetched data:', data);
                 
                 const teamAveragesEntry = data.find((entry) => entry.teamAverages);
                 const playerStatsData = data.filter((entry) => entry.stats && entry.playerName);
+                
+                console.log('Player stats data:', playerStatsData);
+                console.log('Team averages:', teamAveragesEntry);
                 
                 setPlayerStats([
                     ...playerStatsData,
@@ -1261,7 +1380,7 @@ const Matchup = () => {
             {isConnected && userLeagues.length > 0 && (
                     <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
                         <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={12} md={8}>
+                            <Grid item xs={12}>
                                 <FormControl fullWidth>
                                     <InputLabel
                                         sx={{
@@ -1294,45 +1413,76 @@ const Matchup = () => {
                                         ))}
                                     </Select>
                                 </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <Button
-                                    variant="contained"
-                                    onClick={handleLoadMatchup}
-                                    disabled={loading || !selectedLeague}
-                                    fullWidth
-                                    sx={{
-                                        bgcolor: "#4a90e2",
-                                        "&:hover": { bgcolor: "#80deea" },
-                                        height: "56px",
-                                        fontFamily: '"Roboto Mono", monospace',
-                                    }}
-                                >
-                                    {loading ? <CircularProgress size={24} /> : "Load Matchup"}
-                                </Button>
+                                {loading && (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, gap: 2 }}>
+                                        <CircularProgress size={20} />
+                                        <Typography
+                                            sx={{
+                                                color: "#e0e0e0",
+                                                fontFamily: '"Roboto Mono", monospace',
+                                            }}
+                                        >
+                                            Loading league data...
+                                        </Typography>
+                                    </Box>
+                                )}
                             </Grid>
                         </Grid>
                     </Box>
             )}
 
-            {/* Team Headers */}
-                    <Grid container spacing={2} sx={{ mb: 4 }}>
-                        <Grid item xs={5}>
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: "#4a90e2",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                    fontWeight: "bold",
-                                    textAlign: "center",
-                                }}
-                            >
-                                {team1Name}
-                            </Typography>
+            {/* Team Selection Dropdowns */}
+            {isConnected && allLeagueTeams.length > 0 && (
+                <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} md={5}>
+                            <FormControl fullWidth>
+                                <InputLabel
+                                    sx={{
+                                        color: "#b0bec5",
+                                        "&.Mui-focused": { color: "#4a90e2" },
+                                        fontFamily: '"Roboto Mono", monospace',
+                                    }}
+                                >
+                                    Team 1
+                                </InputLabel>
+                                <Select
+                                    value={selectedTeam1}
+                                    onChange={(e) => handleTeamSelect("team1", e.target.value)}
+                                    label="Team 1"
+                                    sx={{
+                                        bgcolor: "#252525",
+                                        color: "#e0e0e0",
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "#4a90e2",
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "#80deea",
+                                        },
+                                        "& .MuiSelect-icon": { color: "#4a90e2" },
+                                        fontFamily: '"Roboto Mono", monospace',
+                                    }}
+                                >
+                                    {allLeagueTeams.map((team) => (
+                                        <MenuItem 
+                                            key={team.key} 
+                                            value={team.name}
+                                            disabled={team.name === selectedTeam2}
+                                            sx={{
+                                                fontFamily: '"Roboto Mono", monospace',
+                                                "&.Mui-disabled": { opacity: 0.5 },
+                                            }}
+                                        >
+                                            {team.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Grid>
                         <Grid
                             item
-                            xs={2}
+                            xs={12}
+                            md={2}
                             sx={{
                                 display: "flex",
                                 justifyContent: "center",
@@ -1352,20 +1502,85 @@ const Matchup = () => {
                                 <SwitchIcon fontSize="large" />
                             </IconButton>
                         </Grid>
-                        <Grid item xs={5}>
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: "#4a90e2",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                    fontWeight: "bold",
-                                    textAlign: "center",
-                                }}
-                            >
-                                {team2Name}
-                            </Typography>
+                        <Grid item xs={12} md={5}>
+                            <FormControl fullWidth>
+                                <InputLabel
+                                    sx={{
+                                        color: "#b0bec5",
+                                        "&.Mui-focused": { color: "#4a90e2" },
+                                        fontFamily: '"Roboto Mono", monospace',
+                                    }}
+                                >
+                                    Team 2
+                                </InputLabel>
+                                <Select
+                                    value={selectedTeam2}
+                                    onChange={(e) => handleTeamSelect("team2", e.target.value)}
+                                    label="Team 2"
+                                    sx={{
+                                        bgcolor: "#252525",
+                                        color: "#e0e0e0",
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "#4a90e2",
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            borderColor: "#80deea",
+                                        },
+                                        "& .MuiSelect-icon": { color: "#4a90e2" },
+                                        fontFamily: '"Roboto Mono", monospace',
+                                    }}
+                                >
+                                    {allLeagueTeams.map((team) => (
+                                        <MenuItem 
+                                            key={team.key} 
+                                            value={team.name}
+                                            disabled={team.name === selectedTeam1}
+                                            sx={{
+                                                fontFamily: '"Roboto Mono", monospace',
+                                                "&.Mui-disabled": { opacity: 0.5 },
+                                            }}
+                                        >
+                                            {team.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Grid>
                     </Grid>
+                </Box>
+            )}
+
+            {/* Loading Spinner Overlay */}
+            {loading && (
+                <Box
+                    sx={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        bgcolor: "rgba(0, 0, 0, 0.7)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 9999,
+                    }}
+                >
+                    <Box sx={{ textAlign: "center" }}>
+                        <CircularProgress size={60} sx={{ color: "#4a90e2" }} />
+                        <Typography
+                            sx={{
+                                mt: 2,
+                                color: "#e0e0e0",
+                                fontFamily: '"Roboto Mono", monospace',
+                            }}
+                        >
+                            Loading league data...
+                        </Typography>
+                    </Box>
+                </Box>
+            )}
+
 
             {/* Team Rosters */}
                     <Grid container spacing={2}>
@@ -1380,7 +1595,9 @@ const Matchup = () => {
                                         overflow: "auto",
                                     }}
                         >
-                            {team1Players.map((player, index) => (
+                            {team1Players.map((player, index) => {
+                                console.log('Team1 Player:', player);
+                                return (
                                 <ListItem
                                     key={`${player.id}-${index}`}
                                     sx={{
@@ -1444,7 +1661,7 @@ const Matchup = () => {
                                         <IconButton
                                             edge="end"
                                             aria-label="compare"
-                                            onClick={() => handleAddToComparison(player.name, player.id)}
+                                            onClick={() => handleAddToComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)}
                                             size="small"
                                             sx={{
                                                 color: selectedPlayerNames.includes(player.name)
@@ -1485,7 +1702,7 @@ const Matchup = () => {
                                         </IconButton>
                                     </Tooltip>
                                 </ListItem>
-                            ))}
+                            )})}
                         </List>
                         <Box sx={{ display: 'flex', gap: 1, mt: 2, p: 1 }}>
                             <FormControl fullWidth variant="outlined" size="small">
@@ -1563,7 +1780,9 @@ const Matchup = () => {
                                         overflow: "auto",
                                     }}
                         >
-                            {team2Players.map((player, index) => (
+                            {team2Players.map((player, index) => {
+                                console.log('Team2 Player:', player);
+                                return (
                                 <ListItem
                                     key={`${player.id}-${index}`}
                                     sx={{
@@ -1627,7 +1846,7 @@ const Matchup = () => {
                                         <IconButton
                                             edge="end"
                                             aria-label="compare"
-                                            onClick={() => handleAddToComparison(player.name, player.id)}
+                                            onClick={() => handleAddToComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)}
                                             size="small"
                                             sx={{
                                                 color: selectedPlayerNames.includes(player.name)
@@ -1668,7 +1887,7 @@ const Matchup = () => {
                                         </IconButton>
                                     </Tooltip>
                                 </ListItem>
-                            ))}
+                            )})}
                         </List>
                         <Box sx={{ display: 'flex', gap: 1, mt: 2, p: 1 }}>
                             <FormControl fullWidth variant="outlined" size="small">
@@ -1747,7 +1966,7 @@ const Matchup = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <PlayerComparisonGraph
-                        players={playerStats}
+                        players={playerStats.filter(p => p.stats && p.playerName)}
                         playerNames={selectedPlayerNames}
                         onClearPlayers={() => {
                             setSelectedPlayers([]);
