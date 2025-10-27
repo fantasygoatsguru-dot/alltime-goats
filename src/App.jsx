@@ -31,9 +31,14 @@ const App = () => {
       <DatabaseLoader>
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
-            <Route path="/" element={<Navigate to="/teams" replace />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} /> {/* New route */}
-            <Route path="/*" element={<AlltimeLayout />} />
+            <Route path="/" element={<Navigate to="/matchup" replace />} /> {/* Default to /matchup */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/teams" element={<AlltimeLayout />} />
+            <Route path="/seasons" element={<AlltimeLayout />} />
+            <Route path="/table" element={<AlltimeLayout />} />
+            <Route path="/games" element={<AlltimeLayout />} />
+            <Route path="/matchup" element={<AlltimeLayout />} />
+            <Route path="/*" element={<Navigate to="/matchup" replace />} />
           </Routes>
         </Box>
       </DatabaseLoader>

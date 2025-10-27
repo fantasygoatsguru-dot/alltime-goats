@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Tabs, Tab, CircularProgress, Link } from '@mui/material';
+import { Box, Container, Typography, Tabs, Tab, CircularProgress, Link, IconButton, Menu, MenuItem } from '@mui/material';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
@@ -12,6 +12,7 @@ const AlltimeLayout = () => {
   const location = useLocation();
   const [tabValue, setTabValue] = useState(0);
   const [isPageLoading, setIsPageLoading] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
 
   useEffect(() => {
     if (location.pathname === '/seasons' || location.pathname === '/table') {
@@ -19,7 +20,7 @@ const AlltimeLayout = () => {
     } else if (location.pathname === '/games') {
       setTabValue(2);
     } else if (location.pathname === '/matchup') {
-      setTabValue(3);
+      setTabValue(0); // No tab selected for Matchup
     } else if (location.pathname === '/teams' || location.pathname === '/charts') {
       setTabValue(0);
     } else {
@@ -27,7 +28,7 @@ const AlltimeLayout = () => {
     }
   }, [location.pathname]);
 
-  // Reset loading state when location changes (direct navigation)
+  // Reset loading state when location changes
   useEffect(() => {
     setIsPageLoading(false);
   }, [location.pathname]);
@@ -36,7 +37,6 @@ const AlltimeLayout = () => {
     setIsPageLoading(true);
     setTabValue(newValue);
 
-    // Simulate loading time for better UX
     setTimeout(() => {
       switch (newValue) {
         case 0:
@@ -48,28 +48,47 @@ const AlltimeLayout = () => {
         case 2:
           navigate('/games');
           break;
-        case 3:
-          navigate('/matchup');
-          break;
         default:
           navigate('/teams');
       }
       setIsPageLoading(false);
-    }, 300); // 300ms delay for smooth transition
+    }, 300);
+  };
+
+  // Handle dropdown menu
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuSelect = (path) => {
+    setIsPageLoading(true);
+    setTabValue(path === '/matchup' ? 0 : 1); // Set to 0 for Matchup, 1 for Seasons (History)
+    navigate(path);
+    setTimeout(() => {
+      setIsPageLoading(false);
+    }, 300);
+    handleMenuClose();
   };
 
   const renderContent = () => {
-    switch (tabValue) {
-      case 1:
+    switch (location.pathname) {
+      case '/seasons':
+      case '/table':
         return <AlltimeTable />;
-      case 2:
+      case '/games':
         return <AlltimeGames />;
-      case 3:
+      case '/matchup':
         return <Matchup />;
       default:
         return <Alltime />;
     }
   };
+
+  const isMatchup = location.pathname === '/matchup';
 
   return (
     <Box
@@ -95,15 +114,45 @@ const AlltimeLayout = () => {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <img
-            src="https://www.svgrepo.com/show/396571/goat.svg"
-            alt="GOAT"
-            style={{
-              width: '40px',
-              height: '40px',
-              filter: 'invert(1)',
+          <IconButton
+            onClick={handleMenuOpen}
+            sx={{ p: 0 }}
+            aria-label="Open navigation menu"
+          >
+            <img
+              src="https://www.svgrepo.com/show/396571/goat.svg"
+              alt="GOAT"
+              style={{
+                width: '40px',
+                height: '40px',
+                filter: 'invert(1)',
+              }}
+            />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            PaperProps={{
+              sx: {
+                backgroundColor: '#1e1e1e',
+                color: '#e0e0e0',
+              },
             }}
-          />
+          >
+            <MenuItem
+              onClick={() => handleMenuSelect('/matchup')}
+              selected={location.pathname === '/matchup'}
+            >
+              Matchup
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleMenuSelect('/seasons')}
+              selected={location.pathname === '/seasons' || location.pathname === '/table'}
+            >
+              History
+            </MenuItem>
+          </Menu>
           <Typography
             variant="h5"
             component="h1"
@@ -116,33 +165,34 @@ const AlltimeLayout = () => {
             Fantasy Goats Guru
           </Typography>
         </Box>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          textColor="inherit"
-          indicatorColor="primary"
-          sx={{
-            minWidth: 'fit-content',
-            marginLeft: 'auto',
-            '& .MuiTab-root': {
-              minWidth: { xs: 40, sm: 100 },
-              fontSize: { xs: '0.75rem', sm: '0.875rem' },
-              padding: { xs: '6px 8px', sm: '12px 16px' },
-              color: '#e0e0e0',
-              '&.Mui-selected': {
-                color: '#4a90e2',
+        {!isMatchup && (
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            textColor="inherit"
+            indicatorColor="primary"
+            sx={{
+              minWidth: 'fit-content',
+              marginLeft: 'auto',
+              '& .MuiTab-root': {
+                minWidth: { xs: 40, sm: 100 },
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                padding: { xs: '6px 8px', sm: '12px 16px' },
+                color: '#e0e0e0',
+                '&.Mui-selected': {
+                  color: '#4a90e2',
+                },
               },
-            },
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#4a90e2',
-            },
-          }}
-        >
-          <Tab label="Teams" />
-          <Tab label="Seasons" />
-          <Tab label="Games" />
-          <Tab label="Matchup" />
-        </Tabs>
+              '& .MuiTabs-indicator': {
+                backgroundColor: '#4a90e2',
+              },
+            }}
+          >
+            <Tab label="Teams" />
+            <Tab label="Seasons" />
+            <Tab label="Games" />
+          </Tabs>
+        )}
       </Box>
 
       {/* Main Content */}
