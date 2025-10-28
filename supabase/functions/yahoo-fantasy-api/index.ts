@@ -40,13 +40,13 @@ interface YahooTeamDTO {
   name: string;
   logo: string | null;
   players: YahooPlayerDTO[];
-  isUserTeam?: boolean; // Added in response
+  is_owned_by_current_login?: boolean; // Added in response
 }
 
 interface YahooMatchupDTO {
   week: string;
-  team1: YahooTeamDTO & { isUserTeam: true };
-  team2: YahooTeamDTO & { isUserTeam: false };
+  team1: YahooTeamDTO & { is_owned_by_current_login: true };
+  team2: YahooTeamDTO & { is_owned_by_current_login: false };
 }
 
 interface YahooPlayerStatDTO {
@@ -245,20 +245,20 @@ serve(async (req) => {
         parseRoster(supabase, team2Roster),
       ]);
 
-      const team1: YahooTeamDTO & { isUserTeam: true } = {
+      const team1: YahooTeamDTO & { is_owned_by_current_login: true } = {
         key: team1Raw.team_key,
         name: team1Raw.name,
         logo: team1Raw.team_logos?.team_logo?.url || null,
         players: team1Players,
-        isUserTeam: true,
+        is_owned_by_current_login: true,
       };
 
-      const team2: YahooTeamDTO & { isUserTeam: false } = {
+      const team2: YahooTeamDTO & { is_owned_by_current_login: false } = {
         key: team2Raw.team_key,
         name: team2Raw.name,
         logo: team2Raw.team_logos?.team_logo?.url || null,
         players: team2Players,
-        isUserTeam: false,
+        is_owned_by_current_login: false,
       };
 
       const matchup: YahooMatchupDTO = { week, team1, team2 };
@@ -296,20 +296,24 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
-
-    // ──────────────────────────────────────────────────────────
-    // 4. Get All Teams in League
+      // ──────────────────────────────────────────────────────────
+    // 4. Get All Teams in League (User's team first)
     // ──────────────────────────────────────────────────────────
     if (action === "getAllTeamsInLeague") {
       if (!leagueId) throw new Error("League ID is required");
 
       const leagueKey = `${GAME_ID}.l.${leagueId}`;
       const teamsData = await makeYahooRequest(accessToken, `/league/${leagueKey}/teams`);
-      const allTeams = (teamsData?.fantasy_content?.league?.teams || [])
+      const allTeamsRaw = (teamsData?.fantasy_content?.league?.teams || [])
         .filter((t: any) => t?.team);
 
-      const teams: YahooTeamDTO[] = await Promise.all(
-        allTeams.map(async (item: any): Promise<YahooTeamDTO> => {
+      // Separate user's team and others
+      const userTeamIndex = allTeamsRaw.findIndex((t: any) => t.team.is_owned_by_current_login === 1);
+      const userTeam = userTeamIndex !== -1 ? allTeamsRaw.splice(userTeamIndex, 1)[0] : null;
+
+      // Fetch rosters in parallel
+      const teamsWithRosters = await Promise.all(
+        allTeamsRaw.map(async (item: any): Promise<YahooTeamDTO> => {
           const team = item.team;
           const rosterData = await makeYahooRequest(accessToken, `/team/${team.team_key}/roster;week=current`);
           const players = await parseRoster(supabase, rosterData);
@@ -319,9 +323,28 @@ serve(async (req) => {
             name: team.name,
             logo: team.team_logos?.team_logo?.url || null,
             players,
+            is_owned_by_current_login: team.is_owned_by_current_login === 1,
           };
         })
       );
+
+      // Build final list: user's team first, then others
+      const teams: YahooTeamDTO[] = [];
+
+      if (userTeam) {
+        const userRosterData = await makeYahooRequest(accessToken, `/team/${userTeam.team.team_key}/roster;week=current`);
+        const userPlayers = await parseRoster(supabase, userRosterData);
+        teams.push({
+          key: userTeam.team.team_key,
+          name: userTeam.team.name,
+          logo: userTeam.team.team_logos?.team_logo?.url || null,
+          players: userPlayers,
+          is_owned_by_current_login: true,
+        });
+      }
+
+      // Append other teams
+      teams.push(...teamsWithRosters);
 
       return new Response(
         JSON.stringify({ teams }),
