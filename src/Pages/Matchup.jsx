@@ -22,6 +22,12 @@ import {
     MenuItem,
     TextField,
     Autocomplete,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SwitchIcon from "@mui/icons-material/SwapHoriz";
@@ -40,16 +46,14 @@ import {
     Tooltip as RechartsTooltip,
     Legend,
 } from "recharts";
-import { createClient } from "@supabase/supabase-js";
 import { useAuth } from "../contexts/AuthContext";
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// Default player IDs (from yahoo_nba_mapping) - current season 2024-25
-const CURRENT_SEASON = "2025-26";
+import { 
+    supabase, 
+    fetchAllPlayersFromSupabase as fetchAllPlayers,
+    fetchPlayerStatsFromSupabase as fetchPlayerStats,
+    fetchWeeklyMatchupResults as fetchWeeklyResults,
+    CURRENT_SEASON
+} from "../utils/supabase";
 
 const DEFAULT_PLAYERS = {
     team1: [
@@ -720,6 +724,11 @@ const Matchup = () => {
     const [team1AddPlayer, setTeam1AddPlayer] = useState("");
     const [team2AddPlayer, setTeam2AddPlayer] = useState("");
     
+    // Weekly matchup results state
+    const [weeklyResults, setWeeklyResults] = useState([]);
+    const [openWeekDialog, setOpenWeekDialog] = useState(false);
+    const [selectedWeek, setSelectedWeek] = useState(null);
+    
     // Auth context
     const { user, isAuthenticated, login } = useAuth();
     const userId = user?.userId || null;
@@ -740,190 +749,17 @@ const Matchup = () => {
     // Ref to prevent double-processing of OAuth callback
     const hasProcessedCallback = useRef(false);
 
-    // Fetch all available players from Supabase (current season only)
     const fetchAllPlayersFromSupabase = useCallback(async () => {
-        try {
-            const { data, error } = await supabase
-                .from('player_season_averages')
-                .select('player_id, player_name')
-                .eq('season', CURRENT_SEASON)
-                .order('player_name');
-
-            if (error) throw error;
-
-            // Map to simple player objects
-            return data.map(row => ({
-                id: row.player_id,
-                name: row.player_name
-            }));
-        } catch (error) {
-            console.error('Error fetching players:', error);
-            throw error;
-        }
+        return await fetchAllPlayers();
     }, []);
 
-    // Fetch player stats from Supabase
+    const fetchWeeklyMatchupResults = useCallback(async (team1PlayersList, team2PlayersList) => {
+        return await fetchWeeklyResults(team1PlayersList, team2PlayersList, team1Name, team2Name);
+    }, [team1Name, team2Name]);
+
     const fetchPlayerStatsFromSupabase = useCallback(async (players) => {
-        try {
-            if (!players || players.length === 0) return [];
-
-            const team1Players = players.filter(p => p.team === 'team1');
-            const team2Players = players.filter(p => p.team === 'team2');
-
-            // Get unique player IDs
-            const playerIds = [...new Set(players.map(p => p.id).filter(id => id))];
-
-            if (playerIds.length === 0) return [];
-
-            // Fetch stats for all players at once (current season)
-            const { data, error } = await supabase
-                .from('player_season_averages')
-                .select('*')
-                .eq('season', CURRENT_SEASON)
-                .in('player_id', playerIds);
-
-            if (error) {
-                console.error('Supabase error:', error);
-                throw error;
-            }
-
-            console.log('Fetched player stats from Supabase:', data);
-
-            const playerStats = data.map(row => ({
-                playerId: row.player_id,
-                playerName: row.player_name,
-                stats: {
-                    points: row.points_per_game || 0,
-                    rebounds: row.rebounds_per_game || 0,
-                    assists: row.assists_per_game || 0,
-                    steals: row.steals_per_game || 0,
-                    blocks: row.blocks_per_game || 0,
-                    three_pointers: row.three_pointers_per_game || 0,
-                    field_goal_percentage: row.field_goal_percentage || 0,
-                    free_throw_percentage: row.free_throw_percentage || 0,
-                    turnovers: row.turnovers_per_game || 0,
-                    points_z: row.points_z || 0,
-                    rebounds_z: row.rebounds_z || 0,
-                    assists_z: row.assists_z || 0,
-                    steals_z: row.steals_z || 0,
-                    blocks_z: row.blocks_z || 0,
-                    three_pointers_z: row.three_pointers_z || 0,
-                    field_goal_percentage_z: row.fg_percentage_z || 0,
-                    free_throw_percentage_z: row.ft_percentage_z || 0,
-                    turnovers_z: row.turnovers_z || 0,
-                }
-            }));
-
-            console.log('Processed player stats with z-scores:', playerStats);
-
-            // Calculate team averages
-            const calculateTeamStats = (teamPlayers, statsResults) => {
-                const teamStats = statsResults.filter(stat => 
-                    teamPlayers.some(p => p.id === stat.playerId)
-                );
-                
-                if (teamStats.length === 0) {
-                    return {
-                        Points: 0, '3pt': 0, Assists: 0, Steals: 0, 'FT%': 0,
-                        'FG%': 0, Turnovers: 0, Blocks: 0, Rebounds: 0
-                    };
-                }
-                
-                const avgFG = teamStats.reduce((sum, s) => sum + (s.stats.field_goal_percentage || 0), 0) / teamStats.length;
-                const avgFT = teamStats.reduce((sum, s) => sum + (s.stats.free_throw_percentage || 0), 0) / teamStats.length;
-                
-                return {
-                    Points: teamStats.reduce((sum, s) => sum + (s.stats.points || 0), 0),
-                    '3pt': teamStats.reduce((sum, s) => sum + (s.stats.three_pointers || 0), 0),
-                    Assists: teamStats.reduce((sum, s) => sum + (s.stats.assists || 0), 0),
-                    Steals: teamStats.reduce((sum, s) => sum + (s.stats.steals || 0), 0),
-                    'FT%': avgFT * 100,
-                    'FG%': avgFG * 100,
-                    Turnovers: teamStats.reduce((sum, s) => sum + (s.stats.turnovers || 0), 0),
-                    Blocks: teamStats.reduce((sum, s) => sum + (s.stats.blocks || 0), 0),
-                    Rebounds: teamStats.reduce((sum, s) => sum + (s.stats.rebounds || 0), 0)
-                };
-            };
-
-            const calculateTeamZScores = (teamPlayers, statsResults) => {
-                const teamStats = statsResults.filter(stat => 
-                    teamPlayers.some(p => p.id === stat.playerId)
-                );
-                
-                if (teamStats.length === 0) {
-                    return {
-                        Points: 0, '3pt': 0, Assists: 0, Steals: 0, 'FT%': 0,
-                        'FG%': 0, Turnovers: 0, Blocks: 0, Rebounds: 0
-                    };
-                }
-                
-                return {
-                    Points: teamStats.reduce((sum, s) => sum + (s.stats.points_z || 0), 0),
-                    '3pt': teamStats.reduce((sum, s) => sum + (s.stats.three_pointers_z || 0), 0),
-                    Assists: teamStats.reduce((sum, s) => sum + (s.stats.assists_z || 0), 0),
-                    Steals: teamStats.reduce((sum, s) => sum + (s.stats.steals_z || 0), 0),
-                    'FT%': teamStats.reduce((sum, s) => sum + (s.stats.free_throw_percentage_z || 0), 0),
-                    'FG%': teamStats.reduce((sum, s) => sum + (s.stats.field_goal_percentage_z || 0), 0),
-                    Turnovers: teamStats.reduce((sum, s) => sum + (s.stats.turnovers_z || 0), 0),
-                    Blocks: teamStats.reduce((sum, s) => sum + (s.stats.blocks_z || 0), 0),
-                    Rebounds: teamStats.reduce((sum, s) => sum + (s.stats.rebounds_z || 0), 0)
-                };
-            };
-
-            const calculateTeamContributions = (teamPlayers, statsResults) => {
-                const teamStats = statsResults.filter(stat => 
-                    teamPlayers.some(p => p.id === stat.playerId)
-                );
-                
-                const contributions = {};
-                const categories = ['Points', '3pt', 'Assists', 'Steals', 'FT%', 'FG%', 'Turnovers', 'Blocks', 'Rebounds'];
-                
-                categories.forEach(category => {
-                    contributions[category] = teamStats.map(stat => {
-                        let value = 0;
-                        switch (category) {
-                            case 'Points': value = stat.stats.points || 0; break;
-                            case '3pt': value = stat.stats.three_pointers || 0; break;
-                            case 'Assists': value = stat.stats.assists || 0; break;
-                            case 'Steals': value = stat.stats.steals || 0; break;
-                            case 'FT%': value = (stat.stats.free_throw_percentage || 0) * 100; break;
-                            case 'FG%': value = (stat.stats.field_goal_percentage || 0) * 100; break;
-                            case 'Turnovers': value = stat.stats.turnovers || 0; break;
-                            case 'Blocks': value = stat.stats.blocks || 0; break;
-                            case 'Rebounds': value = stat.stats.rebounds || 0; break;
-                        }
-                        
-                        return {
-                            playerName: stat.playerName,
-                            value: value
-                        };
-                    });
-                });
-                
-                return contributions;
-            };
-
-            console.log('Team1Players for calculations:', team1Players);
-            console.log('Team2Players for calculations:', team2Players);
-
-            const teamAverages = {
-                team1Averages: calculateTeamStats(team1Players, playerStats),
-                team2Averages: calculateTeamStats(team2Players, playerStats),
-                team1ZScores: calculateTeamZScores(team1Players, playerStats),
-                team2ZScores: calculateTeamZScores(team2Players, playerStats),
-                team1Contributions: calculateTeamContributions(team1Players, playerStats),
-                team2Contributions: calculateTeamContributions(team2Players, playerStats)
-            };
-
-            return [
-                ...playerStats,
-                { teamAverages }
-            ];
-        } catch (error) {
-            console.error('Error fetching player stats:', error);
-            throw error;
-        }
-    }, []);
+        return await fetchPlayerStats(players, team1Players, team2Players, team1Name, team2Name);
+    }, [team1Players, team2Players, team1Name, team2Name]);
 
     const callSupabaseFunction = async (functionName, payload) => {
         const { data, error } = await supabase.functions.invoke(functionName, {
@@ -1328,6 +1164,71 @@ const Matchup = () => {
                 });
         }
     }, [isAuthenticated, userId, userLeagues.length, loading]);
+
+    // Fetch weekly matchup results when teams change
+    useEffect(() => {
+        const fetchWeeklyResults = async () => {
+            try {
+                const activeTeam1 = team1Players.filter(p => p.active);
+                const activeTeam2 = team2Players.filter(p => p.active);
+
+                if (activeTeam1.length > 0 && activeTeam2.length > 0) {
+                    const results = await fetchWeeklyMatchupResults(team1Players, team2Players);
+                    setWeeklyResults(results);
+                } else {
+                    setWeeklyResults([]);
+                }
+            } catch (error) {
+                console.error("Error fetching weekly results:", error);
+            }
+        };
+
+        fetchWeeklyResults();
+    }, [team1Players, team2Players, fetchWeeklyMatchupResults]);
+
+    const handleWeekClick = (week) => {
+        setSelectedWeek(week);
+        setOpenWeekDialog(true);
+    };
+
+    const handleCloseWeekDialog = () => {
+        setOpenWeekDialog(false);
+        setSelectedWeek(null);
+    };
+
+    const getCategoryBreakdown = (week) => {
+        const weekResult = weeklyResults.find(r => r.week === week);
+        if (!weekResult || !weekResult.categoryResults) return null;
+        
+        return Object.entries(weekResult.categoryResults).map(([category, data]) => ({
+            category,
+            t1Value: data.t1,
+            t2Value: data.t2,
+            winner: data.winner
+        }));
+    };
+
+    const getMatchupColor = (result) => {
+        const [team1Wins, team2Wins] = result.score.split('-').map(Number);
+        const totalCategories = team1Wins + team2Wins;
+        const margin = Math.abs(team1Wins - team2Wins);
+        const opacity = 0.1 + (margin / totalCategories) * 0.3;
+        
+        if (team1Wins > team2Wins) return `rgba(76, 175, 80, ${opacity})`;
+        if (team2Wins > team1Wins) return `rgba(244, 67, 54, ${opacity})`;
+        return 'rgba(158, 158, 158, 0.1)';
+    };
+
+    const getTextColor = (result) => {
+        const [team1Wins, team2Wins] = result.score.split('-').map(Number);
+        const totalCategories = team1Wins + team2Wins;
+        const margin = Math.abs(team1Wins - team2Wins);
+        const opacity = 0.8 + (margin / totalCategories) * 0.2;
+        
+        if (team1Wins > team2Wins) return `rgba(76, 175, 80, ${opacity})`;
+        if (team2Wins > team1Wins) return `rgba(244, 67, 54, ${opacity})`;
+        return 'rgba(158, 158, 158, 0.8)';
+    };
 
     // Show loading state on initial load
     if (initialLoading) {
@@ -2010,6 +1911,196 @@ const Matchup = () => {
                     />
                 </Grid>
             </Grid>
+
+            {/* Weekly Matchup Results */}
+            {weeklyResults.length > 0 && (
+                <Box sx={{ mt: 4 }}>
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            mb: 3,
+                            fontWeight: "bold",
+                            textAlign: "center",
+                            color: "#4a90e2",
+                            fontFamily: '"Roboto Mono", monospace',
+                        }}
+                    >
+                        Weekly Matchup Results
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {weeklyResults.map((result) => (
+                            <Grid item xs={12} sm={6} md={4} lg={3} key={result.week}>
+                                <Paper
+                                    onClick={() => handleWeekClick(result.week)}
+                                    sx={{
+                                        p: 1.5,
+                                        cursor: "pointer",
+                                        transition: "transform 0.2s",
+                                        "&:hover": {
+                                            transform: "scale(1.02)",
+                                        },
+                                        bgcolor: getMatchupColor(result),
+                                        border: `1px solid ${getMatchupColor(result).replace('0.1', '0.3')}`,
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                        <Typography
+                                            variant="subtitle2"
+                                            sx={{
+                                                color: "#4a90e2",
+                                                fontFamily: '"Roboto Mono", monospace',
+                                                fontWeight: 'bold'
+                                            }}
+                                        >
+                                            W{result.week}
+                                        </Typography>
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: "#b0bec5",
+                                                fontFamily: '"Roboto Mono", monospace'
+                                            }}
+                                        >
+                                            {result.weekStart ? result.weekStart.split('-')[1] + '/' + result.weekStart.split('-')[2] : ''}
+                                        </Typography>
+                                    </Box>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            color: "#e0e0e0",
+                                            fontFamily: '"Roboto Mono", monospace',
+                                            fontWeight: 'bold',
+                                            textAlign: 'center',
+                                            mb: 0.5
+                                        }}
+                                    >
+                                        {result.score}
+                                    </Typography>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            display: 'block',
+                                            textAlign: 'center',
+                                            color: getTextColor(result),
+                                            fontFamily: '"Roboto Mono", monospace',
+                                            fontWeight: 'bold'
+                                        }}
+                                    >
+                                        {result.winner === "Tie" ? "TIE" : `${result.winner.split(' ')[0]} W`}
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
+            )}
+
+            {/* Week Detail Dialog */}
+            <Dialog
+                open={openWeekDialog}
+                onClose={handleCloseWeekDialog}
+                fullWidth
+                maxWidth="sm"
+                PaperProps={{
+                    sx: {
+                        bgcolor: "#252525",
+                        borderRadius: 1,
+                    }
+                }}
+            >
+                <DialogTitle
+                    sx={{
+                        color: "#4a90e2",
+                        fontFamily: '"Roboto Mono", monospace',
+                        fontWeight: 'bold',
+                        pb: 1
+                    }}
+                >
+                    W{selectedWeek} Breakdown
+                </DialogTitle>
+                <DialogContent>
+                    {selectedWeek && getCategoryBreakdown(selectedWeek) && (
+                        <TableContainer>
+                            <Table size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell sx={{
+                                            color: "#b0bec5",
+                                            fontFamily: '"Roboto Mono", monospace',
+                                            fontWeight: 'bold'
+                                        }}>Category</TableCell>
+                                        <TableCell align="right" sx={{
+                                            color: "#b0bec5",
+                                            fontFamily: '"Roboto Mono", monospace',
+                                            fontWeight: 'bold'
+                                        }}>{team1Name}</TableCell>
+                                        <TableCell align="right" sx={{
+                                            color: "#b0bec5",
+                                            fontFamily: '"Roboto Mono", monospace',
+                                            fontWeight: 'bold'
+                                        }}>{team2Name}</TableCell>
+                                        <TableCell sx={{
+                                            color: "#b0bec5",
+                                            fontFamily: '"Roboto Mono", monospace',
+                                            fontWeight: 'bold'
+                                        }}>Winner</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {getCategoryBreakdown(selectedWeek).map((row) => {
+                                        const isTurnovers = row.category === "Turnovers";
+                                        const team1Won = isTurnovers ? parseFloat(row.t1Value) < parseFloat(row.t2Value) : parseFloat(row.t1Value) > parseFloat(row.t2Value);
+                                        const color = team1Won ? 'rgba(76, 175, 80, 0.2)' : row.winner === team1Name ? 'rgba(76, 175, 80, 0.1)' : row.winner === team2Name ? 'rgba(244, 67, 54, 0.1)' : 'rgba(158, 158, 158, 0.1)';
+                                        const textColor = team1Won ? 'rgba(76, 175, 80, 0.9)' : row.winner === team1Name ? 'rgba(76, 175, 80, 0.8)' : row.winner === team2Name ? 'rgba(244, 67, 54, 0.8)' : 'rgba(158, 158, 158, 0.8)';
+                                        return (
+                                            <TableRow
+                                                key={row.category}
+                                                sx={{ bgcolor: color }}
+                                            >
+                                                <TableCell sx={{
+                                                    fontFamily: '"Roboto Mono", monospace',
+                                                    color: "#e0e0e0"
+                                                }}>{row.category}</TableCell>
+                                                <TableCell align="right" sx={{
+                                                    fontFamily: '"Roboto Mono", monospace',
+                                                    color: "#e0e0e0"
+                                                }}>{row.t1Value}</TableCell>
+                                                <TableCell align="right" sx={{
+                                                    fontFamily: '"Roboto Mono", monospace',
+                                                    color: "#e0e0e0"
+                                                }}>{row.t2Value}</TableCell>
+                                                <TableCell>
+                                                    <Typography
+                                                        sx={{
+                                                            fontFamily: '"Roboto Mono", monospace',
+                                                            fontWeight: 'bold'
+                                                        }}
+                                                        color={textColor}
+                                                    >
+                                                        {row.winner.split(' ')[0]}
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
+                </DialogContent>
+                <DialogActions sx={{ p: 1 }}>
+                    <Button
+                        onClick={handleCloseWeekDialog}
+                        size="small"
+                        sx={{
+                            fontFamily: '"Roboto Mono", monospace',
+                            color: "#4a90e2"
+                        }}
+                    >
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
