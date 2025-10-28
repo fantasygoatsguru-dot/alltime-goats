@@ -732,6 +732,9 @@ const Matchup = () => {
     const [openWeekDialog, setOpenWeekDialog] = useState(false);
     const [selectedWeek, setSelectedWeek] = useState(null);
     
+    // Current matchup state
+    const [currentMatchup, setCurrentMatchup] = useState(null);
+    
     // Auth context
     const { user, isAuthenticated, login } = useAuth();
     const userId = user?.userId || null;
@@ -787,6 +790,57 @@ const Matchup = () => {
             }
         } catch (err) {
             setError(err.message || "Failed to connect to Yahoo");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFetchCurrentMatchup = async () => {
+        if (!selectedLeague || !userId) return;
+
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await callSupabaseFunction("yahoo-fantasy-api", {
+                action: "getCurrentMatchup",
+                userId: userId,
+                leagueId: selectedLeague,
+            });
+
+            if (data.matchup) {
+                setCurrentMatchup(data.matchup);
+                
+                // Set the teams as default
+                setTeam1Name(data.matchup.team1.name);
+                setTeam2Name(data.matchup.team2.name);
+                
+                setSelectedTeam1(data.matchup.team1.name);
+                setSelectedTeam2(data.matchup.team2.name);
+                
+                // Set the players for both teams
+                setTeam1Players(
+                    data.matchup.team1.players.map((p) => ({
+                        id: p.nbaPlayerId || p.yahooPlayerId,
+                        name: p.name,
+                        yahooPlayerId: p.yahooPlayerId,
+                        nbaPlayerId: p.nbaPlayerId,
+                        active: true,
+                    }))
+                );
+                
+                setTeam2Players(
+                    data.matchup.team2.players.map((p) => ({
+                        id: p.nbaPlayerId || p.yahooPlayerId,
+                        name: p.name,
+                        yahooPlayerId: p.yahooPlayerId,
+                        nbaPlayerId: p.nbaPlayerId,
+                        active: true,
+                    }))
+                );
+            }
+        } catch (err) {
+            console.error("Error fetching current matchup:", err);
+            setError(err.message || "Failed to fetch current matchup");
         } finally {
             setLoading(false);
         }
@@ -1010,6 +1064,14 @@ const Matchup = () => {
     useEffect(() => {
         if (selectedLeague && userId && isConnected && allLeagueTeams.length === 0 && !loading) {
             handleLoadLeague();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedLeague, userId, isConnected]);
+
+    // Auto-fetch current matchup when league is available
+    useEffect(() => {
+        if (selectedLeague && userId && isConnected && !currentMatchup && !loading) {
+            handleFetchCurrentMatchup();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLeague, userId, isConnected]);
@@ -2106,6 +2168,134 @@ const Matchup = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Current Yahoo Matchup */}
+            {currentMatchup && currentMatchup.stats && (
+                <Box sx={{ mt: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            mb: 2,
+                            fontWeight: "bold",
+                            textAlign: "center",
+                            color: "#4a90e2",
+                            fontFamily: '"Roboto Mono", monospace',
+                        }}
+                    >
+                        Current Yahoo Matchup (Week {currentMatchup.week})
+                    </Typography>
+                    
+                    {/* Score Display */}
+                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <Typography
+                            variant="h3"
+                            sx={{
+                                color: "#e0e0e0",
+                                fontFamily: '"Roboto Mono", monospace',
+                                fontWeight: 'bold',
+                                mb: 1
+                            }}
+                        >
+                            {currentMatchup.stats.team1Score} - {currentMatchup.stats.team2Score}
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    color: currentMatchup.stats.team1Score > currentMatchup.stats.team2Score ? "#4CAF50" : currentMatchup.stats.team1Score < currentMatchup.stats.team2Score ? "#666" : "#b0bec5",
+                                    fontFamily: '"Roboto Mono", monospace',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {currentMatchup.team1.name}
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    color: "#b0bec5",
+                                    fontFamily: '"Roboto Mono", monospace',
+                                }}
+                            >
+                                vs
+                            </Typography>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    color: currentMatchup.stats.team2Score > currentMatchup.stats.team1Score ? "#ff6f61" : currentMatchup.stats.team2Score < currentMatchup.stats.team1Score ? "#666" : "#b0bec5",
+                                    fontFamily: '"Roboto Mono", monospace',
+                                    fontWeight: 'bold'
+                                }}
+                            >
+                                {currentMatchup.team2.name}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    {/* Stats Table */}
+                    <TableContainer>
+                        <Table size="small">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Category</TableCell>
+                                    <TableCell align="right" sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>{currentMatchup.team1.name}</TableCell>
+                                    <TableCell align="right" sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>{currentMatchup.team2.name}</TableCell>
+                                    <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Winner</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                            {Object.entries(currentMatchup.stats.categories).map(([category, data]) => {
+  const isFg = category === 'Field Goal Percentage';
+  const isFt = category === 'Free Throw Percentage';
+
+  const team1Val = isFg || isFt
+    ? `${data.team1.nominator}/${data.team1.denominator}`
+    : data.team1.toFixed(1);
+
+  const team2Val = isFg || isFt
+    ? `${data.team2.nominator}/${data.team2.denominator}`
+    : data.team2.toFixed(1);
+
+  // Calculate % in frontend
+  const calcPct = (obj) =>
+    obj.denominator === 0 ? 0 : ((obj.nominator / obj.denominator) * 100).toFixed(1);
+
+  const team1Pct = (isFg || isFt) ? calcPct(data.team1) : null;
+  const team2Pct = (isFg || isFt) ? calcPct(data.team2) : null;
+
+  const isWin = data.winner === currentMatchup.team1.name;
+  const isLoss = data.winner === currentMatchup.team2.name;
+  const bgColor = isWin ? 'rgba(76, 175, 80, 0.1)' : isLoss ? 'rgba(244, 67, 54, 0.1)' : 'rgba(158, 158, 158, 0.05)';
+  const textColor = isWin ? 'rgba(76, 175, 80, 0.9)' : isLoss ? 'rgba(244, 67, 54, 0.9)' : 'rgba(158, 158, 158, 0.8)';
+
+  return (
+    <TableRow key={category} sx={{ bgcolor: bgColor }}>
+      <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0" }}>
+        {category}
+      </TableCell>
+      <TableCell align="right" sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0" }}>
+        {team1Val}
+        {team1Pct && <span style={{ marginLeft: 4, fontSize: '0.8em', color: '#aaa' }}>({team1Pct}%)</span>}
+      </TableCell>
+      <TableCell align="right" sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0" }}>
+        {team2Val}
+        {team2Pct && <span style={{ marginLeft: 4, fontSize: '0.8em', color: '#aaa' }}>({team2Pct}%)</span>}
+      </TableCell>
+      <TableCell>
+        <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }} style={{ color: textColor }}>
+          {data.winner === currentMatchup.team1.name
+            ? currentMatchup.team1.name.split(' ')[0]
+            : data.winner === currentMatchup.team2.name
+            ? currentMatchup.team2.name.split(' ')[0]
+            : 'TIE'}
+        </Typography>
+      </TableCell>
+    </TableRow>
+  );
+})}</TableBody>
+ </Table>
+                    </TableContainer>
+                </Box>
+            )}
         </Box>
     );
 };

@@ -207,8 +207,9 @@ serve(async (req) => {
       );
     }
 
-    // ──────────────────────────────────────────────────────────
-    // 2. Get Current Matchup (team1 = user's team)
+   
+        // ──────────────────────────────────────────────────────────
+    // 2. Get Current Matchup + RAW FG/FT STRINGS + KEEP % STATS
     // ──────────────────────────────────────────────────────────
     if (action === "getCurrentMatchup") {
       if (!leagueId) throw new Error("League ID is required");
@@ -237,19 +238,149 @@ serve(async (req) => {
         throw new Error("Could not determine your team in matchup");
       }
 
-      const team1Roster = await makeYahooRequest(accessToken, `/team/${team1Raw.team_key}/roster;week=current`);
-      const team2Roster = await makeYahooRequest(accessToken, `/team/${team2Raw.team_key}/roster;week=current`);
-
-      const [team1Players, team2Players] = await Promise.all([
-        parseRoster(supabase, team1Roster),
-        parseRoster(supabase, team2Roster),
+      // ──────────────────────────────────────────────────────
+      // 1. Fetch rosters (contains raw FG/FT per player)
+      // ──────────────────────────────────────────────────────
+      const [team1RosterResp, team2RosterResp] = await Promise.all([
+        makeYahooRequest(accessToken, `/team/${team1Raw.team_key}/roster;week=current`),
+        makeYahooRequest(accessToken, `/team/${team2Raw.team_key}/roster;week=current`),
       ]);
 
+      // ──────────────────────────────────────────────────────
+      // 2. Sum raw FG/FT → return as "FGM/FGA" and "FTM/FTA" strings
+      // ──────────────────────────────────────────────────────
+      const sumRawFgFtStrings = (rosterResp: any) => {
+        const players = rosterResp?.fantasy_content?.team?.roster?.players || [];
+        let FGM = 0, FGA = 0, FTM = 0, FTA = 0;
+
+        players.forEach((p: any) => {
+          if (!p?.player) return;
+          const stats = p.player?.player_stats?.stats || [];
+          stats.forEach((s: any) => {
+            const id = s.stat?.stat_id;
+            const val = parseInt(s.stat?.value, 10) || 0;
+            if (id === '5') FGM += val;   // FG Made
+            if (id === '6') FGA += val;   // FG Attempted
+            if (id === '7') FTM += val;   // FT Made
+            if (id === '8') FTA += val;   // FT Attempted
+          });
+        });
+
+        return {
+          fg: `${FGM}/${FGA}`,   // e.g. "89/100"
+          ft: `${FTM}/${FTA}`,   // e.g. "45/50"
+        };
+      };
+
+      const rawFgFt = {
+        team1: sumRawFgFtStrings(team1RosterResp),
+        team2: sumRawFgFtStrings(team2RosterResp),
+      };
+
+      // ──────────────────────────────────────────────────────
+      // 3. Parse roster for UI (full player objects)
+      // ──────────────────────────────────────────────────────
+      const [team1PlayersUI, team2PlayersUI] = await Promise.all([
+        parseRoster(supabase, team1RosterResp),
+        parseRoster(supabase, team2RosterResp),
+      ]);
+
+      // ──────────────────────────────────────────────────────
+      // 4. Build ALL stats (including FG% and FT%)
+      // ──────────────────────────────────────────────────────
+      const statIdToName: Record<string, string> = {
+        '12': 'Points',
+        '15': 'Rebounds',
+        '16': 'Assists',
+        '17': 'Steals',
+        '18': 'Blocks',
+        '19': 'Turnovers',
+        '10': 'Three Pointers Made',
+        '9004003': 'Field Goal Percentage',
+        '9007006': 'Free Throw Percentage',
+      };
+
+      const team1Stats = team1Raw.team_stats?.stats || [];
+      const team2Stats = team2Raw.team_stats?.stats || [];
+
+      const stats = {
+        team1Score: 0,
+        team2Score: 0,
+        rawFgFt,                     // <-- NEW: "89/100" strings
+        categories: {} as Record<
+          string,
+          { team1: number; team2: number; winner: string }
+        >,
+      };
+      
+      team1Stats.forEach((wrapper: any) => {
+        const stat = wrapper.stat;
+        const statId = stat.stat_id;
+        const name = statIdToName[statId];
+        if (!name) return;
+
+        let team1Obj: any = {};
+        let team2Obj: any = {};
+
+        const team2Wrapper = team2Stats.find((w: any) => w.stat.stat_id === statId);
+
+        if (statId === '9004003' || statId === '9007006') {
+          // --- FG% or FT% → split "11/22" into nominator/denominator ---
+          const parseFraction = (value: string) => {
+            const [n, d] = value.split('/').map(Number);
+            return { nominator: n || 0, denominator: d || 0 };
+          };
+
+          team1Obj = parseFraction(stat.value);
+          team2Obj = team2Wrapper ? parseFraction(team2Wrapper.stat.value) : { nominator: 0, denominator: 0 };
+
+          // --- Compare percentages: (n1/d1) > (n2/d2) ---
+          const pct1 = team1Obj.denominator === 0 ? 0 : team1Obj.nominator / team1Obj.denominator;
+          const pct2 = team2Obj.denominator === 0 ? 0 : team2Obj.nominator / team2Obj.denominator;
+
+          let winner = 'TIE';
+          if (pct1 > pct2) {
+            winner = team1Raw.name;
+            stats.team1Score++;
+          } else if (pct2 > pct1) {
+            winner = team2Raw.name;
+            stats.team2Score++;
+          }
+
+          stats.categories[name] = {
+            team1: team1Obj,
+            team2: team2Obj,
+            winner,
+          };
+        } else {
+          // --- All other stats (Points, Rebounds, etc.) ---
+          const team1Value = parseFloat(stat.value) || 0;
+          const team2Value = team2Wrapper ? parseFloat(team2Wrapper.stat.value) || 0 : 0;
+
+          let winner = 'TIE';
+          if (statId === '19') { // Turnovers – lower wins
+            if (team1Value < team2Value) { winner = team1Raw.name; stats.team1Score++; }
+            else if (team2Value < team1Value) { winner = team2Raw.name; stats.team2Score++; }
+          } else {
+            if (team1Value > team2Value) { winner = team1Raw.name; stats.team1Score++; }
+            else if (team2Value > team1Value) { winner = team2Raw.name; stats.team2Score++; }
+          }
+
+          stats.categories[name] = {
+            team1: team1Value,
+            team2: team2Value,
+            winner,
+          };
+        }
+      });
+      // ──────────────────────────────────────────────────────
+      // 5. Build final teams
+      // ──────────────────────────────────────────────────────
       const team1: YahooTeamDTO & { is_owned_by_current_login: true } = {
         key: team1Raw.team_key,
         name: team1Raw.name,
         logo: team1Raw.team_logos?.team_logo?.url || null,
-        players: team1Players,
+        players: team1PlayersUI,
         is_owned_by_current_login: true,
       };
 
@@ -257,11 +388,11 @@ serve(async (req) => {
         key: team2Raw.team_key,
         name: team2Raw.name,
         logo: team2Raw.team_logos?.team_logo?.url || null,
-        players: team2Players,
+        players: team2PlayersUI,
         is_owned_by_current_login: false,
       };
 
-      const matchup: YahooMatchupDTO = { week, team1, team2 };
+      const matchup = { week, team1, team2, stats };
 
       // Save to Supabase
       await supabase.from("yahoo_matchups").upsert({
@@ -280,7 +411,6 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
-
     // ──────────────────────────────────────────────────────────
     // 3. Get Player Stats
     // ──────────────────────────────────────────────────────────
