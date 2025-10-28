@@ -7,6 +7,7 @@ import TagManager from "react-gtm-module";
 import React from "react";
 import { Box } from "@mui/material";
 import PrivacyPolicy from "./Pages/PrivacyPolicy";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const theme = createTheme({
   palette: {
@@ -27,21 +28,24 @@ TagManager.initialize(tagManagerArgs);
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
-      <GoogleAnalytics />
-      <DatabaseLoader>
-        <Box sx={{ flexGrow: 1 }}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/matchup" replace />} /> {/* Default to /matchup */}
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/teams" element={<AlltimeLayout />} />
-            <Route path="/seasons" element={<AlltimeLayout />} />
-            <Route path="/table" element={<AlltimeLayout />} />
-            <Route path="/games" element={<AlltimeLayout />} />
-            <Route path="/matchup" element={<AlltimeLayout />} />
-            <Route path="/*" element={<Navigate to="/matchup" replace />} />
-          </Routes>
-        </Box>
-      </DatabaseLoader>
+      <AuthProvider>
+        <GoogleAnalytics />
+        <DatabaseLoader>
+          <Box sx={{ flexGrow: 1 }}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/matchup" replace />} /> {/* Default to /matchup */}
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/about" element={<AlltimeLayout />} />
+              <Route path="/teams" element={<AlltimeLayout />} />
+              <Route path="/seasons" element={<AlltimeLayout />} />
+              <Route path="/table" element={<AlltimeLayout />} />
+              <Route path="/games" element={<AlltimeLayout />} />
+              <Route path="/matchup" element={<AlltimeLayout />} />
+              <Route path="/*" element={<Navigate to="/matchup" replace />} />
+            </Routes>
+          </Box>
+        </DatabaseLoader>
+      </AuthProvider>
     </ThemeProvider>
   );
 };

@@ -176,6 +176,7 @@ serve(async (req) => {
           userId: userId,
           email: userInfo.email || null,
           name: userInfo.name || null,
+          profilePicture: userInfo.picture || null,
           expiresAt: expiresAt.toISOString(),
         }),
         {

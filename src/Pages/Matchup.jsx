@@ -41,6 +41,7 @@ import {
     Legend,
 } from "recharts";
 import { createClient } from "@supabase/supabase-js";
+import { useAuth } from "../contexts/AuthContext";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
@@ -719,16 +720,19 @@ const Matchup = () => {
     const [team1AddPlayer, setTeam1AddPlayer] = useState("");
     const [team2AddPlayer, setTeam2AddPlayer] = useState("");
     
+    // Auth context
+    const { user, isAuthenticated, login } = useAuth();
+    const userId = user?.userId || null;
+    const isConnected = isAuthenticated;
+    
     // Loading and error state
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     
     // Yahoo Fantasy state
-    const [userId, setUserId] = useState(null);
     const [userLeagues, setUserLeagues] = useState([]);
     const [selectedLeague, setSelectedLeague] = useState("");
-    const [isConnected, setIsConnected] = useState(false);
     const [allLeagueTeams, setAllLeagueTeams] = useState([]);
     const [selectedTeam1, setSelectedTeam1] = useState("");
     const [selectedTeam2, setSelectedTeam2] = useState("");
@@ -1263,8 +1267,13 @@ const Matchup = () => {
                 .then((data) => {
                     console.log("OAuth callback response:", data);
                     if (data.success) {
-                        setUserId(data.userId);
-                        setIsConnected(true);
+                        login({
+                            userId: data.userId,
+                            email: data.email,
+                            name: data.name,
+                            profilePicture: data.profilePicture,
+                            expiresAt: data.expiresAt,
+                        });
                         
                         console.log("Fetching user leagues for userId:", data.userId);
                         return callSupabaseFunction("yahoo-fantasy-api", {
@@ -1292,7 +1301,33 @@ const Matchup = () => {
                     setLoading(false);
                 });
         }
-    }, [userId]);
+    }, [userId, login]);
+
+    // Auto-fetch leagues when user is already authenticated
+    useEffect(() => {
+        if (isAuthenticated && userId && userLeagues.length === 0 && !loading && !hasProcessedCallback.current) {
+            console.log("User is authenticated, fetching leagues for userId:", userId);
+            setLoading(true);
+            callSupabaseFunction("yahoo-fantasy-api", {
+                action: "getUserLeagues",
+                userId: userId,
+            })
+                .then((data) => {
+                    console.log("User leagues response:", data);
+                    if (data?.leagues && data.leagues.length > 0) {
+                        setUserLeagues(data.leagues);
+                        setSelectedLeague(data.leagues[0].leagueId);
+                    }
+                })
+                .catch((err) => {
+                    console.error("Error fetching leagues:", err);
+                    setError(err.message || "Failed to fetch leagues");
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }, [isAuthenticated, userId, userLeagues.length, loading]);
 
     // Show loading state on initial load
     if (initialLoading) {
@@ -1352,7 +1387,7 @@ const Matchup = () => {
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
-                        Or load your matchup from Yahoo Fantasy
+                        Add your players load them from Yahoo Fantasy
                     </Typography>
                     <Button
                         variant="outlined"
