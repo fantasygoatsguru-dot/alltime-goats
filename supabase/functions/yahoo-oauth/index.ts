@@ -61,12 +61,18 @@ serve(async (req) => {
     if (action === "authorize") {
       console.log("Handling authorize action");
       
+      const isDev = requestBody?.isDev === true;
+      const redirectUri = isDev ? "https://localhost:5173/matchup" : YAHOO_REDIRECT_URI;
+      
+      console.log("Development mode:", isDev);
+      console.log("Using redirect URI:", redirectUri);
+      
       // Request necessary scopes:
       // - openid: Required to access user info endpoint
       // - profile: Get user profile data
       // - fspt-w: Fantasy Sports read/write access
       const scopes = "fspt-r profile email openid";
-      const authUrl = `https://api.login.yahoo.com/oauth2/request_auth?client_id=${YAHOO_CLIENT_ID}&redirect_uri=${encodeURIComponent(YAHOO_REDIRECT_URI)}&response_type=code&scope=${encodeURIComponent(scopes)}&language=en-us`;
+      const authUrl = `https://api.login.yahoo.com/oauth2/request_auth?client_id=${YAHOO_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&language=en-us`;
       
       console.log("Generated auth URL with scopes:", scopes);
       

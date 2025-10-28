@@ -66,6 +66,9 @@ const DEFAULT_PLAYERS = {
     ]
 };
 
+const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+
 // StatsComparisonGraph Component for Team Comparison
 const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
     const [openDialog, setOpenDialog] = useState(false);
@@ -776,6 +779,7 @@ const Matchup = () => {
         try {
             const data = await callSupabaseFunction("yahoo-oauth", {
                 action: "authorize",
+                isDev: isDev,
             });
 
             if (data.authUrl) {
