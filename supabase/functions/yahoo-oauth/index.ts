@@ -57,12 +57,13 @@ serve(async (req) => {
       console.error("No action provided in request");
       throw new Error("Action parameter is required");
     }
+    const isDev = requestBody?.isDev === true;
+    const redirectUri = isDev ? "https://localhost:5173/matchup" : YAHOO_REDIRECT_URI;
+
 
     if (action === "authorize") {
       console.log("Handling authorize action");
       
-      const isDev = requestBody?.isDev === true;
-      const redirectUri = isDev ? "https://localhost:5173/matchup" : YAHOO_REDIRECT_URI;
       
       console.log("Development mode:", isDev);
       console.log("Using redirect URI:", redirectUri);
@@ -104,7 +105,7 @@ serve(async (req) => {
         },
         body: new URLSearchParams({
           grant_type: "authorization_code",
-          redirect_uri: YAHOO_REDIRECT_URI,
+          redirect_uri: redirectUri,
           code: code,
         }),
       });
@@ -226,7 +227,7 @@ serve(async (req) => {
         },
         body: new URLSearchParams({
           grant_type: "refresh_token",
-          redirect_uri: YAHOO_REDIRECT_URI,
+          redirect_uri: redirectUri,
           refresh_token: tokenData.refresh_token,
         }),
       });

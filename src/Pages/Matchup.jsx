@@ -1103,6 +1103,7 @@ const Matchup = () => {
             callSupabaseFunction("yahoo-oauth", {
                 action: "callback",
                 code: code,
+                isDev: isDev,
             })
                 .then((data) => {
                     console.log("OAuth callback response:", data);
