@@ -28,6 +28,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Menu,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SwitchIcon from "@mui/icons-material/SwapHoriz";
@@ -734,6 +735,185 @@ const Matchup = () => {
     
     // Current matchup state
     const [currentMatchup, setCurrentMatchup] = useState(null);
+    const [matchupProjection, setMatchupProjection] = useState(null);
+    const [scheduleData, setScheduleData] = useState(null);
+    const [expandedCategory, setExpandedCategory] = useState(null);
+    const [disabledPlayers, setDisabledPlayers] = useState(() => {
+        const saved = localStorage.getItem('disabledPlayers');
+        return saved ? JSON.parse(saved) : {};
+    });
+    const [playerStatusMenu, setPlayerStatusMenu] = useState(null);
+    const [selectedPlayerForMenu, setSelectedPlayerForMenu] = useState(null);
+    
+    // Player status handlers
+    const handlePlayerClick = (event, player, dateStr) => {
+        setPlayerStatusMenu(event.currentTarget);
+        setSelectedPlayerForMenu({ ...player, dateStr });
+    };
+
+    const handleClosePlayerMenu = () => {
+        setPlayerStatusMenu(null);
+        setSelectedPlayerForMenu(null);
+    };
+
+    // Recalculate projections on the frontend only (no API calls)
+    const recalculateProjectionWithDisabledPlayers = (updatedDisabledPlayers) => {
+        if (!matchupProjection) return;
+
+        const isPlayerAutoDisabled = (player) => {
+            const position = player.selectedPosition || player.selected_position;
+            const status = player.status;
+            return position === 'IL+' || position === 'IL' || status === 'INJ' || status === 'OUT';
+        };
+
+        // Helper to recalculate daily projections for a team
+        const recalculateDailyProjections = (dailyProjections) => {
+            return dailyProjections.map(day => {
+                const newTotals = {
+                    points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
+                    threePointers: 0, turnovers: 0,
+                    fieldGoalsMade: 0, fieldGoalsAttempted: 0,
+                    freeThrowsMade: 0, freeThrowsAttempted: 0
+                };
+
+                const updatedPlayers = day.players.map(player => {
+                    const autoDisabled = isPlayerAutoDisabled(player);
+                    const manuallyDisabled = updatedDisabledPlayers[player.id] === 'disabled' || updatedDisabledPlayers[player.id] === 'disabledForWeek';
+                    const isDisabled = autoDisabled || manuallyDisabled;
+
+                    // Only add to totals if player is enabled
+                    if (!isDisabled) {
+                        newTotals.points += player.stats.points || 0;
+                        newTotals.rebounds += player.stats.rebounds || 0;
+                        newTotals.assists += player.stats.assists || 0;
+                        newTotals.steals += player.stats.steals || 0;
+                        newTotals.blocks += player.stats.blocks || 0;
+                        newTotals.threePointers += player.stats.threePointers || 0;
+                        newTotals.turnovers += player.stats.turnovers || 0;
+                        newTotals.fieldGoalsMade += player.stats.fieldGoalsMade || 0;
+                        newTotals.fieldGoalsAttempted += player.stats.fieldGoalsAttempted || 0;
+                        newTotals.freeThrowsMade += player.stats.freeThrowsMade || 0;
+                        newTotals.freeThrowsAttempted += player.stats.freeThrowsAttempted || 0;
+                    }
+
+                    return { ...player, disabled: isDisabled };
+                });
+
+                return { ...day, players: updatedPlayers, totals: newTotals };
+            });
+        };
+
+        // Recalculate both teams
+        const team1Updated = {
+            ...matchupProjection.team1,
+            dailyProjections: recalculateDailyProjections(matchupProjection.team1.dailyProjections)
+        };
+
+        const team2Updated = {
+            ...matchupProjection.team2,
+            dailyProjections: recalculateDailyProjections(matchupProjection.team2.dailyProjections)
+        };
+
+        // Recalculate category results
+        const categoryResults = {};
+        let team1Score = 0;
+        let team2Score = 0;
+
+        const categories = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers', 'turnovers'];
+        
+        categories.forEach(cat => {
+            const team1Total = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals[cat] || 0), 0);
+            const team2Total = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals[cat] || 0), 0);
+            
+            let winner = 'Tie';
+            if (cat === 'turnovers') {
+                if (team1Total < team2Total) { winner = team1Updated.name; team1Score++; }
+                else if (team2Total < team1Total) { winner = team2Updated.name; team2Score++; }
+            } else {
+                if (team1Total > team2Total) { winner = team1Updated.name; team1Score++; }
+                else if (team2Total > team1Total) { winner = team2Updated.name; team2Score++; }
+            }
+            
+            categoryResults[cat] = { team1: team1Total, team2: team2Total, winner };
+        });
+
+        // FG%
+        const team1FgMade = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsMade || 0), 0);
+        const team1FgAttempted = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsAttempted || 0), 0);
+        const team2FgMade = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsMade || 0), 0);
+        const team2FgAttempted = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsAttempted || 0), 0);
+        
+        const t1FgPct = team1FgAttempted > 0 ? (team1FgMade / team1FgAttempted) * 100 : 0;
+        const t2FgPct = team2FgAttempted > 0 ? (team2FgMade / team2FgAttempted) * 100 : 0;
+        
+        let fgWinner = 'Tie';
+        if (t1FgPct > t2FgPct) { fgWinner = team1Updated.name; team1Score++; }
+        else if (t2FgPct > t1FgPct) { fgWinner = team2Updated.name; team2Score++; }
+        
+        categoryResults.fieldGoalPercentage = {
+            winner: fgWinner,
+            team1: t1FgPct,
+            team2: t2FgPct,
+            team1Made: team1FgMade,
+            team1Attempted: team1FgAttempted,
+            team2Made: team2FgMade,
+            team2Attempted: team2FgAttempted
+        };
+
+        // FT%
+        const team1FtMade = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsMade || 0), 0);
+        const team1FtAttempted = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsAttempted || 0), 0);
+        const team2FtMade = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsMade || 0), 0);
+        const team2FtAttempted = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsAttempted || 0), 0);
+        
+        const t1FtPct = team1FtAttempted > 0 ? (team1FtMade / team1FtAttempted) * 100 : 0;
+        const t2FtPct = team2FtAttempted > 0 ? (team2FtMade / team2FtAttempted) * 100 : 0;
+        
+        let ftWinner = 'Tie';
+        if (t1FtPct > t2FtPct) { ftWinner = team1Updated.name; team1Score++; }
+        else if (t2FtPct > t1FtPct) { ftWinner = team2Updated.name; team2Score++; }
+        
+        categoryResults.freeThrowPercentage = {
+            winner: ftWinner,
+            team1: t1FtPct,
+            team2: t2FtPct,
+            team1Made: team1FtMade,
+            team1Attempted: team1FtAttempted,
+            team2Made: team2FtMade,
+            team2Attempted: team2FtAttempted
+        };
+
+        // Update the matchup projection
+        setMatchupProjection({
+            ...matchupProjection,
+            team1: team1Updated,
+            team2: team2Updated,
+            categoryResults,
+            team1Score,
+            team2Score
+        });
+    };
+
+    const handlePlayerStatusChange = (newStatus) => {
+        if (!selectedPlayerForMenu) return;
+        
+        const playerId = selectedPlayerForMenu.id;
+        const updatedDisabledPlayers = { ...disabledPlayers };
+        
+        if (newStatus === 'enabled') {
+            delete updatedDisabledPlayers[playerId];
+        } else {
+            updatedDisabledPlayers[playerId] = newStatus;
+        }
+        
+        setDisabledPlayers(updatedDisabledPlayers);
+        localStorage.setItem('disabledPlayers', JSON.stringify(updatedDisabledPlayers));
+        
+        // Recalculate projection with updated disabled players (frontend only, no API calls)
+        recalculateProjectionWithDisabledPlayers(updatedDisabledPlayers);
+        
+        handleClosePlayerMenu();
+    };
     
     // Auth context
     const { user, isAuthenticated, login } = useAuth();
@@ -837,12 +1017,434 @@ const Matchup = () => {
                         active: true,
                     }))
                 );
+
+                // Calculate projection after setting matchup
+                if (scheduleData) {
+                    calculateMatchupProjection(data.matchup);
+                }
             }
         } catch (err) {
             console.error("Error fetching current matchup:", err);
             setError(err.message || "Failed to fetch current matchup");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const calculateMatchupProjection = async (matchup) => {
+        if (!scheduleData || !matchup) return;
+
+        try {
+            // Get current matchup week dates (Monday to Sunday)
+            const getCurrentWeekDates = () => {
+                const now = new Date();
+                const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                // Calculate days to Monday (if today is Monday, daysToMonday = 0; if Sunday, = -6)
+                const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() + daysToMonday);
+                weekStart.setHours(0, 0, 0, 0);
+                
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6); // Sunday
+                weekEnd.setHours(23, 59, 59, 999);
+                
+                return { weekStart, weekEnd, currentDate: now };
+            };
+
+            const { weekStart, weekEnd, currentDate } = getCurrentWeekDates();
+
+            // Get player IDs and their NBA teams
+            const getPlayerTeams = async (players) => {
+                const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
+                
+                if (playerIds.length === 0) return [];
+
+                // Try to get teams from yahoo_nba_mapping using both nba_id and yahoo_id
+                const { data, error } = await supabase
+                    .from('yahoo_nba_mapping')
+                    .select('nba_id, yahoo_id, name, team')
+                    .or(`nba_id.in.(${playerIds.join(',')}),yahoo_id.in.(${playerIds.join(',')})`);
+
+                if (error) throw error;
+
+                return players.map(p => {
+                    const playerId = p.nbaPlayerId || p.yahooPlayerId || p.id;
+                    // Try to find by nba_id first, then yahoo_id
+                    const playerInfo = data.find(pi => pi.nba_id === playerId || pi.yahoo_id === playerId);
+                    return {
+                        ...p,
+                        nbaTeam: playerInfo?.team || null,
+                        playerName: playerInfo?.name || p.name
+                    };
+                });
+            };
+
+            // Get player averages
+            const getPlayerAverages = async (players) => {
+                const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
+                
+                if (playerIds.length === 0) return {};
+
+                const { data, error } = await supabase
+                    .from('player_season_averages')
+                    .select('*')
+                    .eq('season', CURRENT_SEASON)
+                    .in('player_id', playerIds);
+
+                if (error) throw error;
+
+                const averages = {};
+                data.forEach(row => {
+                    averages[row.player_id] = {
+                        points: row.points_per_game || 0,
+                        rebounds: row.rebounds_per_game || 0,
+                        assists: row.assists_per_game || 0,
+                        steals: row.steals_per_game || 0,
+                        blocks: row.blocks_per_game || 0,
+                        threePointers: row.three_pointers_per_game || 0,
+                        turnovers: row.turnovers_per_game || 0,
+                        fieldGoalsMade: row.field_goals_per_game || 0,
+                        fieldGoalsAttempted: row.field_goals_attempted_per_game || 0,
+                        freeThrowsMade: row.free_throws_per_game || 0,
+                        freeThrowsAttempted: row.free_throws_attempted_per_game || 0,
+                    };
+                });
+
+                return averages;
+            };
+
+            // Get actual stats for games already played this week
+            const getActualStats = async (players) => {
+                const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
+                
+                if (playerIds.length === 0) return {};
+
+                const { data, error } = await supabase
+                    .from('player_game_logs')
+                    .select('*')
+                    .eq('season', CURRENT_SEASON)
+                    .in('player_id', playerIds)
+                    .gte('game_date', weekStart.toISOString().split('T')[0])
+                    .lt('game_date', currentDate.toISOString().split('T')[0])
+                    .order('game_date', { ascending: true });
+
+                if (error) throw error;
+
+                // Aggregate stats per player
+                const stats = {};
+                data.forEach(game => {
+                    if (!stats[game.player_id]) {
+                        stats[game.player_id] = {
+                            points: 0,
+                            rebounds: 0,
+                            assists: 0,
+                            steals: 0,
+                            blocks: 0,
+                            threePointers: 0,
+                            turnovers: 0,
+                            fieldGoalsMade: 0,
+                            fieldGoalsAttempted: 0,
+                            freeThrowsMade: 0,
+                            freeThrowsAttempted: 0,
+                            gamesPlayed: 0
+                        };
+                    }
+                    stats[game.player_id].points += game.points || 0;
+                    stats[game.player_id].rebounds += game.rebounds || 0;
+                    stats[game.player_id].assists += game.assists || 0;
+                    stats[game.player_id].steals += game.steals || 0;
+                    stats[game.player_id].blocks += game.blocks || 0;
+                    stats[game.player_id].threePointers += game.three_pointers_made || 0;
+                    stats[game.player_id].turnovers += game.turnovers || 0;
+                    stats[game.player_id].fieldGoalsMade += game.field_goals_made || 0;
+                    stats[game.player_id].fieldGoalsAttempted += game.field_goals_attempted || 0;
+                    stats[game.player_id].freeThrowsMade += game.free_throws_made || 0;
+                    stats[game.player_id].freeThrowsAttempted += game.free_throws_attempted || 0;
+                    stats[game.player_id].gamesPlayed += 1;
+                });
+
+                return stats;
+            };
+
+            // Process both teams
+            const team1WithTeams = await getPlayerTeams(matchup.team1.players);
+            const team2WithTeams = await getPlayerTeams(matchup.team2.players);
+
+            const team1Averages = await getPlayerAverages(team1WithTeams);
+            const team2Averages = await getPlayerAverages(team2WithTeams);
+
+            const team1Actual = await getActualStats(team1WithTeams);
+            const team2Actual = await getActualStats(team2WithTeams);
+
+            // Helper to check if player should be auto-disabled
+            const isPlayerAutoDisabled = (player) => {
+                const position = player.selectedPosition || player.selected_position;
+                const status = player.status;
+                return position === 'IL+' || position === 'IL' || status === 'INJ' || status === 'OUT';
+            };
+
+            // Calculate projected stats with daily breakdown
+            const calculateTeamProjection = (players, averages, actualStats) => {
+                const actual = {
+                    points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
+                    threePointers: 0, turnovers: 0,
+                    fieldGoalsMade: 0, fieldGoalsAttempted: 0,
+                    freeThrowsMade: 0, freeThrowsAttempted: 0
+                };
+                
+                // Daily projections - one for each day of the week
+                const dailyProjections = [];
+                const current = new Date(weekStart);
+                const todayStr = currentDate.toISOString().split('T')[0];
+                
+                for (let i = 0; i < 7; i++) {
+                    const dateStr = current.toISOString().split('T')[0];
+                    const dayOfWeek = current.toLocaleDateString('en-US', { weekday: 'short' });
+                    const monthDay = current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const isToday = dateStr === todayStr;
+                    // Compare dates properly, not strings
+                    const currentDayStart = new Date(current);
+                    currentDayStart.setHours(0, 0, 0, 0);
+                    const todayStart = new Date(currentDate);
+                    todayStart.setHours(0, 0, 0, 0);
+                    const isPast = currentDayStart < todayStart;
+                    
+                    const dayStats = {
+                        date: dateStr,
+                        dayOfWeek,
+                        monthDay,
+                        isPast,
+                        isToday,
+                        players: [],
+                        totals: {
+                            points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
+                            threePointers: 0, turnovers: 0,
+                            fieldGoalsMade: 0, fieldGoalsAttempted: 0,
+                            freeThrowsMade: 0, freeThrowsAttempted: 0
+                        }
+                    };
+                    
+                    if (!isPast) {
+                        // Get players with games on this date (including today)
+                        players.forEach(player => {
+                            const playerId = player.nbaPlayerId || player.yahooPlayerId || player.id;
+                            const playerKey = `${playerId}`;
+                            const playerAvg = averages[playerId] || {};
+                            const teamsPlaying = scheduleData[dateStr];
+                            
+                            if (teamsPlaying && player.nbaTeam && teamsPlaying.includes(player.nbaTeam)) {
+                                const autoDisabled = isPlayerAutoDisabled(player);
+                                const manuallyDisabled = disabledPlayers[playerKey] === 'disabled' || disabledPlayers[playerKey] === 'disabledForWeek';
+                                const isDisabled = autoDisabled || manuallyDisabled;
+                                
+                                dayStats.players.push({
+                                    id: playerKey,
+                                    name: player.playerName || player.name,
+                                    team: player.nbaTeam,
+                                    stats: playerAvg,
+                                    disabled: isDisabled,
+                                    autoDisabled,
+                                    status: player.status,
+                                    selectedPosition: player.selectedPosition || player.selected_position
+                                });
+                                
+                                // Only add to totals if player is enabled
+                                if (!isDisabled) {
+                                    dayStats.totals.points += playerAvg.points || 0;
+                                    dayStats.totals.rebounds += playerAvg.rebounds || 0;
+                                    dayStats.totals.assists += playerAvg.assists || 0;
+                                    dayStats.totals.steals += playerAvg.steals || 0;
+                                    dayStats.totals.blocks += playerAvg.blocks || 0;
+                                    dayStats.totals.threePointers += playerAvg.threePointers || 0;
+                                    dayStats.totals.turnovers += playerAvg.turnovers || 0;
+                                    dayStats.totals.fieldGoalsMade += playerAvg.fieldGoalsMade || 0;
+                                    dayStats.totals.fieldGoalsAttempted += playerAvg.fieldGoalsAttempted || 0;
+                                    dayStats.totals.freeThrowsMade += playerAvg.freeThrowsMade || 0;
+                                    dayStats.totals.freeThrowsAttempted += playerAvg.freeThrowsAttempted || 0;
+                                }
+                            }
+                        });
+                    }
+                    
+                    dailyProjections.push(dayStats);
+                    current.setDate(current.getDate() + 1);
+                }
+
+                // Calculate actual stats from games already played
+                players.forEach(player => {
+                    const playerId = player.nbaPlayerId || player.yahooPlayerId || player.id;
+                    const playerActual = actualStats[playerId] || {};
+
+                    Object.keys(actual).forEach(key => {
+                        actual[key] += playerActual[key] || 0;
+                    });
+                });
+
+                // Sum up all projected stats from daily projections
+                const projected = {
+                    points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
+                    threePointers: 0, turnovers: 0,
+                    fieldGoalsMade: 0, fieldGoalsAttempted: 0,
+                    freeThrowsMade: 0, freeThrowsAttempted: 0
+                };
+                
+                dailyProjections.forEach(day => {
+                    if (!day.isPast) {
+                        Object.keys(projected).forEach(key => {
+                            projected[key] += day.totals[key];
+                        });
+                    }
+                });
+
+                const total = {};
+                Object.keys(actual).forEach(key => {
+                    total[key] = actual[key] + projected[key];
+                });
+
+                return { actual, projected, total, dailyProjections };
+            };
+
+            const team1Projection = calculateTeamProjection(team1WithTeams, team1Averages, team1Actual);
+            const team2Projection = calculateTeamProjection(team2WithTeams, team2Averages, team2Actual);
+
+            // Calculate category winners
+            const categories = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers'];
+            const categoryResults = {};
+            let team1Score = 0;
+            let team2Score = 0;
+
+            categories.forEach(cat => {
+                const t1 = team1Projection.total[cat];
+                const t2 = team2Projection.total[cat];
+                
+                if (t1 > t2) {
+                    categoryResults[cat] = { winner: matchup.team1.name, team1: t1, team2: t2 };
+                    team1Score++;
+                } else if (t2 > t1) {
+                    categoryResults[cat] = { winner: matchup.team2.name, team1: t1, team2: t2 };
+                    team2Score++;
+                } else {
+                    categoryResults[cat] = { winner: 'Tie', team1: t1, team2: t2 };
+                }
+            });
+
+            // Handle percentages
+            const t1FgPct = team1Projection.total.fieldGoalsAttempted > 0 
+                ? (team1Projection.total.fieldGoalsMade / team1Projection.total.fieldGoalsAttempted) * 100 
+                : 0;
+            const t2FgPct = team2Projection.total.fieldGoalsAttempted > 0 
+                ? (team2Projection.total.fieldGoalsMade / team2Projection.total.fieldGoalsAttempted) * 100 
+                : 0;
+
+            if (t1FgPct > t2FgPct) {
+                categoryResults.fieldGoalPercentage = { 
+                    winner: matchup.team1.name, 
+                    team1: t1FgPct, 
+                    team2: t2FgPct,
+                    team1Made: team1Projection.total.fieldGoalsMade,
+                    team1Attempted: team1Projection.total.fieldGoalsAttempted,
+                    team2Made: team2Projection.total.fieldGoalsMade,
+                    team2Attempted: team2Projection.total.fieldGoalsAttempted
+                };
+                team1Score++;
+            } else if (t2FgPct > t1FgPct) {
+                categoryResults.fieldGoalPercentage = { 
+                    winner: matchup.team2.name, 
+                    team1: t1FgPct, 
+                    team2: t2FgPct,
+                    team1Made: team1Projection.total.fieldGoalsMade,
+                    team1Attempted: team1Projection.total.fieldGoalsAttempted,
+                    team2Made: team2Projection.total.fieldGoalsMade,
+                    team2Attempted: team2Projection.total.fieldGoalsAttempted
+                };
+                team2Score++;
+            } else {
+                categoryResults.fieldGoalPercentage = { 
+                    winner: 'Tie', 
+                    team1: t1FgPct, 
+                    team2: t2FgPct,
+                    team1Made: team1Projection.total.fieldGoalsMade,
+                    team1Attempted: team1Projection.total.fieldGoalsAttempted,
+                    team2Made: team2Projection.total.fieldGoalsMade,
+                    team2Attempted: team2Projection.total.fieldGoalsAttempted
+                };
+            }
+
+            const t1FtPct = team1Projection.total.freeThrowsAttempted > 0 
+                ? (team1Projection.total.freeThrowsMade / team1Projection.total.freeThrowsAttempted) * 100 
+                : 0;
+            const t2FtPct = team2Projection.total.freeThrowsAttempted > 0 
+                ? (team2Projection.total.freeThrowsMade / team2Projection.total.freeThrowsAttempted) * 100 
+                : 0;
+
+            if (t1FtPct > t2FtPct) {
+                categoryResults.freeThrowPercentage = { 
+                    winner: matchup.team1.name, 
+                    team1: t1FtPct, 
+                    team2: t2FtPct,
+                    team1Made: team1Projection.total.freeThrowsMade,
+                    team1Attempted: team1Projection.total.freeThrowsAttempted,
+                    team2Made: team2Projection.total.freeThrowsMade,
+                    team2Attempted: team2Projection.total.freeThrowsAttempted
+                };
+                team1Score++;
+            } else if (t2FtPct > t1FtPct) {
+                categoryResults.freeThrowPercentage = { 
+                    winner: matchup.team2.name, 
+                    team1: t1FtPct, 
+                    team2: t2FtPct,
+                    team1Made: team1Projection.total.freeThrowsMade,
+                    team1Attempted: team1Projection.total.freeThrowsAttempted,
+                    team2Made: team2Projection.total.freeThrowsMade,
+                    team2Attempted: team2Projection.total.freeThrowsAttempted
+                };
+                team2Score++;
+            } else {
+                categoryResults.freeThrowPercentage = { 
+                    winner: 'Tie', 
+                    team1: t1FtPct, 
+                    team2: t2FtPct,
+                    team1Made: team1Projection.total.freeThrowsMade,
+                    team1Attempted: team1Projection.total.freeThrowsAttempted,
+                    team2Made: team2Projection.total.freeThrowsMade,
+                    team2Attempted: team2Projection.total.freeThrowsAttempted
+                };
+            }
+
+            // Turnovers (lower is better)
+            const t1To = team1Projection.total.turnovers;
+            const t2To = team2Projection.total.turnovers;
+            if (t1To < t2To) {
+                categoryResults.turnovers = { winner: matchup.team1.name, team1: t1To, team2: t2To };
+                team1Score++;
+            } else if (t2To < t1To) {
+                categoryResults.turnovers = { winner: matchup.team2.name, team1: t1To, team2: t2To };
+                team2Score++;
+            } else {
+                categoryResults.turnovers = { winner: 'Tie', team1: t1To, team2: t2To };
+            }
+
+            setMatchupProjection({
+                weekStart: weekStart.toLocaleDateString(),
+                weekEnd: weekEnd.toLocaleDateString(),
+                currentDate: currentDate.toLocaleDateString(),
+                team1: {
+                    name: matchup.team1.name,
+                    ...team1Projection
+                },
+                team2: {
+                    name: matchup.team2.name,
+                    ...team2Projection
+                },
+                categoryResults,
+                team1Score,
+                team2Score
+            });
+
+        } catch (error) {
+            console.error('Error calculating matchup projection:', error);
         }
     };
 
@@ -1059,6 +1661,28 @@ const Matchup = () => {
         };
         loadPlayers();
     }, [fetchAllPlayersFromSupabase]);
+
+    // Load schedule data
+    useEffect(() => {
+        const loadSchedule = async () => {
+            try {
+                const response = await fetch('/data/schedule.json');
+                const data = await response.json();
+                setScheduleData(data);
+            } catch (error) {
+                console.error('Failed to load schedule:', error);
+            }
+        };
+        loadSchedule();
+    }, []);
+
+    // Recalculate projection when schedule data loads or matchup changes
+    useEffect(() => {
+        if (scheduleData && currentMatchup) {
+            calculateMatchupProjection(currentMatchup);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scheduleData, currentMatchup]);
 
     // Auto-load league when selected
     useEffect(() => {
@@ -1355,7 +1979,7 @@ const Matchup = () => {
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
-                        Add your players load them from Yahoo Fantasy
+                        Add your players or load them from Yahoo Fantasy
                     </Typography>
                     <Button
                         variant="outlined"
@@ -2169,26 +2793,66 @@ const Matchup = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Current Yahoo Matchup */}
-            {currentMatchup && currentMatchup.stats && (
+            {/* Current Yahoo Matchup - Week Tracker */}
+            {matchupProjection && (
                 <Box sx={{ mt: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                        <Typography
+                            variant="h5"
+                            sx={{
+                                fontWeight: "bold",
+                                color: "#4a90e2",
+                                fontFamily: '"Roboto Mono", monospace',
+                            }}
+                        >
+                            Matchup Projection Tracker (Week {currentMatchup.week})
+                        </Typography>
+                        <Box 
+                            sx={{ 
+                                bgcolor: '#333', 
+                                borderRadius: '50%', 
+                                width: 20, 
+                                height: 20, 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                cursor: 'help',
+                                fontSize: '0.75rem',
+                                color: '#4a90e2',
+                                fontWeight: 'bold',
+                                border: '1px solid #4a90e2'
+                            }}
+                            title="This tracker shows your matchup week (Monday-Sunday). Past days show '-', today and future days show projected stats based on scheduled games and player averages. Click any category to see player details. Click individual players to enable/disable them from projections."
+                        >
+                            i
+                        </Box>
+                    </Box>
                     <Typography
-                        variant="h5"
+                        variant="body2"
                         sx={{
-                            mb: 2,
-                            fontWeight: "bold",
+                            mb: 3,
                             textAlign: "center",
-                            color: "#4a90e2",
+                            color: "#b0bec5",
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
-                        Current Yahoo Matchup (Week {currentMatchup.week})
+                        {matchupProjection.weekStart} - {matchupProjection.weekEnd} (Today: {matchupProjection.currentDate})
                     </Typography>
                     
-                    {/* Score Display */}
+                    {/* Projected Score Display */}
                     <Box sx={{ textAlign: 'center', mb: 3 }}>
                         <Typography
-                            variant="h3"
+                            variant="body2"
+                            sx={{
+                                color: "#b0bec5",
+                                fontFamily: '"Roboto Mono", monospace',
+                                mb: 1
+                            }}
+                        >
+                            PROJECTED FINAL SCORE
+                        </Typography>
+                        <Typography
+                            variant="h2"
                             sx={{
                                 color: "#e0e0e0",
                                 fontFamily: '"Roboto Mono", monospace',
@@ -2196,18 +2860,18 @@ const Matchup = () => {
                                 mb: 1
                             }}
                         >
-                            {currentMatchup.stats.team1Score} - {currentMatchup.stats.team2Score}
+                            {matchupProjection.team1Score} - {matchupProjection.team2Score}
                         </Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
                             <Typography
                                 variant="h6"
                                 sx={{
-                                    color: currentMatchup.stats.team1Score > currentMatchup.stats.team2Score ? "#4CAF50" : currentMatchup.stats.team1Score < currentMatchup.stats.team2Score ? "#666" : "#b0bec5",
+                                    color: matchupProjection.team1Score > matchupProjection.team2Score ? "#4CAF50" : matchupProjection.team1Score < matchupProjection.team2Score ? "#666" : "#b0bec5",
                                     fontFamily: '"Roboto Mono", monospace',
                                     fontWeight: 'bold'
                                 }}
                             >
-                                {currentMatchup.team1.name}
+                                {matchupProjection.team1.name}
                             </Typography>
                             <Typography
                                 variant="h6"
@@ -2221,81 +2885,289 @@ const Matchup = () => {
                             <Typography
                                 variant="h6"
                                 sx={{
-                                    color: currentMatchup.stats.team2Score > currentMatchup.stats.team1Score ? "#ff6f61" : currentMatchup.stats.team2Score < currentMatchup.stats.team1Score ? "#666" : "#b0bec5",
+                                    color: matchupProjection.team2Score > matchupProjection.team1Score ? "#ff6f61" : matchupProjection.team2Score < matchupProjection.team1Score ? "#666" : "#b0bec5",
                                     fontFamily: '"Roboto Mono", monospace',
                                     fontWeight: 'bold'
                                 }}
                             >
-                                {currentMatchup.team2.name}
+                                {matchupProjection.team2.name}
                             </Typography>
                         </Box>
                     </Box>
 
-                    {/* Stats Table */}
+                    {/* Day-by-Day Stats Breakdown */}
                     <TableContainer>
                         <Table size="small">
                             <TableHead>
                                 <TableRow>
                                     <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Category</TableCell>
-                                    <TableCell align="right" sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>{currentMatchup.team1.name}</TableCell>
-                                    <TableCell align="right" sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>{currentMatchup.team2.name}</TableCell>
+                                    {matchupProjection.team1.dailyProjections && matchupProjection.team1.dailyProjections.map((day, idx) => (
+                                        <TableCell 
+                                            key={idx} 
+                                            align="center" 
+                                            sx={{ 
+                                                color: day.isToday ? "#4a90e2" : "#b0bec5", 
+                                                fontFamily: '"Roboto Mono", monospace', 
+                                                fontWeight: 'bold', 
+                                                fontSize: '0.7rem',
+                                                bgcolor: day.isToday ? 'rgba(74, 144, 226, 0.1)' : 'transparent'
+                                            }}
+                                        >
+                                            <Box>{day.dayOfWeek}</Box>
+                                            <Box sx={{ fontSize: '0.65rem', color: day.isToday ? '#4a90e2' : '#888' }}>
+                                                {day.monthDay}
+                                                {day.isToday && ' (Today)'}
+                                            </Box>
+                                        </TableCell>
+                                    ))}
+                                    <TableCell align="center" sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Total</TableCell>
                                     <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Winner</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                            {Object.entries(currentMatchup.stats.categories).map(([category, data]) => {
-  const isFg = category === 'Field Goal Percentage';
-  const isFt = category === 'Free Throw Percentage';
-
-  const team1Val = isFg || isFt
-    ? `${data.team1.nominator}/${data.team1.denominator}`
-    : data.team1.toFixed(1);
-
-  const team2Val = isFg || isFt
-    ? `${data.team2.nominator}/${data.team2.denominator}`
-    : data.team2.toFixed(1);
-
-  // Calculate % in frontend
-  const calcPct = (obj) =>
-    obj.denominator === 0 ? 0 : ((obj.nominator / obj.denominator) * 100).toFixed(1);
-
-  const team1Pct = (isFg || isFt) ? calcPct(data.team1) : null;
-  const team2Pct = (isFg || isFt) ? calcPct(data.team2) : null;
-
-  const isWin = data.winner === currentMatchup.team1.name;
-  const isLoss = data.winner === currentMatchup.team2.name;
-  const bgColor = isWin ? 'rgba(76, 175, 80, 0.1)' : isLoss ? 'rgba(244, 67, 54, 0.1)' : 'rgba(158, 158, 158, 0.05)';
-  const textColor = isWin ? 'rgba(76, 175, 80, 0.9)' : isLoss ? 'rgba(244, 67, 54, 0.9)' : 'rgba(158, 158, 158, 0.8)';
-
-  return (
-    <TableRow key={category} sx={{ bgcolor: bgColor }}>
-      <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0" }}>
-        {category}
-      </TableCell>
-      <TableCell align="right" sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0" }}>
-        {team1Val}
-        {team1Pct && <span style={{ marginLeft: 4, fontSize: '0.8em', color: '#aaa' }}>({team1Pct}%)</span>}
-      </TableCell>
-      <TableCell align="right" sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0" }}>
-        {team2Val}
-        {team2Pct && <span style={{ marginLeft: 4, fontSize: '0.8em', color: '#aaa' }}>({team2Pct}%)</span>}
-      </TableCell>
-      <TableCell>
-        <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }} style={{ color: textColor }}>
-          {data.winner === currentMatchup.team1.name
-            ? currentMatchup.team1.name.split(' ')[0]
-            : data.winner === currentMatchup.team2.name
-            ? currentMatchup.team2.name.split(' ')[0]
-            : 'TIE'}
-        </Typography>
-      </TableCell>
-    </TableRow>
-  );
-})}</TableBody>
- </Table>
+                                {/* Render each category with day-by-day breakdown */}
+                                {['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers', 'turnovers', 'fieldGoalPercentage', 'freeThrowPercentage'].map((catKey) => {
+                                    const catLabels = {
+                                        points: 'Points',
+                                        rebounds: 'Rebounds',
+                                        assists: 'Assists',
+                                        steals: 'Steals',
+                                        blocks: 'Blocks',
+                                        threePointers: '3PT',
+                                        turnovers: 'TO',
+                                        fieldGoalPercentage: 'FG%',
+                                        freeThrowPercentage: 'FT%'
+                                    };
+                                    
+                                    const catData = matchupProjection.categoryResults[catKey];
+                                    if (!catData) return null;
+                                    
+                                    const isWin = catData.winner === matchupProjection.team1.name;
+                                    const isLoss = catData.winner === matchupProjection.team2.name;
+                                    const bgColor = isWin ? 'rgba(76, 175, 80, 0.1)' : isLoss ? 'rgba(244, 67, 54, 0.1)' : 'rgba(158, 158, 158, 0.05)';
+                                    const textColor = isWin ? 'rgba(76, 175, 80, 0.9)' : isLoss ? 'rgba(244, 67, 54, 0.9)' : 'rgba(158, 158, 158, 0.8)';
+                                    const isExpanded = expandedCategory === catKey;
+                                    const isPct = catKey === 'fieldGoalPercentage' || catKey === 'freeThrowPercentage';
+                                    
+                                    return (
+                                        <React.Fragment key={catKey}>
+                                            <TableRow 
+                                                sx={{ 
+                                                    bgcolor: bgColor,
+                                                    cursor: 'pointer',
+                                                    '&:hover': { bgcolor: isWin ? 'rgba(76, 175, 80, 0.15)' : isLoss ? 'rgba(244, 67, 54, 0.15)' : 'rgba(158, 158, 158, 0.1)' }
+                                                }}
+                                                onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
+                                            >
+                                                <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0", fontWeight: 'bold' }}>
+                                                    {catLabels[catKey]} {isExpanded ? '▼' : '▶'}
+                                                </TableCell>
+                                            {matchupProjection.team1.dailyProjections.map((day, idx) => (
+                                                <TableCell 
+                                                    key={idx} 
+                                                    align="center" 
+                                                    sx={{ 
+                                                        fontSize: '0.65rem', 
+                                                        py: 0.5,
+                                                        bgcolor: day.isToday ? 'rgba(74, 144, 226, 0.05)' : 'transparent'
+                                                    }}
+                                                >
+                                                    {day.isPast ? (
+                                                        <Box sx={{ color: '#666' }}>-</Box>
+                                                    ) : (
+                                                        <>
+                                                            <Box sx={{ color: "#4CAF50" }}>
+                                                                {isPct 
+                                                                    ? `${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
+                                                                    : (day.totals[catKey] || 0).toFixed(1)
+                                                                }
+                                                            </Box>
+                                                            <Box sx={{ color: "#ff6f61" }}>
+                                                                {isPct 
+                                                                    ? `${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
+                                                                    : (matchupProjection.team2.dailyProjections[idx]?.totals[catKey] || 0).toFixed(1)
+                                                                }
+                                                            </Box>
+                                                        </>
+                                                    )}
+                                                </TableCell>
+                                            ))}
+                                                <TableCell align="center">
+                                                    <Box sx={{ color: "#4CAF50", fontWeight: 'bold' }}>
+                                                        {isPct 
+                                                            ? `${(catData.team1Made || 0).toFixed(0)}/${(catData.team1Attempted || 0).toFixed(0)} (${catData.team1Attempted > 0 ? ((catData.team1Made / catData.team1Attempted) * 100).toFixed(1) : 0}%)`
+                                                            : (catData.team1 || 0).toFixed(1)
+                                                        }
+                                                    </Box>
+                                                    <Box sx={{ color: "#ff6f61", fontWeight: 'bold' }}>
+                                                        {isPct 
+                                                            ? `${(catData.team2Made || 0).toFixed(0)}/${(catData.team2Attempted || 0).toFixed(0)} (${catData.team2Attempted > 0 ? ((catData.team2Made / catData.team2Attempted) * 100).toFixed(1) : 0}%)`
+                                                            : (catData.team2 || 0).toFixed(1)
+                                                        }
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold', fontSize: '0.75rem' }} style={{ color: textColor }}>
+                                                        {isWin ? matchupProjection.team1.name.split(' ')[0] : isLoss ? matchupProjection.team2.name.split(' ')[0] : 'TIE'}
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                            {isExpanded && (
+                                                <TableRow>
+                                                    <TableCell colSpan={10} sx={{ bgcolor: '#1a1a1a', p: 2 }}>
+                                                        <Grid container spacing={2}>
+                                                            {matchupProjection.team1.dailyProjections.map((day, idx) => {
+                                                                if (day.isPast || (day.players.length === 0 && matchupProjection.team2.dailyProjections[idx]?.players.length === 0)) return null;
+                                                                const team2Day = matchupProjection.team2.dailyProjections[idx];
+                                                                
+                                                                return (
+                                                                    <Grid item xs={12} sm={6} md={4} key={idx}>
+                                                                        <Box sx={{ bgcolor: '#252525', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #4a90e2' : '1px solid #333' }}>
+                                                                            <Typography variant="caption" sx={{ color: day.isToday ? '#4a90e2' : '#888', fontWeight: 'bold', display: 'block', mb: 1, textAlign: 'center' }}>
+                                                                                {day.dayOfWeek} {day.monthDay} {day.isToday ? '(Today)' : ''}
+                                                                            </Typography>
+                                                                            <Box sx={{ mb: 1.5 }}>
+                                                                                <Typography variant="caption" sx={{ color: '#4CAF50', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                                                                                    {matchupProjection.team1.name}
+                                                                                </Typography>
+                                                                                {day.players.length > 0 ? day.players.map((player, pidx) => {
+                                                                                    const statValue = isPct 
+                                                                                        ? `${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(1)}/${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(1)}`
+                                                                                        : (player.stats[catKey] || 0).toFixed(1);
+                                                                                    
+                                                                                    const isDisabled = player.disabled;
+                                                                                    const statusText = player.status ? ` [${player.status}]` : '';
+                                                                                    const posText = player.selectedPosition && (player.selectedPosition === 'IL' || player.selectedPosition === 'IL+') ? ` [${player.selectedPosition}]` : '';
+                                                                                    
+                                                                                    return (
+                                                                                        <Typography 
+                                                                                            key={pidx} 
+                                                                                            variant="caption" 
+                                                                                            onClick={(e) => handlePlayerClick(e, player, day.date)}
+                                                                                            sx={{ 
+                                                                                                color: isDisabled ? '#666' : '#4CAF50', 
+                                                                                                display: 'block', 
+                                                                                                fontSize: '0.7rem', 
+                                                                                                ml: 1,
+                                                                                                cursor: 'pointer',
+                                                                                                textDecoration: isDisabled ? 'line-through' : 'none',
+                                                                                                opacity: isDisabled ? 0.6 : 1,
+                                                                                                '&:hover': {
+                                                                                                    bgcolor: 'rgba(76, 175, 80, 0.1)',
+                                                                                                    borderRadius: '4px',
+                                                                                                    px: 0.5
+                                                                                                }
+                                                                                            }}
+                                                                                        >
+                                                                                            • {player.name}{statusText}{posText}: {statValue}
+                                                                                        </Typography>
+                                                                                    );
+                                                                                }) : (
+                                                                                    <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
+                                                                                        No games
+                                                                                    </Typography>
+                                                                                )}
+                                                                            </Box>
+                                                                            <Box>
+                                                                                <Typography variant="caption" sx={{ color: '#ff6f61', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                                                                                    {matchupProjection.team2.name}
+                                                                                </Typography>
+                                                                                {team2Day && team2Day.players.length > 0 ? team2Day.players.map((player, pidx) => {
+                                                                                    const statValue = isPct 
+                                                                                        ? `${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(1)}/${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(1)}`
+                                                                                        : (player.stats[catKey] || 0).toFixed(1);
+                                                                                    
+                                                                                    const isDisabled = player.disabled;
+                                                                                    const statusText = player.status ? ` [${player.status}]` : '';
+                                                                                    const posText = player.selectedPosition && (player.selectedPosition === 'IL' || player.selectedPosition === 'IL+') ? ` [${player.selectedPosition}]` : '';
+                                                                                    
+                                                                                    return (
+                                                                                        <Typography 
+                                                                                            key={pidx} 
+                                                                                            variant="caption" 
+                                                                                            onClick={(e) => handlePlayerClick(e, player, day.date)}
+                                                                                            sx={{ 
+                                                                                                color: isDisabled ? '#666' : '#ff6f61', 
+                                                                                                display: 'block', 
+                                                                                                fontSize: '0.7rem', 
+                                                                                                ml: 1,
+                                                                                                cursor: 'pointer',
+                                                                                                textDecoration: isDisabled ? 'line-through' : 'none',
+                                                                                                opacity: isDisabled ? 0.6 : 1,
+                                                                                                '&:hover': {
+                                                                                                    bgcolor: 'rgba(255, 111, 97, 0.1)',
+                                                                                                    borderRadius: '4px',
+                                                                                                    px: 0.5
+                                                                                                }
+                                                                                            }}
+                                                                                        >
+                                                                                            • {player.name}{statusText}{posText}: {statValue}
+                                                                                        </Typography>
+                                                                                    );
+                                                                                }) : (
+                                                                                    <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
+                                                                                        No games
+                                                                                    </Typography>
+                                                                                )}
+                                                                            </Box>
+                                                                        </Box>
+                                                                    </Grid>
+                                                                );
+                                                            })}
+                                                        </Grid>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
                     </TableContainer>
                 </Box>
             )}
+
+            {/* Player Status Menu */}
+            <Menu
+                anchorEl={playerStatusMenu}
+                open={Boolean(playerStatusMenu)}
+                onClose={handleClosePlayerMenu}
+                PaperProps={{
+                    sx: {
+                        bgcolor: '#252525',
+                        border: '1px solid #333',
+                        minWidth: 200
+                    }
+                }}
+            >
+                <MenuItem 
+                    onClick={() => handlePlayerStatusChange('enabled')}
+                    sx={{ 
+                        color: '#e0e0e0',
+                        '&:hover': { bgcolor: 'rgba(76, 175, 80, 0.2)' }
+                    }}
+                >
+                    ✓ Enable Player
+                </MenuItem>
+                <MenuItem 
+                    onClick={() => handlePlayerStatusChange('disabled')}
+                    sx={{ 
+                        color: '#e0e0e0',
+                        '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' }
+                    }}
+                >
+                    ✗ Disable Player
+                </MenuItem>
+                <MenuItem 
+                    onClick={() => handlePlayerStatusChange('disabledForWeek')}
+                    sx={{ 
+                        color: '#e0e0e0',
+                        '&:hover': { bgcolor: 'rgba(255, 152, 0, 0.2)' }
+                    }}
+                >
+                    ⊗ Disable for Week
+                </MenuItem>
+            </Menu>
         </Box>
     );
 };
