@@ -229,7 +229,9 @@ const AlltimeLayout = () => {
                 aria-label="User profile menu"
               >
                 <Avatar
-                  src={user.profilePicture}
+                  src={user.profilePicture && user.profilePicture.toLowerCase().includes('default') 
+                    ? 'https://www.svgrepo.com/show/513271/basketball.svg'
+                    : user.profilePicture}
                   alt={user.name || 'User'}
                   sx={{
                     width: 40,

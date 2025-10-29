@@ -3,6 +3,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import DatabaseLoader from "./components/DatabaseLoader";
+import SEOHead from "./components/SEOHead";
 import TagManager from "react-gtm-module";
 import React from "react";
 import { Box } from "@mui/material";
@@ -29,6 +30,7 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
+        <SEOHead />
         <GoogleAnalytics />
         <DatabaseLoader>
           <Box sx={{ flexGrow: 1 }}>

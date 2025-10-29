@@ -293,8 +293,8 @@ const Matchup = () => {
     }, [team1Name, team2Name]);
 
     const fetchPlayerStatsFromSupabase = useCallback(async (players) => {
-        return await fetchPlayerStats(players, team1Players, team2Players, team1Name, team2Name);
-    }, [team1Players, team2Players, team1Name, team2Name]);
+        return await fetchPlayerStats(players, team1Players, team2Players);
+    }, [team1Players, team2Players]);
 
     const callSupabaseFunction = async (functionName, payload) => {
         const { data, error } = await supabase.functions.invoke(functionName, {
@@ -1015,6 +1015,30 @@ const Matchup = () => {
         };
         loadPlayers();
     }, [fetchAllPlayersFromSupabase]);
+
+    // Auto-select first 2 players from each team for comparison
+    useEffect(() => {
+        if (team1Players.length > 0 && team2Players.length > 0 && selectedPlayers.length === 0) {
+            const activeTeam1Players = team1Players.filter(p => p.active).slice(0, 2);
+            const activeTeam2Players = team2Players.filter(p => p.active).slice(0, 2);
+            
+            const playersToAdd = [...activeTeam1Players, ...activeTeam2Players].slice(0, 4);
+            
+            if (playersToAdd.length > 0) {
+                const newPlayers = playersToAdd.map(p => ({
+                    id: p.nbaPlayerId || p.yahooPlayerId || p.id,
+                    name: p.name,
+                    nbaPlayerId: p.nbaPlayerId,
+                    yahooPlayerId: p.yahooPlayerId
+                }));
+                const newNames = playersToAdd.map(p => p.name);
+                
+                setSelectedPlayers(newPlayers);
+                setSelectedPlayerNames(newNames);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [team1Players, team2Players]);
 
     // Load schedule data
     useEffect(() => {

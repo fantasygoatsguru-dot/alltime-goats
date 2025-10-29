@@ -82,7 +82,7 @@ const MatchupProjectionTracker = ({
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
-                        Current Matchup Projection Tracker
+                        Weekly Matchup Projection
                     </Typography>
                     <Tooltip
                         title="If players give their average stats for the rest of the week, how will the week end?"
@@ -147,7 +147,7 @@ const MatchupProjectionTracker = ({
                         <Typography
                             variant="h6"
                             sx={{
-                                color: matchupProjection.team1Score > matchupProjection.team2Score ? "#4CAF50" : matchupProjection.team1Score < matchupProjection.team2Score ? "#666" : "#b0bec5",
+                                color: "#4CAF50",
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontWeight: 'bold'
                             }}

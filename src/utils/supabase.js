@@ -27,7 +27,7 @@ export const fetchAllPlayersFromSupabase = async () => {
     }
 };
 
-export const fetchPlayerStatsFromSupabase = async (players, team1Players, team2Players, team1Name, team2Name) => {
+export const fetchPlayerStatsFromSupabase = async (players, team1Players, team2Players) => {
     try {
         if (!players || players.length === 0) return [];
 
@@ -214,6 +214,15 @@ export const fetchWeeklyMatchupResults = async (team1PlayersList, team2PlayersLi
             return Math.floor(diffDays / 7) + 1;
         };
 
+        const getCurrentWeek = () => {
+            const now = new Date();
+            const startDate = new Date('2025-10-20');
+            const diffTime = now - startDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return Math.floor(diffDays / 7) + 1;
+        };
+
+        const currentWeek = getCurrentWeek();
         const weeksData = {};
         
         data.forEach(game => {
@@ -312,7 +321,7 @@ export const fetchWeeklyMatchupResults = async (team1PlayersList, team2PlayersLi
             };
         });
 
-        return results;
+        return results.filter(result => result.week < currentWeek);
     } catch (error) {
         console.error('Error fetching weekly matchup results:', error);
         throw error;

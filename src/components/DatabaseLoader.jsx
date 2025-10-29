@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, LinearProgress, CircularProgress } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 import { getDatabaseStatus, initDatabase } from '../utils/database';
 
 const DatabaseLoader = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+  const location = useLocation();
+
+  // Only load database for history pages (seasons, table, games)
+  const needsDatabase = ['/seasons', '/table', '/games'].includes(location.pathname);
 
   useEffect(() => {
     const loadDatabase = async () => {
+      // If we don't need the database, skip loading
+      if (!needsDatabase) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const status = getDatabaseStatus();
         if (status.isLoaded) {
@@ -30,7 +41,7 @@ const DatabaseLoader = ({ children }) => {
     };
 
     loadDatabase();
-  }, []);
+  }, [needsDatabase]);
 
   if (error) {
     return (
