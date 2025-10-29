@@ -85,7 +85,7 @@ const MatchupProjectionTracker = ({
                         Current Matchup Projection Tracker
                     </Typography>
                     <Tooltip
-                        title="This tracker shows your matchup week (Monday-Sunday). Past days show '-', today and future days show projected stats based on scheduled games and player averages. Click any category to see player details. Click individual players to enable/disable them from projections."
+                        title="If players give their average stats for the rest of the week, how will the week end?"
                         arrow
                     >
                         <Box 

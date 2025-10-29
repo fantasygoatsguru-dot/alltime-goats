@@ -84,10 +84,10 @@ const WeeklyMatchupResults = ({
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
-                        Weekly Matchup Results
+                        Previous Weeks Matchup Results
                     </Typography>
                     <Tooltip 
-                        title="Historical weekly matchup analysis showing how your selected teams would have performed against each other in past weeks. Green cards indicate wins, red indicate losses. Click any week card to see detailed category breakdowns."
+                        title="If you had this lineup in previous weeks, what would the results have been?"
                         arrow
                     >
                         <Box 

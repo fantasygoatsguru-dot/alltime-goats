@@ -1270,7 +1270,7 @@ const Matchup = () => {
                     fontFamily: '"Roboto Mono", monospace',
                 }}
             >
-                Team Matchup Comparison
+                FantasyGoatsGuru Comparison
             </Typography>
 
             {error && (

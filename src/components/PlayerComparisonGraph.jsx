@@ -161,7 +161,7 @@ const PlayerComparisonGraph = ({
                         Player Comparison
                     </Typography>
                     <Tooltip 
-                        title="Compare up to 4 individual players side-by-side using z-scores. Click the radar icon on any player in the team rosters to add them to this comparison. Click a category label to see each player's raw stats."
+                        title="Compare up to 4 individual players side-by-side using z-scores."
                         arrow
                     >
                         <Box 

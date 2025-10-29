@@ -101,7 +101,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                     Team Strengths Comparison
                 </Typography>
                 <Tooltip 
-                    title="This radar chart compares both teams' strengths across 9 categories using z-scores. The larger the area for a category, the stronger that team is in that area. Click on any category label to see detailed player contributions."
+                    title="Compare the team strengths using z-scores."
                     arrow
                 >
                     <Box 
