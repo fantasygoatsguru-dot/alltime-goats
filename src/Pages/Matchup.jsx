@@ -55,6 +55,11 @@ import {
     fetchWeeklyMatchupResults as fetchWeeklyResults,
     CURRENT_SEASON
 } from "../utils/supabase";
+import MatchupProjectionTracker from "../components/MatchupProjectionTracker";
+import WeeklyMatchupResults from "../components/WeeklyMatchupResults";
+import YahooConnectionSection from "../components/YahooConnectionSection";
+import StatsComparisonGraph from "../components/StatsComparisonGraph";
+import PlayerComparisonGraph from "../components/PlayerComparisonGraph";
 
 const DEFAULT_PLAYERS = {
     team1: [
@@ -68,644 +73,6 @@ const DEFAULT_PLAYERS = {
 };
 
 const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-
-// StatsComparisonGraph Component for Team Comparison
-const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
-    const [openDialog, setOpenDialog] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-
-    const averages = teamAverages || {
-        team1Averages: {},
-        team2Averages: {},
-        team1ZScores: {},
-        team2ZScores: {},
-        team1Contributions: {},
-        team2Contributions: {}
-    };
-
-    const categories = [
-        "Points",
-        "3pt",
-        "Assists",
-        "Steals",
-        "FT%",
-        "FG%",
-        "Turnovers",
-        "Blocks",
-        "Rebounds",
-    ];
-
-    const formatValue = (value, category) => {
-        if (category === "FG%" || category === "FT%") {
-            return `${value.toFixed(2)}%`;
-        }
-        return value.toFixed(2);
-    };
-
-    const data = categories.map((category) => ({
-            skill: category,
-        [team1Name]: averages.team1ZScores?.[category] || 0,
-        [team2Name]: averages.team2ZScores?.[category] || 0,
-    }));
-
-    const handleCategoryClick = (category) => {
-        setSelectedCategory(category);
-        setOpenDialog(true);
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setSelectedCategory(null);
-    };
-
-    const getTotalForTeam = (contributions) => {
-        return contributions.reduce((sum, player) => sum + (player.value || 0), 0).toFixed(2);
-    };
-
-    const getAverageForTeam = (contributions) => {
-        if (contributions.length === 0) return "0.00";
-        const sum = contributions.reduce((sum, player) => sum + (player.value || 0), 0);
-        return (sum / contributions.length).toFixed(2);
-    };
-
-    const hasData = teamAverages && (
-        Object.keys(averages.team1ZScores || {}).length > 0 ||
-        Object.keys(averages.team2ZScores || {}).length > 0
-    );
-
-    return (
-        <Box sx={{ p: 2, bgcolor: "#252525", borderRadius: 1, mt: 2 }}>
-            <Typography
-                variant="h5"
-                sx={{
-                    mb: 2,
-                    color: "#e0e0e0",
-                    fontFamily: '"Roboto Mono", monospace',
-                    textAlign: "center",
-                    fontWeight: "bold",
-                }}
-            >
-                Team Strengths Comparison
-            </Typography>
-            {!hasData && (
-                <Box sx={{ textAlign: "center", py: 4 }}>
-                    <Typography sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace' }}>
-                        Loading team data or no active players selected...
-                    </Typography>
-                    <Typography sx={{ color: "#666", fontFamily: '"Roboto Mono", monospace', fontSize: "0.875rem", mt: 1 }}>
-                        Make sure both teams have active players enabled (eye icon)
-                    </Typography>
-                </Box>
-            )}
-            <Box sx={{ height: "400px" }}>
-                <ResponsiveContainer width="100%" height={300}>
-                    <RadarChart outerRadius="70%" data={data}>
-                        <PolarGrid stroke="#4a90e2" />
-                        <PolarAngleAxis
-                            dataKey="skill"
-                            stroke="#e0e0e0"
-                            tick={{ fontFamily: '"Roboto Mono", monospace', fontSize: 12 }}
-                            onClick={(e) => handleCategoryClick(e.value)}
-                            style={{ cursor: "pointer" }}
-                        />
-                        <PolarRadiusAxis angle={90} domain={[0, 4]} tick={false} stroke="#4a90e2" />
-                        <Radar
-                            name={team1Name}
-                            dataKey={team1Name}
-                            stroke="#4CAF50"
-                            fill="#4CAF50"
-                            fillOpacity={0.3}
-                        />
-                        <Radar
-                            name={team2Name}
-                            dataKey={team2Name}
-                            stroke="#ff6f61"
-                            fill="#ff6f61"
-                            fillOpacity={0.3}
-                        />
-                        <RechartsTooltip
-                            contentStyle={{
-                                backgroundColor: "#252525",
-                                border: "1px solid #4a90e2",
-                                borderRadius: "4px",
-                            }}
-                            formatter={(value, name) => {
-                                const category = data.find((d) => d[name] === value)?.skill;
-                                const teamData = name === team1Name ? averages.team1Contributions : averages.team2Contributions;
-                                const rawValue =
-                                    category === "FG%" || category === "FT%"
-                                        ? (name === team1Name ? averages.team1Averages : averages.team2Averages)?.[category] || 0
-                                        : teamData?.[category]?.reduce((sum, player) => sum + (player.value || 0), 0) || 0;
-                                return [`${formatValue(rawValue, category)} (Z: ${(value || 0).toFixed(2)})`, name];
-                            }}
-                            labelStyle={{ color: "#e0e0e0", display: "none" }}
-                            cursor={{ stroke: "#4a90e2", strokeWidth: 1 }}
-                        />
-                        <Legend
-                            wrapperStyle={{
-                                fontFamily: '"Roboto Mono", monospace',
-                                color: "#e0e0e0",
-                            }}
-                        />
-                    </RadarChart>
-                </ResponsiveContainer>
-            </Box>
-
-            <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                fullWidth
-                PaperProps={{ sx: { bgcolor: "#252525", borderRadius: 1 } }}
-            >
-                <DialogTitle
-                    sx={{
-                        color: "#e0e0e0",
-                        fontFamily: '"Roboto Mono", monospace',
-                        fontWeight: "bold",
-                    }}
-                >
-                    {selectedCategory} Breakdown
-                </DialogTitle>
-                <DialogContent>
-                    {selectedCategory && (
-                        <Box sx={{ mt: 2 }}>
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: "#4CAF50",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                    mb: 1,
-                                }}
-                            >
-                                {team1Name}
-                            </Typography>
-                            <List>
-                                {averages.team1Contributions?.[selectedCategory]?.map((player, index) => (
-                                        <ListItem key={index} sx={{ py: 0.5 }}>
-                                            <ListItemText
-                                            primary={player.playerName}
-                                            secondary={(player.value || 0).toFixed(2)}
-                                                primaryTypographyProps={{
-                                                    sx: {
-                                                        color: "#e0e0e0",
-                                                        fontFamily: '"Roboto Mono", monospace',
-                                                    },
-                                                }}
-                                                secondaryTypographyProps={{
-                                                    sx: {
-                                                        color: "#4CAF50",
-                                                        fontFamily: '"Roboto Mono", monospace',
-                                                    },
-                                                }}
-                                            />
-                                        </ListItem>
-                                ))}
-                                <ListItem sx={{ py: 0.5, borderTop: "1px solid #4CAF50" }}>
-                                    <ListItemText
-                                        primary={selectedCategory === "FG%" || selectedCategory === "FT%" ? "Average" : "Total"}
-                                        secondary={
-                                            selectedCategory === "FG%" || selectedCategory === "FT%"
-                                                ? getAverageForTeam(averages.team1Contributions?.[selectedCategory] || [])
-                                                : getTotalForTeam(averages.team1Contributions?.[selectedCategory] || [])
-                                        }
-                                        primaryTypographyProps={{
-                                            sx: {
-                                                color: "#e0e0e0",
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                fontWeight: "bold",
-                                            },
-                                        }}
-                                        secondaryTypographyProps={{
-                                            sx: {
-                                                color: "#4CAF50",
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                fontWeight: "bold",
-                                            },
-                                        }}
-                                    />
-                                </ListItem>
-                            </List>
-
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: "#ff6f61",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                    mt: 2,
-                                    mb: 1,
-                                }}
-                            >
-                                {team2Name}
-                            </Typography>
-                            <List>
-                                {averages.team2Contributions?.[selectedCategory]?.map((player, index) => (
-                                        <ListItem key={index} sx={{ py: 0.5 }}>
-                                            <ListItemText
-                                            primary={player.playerName}
-                                            secondary={(player.value || 0).toFixed(2)}
-                                                primaryTypographyProps={{
-                                                    sx: {
-                                                        color: "#e0e0e0",
-                                                        fontFamily: '"Roboto Mono", monospace',
-                                                    },
-                                                }}
-                                                secondaryTypographyProps={{
-                                                    sx: {
-                                                        color: "#ff6f61",
-                                                        fontFamily: '"Roboto Mono", monospace',
-                                                    },
-                                                }}
-                                            />
-                                        </ListItem>
-                                ))}
-                                <ListItem sx={{ py: 0.5, borderTop: "1px solid #ff6f61" }}>
-                                    <ListItemText
-                                        primary={selectedCategory === "FG%" || selectedCategory === "FT%" ? "Average" : "Total"}
-                                        secondary={
-                                            selectedCategory === "FG%" || selectedCategory === "FT%"
-                                                ? getAverageForTeam(averages.team2Contributions?.[selectedCategory] || [])
-                                                : getTotalForTeam(averages.team2Contributions?.[selectedCategory] || [])
-                                        }
-                                        primaryTypographyProps={{
-                                            sx: {
-                                                color: "#e0e0e0",
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                fontWeight: "bold",
-                                            },
-                                        }}
-                                        secondaryTypographyProps={{
-                                            sx: {
-                                                color: "#ff6f61",
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                fontWeight: "bold",
-                                            },
-                                        }}
-                                    />
-                                </ListItem>
-                            </List>
-                        </Box>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={handleCloseDialog}
-                        sx={{
-                            color: "#4CAF50",
-                            fontFamily: '"Roboto Mono", monospace',
-                        }}
-                    >
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Box>
-    );
-};
-
-// PlayerComparisonGraph Component
-const PlayerComparisonGraph = ({ 
-    players = [], 
-    playerNames = [], 
-    onClearPlayers = () => {} 
-}) => {
-    const [openDialog, setOpenDialog] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-
-    const categories = [
-        "Points",
-        "3pt",
-        "Assists",
-        "Steals",
-        "FT%",
-        "FG%",
-        "Turnovers",
-        "Blocks",
-        "Rebounds",
-    ];
-
-    const colors = ["#4CAF50", "#ff6f61", "#4a90e2", "#ffc107"];
-
-    console.log('PlayerComparisonGraph - players:', players);
-    console.log('PlayerComparisonGraph - playerNames:', playerNames);
-    
-    const playerDataMap = players.reduce((acc, player) => {
-        if (!player || !player.stats || !player.playerName) return acc;
-        const playerIdentifier = player.playerName;
-        acc[playerIdentifier] = player;
-        return acc;
-    }, {});
-
-    console.log('PlayerComparisonGraph - playerDataMap:', playerDataMap);
-
-    const validPlayerNames = playerNames.filter(name => 
-        name && typeof name === "string" && playerDataMap[name]
-    );
-    
-    console.log('PlayerComparisonGraph - validPlayerNames:', validPlayerNames);
-
-    const playerData = categories.map((category) => {
-        const dataPoint = { skill: category };
-        validPlayerNames.forEach((playerName) => {
-            const player = playerDataMap[playerName];
-            if (!player || !player.stats) {
-                dataPoint[playerName] = 0;
-                return;
-            }
-            let zScore = 0;
-            switch (category) {
-                case "Points":
-                    zScore = player.stats.points_z || 0;
-                    break;
-                case "3pt":
-                    zScore = player.stats.three_pointers_z || 0;
-                    break;
-                case "Assists":
-                    zScore = player.stats.assists_z || 0;
-                    break;
-                case "Steals":
-                    zScore = player.stats.steals_z || 0;
-                    break;
-                case "FT%":
-                    zScore = player.stats.free_throw_percentage_z || 0;
-                    break;
-                case "FG%":
-                    zScore = player.stats.field_goal_percentage_z || 0;
-                    break;
-                case "Turnovers":
-                    zScore = player.stats.turnovers_z || 0;
-                    break;
-                case "Blocks":
-                    zScore = player.stats.blocks_z || 0;
-                    break;
-                case "Rebounds":
-                    zScore = player.stats.rebounds_z || 0;
-                    break;
-            }
-            dataPoint[playerName] = zScore;
-        });
-        return dataPoint;
-    });
-
-    const radarComponents = validPlayerNames.map((playerName, index) => {
-        const player = playerDataMap[playerName];
-        if (!player) return null;
-        
-        return (
-            <Radar
-                key={playerName}
-                name={playerName}
-                dataKey={playerName}
-                stroke={colors[index % colors.length]}
-                fill={colors[index % colors.length]}
-                fillOpacity={0.3}
-                animationDuration={800}
-                animationEasing="ease-in-out"
-                animationBegin={index * 100}
-            />
-        );
-    }).filter(Boolean);
-
-    if (radarComponents.length === 0) {
-        radarComponents.push(
-            <Radar
-                key="empty"
-                name="Empty"
-                dataKey="Empty"
-                stroke="#4a90e2"
-                fill="#4a90e2"
-                fillOpacity={0.1}
-            />
-        );
-    }
-
-    const handleCategoryClick = (category) => {
-        setSelectedCategory(category);
-        setOpenDialog(true);
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setSelectedCategory(null);
-    };
-
-    const formatValue = (value, category) => {
-        const safeValue = value || 0;
-        if (category === "FG%" || category === "FT%") {
-            return `${safeValue.toFixed(2)}%`;
-        }
-        return safeValue.toFixed(2);
-    };
-
-    return (
-        <Box sx={{ p: 2, bgcolor: "#252525", borderRadius: 1, mt: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography
-                    variant="h5"
-                    sx={{
-                        color: "#e0e0e0",
-                        fontFamily: '"Roboto Mono", monospace',
-                        fontWeight: "bold",
-                    }}
-                >
-                    Player Comparison
-                </Typography>
-                {validPlayerNames.length > 0 && (
-                    <Button
-                        variant="outlined"
-                        onClick={onClearPlayers}
-                        sx={{
-                            color: "#ff6f61",
-                            borderColor: "#ff6f61",
-                            "&:hover": {
-                                borderColor: "#ff6f61",
-                                backgroundColor: "rgba(255, 111, 97, 0.1)",
-                            },
-                            fontFamily: '"Roboto Mono", monospace',
-                        }}
-                    >
-                        Clear All
-                    </Button>
-                )}
-            </Box>
-            <Box sx={{ height: "400px" }}>
-                <ResponsiveContainer width="100%" height={300}>
-                    <RadarChart outerRadius="70%" data={playerData}>
-                        <PolarGrid stroke="#4a90e2" />
-                        <PolarAngleAxis
-                            dataKey="skill"
-                            stroke="#e0e0e0"
-                            tick={{
-                                fontFamily: '"Roboto Mono", monospace',
-                                fontSize: 12,
-                            }}
-                            onClick={(e) => handleCategoryClick(e.value)}
-                            style={{ cursor: "pointer" }}
-                        />
-                        <PolarRadiusAxis
-                            angle={90}
-                            domain={[0, 4]}
-                            tick={false}
-                            stroke="#4a90e2"
-                        />
-                        {radarComponents}
-                        <RechartsTooltip
-                            contentStyle={{
-                                backgroundColor: "#252525",
-                                border: "1px solid #4a90e2",
-                                borderRadius: "4px",
-                            }}
-                            formatter={(value, name) => {
-                                if (name === "Empty") return ["No players selected", name];
-                                const category = playerData.find((d) => d[name] === value)?.skill;
-                                const player = playerDataMap[name];
-                                if (player && player.stats) {
-                                    let rawValue = 0;
-                                    switch (category) {
-                                        case "Points":
-                                            rawValue = player.stats.points || 0;
-                                            break;
-                                        case "3pt":
-                                            rawValue = player.stats.three_pointers || 0;
-                                            break;
-                                        case "Assists":
-                                            rawValue = player.stats.assists || 0;
-                                            break;
-                                        case "Steals":
-                                            rawValue = player.stats.steals || 0;
-                                            break;
-                                        case "FT%":
-                                            rawValue = (player.stats.free_throw_percentage || 0) * 100;
-                                            break;
-                                        case "FG%":
-                                            rawValue = (player.stats.field_goal_percentage || 0) * 100;
-                                            break;
-                                        case "Turnovers":
-                                            rawValue = player.stats.turnovers || 0;
-                                            break;
-                                        case "Blocks":
-                                            rawValue = player.stats.blocks || 0;
-                                            break;
-                                        case "Rebounds":
-                                            rawValue = player.stats.rebounds || 0;
-                                            break;
-                                    }
-                                    return [`${formatValue(rawValue, category)} (Z: ${(value || 0).toFixed(2)})`, name];
-                                }
-                                return [`${formatValue(value, category)}`, name];
-                            }}
-                            labelStyle={{ color: "#e0e0e0", display: "none" }}
-                            cursor={{ stroke: "#4a90e2", strokeWidth: 1 }}
-                        />
-                        <Legend
-                            wrapperStyle={{
-                                fontFamily: '"Roboto Mono", monospace',
-                                color: "#e0e0e0",
-                            }}
-                        />
-                    </RadarChart>
-                </ResponsiveContainer>
-            </Box>
-
-            <Dialog
-                open={openDialog}
-                onClose={handleCloseDialog}
-                fullWidth
-                PaperProps={{
-                    sx: {
-                        bgcolor: "#252525",
-                        borderRadius: 1,
-                    },
-                }}
-            >
-                <DialogTitle
-                    sx={{
-                        color: "#e0e0e0",
-                        fontFamily: '"Roboto Mono", monospace',
-                        fontWeight: "bold",
-                    }}
-                >
-                    {selectedCategory} Breakdown
-                </DialogTitle>
-                <DialogContent>
-                    {selectedCategory && (
-                        <Box sx={{ mt: 2 }}>
-                            {validPlayerNames.map((playerName, index) => {
-                                const player = playerDataMap[playerName];
-                                const stats = player?.stats || {};
-                                let value = 0;
-
-                                switch (selectedCategory) {
-                                    case "Points":
-                                        value = stats.points || 0;
-                                        break;
-                                    case "3pt":
-                                        value = stats.three_pointers || 0;
-                                        break;
-                                    case "Assists":
-                                        value = stats.assists || 0;
-                                        break;
-                                    case "Steals":
-                                        value = stats.steals || 0;
-                                        break;
-                                    case "FT%":
-                                        value = (stats.free_throw_percentage || 0) * 100;
-                                        break;
-                                    case "FG%":
-                                        value = (stats.field_goal_percentage || 0) * 100;
-                                        break;
-                                    case "Turnovers":
-                                        value = stats.turnovers || 0;
-                                        break;
-                                    case "Blocks":
-                                        value = stats.blocks || 0;
-                                        break;
-                                    case "Rebounds":
-                                        value = stats.rebounds || 0;
-                                        break;
-                                }
-
-                                return (
-                                    <Box key={index} sx={{ mb: 2 }}>
-                                        <Typography
-                                            variant="h6"
-                                            sx={{
-                                                color: colors[index % colors.length],
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                mb: 1,
-                                            }}
-                                        >
-                                            {playerName}
-                                        </Typography>
-                                        <Typography
-                                            sx={{
-                                                color: "#e0e0e0",
-                                                fontFamily: '"Roboto Mono", monospace',
-                                            }}
-                                        >
-                                            Value: {formatValue(value, selectedCategory)}
-                                        </Typography>
-                                    </Box>
-                                );
-                            })}
-                        </Box>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button
-                        onClick={handleCloseDialog}
-                        sx={{
-                            color: "#4a90e2",
-                            fontFamily: '"Roboto Mono", monospace',
-                        }}
-                    >
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Box>
-    );
-};
 
 const Matchup = () => {
     // Team state
@@ -730,30 +97,31 @@ const Matchup = () => {
     
     // Weekly matchup results state
     const [weeklyResults, setWeeklyResults] = useState([]);
-    const [openWeekDialog, setOpenWeekDialog] = useState(false);
-    const [selectedWeek, setSelectedWeek] = useState(null);
     
     // Current matchup state
     const [currentMatchup, setCurrentMatchup] = useState(null);
     const [matchupProjection, setMatchupProjection] = useState(null);
     const [scheduleData, setScheduleData] = useState(null);
-    const [expandedCategory, setExpandedCategory] = useState(null);
     const [disabledPlayers, setDisabledPlayers] = useState(() => {
         const saved = localStorage.getItem('disabledPlayers');
         return saved ? JSON.parse(saved) : {};
     });
-    const [playerStatusMenu, setPlayerStatusMenu] = useState(null);
-    const [selectedPlayerForMenu, setSelectedPlayerForMenu] = useState(null);
     
-    // Player status handlers
-    const handlePlayerClick = (event, player, dateStr) => {
-        setPlayerStatusMenu(event.currentTarget);
-        setSelectedPlayerForMenu({ ...player, dateStr });
-    };
-
-    const handleClosePlayerMenu = () => {
-        setPlayerStatusMenu(null);
-        setSelectedPlayerForMenu(null);
+    // Player status handler for projection tracker
+    const handlePlayerStatusChange = (playerId, newStatus) => {
+        const updatedDisabledPlayers = { ...disabledPlayers };
+        
+        if (newStatus === 'enabled') {
+            delete updatedDisabledPlayers[playerId];
+        } else {
+            updatedDisabledPlayers[playerId] = newStatus;
+        }
+        
+        setDisabledPlayers(updatedDisabledPlayers);
+        localStorage.setItem('disabledPlayers', JSON.stringify(updatedDisabledPlayers));
+        
+        // Recalculate projection with updated disabled players (frontend only, no API calls)
+        recalculateProjectionWithDisabledPlayers(updatedDisabledPlayers);
     };
 
     // Recalculate projections on the frontend only (no API calls)
@@ -894,26 +262,6 @@ const Matchup = () => {
         });
     };
 
-    const handlePlayerStatusChange = (newStatus) => {
-        if (!selectedPlayerForMenu) return;
-        
-        const playerId = selectedPlayerForMenu.id;
-        const updatedDisabledPlayers = { ...disabledPlayers };
-        
-        if (newStatus === 'enabled') {
-            delete updatedDisabledPlayers[playerId];
-        } else {
-            updatedDisabledPlayers[playerId] = newStatus;
-        }
-        
-        setDisabledPlayers(updatedDisabledPlayers);
-        localStorage.setItem('disabledPlayers', JSON.stringify(updatedDisabledPlayers));
-        
-        // Recalculate projection with updated disabled players (frontend only, no API calls)
-        recalculateProjectionWithDisabledPlayers(updatedDisabledPlayers);
-        
-        handleClosePlayerMenu();
-    };
     
     // Auth context
     const { user, isAuthenticated, login } = useAuth();
@@ -922,6 +270,7 @@ const Matchup = () => {
     
     // Loading and error state
     const [loading, setLoading] = useState(false);
+    const [loadingTeams, setLoadingTeams] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     
@@ -952,7 +301,7 @@ const Matchup = () => {
             body: payload,
         });
 
-        if (error) throw error;
+            if (error) throw error;
         return data;
     };
 
@@ -1058,8 +407,8 @@ const Matchup = () => {
             // Get player IDs and their NBA teams
             const getPlayerTeams = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
-                
-                if (playerIds.length === 0) return [];
+
+            if (playerIds.length === 0) return [];
 
                 // Try to get teams from yahoo_nba_mapping using both nba_id and yahoo_id
                 const { data, error } = await supabase
@@ -1087,24 +436,24 @@ const Matchup = () => {
                 
                 if (playerIds.length === 0) return {};
 
-                const { data, error } = await supabase
-                    .from('player_season_averages')
-                    .select('*')
-                    .eq('season', CURRENT_SEASON)
-                    .in('player_id', playerIds);
+            const { data, error } = await supabase
+                .from('player_season_averages')
+                .select('*')
+                .eq('season', CURRENT_SEASON)
+                .in('player_id', playerIds);
 
                 if (error) throw error;
 
                 const averages = {};
                 data.forEach(row => {
                     averages[row.player_id] = {
-                        points: row.points_per_game || 0,
-                        rebounds: row.rebounds_per_game || 0,
-                        assists: row.assists_per_game || 0,
-                        steals: row.steals_per_game || 0,
-                        blocks: row.blocks_per_game || 0,
+                    points: row.points_per_game || 0,
+                    rebounds: row.rebounds_per_game || 0,
+                    assists: row.assists_per_game || 0,
+                    steals: row.steals_per_game || 0,
+                    blocks: row.blocks_per_game || 0,
                         threePointers: row.three_pointers_per_game || 0,
-                        turnovers: row.turnovers_per_game || 0,
+                    turnovers: row.turnovers_per_game || 0,
                         fieldGoalsMade: row.field_goals_per_game || 0,
                         fieldGoalsAttempted: row.field_goals_attempted_per_game || 0,
                         freeThrowsMade: row.free_throws_per_game || 0,
@@ -1197,13 +546,18 @@ const Matchup = () => {
                 // Daily projections - one for each day of the week
                 const dailyProjections = [];
                 const current = new Date(weekStart);
-                const todayStr = currentDate.toISOString().split('T')[0];
                 
                 for (let i = 0; i < 7; i++) {
                     const dateStr = current.toISOString().split('T')[0];
                     const dayOfWeek = current.toLocaleDateString('en-US', { weekday: 'short' });
                     const monthDay = current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    const isToday = dateStr === todayStr;
+                    
+                    // Compare dates properly - use yesterday as "today" for highlighting
+                    const yesterday = new Date(currentDate);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+                    const isToday = dateStr === yesterdayStr;
+                    
                     // Compare dates properly, not strings
                     const currentDayStart = new Date(current);
                     currentDayStart.setHours(0, 0, 0, 0);
@@ -1451,7 +805,7 @@ const Matchup = () => {
     const handleLoadLeague = async () => {
         if (!selectedLeague || !userId) return;
 
-        setLoading(true);
+        setLoadingTeams(true);
         setError(null);
         try {
             const data = await callSupabaseFunction("yahoo-fantasy-api", {
@@ -1494,7 +848,7 @@ const Matchup = () => {
         } catch (err) {
             setError(err.message || "Failed to load league");
         } finally {
-            setLoading(false);
+            setLoadingTeams(false);
         }
     };
 
@@ -1686,7 +1040,7 @@ const Matchup = () => {
 
     // Auto-load league when selected
     useEffect(() => {
-        if (selectedLeague && userId && isConnected && allLeagueTeams.length === 0 && !loading) {
+        if (selectedLeague && userId && isConnected && allLeagueTeams.length === 0 && !loadingTeams) {
             handleLoadLeague();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1877,49 +1231,6 @@ const Matchup = () => {
         fetchWeeklyResults();
     }, [team1Players, team2Players, fetchWeeklyMatchupResults]);
 
-    const handleWeekClick = (week) => {
-        setSelectedWeek(week);
-        setOpenWeekDialog(true);
-    };
-
-    const handleCloseWeekDialog = () => {
-        setOpenWeekDialog(false);
-        setSelectedWeek(null);
-    };
-
-    const getCategoryBreakdown = (week) => {
-        const weekResult = weeklyResults.find(r => r.week === week);
-        if (!weekResult || !weekResult.categoryResults) return null;
-        
-        return Object.entries(weekResult.categoryResults).map(([category, data]) => ({
-            category,
-            t1Value: data.t1,
-            t2Value: data.t2,
-            winner: data.winner
-        }));
-    };
-
-    const getMatchupColor = (result) => {
-        const [team1Wins, team2Wins] = result.score.split('-').map(Number);
-        const totalCategories = team1Wins + team2Wins;
-        const margin = Math.abs(team1Wins - team2Wins);
-        const opacity = 0.1 + (margin / totalCategories) * 0.3;
-        
-        if (team1Wins > team2Wins) return `rgba(76, 175, 80, ${opacity})`;
-        if (team2Wins > team1Wins) return `rgba(244, 67, 54, ${opacity})`;
-        return 'rgba(158, 158, 158, 0.1)';
-    };
-
-    const getTextColor = (result) => {
-        const [team1Wins, team2Wins] = result.score.split('-').map(Number);
-        const totalCategories = team1Wins + team2Wins;
-        const margin = Math.abs(team1Wins - team2Wins);
-        const opacity = 0.8 + (margin / totalCategories) * 0.2;
-        
-        if (team1Wins > team2Wins) return `rgba(76, 175, 80, ${opacity})`;
-        if (team2Wins > team1Wins) return `rgba(244, 67, 54, ${opacity})`;
-        return 'rgba(158, 158, 158, 0.8)';
-    };
 
     // Show loading state on initial load
     if (initialLoading) {
@@ -1968,245 +1279,21 @@ const Matchup = () => {
                 </Alert>
             )}
 
-            {/* Yahoo Fantasy Connection (Optional) */}
-            {!isConnected && (
-                <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1, textAlign: "center" }}>
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            mb: 2,
-                            color: "#e0e0e0",
-                            fontFamily: '"Roboto Mono", monospace',
-                        }}
-                    >
-                        Add your players or load them from Yahoo Fantasy
-                    </Typography>
-                    <Button
-                        variant="outlined"
-                        onClick={handleYahooConnect}
-                        disabled={loading}
-                        startIcon={loading ? <CircularProgress size={20} /> : <SportsBasketballIcon />}
-                        sx={{
-                            color: "#4a90e2",
-                            borderColor: "#4a90e2",
-                            "&:hover": {
-                                borderColor: "#80deea",
-                                bgcolor: "rgba(74, 144, 226, 0.1)",
-                            },
-                            fontFamily: '"Roboto Mono", monospace',
-                            px: 4,
-                            py: 1.5,
-                        }}
-                    >
-                        {loading ? "Connecting..." : "Connect to Yahoo Fantasy"}
-                    </Button>
-                </Box>
-            )}
+            {/* Yahoo Connection Section */}
+            <YahooConnectionSection
+                isConnected={isConnected}
+                loading={loadingTeams || (isConnected && allLeagueTeams.length === 0 && selectedLeague)}
+                userLeagues={userLeagues}
+                selectedLeague={selectedLeague}
+                onLeagueChange={setSelectedLeague}
+                onYahooConnect={handleYahooConnect}
+                allLeagueTeams={allLeagueTeams}
+                selectedTeam1={selectedTeam1}
+                selectedTeam2={selectedTeam2}
+                onTeamSelect={handleTeamSelect}
+                onSwitchTeams={handleSwitchTeams}
+            />
 
-            {/* Yahoo League Selection */}
-            {isConnected && userLeagues.length > 0 && (
-                    <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
-                        <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={12}>
-                                <FormControl fullWidth>
-                                    <InputLabel
-                                        sx={{
-                                            color: "#b0bec5",
-                                            "&.Mui-focused": { color: "#4a90e2" },
-                                        }}
-                                    >
-                                        Select League
-                                    </InputLabel>
-                                    <Select
-                                        value={selectedLeague}
-                                        onChange={(e) => setSelectedLeague(e.target.value)}
-                                        label="Select League"
-                                        sx={{
-                                            bgcolor: "#252525",
-                                            color: "#e0e0e0",
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "#4a90e2",
-                                            },
-                                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "#80deea",
-                                            },
-                                            "& .MuiSelect-icon": { color: "#4a90e2" },
-                                        }}
-                                    >
-                                        {userLeagues.map((league) => (
-                                            <MenuItem key={league.leagueId} value={league.leagueId}>
-                                                {league.name} ({league.season})
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                                {loading && (
-                                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, gap: 2 }}>
-                                        <CircularProgress size={20} />
-                                        <Typography
-                                            sx={{
-                                                color: "#e0e0e0",
-                                                fontFamily: '"Roboto Mono", monospace',
-                                            }}
-                                        >
-                                            Loading league data...
-                                        </Typography>
-                                    </Box>
-                                )}
-                            </Grid>
-                        </Grid>
-                    </Box>
-            )}
-
-            {/* Team Selection Dropdowns */}
-            {isConnected && allLeagueTeams.length > 0 && (
-                <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={12} md={5}>
-                            <FormControl fullWidth>
-                                <InputLabel
-                                    sx={{
-                                        color: "#b0bec5",
-                                        "&.Mui-focused": { color: "#4a90e2" },
-                                        fontFamily: '"Roboto Mono", monospace',
-                                    }}
-                                >
-                                    Team 1
-                                </InputLabel>
-                                <Select
-                                    value={selectedTeam1}
-                                    onChange={(e) => handleTeamSelect("team1", e.target.value)}
-                                    label="Team 1"
-                                    sx={{
-                                        bgcolor: "#252525",
-                                        color: "#e0e0e0",
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#4a90e2",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#80deea",
-                                        },
-                                        "& .MuiSelect-icon": { color: "#4a90e2" },
-                                        fontFamily: '"Roboto Mono", monospace',
-                                    }}
-                                >
-                                    {allLeagueTeams.map((team) => (
-                                        <MenuItem 
-                                            key={team.key} 
-                                            value={team.name}
-                                            disabled={team.name === selectedTeam2}
-                                            sx={{
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                "&.Mui-disabled": { opacity: 0.5 },
-                                            }}
-                                        >
-                                            {team.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid
-                            item
-                            xs={12}
-                            md={2}
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        >
-                            <IconButton
-                                onClick={handleSwitchTeams}
-                                sx={{
-                                    color: "#4a90e2",
-                                    "&:hover": {
-                                        color: "#80deea",
-                                        backgroundColor: "rgba(74, 144, 226, 0.1)",
-                                    },
-                                }}
-                            >
-                                <SwitchIcon fontSize="large" />
-                            </IconButton>
-                        </Grid>
-                        <Grid item xs={12} md={5}>
-                            <FormControl fullWidth>
-                                <InputLabel
-                                    sx={{
-                                        color: "#b0bec5",
-                                        "&.Mui-focused": { color: "#4a90e2" },
-                                        fontFamily: '"Roboto Mono", monospace',
-                                    }}
-                                >
-                                    Team 2
-                                </InputLabel>
-                                <Select
-                                    value={selectedTeam2}
-                                    onChange={(e) => handleTeamSelect("team2", e.target.value)}
-                                    label="Team 2"
-                                    sx={{
-                                        bgcolor: "#252525",
-                                        color: "#e0e0e0",
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#4a90e2",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#80deea",
-                                        },
-                                        "& .MuiSelect-icon": { color: "#4a90e2" },
-                                        fontFamily: '"Roboto Mono", monospace',
-                                    }}
-                                >
-                                    {allLeagueTeams.map((team) => (
-                                        <MenuItem 
-                                            key={team.key} 
-                                            value={team.name}
-                                            disabled={team.name === selectedTeam1}
-                                            sx={{
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                "&.Mui-disabled": { opacity: 0.5 },
-                                            }}
-                                        >
-                                            {team.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                    </Grid>
-                </Box>
-            )}
-
-            {/* Loading Spinner Overlay */}
-            {loading && (
-                <Box
-                    sx={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        bgcolor: "rgba(0, 0, 0, 0.7)",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        zIndex: 9999,
-                    }}
-                >
-                    <Box sx={{ textAlign: "center" }}>
-                        <CircularProgress size={60} sx={{ color: "#4a90e2" }} />
-                        <Typography
-                            sx={{
-                                mt: 2,
-                                color: "#e0e0e0",
-                                fontFamily: '"Roboto Mono", monospace',
-                            }}
-                        >
-                            Loading league data...
-                        </Typography>
-                    </Box>
-                </Box>
-            )}
 
 
             {/* Team Rosters */}
@@ -2604,570 +1691,20 @@ const Matchup = () => {
             </Grid>
 
             {/* Weekly Matchup Results */}
-            {weeklyResults.length > 0 && (
-                <Box sx={{ mt: 4 }}>
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            mb: 3,
-                            fontWeight: "bold",
-                            textAlign: "center",
-                            color: "#4a90e2",
-                            fontFamily: '"Roboto Mono", monospace',
-                        }}
-                    >
-                        Weekly Matchup Results
-                    </Typography>
-                    <Grid container spacing={2}>
-                        {weeklyResults.map((result) => (
-                            <Grid item xs={12} sm={6} md={4} lg={3} key={result.week}>
-                                <Paper
-                                    onClick={() => handleWeekClick(result.week)}
-                                    sx={{
-                                        p: 1.5,
-                                        cursor: "pointer",
-                                        transition: "transform 0.2s",
-                                        "&:hover": {
-                                            transform: "scale(1.02)",
-                                        },
-                                        bgcolor: getMatchupColor(result),
-                                        border: `1px solid ${getMatchupColor(result).replace('0.1', '0.3')}`,
-                                    }}
-                                >
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                        <Typography
-                                            variant="subtitle2"
-                                            sx={{
-                                                color: "#4a90e2",
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                fontWeight: 'bold'
-                                            }}
-                                        >
-                                            W{result.week}
-                                        </Typography>
-                                        <Typography
-                                            variant="caption"
-                                            sx={{
-                                                color: "#b0bec5",
-                                                fontFamily: '"Roboto Mono", monospace'
-                                            }}
-                                        >
-                                            {result.weekStart ? result.weekStart.split('-')[1] + '/' + result.weekStart.split('-')[2] : ''}
-                                        </Typography>
-                                    </Box>
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            color: "#e0e0e0",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold',
-                                            textAlign: 'center',
-                                            mb: 0.5
-                                        }}
-                                    >
-                                        {result.score}
-                                    </Typography>
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            display: 'block',
-                                            textAlign: 'center',
-                                            color: getTextColor(result),
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
-                                        }}
-                                    >
-                                        {result.winner === "Tie" ? "TIE" : `${result.winner.split(' ')[0]} W`}
-                                    </Typography>
-                                </Paper>
-                            </Grid>
-                        ))}
-                    </Grid>
-                </Box>
-            )}
-
-            {/* Week Detail Dialog */}
-            <Dialog
-                open={openWeekDialog}
-                onClose={handleCloseWeekDialog}
-                fullWidth
-                maxWidth="sm"
-                PaperProps={{
-                    sx: {
-                        bgcolor: "#252525",
-                        borderRadius: 1,
-                    }
-                }}
-            >
-                <DialogTitle
-                    sx={{
-                        color: "#4a90e2",
-                        fontFamily: '"Roboto Mono", monospace',
-                        fontWeight: 'bold',
-                        pb: 1
-                    }}
-                >
-                    W{selectedWeek} Breakdown
-                </DialogTitle>
-                <DialogContent>
-                    {selectedWeek && getCategoryBreakdown(selectedWeek) && (
-                        <TableContainer>
-                            <Table size="small">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
-                                        }}>Category</TableCell>
-                                        <TableCell align="right" sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
-                                        }}>{team1Name}</TableCell>
-                                        <TableCell align="right" sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
-                                        }}>{team2Name}</TableCell>
-                                        <TableCell sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
-                                        }}>Winner</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {getCategoryBreakdown(selectedWeek).map((row) => {
-                                        const isTurnovers = row.category === "Turnovers";
-                                        const team1Won = isTurnovers ? parseFloat(row.t1Value) < parseFloat(row.t2Value) : parseFloat(row.t1Value) > parseFloat(row.t2Value);
-                                        const color = team1Won ? 'rgba(76, 175, 80, 0.2)' : row.winner === team1Name ? 'rgba(76, 175, 80, 0.1)' : row.winner === team2Name ? 'rgba(244, 67, 54, 0.1)' : 'rgba(158, 158, 158, 0.1)';
-                                        const textColor = team1Won ? 'rgba(76, 175, 80, 0.9)' : row.winner === team1Name ? 'rgba(76, 175, 80, 0.8)' : row.winner === team2Name ? 'rgba(244, 67, 54, 0.8)' : 'rgba(158, 158, 158, 0.8)';
-                                        return (
-                                            <TableRow
-                                                key={row.category}
-                                                sx={{ bgcolor: color }}
-                                            >
-                                                <TableCell sx={{
-                                                    fontFamily: '"Roboto Mono", monospace',
-                                                    color: "#e0e0e0"
-                                                }}>{row.category}</TableCell>
-                                                <TableCell align="right" sx={{
-                                                    fontFamily: '"Roboto Mono", monospace',
-                                                    color: "#e0e0e0"
-                                                }}>{row.t1Value}</TableCell>
-                                                <TableCell align="right" sx={{
-                                                    fontFamily: '"Roboto Mono", monospace',
-                                                    color: "#e0e0e0"
-                                                }}>{row.t2Value}</TableCell>
-                                                <TableCell>
-                                                    <Typography
-                                                        sx={{
-                                                            fontFamily: '"Roboto Mono", monospace',
-                                                            fontWeight: 'bold'
-                                                        }}
-                                                        color={textColor}
-                                                    >
-                                                        {row.winner.split(' ')[0]}
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                </DialogContent>
-                <DialogActions sx={{ p: 1 }}>
-                    <Button
-                        onClick={handleCloseWeekDialog}
-                        size="small"
-                        sx={{
-                            fontFamily: '"Roboto Mono", monospace',
-                            color: "#4a90e2"
-                        }}
-                    >
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <WeeklyMatchupResults
+                weeklyResults={weeklyResults}
+                team1Name={team1Name}
+                team2Name={team2Name}
+            />
 
             {/* Current Yahoo Matchup - Week Tracker */}
-            {matchupProjection && (
-                <Box sx={{ mt: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
-                        <Typography
-                            variant="h5"
-                            sx={{
-                                fontWeight: "bold",
-                                color: "#4a90e2",
-                                fontFamily: '"Roboto Mono", monospace',
-                            }}
-                        >
-                            Matchup Projection Tracker (Week {currentMatchup.week})
-                        </Typography>
-                        <Box 
-                            sx={{ 
-                                bgcolor: '#333', 
-                                borderRadius: '50%', 
-                                width: 20, 
-                                height: 20, 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                cursor: 'help',
-                                fontSize: '0.75rem',
-                                color: '#4a90e2',
-                                fontWeight: 'bold',
-                                border: '1px solid #4a90e2'
-                            }}
-                            title="This tracker shows your matchup week (Monday-Sunday). Past days show '-', today and future days show projected stats based on scheduled games and player averages. Click any category to see player details. Click individual players to enable/disable them from projections."
-                        >
-                            i
-                        </Box>
-                    </Box>
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            mb: 3,
-                            textAlign: "center",
-                            color: "#b0bec5",
-                            fontFamily: '"Roboto Mono", monospace',
-                        }}
-                    >
-                        {matchupProjection.weekStart} - {matchupProjection.weekEnd} (Today: {matchupProjection.currentDate})
-                    </Typography>
-                    
-                    {/* Projected Score Display */}
-                    <Box sx={{ textAlign: 'center', mb: 3 }}>
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                color: "#b0bec5",
-                                fontFamily: '"Roboto Mono", monospace',
-                                mb: 1
-                            }}
-                        >
-                            PROJECTED FINAL SCORE
-                        </Typography>
-                        <Typography
-                            variant="h2"
-                            sx={{
-                                color: "#e0e0e0",
-                                fontFamily: '"Roboto Mono", monospace',
-                                fontWeight: 'bold',
-                                mb: 1
-                            }}
-                        >
-                            {matchupProjection.team1Score} - {matchupProjection.team2Score}
-                        </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: matchupProjection.team1Score > matchupProjection.team2Score ? "#4CAF50" : matchupProjection.team1Score < matchupProjection.team2Score ? "#666" : "#b0bec5",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                {matchupProjection.team1.name}
-                            </Typography>
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: "#b0bec5",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                }}
-                            >
-                                vs
-                            </Typography>
-                            <Typography
-                                variant="h6"
-                                sx={{
-                                    color: matchupProjection.team2Score > matchupProjection.team1Score ? "#ff6f61" : matchupProjection.team2Score < matchupProjection.team1Score ? "#666" : "#b0bec5",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                {matchupProjection.team2.name}
-                            </Typography>
-                        </Box>
-                    </Box>
-
-                    {/* Day-by-Day Stats Breakdown */}
-                    <TableContainer>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Category</TableCell>
-                                    {matchupProjection.team1.dailyProjections && matchupProjection.team1.dailyProjections.map((day, idx) => (
-                                        <TableCell 
-                                            key={idx} 
-                                            align="center" 
-                                            sx={{ 
-                                                color: day.isToday ? "#4a90e2" : "#b0bec5", 
-                                                fontFamily: '"Roboto Mono", monospace', 
-                                                fontWeight: 'bold', 
-                                                fontSize: '0.7rem',
-                                                bgcolor: day.isToday ? 'rgba(74, 144, 226, 0.1)' : 'transparent'
-                                            }}
-                                        >
-                                            <Box>{day.dayOfWeek}</Box>
-                                            <Box sx={{ fontSize: '0.65rem', color: day.isToday ? '#4a90e2' : '#888' }}>
-                                                {day.monthDay}
-                                                {day.isToday && ' (Today)'}
-                                            </Box>
-                                        </TableCell>
-                                    ))}
-                                    <TableCell align="center" sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Total</TableCell>
-                                    <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Winner</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {/* Render each category with day-by-day breakdown */}
-                                {['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers', 'turnovers', 'fieldGoalPercentage', 'freeThrowPercentage'].map((catKey) => {
-                                    const catLabels = {
-                                        points: 'Points',
-                                        rebounds: 'Rebounds',
-                                        assists: 'Assists',
-                                        steals: 'Steals',
-                                        blocks: 'Blocks',
-                                        threePointers: '3PT',
-                                        turnovers: 'TO',
-                                        fieldGoalPercentage: 'FG%',
-                                        freeThrowPercentage: 'FT%'
-                                    };
-                                    
-                                    const catData = matchupProjection.categoryResults[catKey];
-                                    if (!catData) return null;
-                                    
-                                    const isWin = catData.winner === matchupProjection.team1.name;
-                                    const isLoss = catData.winner === matchupProjection.team2.name;
-                                    const bgColor = isWin ? 'rgba(76, 175, 80, 0.1)' : isLoss ? 'rgba(244, 67, 54, 0.1)' : 'rgba(158, 158, 158, 0.05)';
-                                    const textColor = isWin ? 'rgba(76, 175, 80, 0.9)' : isLoss ? 'rgba(244, 67, 54, 0.9)' : 'rgba(158, 158, 158, 0.8)';
-                                    const isExpanded = expandedCategory === catKey;
-                                    const isPct = catKey === 'fieldGoalPercentage' || catKey === 'freeThrowPercentage';
-                                    
-                                    return (
-                                        <React.Fragment key={catKey}>
-                                            <TableRow 
-                                                sx={{ 
-                                                    bgcolor: bgColor,
-                                                    cursor: 'pointer',
-                                                    '&:hover': { bgcolor: isWin ? 'rgba(76, 175, 80, 0.15)' : isLoss ? 'rgba(244, 67, 54, 0.15)' : 'rgba(158, 158, 158, 0.1)' }
-                                                }}
-                                                onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
-                                            >
-                                                <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0", fontWeight: 'bold' }}>
-                                                    {catLabels[catKey]} {isExpanded ? '▼' : '▶'}
-                                                </TableCell>
-                                            {matchupProjection.team1.dailyProjections.map((day, idx) => (
-                                                <TableCell 
-                                                    key={idx} 
-                                                    align="center" 
-                                                    sx={{ 
-                                                        fontSize: '0.65rem', 
-                                                        py: 0.5,
-                                                        bgcolor: day.isToday ? 'rgba(74, 144, 226, 0.05)' : 'transparent'
-                                                    }}
-                                                >
-                                                    {day.isPast ? (
-                                                        <Box sx={{ color: '#666' }}>-</Box>
-                                                    ) : (
-                                                        <>
-                                                            <Box sx={{ color: "#4CAF50" }}>
-                                                                {isPct 
-                                                                    ? `${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                                    : (day.totals[catKey] || 0).toFixed(1)
-                                                                }
-                                                            </Box>
-                                                            <Box sx={{ color: "#ff6f61" }}>
-                                                                {isPct 
-                                                                    ? `${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                                    : (matchupProjection.team2.dailyProjections[idx]?.totals[catKey] || 0).toFixed(1)
-                                                                }
-                                                            </Box>
-                                                        </>
-                                                    )}
-                                                </TableCell>
-                                            ))}
-                                                <TableCell align="center">
-                                                    <Box sx={{ color: "#4CAF50", fontWeight: 'bold' }}>
-                                                        {isPct 
-                                                            ? `${(catData.team1Made || 0).toFixed(0)}/${(catData.team1Attempted || 0).toFixed(0)} (${catData.team1Attempted > 0 ? ((catData.team1Made / catData.team1Attempted) * 100).toFixed(1) : 0}%)`
-                                                            : (catData.team1 || 0).toFixed(1)
-                                                        }
-                                                    </Box>
-                                                    <Box sx={{ color: "#ff6f61", fontWeight: 'bold' }}>
-                                                        {isPct 
-                                                            ? `${(catData.team2Made || 0).toFixed(0)}/${(catData.team2Attempted || 0).toFixed(0)} (${catData.team2Attempted > 0 ? ((catData.team2Made / catData.team2Attempted) * 100).toFixed(1) : 0}%)`
-                                                            : (catData.team2 || 0).toFixed(1)
-                                                        }
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold', fontSize: '0.75rem' }} style={{ color: textColor }}>
-                                                        {isWin ? matchupProjection.team1.name.split(' ')[0] : isLoss ? matchupProjection.team2.name.split(' ')[0] : 'TIE'}
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                            {isExpanded && (
-                                                <TableRow>
-                                                    <TableCell colSpan={10} sx={{ bgcolor: '#1a1a1a', p: 2 }}>
-                                                        <Grid container spacing={2}>
-                                                            {matchupProjection.team1.dailyProjections.map((day, idx) => {
-                                                                if (day.isPast || (day.players.length === 0 && matchupProjection.team2.dailyProjections[idx]?.players.length === 0)) return null;
-                                                                const team2Day = matchupProjection.team2.dailyProjections[idx];
-                                                                
-                                                                return (
-                                                                    <Grid item xs={12} sm={6} md={4} key={idx}>
-                                                                        <Box sx={{ bgcolor: '#252525', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #4a90e2' : '1px solid #333' }}>
-                                                                            <Typography variant="caption" sx={{ color: day.isToday ? '#4a90e2' : '#888', fontWeight: 'bold', display: 'block', mb: 1, textAlign: 'center' }}>
-                                                                                {day.dayOfWeek} {day.monthDay} {day.isToday ? '(Today)' : ''}
-                                                                            </Typography>
-                                                                            <Box sx={{ mb: 1.5 }}>
-                                                                                <Typography variant="caption" sx={{ color: '#4CAF50', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                                                                                    {matchupProjection.team1.name}
-                                                                                </Typography>
-                                                                                {day.players.length > 0 ? day.players.map((player, pidx) => {
-                                                                                    const statValue = isPct 
-                                                                                        ? `${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(1)}/${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(1)}`
-                                                                                        : (player.stats[catKey] || 0).toFixed(1);
-                                                                                    
-                                                                                    const isDisabled = player.disabled;
-                                                                                    const statusText = player.status ? ` [${player.status}]` : '';
-                                                                                    const posText = player.selectedPosition && (player.selectedPosition === 'IL' || player.selectedPosition === 'IL+') ? ` [${player.selectedPosition}]` : '';
-                                                                                    
-                                                                                    return (
-                                                                                        <Typography 
-                                                                                            key={pidx} 
-                                                                                            variant="caption" 
-                                                                                            onClick={(e) => handlePlayerClick(e, player, day.date)}
-                                                                                            sx={{ 
-                                                                                                color: isDisabled ? '#666' : '#4CAF50', 
-                                                                                                display: 'block', 
-                                                                                                fontSize: '0.7rem', 
-                                                                                                ml: 1,
-                                                                                                cursor: 'pointer',
-                                                                                                textDecoration: isDisabled ? 'line-through' : 'none',
-                                                                                                opacity: isDisabled ? 0.6 : 1,
-                                                                                                '&:hover': {
-                                                                                                    bgcolor: 'rgba(76, 175, 80, 0.1)',
-                                                                                                    borderRadius: '4px',
-                                                                                                    px: 0.5
-                                                                                                }
-                                                                                            }}
-                                                                                        >
-                                                                                            • {player.name}{statusText}{posText}: {statValue}
-                                                                                        </Typography>
-                                                                                    );
-                                                                                }) : (
-                                                                                    <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
-                                                                                        No games
-                                                                                    </Typography>
-                                                                                )}
-                                                                            </Box>
-                                                                            <Box>
-                                                                                <Typography variant="caption" sx={{ color: '#ff6f61', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                                                                                    {matchupProjection.team2.name}
-                                                                                </Typography>
-                                                                                {team2Day && team2Day.players.length > 0 ? team2Day.players.map((player, pidx) => {
-                                                                                    const statValue = isPct 
-                                                                                        ? `${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(1)}/${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(1)}`
-                                                                                        : (player.stats[catKey] || 0).toFixed(1);
-                                                                                    
-                                                                                    const isDisabled = player.disabled;
-                                                                                    const statusText = player.status ? ` [${player.status}]` : '';
-                                                                                    const posText = player.selectedPosition && (player.selectedPosition === 'IL' || player.selectedPosition === 'IL+') ? ` [${player.selectedPosition}]` : '';
-                                                                                    
-                                                                                    return (
-                                                                                        <Typography 
-                                                                                            key={pidx} 
-                                                                                            variant="caption" 
-                                                                                            onClick={(e) => handlePlayerClick(e, player, day.date)}
-                                                                                            sx={{ 
-                                                                                                color: isDisabled ? '#666' : '#ff6f61', 
-                                                                                                display: 'block', 
-                                                                                                fontSize: '0.7rem', 
-                                                                                                ml: 1,
-                                                                                                cursor: 'pointer',
-                                                                                                textDecoration: isDisabled ? 'line-through' : 'none',
-                                                                                                opacity: isDisabled ? 0.6 : 1,
-                                                                                                '&:hover': {
-                                                                                                    bgcolor: 'rgba(255, 111, 97, 0.1)',
-                                                                                                    borderRadius: '4px',
-                                                                                                    px: 0.5
-                                                                                                }
-                                                                                            }}
-                                                                                        >
-                                                                                            • {player.name}{statusText}{posText}: {statValue}
-                                                                                        </Typography>
-                                                                                    );
-                                                                                }) : (
-                                                                                    <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
-                                                                                        No games
-                                                                                    </Typography>
-                                                                                )}
-                                                                            </Box>
-                                                                        </Box>
-                                                                    </Grid>
-                                                                );
-                                                            })}
-                                                        </Grid>
-                                                    </TableCell>
-                                                </TableRow>
-                                            )}
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            )}
-
-            {/* Player Status Menu */}
-            <Menu
-                anchorEl={playerStatusMenu}
-                open={Boolean(playerStatusMenu)}
-                onClose={handleClosePlayerMenu}
-                PaperProps={{
-                    sx: {
-                        bgcolor: '#252525',
-                        border: '1px solid #333',
-                        minWidth: 200
-                    }
-                }}
-            >
-                <MenuItem 
-                    onClick={() => handlePlayerStatusChange('enabled')}
-                    sx={{ 
-                        color: '#e0e0e0',
-                        '&:hover': { bgcolor: 'rgba(76, 175, 80, 0.2)' }
-                    }}
-                >
-                    ✓ Enable Player
-                </MenuItem>
-                <MenuItem 
-                    onClick={() => handlePlayerStatusChange('disabled')}
-                    sx={{ 
-                        color: '#e0e0e0',
-                        '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' }
-                    }}
-                >
-                    ✗ Disable Player
-                </MenuItem>
-                <MenuItem 
-                    onClick={() => handlePlayerStatusChange('disabledForWeek')}
-                    sx={{ 
-                        color: '#e0e0e0',
-                        '&:hover': { bgcolor: 'rgba(255, 152, 0, 0.2)' }
-                    }}
-                >
-                    ⊗ Disable for Week
-                </MenuItem>
-            </Menu>
+            <MatchupProjectionTracker
+                matchupProjection={matchupProjection}
+                currentMatchup={currentMatchup}
+                disabledPlayers={disabledPlayers}
+                onPlayerStatusChange={handlePlayerStatusChange}
+                isConnected={isConnected}
+            />
         </Box>
     );
 };
