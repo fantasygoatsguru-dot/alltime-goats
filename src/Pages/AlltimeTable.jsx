@@ -23,7 +23,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { fetchAllPlayers, fetchFilteredPlayerAverages } from "../api";
-import EzoicAd from "../components/EzoicAd";
 
 const AlltimeTable = () => {
   const [loading, setLoading] = useState(false);
@@ -678,9 +677,6 @@ const AlltimeTable = () => {
                   />
                 ))}
               </Box>
-
-              {/* Ezoic Ad - under_first_paragraph */}
-              <EzoicAd placeholderId="ezoic-pub-ad-placeholder-110" />
 
               {/* Table */}
       <TableContainer

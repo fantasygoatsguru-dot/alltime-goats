@@ -7,7 +7,6 @@ import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
 import Matchup from '../Pages/Matchup';
 import About from '../Pages/About';
-import EzoicAd from './EzoicAd';
 import { useAuth } from '../contexts/AuthContext';
 
 const AlltimeLayout = () => {

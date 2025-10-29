@@ -38,7 +38,6 @@ import {
 } from "recharts";
 import { fetchAllTimePlayerStats, fetchAllPlayers } from "../api";
 import AddIcon from "@mui/icons-material/Add";
-import EzoicAd from "../components/EzoicAd";
 
 // Define preset teams
 const presetTeams = [
@@ -1358,8 +1357,6 @@ const Alltime = () => {
                     </FormControl>
                 </Grid>
             </Grid>
-            {/* Ezoic Ad - under_first_paragraph */}
-            <EzoicAd placeholderId="ezoic-pub-ad-placeholder-110" />
 
             <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
