@@ -346,6 +346,7 @@ const Matchup = () => {
     
     // Ref to prevent double-processing of OAuth callback
     const hasProcessedCallback = useRef(false);
+    const hasAutoSelectedInitialPlayers = useRef(false);
 
     const fetchAllPlayersFromSupabase = useCallback(async () => {
         return await fetchAllPlayers();
@@ -429,6 +430,9 @@ const Matchup = () => {
                         active: true,
                     }))
                 );
+                
+                // Reset auto-selection flag when new teams are loaded
+                hasAutoSelectedInitialPlayers.current = false;
 
                 // Calculate projection after setting matchup
                 if (scheduleData) {
@@ -1028,59 +1032,92 @@ const Matchup = () => {
         }
     };
 
-    const handleAddToComparison = (playerName, playerId, nbaPlayerId, yahooPlayerId) => {
-        console.log('=== handleAddToComparison CALLED ===');
-        console.log('Player Name:', playerName);
-        console.log('Player ID:', playerId);
-        console.log('NBA Player ID:', nbaPlayerId);
-        console.log('Yahoo Player ID:', yahooPlayerId);
-        console.log('Current selectedPlayerNames BEFORE:', selectedPlayerNames);
-        console.log('Current selectedPlayers BEFORE:', selectedPlayers);
+    // Helper function to normalize player ID for comparison
+    const normalizePlayerId = (id) => {
+        if (id === null || id === undefined) return null;
+        const numId = typeof id === 'string' ? parseInt(id, 10) : id;
+        return isNaN(numId) ? null : numId;
+    };
+
+    // Helper function to check if a player is in comparison by name or ID
+    const isPlayerInComparison = (playerName, playerId, nbaPlayerId, yahooPlayerId) => {
+        const idToCheck = normalizePlayerId(nbaPlayerId || yahooPlayerId || playerId);
         
-        const playerIdentifier = playerName;
-        const existingIndex = selectedPlayerNames.indexOf(playerIdentifier);
-        console.log('Player identifier:', playerIdentifier);
-        console.log('Existing index:', existingIndex);
+        return selectedPlayers.some(sp => {
+            const spId = normalizePlayerId(sp.nbaPlayerId || sp.yahooPlayerId || sp.id);
+            // Match by ID (primary)
+            if (idToCheck && spId && idToCheck === spId) {
+                return true;
+            }
+            // Match by name (fallback) - check both the stored name and against selectedPlayerNames
+            return sp.name === playerName || selectedPlayerNames.includes(playerName);
+        });
+    };
+
+    const handleAddToComparison = (playerName, playerId, nbaPlayerId, yahooPlayerId) => {
+        // Always allow manual selection/unselection - don't rely on auto-selection state
+        const idToCheck = normalizePlayerId(nbaPlayerId || yahooPlayerId || playerId);
+        
+        // Find existing player by ID or name
+        const existingIndex = selectedPlayers.findIndex(sp => {
+            const spId = normalizePlayerId(sp.nbaPlayerId || sp.yahooPlayerId || sp.id);
+            // Match by ID (primary) - compare normalized IDs
+            if (idToCheck && spId && idToCheck === spId) {
+                return true;
+            }
+            // Match by name (fallback) - exact name match
+            if (sp.name === playerName) {
+                return true;
+            }
+            return false;
+        });
 
         if (existingIndex !== -1) {
             // Unselect player
-            console.log('REMOVING player from comparison');
             const newPlayers = [...selectedPlayers];
             const newNames = [...selectedPlayerNames];
             newPlayers.splice(existingIndex, 1);
             newNames.splice(existingIndex, 1);
-            console.log('New players AFTER removal:', newPlayers);
-            console.log('New names AFTER removal:', newNames);
             setSelectedPlayers(newPlayers);
             setSelectedPlayerNames(newNames);
             return;
         }
 
         // Select player (max 4)
+        // Try to find matching player in stats to get the correct database name, but fallback to provided name
+        let nameToUse = playerName;
+        if (playerStats.length > 0) {
+            const matchingStat = playerStats.find(stat => {
+                if (!stat || !stat.playerId) return false;
+                const statPlayerId = normalizePlayerId(stat.playerId);
+                
+                // Match by ID (primary)
+                if (idToCheck && statPlayerId && idToCheck === statPlayerId) {
+                    return true;
+                }
+                // Match by name (fallback)
+                return stat.playerName === playerName;
+            });
+            
+            if (matchingStat?.playerName) {
+                nameToUse = matchingStat.playerName;
+            }
+        }
+        
         const newPlayer = { 
-            id: nbaPlayerId || yahooPlayerId || playerId, 
-            name: playerName, 
-            nbaPlayerId, 
-            yahooPlayerId 
+            id: idToCheck || playerId, 
+            name: nameToUse, 
+            nbaPlayerId: nbaPlayerId || null, 
+            yahooPlayerId: yahooPlayerId || null 
         };
-        console.log('New player object created:', newPlayer);
         
         if (selectedPlayers.length < 4) {
-            const updatedPlayers = [...selectedPlayers, newPlayer];
-            const updatedNames = [...selectedPlayerNames, playerIdentifier];
-            console.log('ADDING player to comparison (< 4 players)');
-            console.log('Updated players:', updatedPlayers);
-            console.log('Updated names:', updatedNames);
-            setSelectedPlayers(updatedPlayers);
-            setSelectedPlayerNames(updatedNames);
+            setSelectedPlayers([...selectedPlayers, newPlayer]);
+            setSelectedPlayerNames([...selectedPlayerNames, nameToUse]);
         } else {
-            const updatedPlayers = [...selectedPlayers.slice(1), newPlayer];
-            const updatedNames = [...selectedPlayerNames.slice(1), playerIdentifier];
-            console.log('REPLACING player in comparison (>= 4 players)');
-            console.log('Updated players:', updatedPlayers);
-            console.log('Updated names:', updatedNames);
-            setSelectedPlayers(updatedPlayers);
-            setSelectedPlayerNames(updatedNames);
+            // Replace oldest player (first in array)
+            setSelectedPlayers([...selectedPlayers.slice(1), newPlayer]);
+            setSelectedPlayerNames([...selectedPlayerNames.slice(1), nameToUse]);
         }
     };
 
@@ -1099,28 +1136,65 @@ const Matchup = () => {
     }, [fetchAllPlayersFromSupabase]);
 
     // Auto-select first player from each team for comparison
+    // This runs only once on initial load after stats are loaded to ensure we match names correctly
     useEffect(() => {
-        if (team1Players.length > 0 && team2Players.length > 0 && selectedPlayers.length === 0) {
+        // Only auto-select if:
+        // 1. We haven't auto-selected before (tracked by ref)
+        // 2. Both teams have players
+        // 3. No players are currently selected
+        // 4. Player stats are loaded
+        // Note: This should NOT run when teams change due to user adding players manually
+        if (!hasAutoSelectedInitialPlayers.current && 
+            team1Players.length > 0 && 
+            team2Players.length > 0 && 
+            selectedPlayers.length === 0 && 
+            playerStats.length > 0) {
+            
             const activeTeam1Players = team1Players.filter(p => p.active).slice(0, 1);
             const activeTeam2Players = team2Players.filter(p => p.active).slice(0, 1);
             
             const playersToAdd = [...activeTeam1Players, ...activeTeam2Players];
             
             if (playersToAdd.length > 0) {
-                const newPlayers = playersToAdd.map(p => ({
-                    id: p.nbaPlayerId || p.yahooPlayerId || p.id,
-                    name: p.name,
-                    nbaPlayerId: p.nbaPlayerId,
-                    yahooPlayerId: p.yahooPlayerId
-                }));
-                const newNames = playersToAdd.map(p => p.name);
+                // Match selected players with actual player stats to get correct names
+                const matchedPlayers = playersToAdd.map(p => {
+                    const playerId = normalizePlayerId(p.nbaPlayerId || p.yahooPlayerId || p.id);
+                    
+                    // Find matching player in stats by ID
+                    const matchingStat = playerStats.find(stat => {
+                        if (!stat || !stat.playerId) return false;
+                        const statPlayerId = normalizePlayerId(stat.playerId);
+                        return playerId && statPlayerId && playerId === statPlayerId;
+                    });
+                    
+                    // Use the playerName from stats if found, otherwise fall back to p.name
+                    const matchedName = matchingStat?.playerName || p.name;
+                    
+                    return {
+                        id: playerId || p.id,
+                        name: matchedName,
+                        nbaPlayerId: p.nbaPlayerId,
+                        yahooPlayerId: p.yahooPlayerId
+                    };
+                }).filter(p => p.name); // Only include players with valid names
                 
-                setSelectedPlayers(newPlayers);
-                setSelectedPlayerNames(newNames);
+                if (matchedPlayers.length > 0) {
+                    const newPlayers = matchedPlayers.map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        nbaPlayerId: p.nbaPlayerId,
+                        yahooPlayerId: p.yahooPlayerId
+                    }));
+                    const newNames = matchedPlayers.map(p => p.name);
+                    
+                    setSelectedPlayers(newPlayers);
+                    setSelectedPlayerNames(newNames);
+                    hasAutoSelectedInitialPlayers.current = true;
+                }
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [team1Players, team2Players]);
+    }, [team1Players, team2Players, playerStats]);
 
     // Load schedule data
     useEffect(() => {
@@ -1477,21 +1551,21 @@ const Matchup = () => {
                                             )}
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title={selectedPlayerNames.includes(player.name) ? "Remove from Comparison" : "Add to Comparison"} arrow>
+                                    <Tooltip title={isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId) ? "Remove from Comparison" : "Add to Comparison"} arrow>
                                         <IconButton
                                             edge="end"
                                             aria-label="compare"
                                             onClick={() => handleAddToComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)}
                                             size="small"
                                             sx={{
-                                                color: selectedPlayerNames.includes(player.name)
+                                                color: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
                                                     ? "#4a90e2"
                                                     : "#4CAF50",
-                                                bgcolor: selectedPlayerNames.includes(player.name)
+                                                bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
                                                     ? "rgba(74, 144, 226, 0.2)"
                                                     : "transparent",
                                                 "&:hover": {
-                                                    bgcolor: selectedPlayerNames.includes(player.name)
+                                                    bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
                                                         ? "rgba(74, 144, 226, 0.3)"
                                                         : "rgba(76, 175, 80, 0.2)",
                                                 },
@@ -1662,21 +1736,21 @@ const Matchup = () => {
                                             )}
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title={selectedPlayerNames.includes(player.name) ? "Remove from Comparison" : "Add to Comparison"} arrow>
+                                    <Tooltip title={isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId) ? "Remove from Comparison" : "Add to Comparison"} arrow>
                                         <IconButton
                                             edge="end"
                                             aria-label="compare"
                                             onClick={() => handleAddToComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)}
                                             size="small"
                                             sx={{
-                                                color: selectedPlayerNames.includes(player.name)
+                                                color: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
                                                     ? "#4a90e2"
                                                     : "#4CAF50",
-                                                bgcolor: selectedPlayerNames.includes(player.name)
+                                                bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
                                                     ? "rgba(74, 144, 226, 0.2)"
                                                     : "transparent",
                                                 "&:hover": {
-                                                    bgcolor: selectedPlayerNames.includes(player.name)
+                                                    bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
                                                         ? "rgba(74, 144, 226, 0.3)"
                                                         : "rgba(76, 175, 80, 0.2)",
                                                 },
