@@ -17,7 +17,6 @@ import {
 const MatchupProjectionTracker = ({ 
     matchupProjection, 
     currentMatchup, 
-    disabledPlayers,
     onPlayerStatusChange,
     isConnected 
 }) => {
@@ -37,7 +36,8 @@ const MatchupProjectionTracker = ({
 
     const handlePlayerStatusChange = (newStatus) => {
         if (!selectedPlayerForMenu) return;
-        onPlayerStatusChange(selectedPlayerForMenu.id, newStatus);
+        const dateStr = selectedPlayerForMenu.dateStr;
+        onPlayerStatusChange(selectedPlayerForMenu.id, newStatus, dateStr);
         handleClosePlayerMenu();
     };
 
@@ -323,7 +323,10 @@ const MatchupProjectionTracker = ({
                                                                                     <Typography 
                                                                                         key={pidx} 
                                                                                         variant="caption" 
-                                                                                        onClick={(e) => handlePlayerClick(e, player, day.date)}
+                                                                                        onMouseDown={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            handlePlayerClick(e, player, day.date);
+                                                                                        }}
                                                                                         sx={{ 
                                                                                             color: isDisabled ? '#666' : '#4CAF50', 
                                                                                             display: 'block', 
@@ -332,6 +335,8 @@ const MatchupProjectionTracker = ({
                                                                                             cursor: 'pointer',
                                                                                             textDecoration: isDisabled ? 'line-through' : 'none',
                                                                                             opacity: isDisabled ? 0.6 : 1,
+                                                                                            userSelect: 'none',
+                                                                                            WebkitUserSelect: 'none',
                                                                                             '&:hover': {
                                                                                                 bgcolor: 'rgba(76, 175, 80, 0.1)',
                                                                                                 borderRadius: '4px',
@@ -365,12 +370,17 @@ const MatchupProjectionTracker = ({
                                                                                     <Typography 
                                                                                         key={pidx} 
                                                                                         variant="caption" 
-                                                                                        onClick={(e) => handlePlayerClick(e, player, day.date)}
+                                                                                        onMouseDown={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            handlePlayerClick(e, player, day.date);
+                                                                                        }}
                                                                                         sx={{ 
                                                                                             color: isDisabled ? '#666' : '#ff6f61', 
                                                                                             display: 'block', 
                                                                                             fontSize: '0.7rem', 
                                                                                             ml: 1,
+                                                                                            userSelect: 'none',
+                                                                                            WebkitUserSelect: 'none',
                                                                                             cursor: 'pointer',
                                                                                             textDecoration: isDisabled ? 'line-through' : 'none',
                                                                                             opacity: isDisabled ? 0.6 : 1,
@@ -411,40 +421,63 @@ const MatchupProjectionTracker = ({
                 anchorEl={playerStatusMenu}
                 open={Boolean(playerStatusMenu)}
                 onClose={handleClosePlayerMenu}
+                onClick={(e) => e.stopPropagation()}
                 PaperProps={{
                     sx: {
                         bgcolor: '#252525',
                         border: '1px solid #333',
-                        minWidth: 200
+                        minWidth: 200,
+                        zIndex: 9999
                     }
+                }}
+                MenuListProps={{
+                    onClick: (e) => e.stopPropagation()
                 }}
             >
                 <MenuItem 
-                    onClick={() => handlePlayerStatusChange('enabled')}
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handlePlayerStatusChange('enabled');
+                    }}
                     sx={{ 
                         color: '#e0e0e0',
-                        '&:hover': { bgcolor: 'rgba(76, 175, 80, 0.2)' }
+                        py: 1.5,
+                        '&:hover': { bgcolor: 'rgba(76, 175, 80, 0.2)' },
+                        '&:active': { bgcolor: 'rgba(76, 175, 80, 0.3)' }
                     }}
                 >
                     ✓ Enable Player
                 </MenuItem>
                 <MenuItem 
-                    onClick={() => handlePlayerStatusChange('disabled')}
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handlePlayerStatusChange('disabledForDay');
+                    }}
                     sx={{ 
                         color: '#e0e0e0',
-                        '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' }
+                        py: 1.5,
+                        '&:hover': { bgcolor: 'rgba(255, 152, 0, 0.2)' },
+                        '&:active': { bgcolor: 'rgba(255, 152, 0, 0.3)' }
                     }}
                 >
-                    ✗ Disable Player
+                    ⊗ Disable for Day
                 </MenuItem>
                 <MenuItem 
-                    onClick={() => handlePlayerStatusChange('disabledForWeek')}
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handlePlayerStatusChange('disabledForWeek');
+                    }}
                     sx={{ 
                         color: '#e0e0e0',
-                        '&:hover': { bgcolor: 'rgba(255, 152, 0, 0.2)' }
+                        py: 1.5,
+                        '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' },
+                        '&:active': { bgcolor: 'rgba(244, 67, 54, 0.3)' }
                     }}
                 >
-                    ⊗ Disable for Week
+                    ✗ Disable for Week
                 </MenuItem>
             </Menu>
         </>

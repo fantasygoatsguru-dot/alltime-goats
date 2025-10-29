@@ -108,12 +108,56 @@ const Matchup = () => {
     });
     
     // Player status handler for projection tracker
-    const handlePlayerStatusChange = (playerId, newStatus) => {
+    const handlePlayerStatusChange = (playerId, newStatus, dateStr = null) => {
         const updatedDisabledPlayers = { ...disabledPlayers };
+        const currentStatus = updatedDisabledPlayers[playerId];
         
         if (newStatus === 'enabled') {
-            delete updatedDisabledPlayers[playerId];
+            if (dateStr && typeof currentStatus === 'object' && currentStatus?.days) {
+                // Enable player for specific day by removing that day from disabled days
+                const updatedDays = { ...currentStatus.days };
+                delete updatedDays[dateStr];
+                
+                if (Object.keys(updatedDays).length === 0) {
+                    // No more day-specific disables
+                    if (currentStatus.week === 'disabled' || currentStatus.week === 'disabledForWeek') {
+                        // Still disabled for week, keep week status only
+                        updatedDisabledPlayers[playerId] = { week: currentStatus.week };
+                    } else {
+                        // No week disable either, remove the whole entry (fully enabled)
+                        delete updatedDisabledPlayers[playerId];
+                    }
+                } else {
+                    // Still has other day-specific disables
+                    updatedDisabledPlayers[playerId] = { 
+                        ...currentStatus, 
+                        days: updatedDays 
+                    };
+                }
+            } else {
+                // Explicitly enable player globally (overrides auto-disabled IL/IL+ status and removes all disables)
+                updatedDisabledPlayers[playerId] = 'enabled';
+            }
+        } else if (newStatus === 'disabledForDay' && dateStr) {
+            // Store day-specific disabling
+            if (!updatedDisabledPlayers[playerId] || typeof updatedDisabledPlayers[playerId] === 'string') {
+                // Convert existing string value to object or create new object
+                const existingStatus = updatedDisabledPlayers[playerId];
+                updatedDisabledPlayers[playerId] = existingStatus === 'enabled' ? {} : (existingStatus ? { week: existingStatus } : {});
+            }
+            updatedDisabledPlayers[playerId] = {
+                ...(typeof updatedDisabledPlayers[playerId] === 'object' ? updatedDisabledPlayers[playerId] : {}),
+                days: {
+                    ...(updatedDisabledPlayers[playerId]?.days || {}),
+                    [dateStr]: true
+                }
+            };
+            // Remove 'enabled' if it was set
+            if (updatedDisabledPlayers[playerId].enabled) {
+                delete updatedDisabledPlayers[playerId].enabled;
+            }
         } else {
+            // For 'disabled' or 'disabledForWeek', store at player level
             updatedDisabledPlayers[playerId] = newStatus;
         }
         
@@ -146,8 +190,27 @@ const Matchup = () => {
 
                 const updatedPlayers = day.players.map(player => {
                     const autoDisabled = isPlayerAutoDisabled(player);
-                    const manuallyDisabled = updatedDisabledPlayers[player.id] === 'disabled' || updatedDisabledPlayers[player.id] === 'disabledForWeek';
-                    const isDisabled = autoDisabled || manuallyDisabled;
+                    
+                    // Check manual disable status
+                    const playerDisableStatus = updatedDisabledPlayers[player.id];
+                    let manuallyDisabled = false;
+                    let manuallyEnabled = false;
+                    
+                    if (playerDisableStatus === 'enabled') {
+                        manuallyEnabled = true;
+                    } else if (playerDisableStatus === 'disabled' || playerDisableStatus === 'disabledForWeek') {
+                        manuallyDisabled = true;
+                    } else if (typeof playerDisableStatus === 'object' && playerDisableStatus) {
+                        // Check if disabled for this specific day
+                        if (playerDisableStatus.days && playerDisableStatus.days[day.date]) {
+                            manuallyDisabled = true;
+                        } else if (playerDisableStatus.week === 'disabled' || playerDisableStatus.week === 'disabledForWeek') {
+                            manuallyDisabled = true;
+                        }
+                    }
+                    
+                    // If manually enabled, override auto-disabled. Otherwise, respect both auto and manual disabled.
+                    const isDisabled = manuallyEnabled ? false : (autoDisabled || manuallyDisabled);
 
                     // Only add to totals if player is enabled
                     if (!isDisabled) {
@@ -590,8 +653,27 @@ const Matchup = () => {
                             
                             if (teamsPlaying && player.nbaTeam && teamsPlaying.includes(player.nbaTeam)) {
                                 const autoDisabled = isPlayerAutoDisabled(player);
-                                const manuallyDisabled = disabledPlayers[playerKey] === 'disabled' || disabledPlayers[playerKey] === 'disabledForWeek';
-                                const isDisabled = autoDisabled || manuallyDisabled;
+                                
+                                // Check manual disable status
+                                const playerDisableStatus = disabledPlayers[playerKey];
+                                let manuallyDisabled = false;
+                                let manuallyEnabled = false;
+                                
+                                if (playerDisableStatus === 'enabled') {
+                                    manuallyEnabled = true;
+                                } else if (playerDisableStatus === 'disabled' || playerDisableStatus === 'disabledForWeek') {
+                                    manuallyDisabled = true;
+                                } else if (typeof playerDisableStatus === 'object' && playerDisableStatus) {
+                                    // Check if disabled for this specific day
+                                    if (playerDisableStatus.days && playerDisableStatus.days[dateStr]) {
+                                        manuallyDisabled = true;
+                                    } else if (playerDisableStatus.week === 'disabled' || playerDisableStatus.week === 'disabledForWeek') {
+                                        manuallyDisabled = true;
+                                    }
+                                }
+                                
+                                // If manually enabled, override auto-disabled. Otherwise, respect both auto and manual disabled.
+                                const isDisabled = manuallyEnabled ? false : (autoDisabled || manuallyDisabled);
                                 
                                 dayStats.players.push({
                                     id: playerKey,
@@ -1016,13 +1098,13 @@ const Matchup = () => {
         loadPlayers();
     }, [fetchAllPlayersFromSupabase]);
 
-    // Auto-select first 2 players from each team for comparison
+    // Auto-select first player from each team for comparison
     useEffect(() => {
         if (team1Players.length > 0 && team2Players.length > 0 && selectedPlayers.length === 0) {
-            const activeTeam1Players = team1Players.filter(p => p.active).slice(0, 2);
-            const activeTeam2Players = team2Players.filter(p => p.active).slice(0, 2);
+            const activeTeam1Players = team1Players.filter(p => p.active).slice(0, 1);
+            const activeTeam2Players = team2Players.filter(p => p.active).slice(0, 1);
             
-            const playersToAdd = [...activeTeam1Players, ...activeTeam2Players].slice(0, 4);
+            const playersToAdd = [...activeTeam1Players, ...activeTeam2Players];
             
             if (playersToAdd.length > 0) {
                 const newPlayers = playersToAdd.map(p => ({
@@ -1725,7 +1807,6 @@ const Matchup = () => {
             <MatchupProjectionTracker
                 matchupProjection={matchupProjection}
                 currentMatchup={currentMatchup}
-                disabledPlayers={disabledPlayers}
                 onPlayerStatusChange={handlePlayerStatusChange}
                 isConnected={isConnected}
             />
