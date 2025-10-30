@@ -511,8 +511,8 @@ const getCurrentWeekDates = () => {
             // Get player IDs and their NBA teams
             const getPlayerTeams = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
-                if (playerIds.length === 0) return [];
-    
+            if (playerIds.length === 0) return [];
+
                 const { data, error } = await supabase
                     .from('yahoo_nba_mapping')
                     .select('nba_id, yahoo_id, name, team')
@@ -536,24 +536,24 @@ const getCurrentWeekDates = () => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
                 if (playerIds.length === 0) return {};
     
-                const { data, error } = await supabase
-                    .from('player_season_averages')
-                    .select('*')
-                    .eq('season', CURRENT_SEASON)
-                    .in('player_id', playerIds);
-    
+            const { data, error } = await supabase
+                .from('player_season_averages')
+                .select('*')
+                .eq('season', CURRENT_SEASON)
+                .in('player_id', playerIds);
+
                 if (error) throw error;
     
                 const averages = {};
                 data.forEach(row => {
                     averages[row.player_id] = {
-                        points: row.points_per_game || 0,
-                        rebounds: row.rebounds_per_game || 0,
-                        assists: row.assists_per_game || 0,
-                        steals: row.steals_per_game || 0,
-                        blocks: row.blocks_per_game || 0,
+                    points: row.points_per_game || 0,
+                    rebounds: row.rebounds_per_game || 0,
+                    assists: row.assists_per_game || 0,
+                    steals: row.steals_per_game || 0,
+                    blocks: row.blocks_per_game || 0,
                         threePointers: row.three_pointers_per_game || 0,
-                        turnovers: row.turnovers_per_game || 0,
+                    turnovers: row.turnovers_per_game || 0,
                         fieldGoalsMade: row.field_goals_per_game || 0,
                         fieldGoalsAttempted: row.field_goals_attempted_per_game || 0,
                         freeThrowsMade: row.free_throws_per_game || 0,
@@ -1167,10 +1167,15 @@ const getCurrentWeekDates = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scheduleData, currentMatchup]);
 
-    // Auto-load league when selected
+    // Auto-load league when selected (reload when league changes)
+    const previousLeagueRef = useRef(null);
     useEffect(() => {
-        if (selectedLeague && userId && isConnected && allLeagueTeams.length === 0 && !loadingTeams) {
+        if (selectedLeague && userId && isConnected && !loadingTeams) {
+            // If league changed or teams haven't been loaded, reload
+            if (previousLeagueRef.current !== selectedLeague || allLeagueTeams.length === 0) {
+                previousLeagueRef.current = selectedLeague;
             handleLoadLeague();
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLeague, userId, isConnected]);
@@ -1223,15 +1228,15 @@ const getCurrentWeekDates = () => {
                 });
 
                 if (uniquePlayers.length > 0) {
-                    const data = await fetchPlayerStatsFromSupabase(uniquePlayers);
-                    
-                    const teamAveragesEntry = data.find((entry) => entry.teamAverages);
-                    const playerStatsData = data.filter((entry) => entry.stats && entry.playerName);
-                    
-                    setPlayerStats([
-                        ...playerStatsData,
-                        ...(teamAveragesEntry ? [{ teamAverages: teamAveragesEntry.teamAverages }] : []),
-                    ]);
+                const data = await fetchPlayerStatsFromSupabase(uniquePlayers);
+                
+                const teamAveragesEntry = data.find((entry) => entry.teamAverages);
+                const playerStatsData = data.filter((entry) => entry.stats && entry.playerName);
+                
+                setPlayerStats([
+                    ...playerStatsData,
+                    ...(teamAveragesEntry ? [{ teamAverages: teamAveragesEntry.teamAverages }] : []),
+                ]);
                 }
             } catch (error) {
                 console.error("Error fetching player stats:", error);
@@ -1266,7 +1271,7 @@ const getCurrentWeekDates = () => {
                 code: code,
                 isDev: isDev,
             })
-                .then((data) => {
+                .then(async (data) => {
                     console.log("OAuth callback response:", data);
                     if (data.success) {
                         login({
@@ -1276,6 +1281,53 @@ const getCurrentWeekDates = () => {
                             profilePicture: data.profilePicture,
                             expiresAt: data.expiresAt,
                         });
+                        
+                        // Create or update user_profile with defaults from OAuth data
+                        try {
+                            const { data: existingProfile, error: profileError } = await supabase
+                                .from('user_profiles')
+                                .select('user_id, name, email')
+                                .eq('user_id', data.userId)
+                                .single();
+                            
+                            // PGRST116 means no rows found - that's OK, we'll create a new profile
+                            if (profileError && profileError.code !== 'PGRST116') {
+                                throw profileError;
+                            }
+                            
+                            if (existingProfile && !profileError) {
+                                // Update existing profile only if name/email are empty
+                                const updateData = {};
+                                if (!existingProfile.name && data.name) {
+                                    updateData.name = data.name;
+                                }
+                                if (!existingProfile.email && data.email) {
+                                    updateData.email = data.email;
+                                }
+                                
+                                if (Object.keys(updateData).length > 0) {
+                                    await supabase
+                                        .from('user_profiles')
+                                        .update(updateData)
+                                        .eq('user_id', data.userId);
+                                }
+                            } else {
+                                // Create new profile with defaults from OAuth
+                                await supabase
+                                    .from('user_profiles')
+                                    .insert({
+                                        user_id: data.userId,
+                                        name: data.name || '',
+                                        email: data.email || '',
+                                        send_weekly_projections: true,
+                                        send_news: true,
+                                        is_premium: false,
+                                    });
+                            }
+                        } catch (profileError) {
+                            console.error('Error creating/updating user profile:', profileError);
+                            // Don't fail the login if profile creation fails
+                        }
                         
                         console.log("Fetching user leagues for userId:", data.userId);
                         return callSupabaseFunction("yahoo-fantasy-api", {

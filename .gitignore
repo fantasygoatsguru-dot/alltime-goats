@@ -35,3 +35,4 @@ certs/
 
 # Supabase
 .supabase/
+supabase/.temp

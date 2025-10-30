@@ -9,6 +9,7 @@ import Matchup from '../Pages/Matchup';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../utils/supabase';
 
 const AlltimeLayout = () => {
   const navigate = useNavigate();
@@ -18,6 +19,43 @@ const AlltimeLayout = () => {
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
   const [profileAnchorEl, setProfileAnchorEl] = useState(null); // For profile menu
+  const [userProfile, setUserProfile] = useState(null);
+  
+  // Fetch user profile to override OAuth data if it exists
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user?.userId) {
+        setUserProfile(null);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('name, email, profile_picture')
+          .eq('user_id', user.userId)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching user profile:', error);
+          return;
+        }
+        
+        if (data) {
+          setUserProfile(data);
+        }
+      } catch (err) {
+        console.error('Error fetching user profile:', err);
+      }
+    };
+    
+    fetchUserProfile();
+  }, [user?.userId]);
+  
+  // Use profile data if available, otherwise fall back to OAuth data
+  const displayName = userProfile?.name || user?.name || 'User';
+  const displayEmail = userProfile?.email || user?.email || '';
+  const displayPicture = userProfile?.profile_picture || user?.profilePicture;
 
   useEffect(() => {
     if (location.pathname === '/seasons' || location.pathname === '/table') {
@@ -113,6 +151,7 @@ const AlltimeLayout = () => {
 
   const isMatchup = location.pathname === '/matchup';
   const isAbout = location.pathname === '/about';
+  const isProfile = location.pathname === '/profile';
 
   return (
     <Box
@@ -196,7 +235,7 @@ const AlltimeLayout = () => {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {!isMatchup && !isAbout && (
+          {!isMatchup && !isAbout && !isProfile && (
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
@@ -231,10 +270,10 @@ const AlltimeLayout = () => {
                 aria-label="User profile menu"
               >
                 <Avatar
-                  src={user.profilePicture && user.profilePicture.toLowerCase().includes('default') 
+                  src={displayPicture && displayPicture.toLowerCase().includes('default') 
                     ? 'https://www.svgrepo.com/show/513271/basketball.svg'
-                    : user.profilePicture}
-                  alt={user.name || 'User'}
+                    : displayPicture}
+                  alt={displayName}
                   sx={{
                     width: 40,
                     height: 40,
@@ -242,7 +281,7 @@ const AlltimeLayout = () => {
                     cursor: 'pointer',
                   }}
                 >
-                  {!user.profilePicture && user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  {!displayPicture && displayName ? displayName.charAt(0).toUpperCase() : 'U'}
                 </Avatar>
               </IconButton>
               <Menu
@@ -260,11 +299,11 @@ const AlltimeLayout = () => {
                 <MenuItem disabled sx={{ opacity: 1, '&.Mui-disabled': { opacity: 1 } }}>
                   <Box>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {user.name || 'User'}
+                      {displayName}
                     </Typography>
-                    {user.email && (
+                    {displayEmail && (
                       <Typography variant="caption" sx={{ color: '#b0bec5' }}>
-                        {user.email}
+                        {displayEmail}
                       </Typography>
                     )}
                   </Box>
