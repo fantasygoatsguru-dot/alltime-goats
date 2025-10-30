@@ -182,6 +182,21 @@ const MatchupProjectionTracker = ({
                         <TableHead>
                             <TableRow>
                                 <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Category</TableCell>
+                                <TableCell 
+                                    align="center" 
+                                    sx={{ 
+                                        color: "#9c27b0", 
+                                        fontFamily: '"Roboto Mono", monospace', 
+                                        fontWeight: 'bold', 
+                                        fontSize: '0.7rem',
+                                        bgcolor: 'rgba(156, 39, 176, 0.1)'
+                                    }}
+                                >
+                                    <Box>Current</Box>
+                                    <Box sx={{ fontSize: '0.65rem', color: '#9c27b0' }}>
+                                        So Far
+                                    </Box>
+                                </TableCell>
                                 {matchupProjection.team1.dailyProjections && matchupProjection.team1.dailyProjections.map((day, idx) => (
                                     <TableCell 
                                         key={idx} 
@@ -241,6 +256,27 @@ const MatchupProjectionTracker = ({
                                         >
                                             <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0", fontWeight: 'bold' }}>
                                                 {catLabels[catKey]} {isExpanded ? '▼' : '▶'}
+                                            </TableCell>
+                                            <TableCell 
+                                                align="center" 
+                                                sx={{ 
+                                                    fontSize: '0.65rem', 
+                                                    py: 0.5,
+                                                    bgcolor: 'rgba(156, 39, 176, 0.05)'
+                                                }}
+                                            >
+                                                <Box sx={{ color: "#4CAF50" }}>
+                                                    {isPct 
+                                                        ? `${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
+                                                        : (matchupProjection.team1.actual?.[catKey] || 0).toFixed(1)
+                                                    }
+                                                </Box>
+                                                <Box sx={{ color: "#ff6f61" }}>
+                                                    {isPct 
+                                                        ? `${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
+                                                        : (matchupProjection.team2.actual?.[catKey] || 0).toFixed(1)
+                                                    }
+                                                </Box>
                                             </TableCell>
                                             {matchupProjection.team1.dailyProjections.map((day, idx) => (
                                                 <TableCell 

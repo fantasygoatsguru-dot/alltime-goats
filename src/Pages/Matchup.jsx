@@ -446,48 +446,95 @@ const Matchup = () => {
             setLoading(false);
         }
     };
-
     const calculateMatchupProjection = async (matchup) => {
         if (!scheduleData || !matchup) return;
-
+    
         try {
-            // Get current matchup week dates (Monday to Sunday)
-            const getCurrentWeekDates = () => {
-                const now = new Date();
-                const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-                // Calculate days to Monday (if today is Monday, daysToMonday = 0; if Sunday, = -6)
-                const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-                
-                const weekStart = new Date(now);
-                weekStart.setDate(now.getDate() + daysToMonday);
-                weekStart.setHours(0, 0, 0, 0);
-                
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekStart.getDate() + 6); // Sunday
-                weekEnd.setHours(23, 59, 59, 999);
-                
-                return { weekStart, weekEnd, currentDate: now };
+            // Helper to convert a Date object to YYYY-MM-DD string in Eastern Time
+            const toEasternDateString = (date) => {
+                return date.toLocaleString('en-US', {
+                    timeZone: 'America/New_York',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).split(',')[0].split('/').reverse().join('-').replace(/^(\d+)-(\d+)-(\d+)$/, '$3-$1-$2');
             };
+            
+            // Better approach: get YYYY-MM-DD directly in Eastern Time
+            const getEasternDateString = (date) => {
+                const parts = date.toLocaleString('en-US', {
+                    timeZone: 'America/New_York',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                }).split(',')[0].split('/');
+                // parts = [MM, DD, YYYY]
+                return `${parts[2]}-${parts[0]}-${parts[1]}`;
+            };
+    
+    // Get current matchup week dates (Monday to Sunday) in Eastern Time
+const getCurrentWeekDates = () => {
+    const now = new Date();
+    
+    // Get current date/time components in Eastern Time
+    const easternTimeString = now.toLocaleString('en-US', { 
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
+    
+    const [datePart, timePart] = easternTimeString.split(', ');
+    const [month, day, year] = datePart.split('/');
+    const [hour, minute, second] = timePart.split(':');
+    
+    // Create date object representing "today" in Eastern Time
+    const easternNow = new Date(year, month - 1, day, hour, minute, second);
+    
+    const dayOfWeek = easternNow.getDay();
+    // Monday = 1, Sunday = 0 → move so that Monday is start of week
+    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
 
-            const { weekStart, weekEnd, currentDate } = getCurrentWeekDates();
+    const weekStart = new Date(easternNow);
+    weekStart.setDate(easternNow.getDate() + daysToMonday + 1); // ✅ Shift forward by 1 day
+    weekStart.setHours(0, 0, 0, 0);
 
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    const todayDateStr = getEasternDateString(now);
+
+    return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
+};
+;
+    
+            const { weekStart, weekEnd, currentDate, todayDateStr } = getCurrentWeekDates();
+            
+            console.log('=== EASTERN TIME DEBUG ===');
+            console.log('Current Eastern Date:', todayDateStr);
+            console.log('Current Eastern Day:', currentDate.toLocaleDateString('en-US', { weekday: 'long' }));
+            console.log('Week Start:', weekStart.toISOString().split('T')[0]);
+            console.log('Week End:', weekEnd.toISOString().split('T')[0]);
+    
             // Get player IDs and their NBA teams
             const getPlayerTeams = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
-
-            if (playerIds.length === 0) return [];
-
-                // Try to get teams from yahoo_nba_mapping using both nba_id and yahoo_id
+                if (playerIds.length === 0) return [];
+    
                 const { data, error } = await supabase
                     .from('yahoo_nba_mapping')
                     .select('nba_id, yahoo_id, name, team')
                     .or(`nba_id.in.(${playerIds.join(',')}),yahoo_id.in.(${playerIds.join(',')})`);
-
+    
                 if (error) throw error;
-
+    
                 return players.map(p => {
                     const playerId = p.nbaPlayerId || p.yahooPlayerId || p.id;
-                    // Try to find by nba_id first, then yahoo_id
                     const playerInfo = data.find(pi => pi.nba_id === playerId || pi.yahoo_id === playerId);
                     return {
                         ...p,
@@ -496,74 +543,64 @@ const Matchup = () => {
                     };
                 });
             };
-
+    
             // Get player averages
             const getPlayerAverages = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
-                
                 if (playerIds.length === 0) return {};
-
-            const { data, error } = await supabase
-                .from('player_season_averages')
-                .select('*')
-                .eq('season', CURRENT_SEASON)
-                .in('player_id', playerIds);
-
+    
+                const { data, error } = await supabase
+                    .from('player_season_averages')
+                    .select('*')
+                    .eq('season', CURRENT_SEASON)
+                    .in('player_id', playerIds);
+    
                 if (error) throw error;
-
+    
                 const averages = {};
                 data.forEach(row => {
                     averages[row.player_id] = {
-                    points: row.points_per_game || 0,
-                    rebounds: row.rebounds_per_game || 0,
-                    assists: row.assists_per_game || 0,
-                    steals: row.steals_per_game || 0,
-                    blocks: row.blocks_per_game || 0,
+                        points: row.points_per_game || 0,
+                        rebounds: row.rebounds_per_game || 0,
+                        assists: row.assists_per_game || 0,
+                        steals: row.steals_per_game || 0,
+                        blocks: row.blocks_per_game || 0,
                         threePointers: row.three_pointers_per_game || 0,
-                    turnovers: row.turnovers_per_game || 0,
+                        turnovers: row.turnovers_per_game || 0,
                         fieldGoalsMade: row.field_goals_per_game || 0,
                         fieldGoalsAttempted: row.field_goals_attempted_per_game || 0,
                         freeThrowsMade: row.free_throws_per_game || 0,
                         freeThrowsAttempted: row.free_throws_attempted_per_game || 0,
                     };
                 });
-
+    
                 return averages;
             };
-
-            // Get actual stats for games already played this week
+    
+            // Get actual stats for games already played this week (BEFORE today)
             const getActualStats = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
-                
                 if (playerIds.length === 0) return {};
-
+    
                 const { data, error } = await supabase
                     .from('player_game_logs')
                     .select('*')
                     .eq('season', CURRENT_SEASON)
                     .in('player_id', playerIds)
                     .gte('game_date', weekStart.toISOString().split('T')[0])
-                    .lt('game_date', currentDate.toISOString().split('T')[0])
+                    .lt('game_date', todayDateStr)
                     .order('game_date', { ascending: true });
-
+    
                 if (error) throw error;
-
-                // Aggregate stats per player
+    
                 const stats = {};
                 data.forEach(game => {
                     if (!stats[game.player_id]) {
                         stats[game.player_id] = {
-                            points: 0,
-                            rebounds: 0,
-                            assists: 0,
-                            steals: 0,
-                            blocks: 0,
-                            threePointers: 0,
-                            turnovers: 0,
-                            fieldGoalsMade: 0,
-                            fieldGoalsAttempted: 0,
-                            freeThrowsMade: 0,
-                            freeThrowsAttempted: 0,
+                            points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
+                            threePointers: 0, turnovers: 0,
+                            fieldGoalsMade: 0, fieldGoalsAttempted: 0,
+                            freeThrowsMade: 0, freeThrowsAttempted: 0,
                             gamesPlayed: 0
                         };
                     }
@@ -580,27 +617,25 @@ const Matchup = () => {
                     stats[game.player_id].freeThrowsAttempted += game.free_throws_attempted || 0;
                     stats[game.player_id].gamesPlayed += 1;
                 });
-
+    
                 return stats;
             };
-
-            // Process both teams
+    
             const team1WithTeams = await getPlayerTeams(matchup.team1.players);
             const team2WithTeams = await getPlayerTeams(matchup.team2.players);
-
+    
             const team1Averages = await getPlayerAverages(team1WithTeams);
             const team2Averages = await getPlayerAverages(team2WithTeams);
-
+    
             const team1Actual = await getActualStats(team1WithTeams);
             const team2Actual = await getActualStats(team2WithTeams);
-
-            // Helper to check if player should be auto-disabled
+    
             const isPlayerAutoDisabled = (player) => {
                 const position = player.selectedPosition || player.selected_position;
                 const status = player.status;
                 return position === 'IL+' || position === 'IL' || status === 'INJ' || status === 'OUT';
             };
-
+    
             // Calculate projected stats with daily breakdown
             const calculateTeamProjection = (players, averages, actualStats) => {
                 const actual = {
@@ -610,27 +645,23 @@ const Matchup = () => {
                     freeThrowsMade: 0, freeThrowsAttempted: 0
                 };
                 
-                // Daily projections - one for each day of the week
                 const dailyProjections = [];
-                const current = new Date(weekStart);
                 
+                // Create all 7 days, using weekStart as the base
                 for (let i = 0; i < 7; i++) {
-                    const dateStr = current.toISOString().split('T')[0];
-                    const dayOfWeek = current.toLocaleDateString('en-US', { weekday: 'short' });
-                    const monthDay = current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const dayDate = new Date(weekStart);
+                    dayDate.setDate(weekStart.getDate() + i);
                     
-                    // Compare dates properly - use yesterday as "today" for highlighting
-                    const yesterday = new Date(currentDate);
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    const yesterdayStr = yesterday.toISOString().split('T')[0];
-                    const isToday = dateStr === yesterdayStr;
+                    // Get date string in Eastern Time for this day
+                    const dateStr = getEasternDateString(dayDate);
+                    const dayOfWeek = dayDate.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/New_York' });
+                    const monthDay = dayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
                     
-                    // Compare dates properly, not strings
-                    const currentDayStart = new Date(current);
-                    currentDayStart.setHours(0, 0, 0, 0);
-                    const todayStart = new Date(currentDate);
-                    todayStart.setHours(0, 0, 0, 0);
-                    const isPast = currentDayStart < todayStart;
+                    // Compare date strings directly
+                    const isToday = dateStr === todayDateStr;
+                    const isPast = dateStr < todayDateStr;
+                    
+                    console.log(`Day ${i}: ${dateStr} (${dayOfWeek} ${monthDay}), isToday: ${isToday}, isPast: ${isPast}, today: ${todayDateStr}`);
                     
                     const dayStats = {
                         date: dateStr,
@@ -647,8 +678,8 @@ const Matchup = () => {
                         }
                     };
                     
+                    // Only process today and future days (not past days)
                     if (!isPast) {
-                        // Get players with games on this date (including today)
                         players.forEach(player => {
                             const playerId = player.nbaPlayerId || player.yahooPlayerId || player.id;
                             const playerKey = `${playerId}`;
@@ -658,7 +689,6 @@ const Matchup = () => {
                             if (teamsPlaying && player.nbaTeam && teamsPlaying.includes(player.nbaTeam)) {
                                 const autoDisabled = isPlayerAutoDisabled(player);
                                 
-                                // Check manual disable status
                                 const playerDisableStatus = disabledPlayers[playerKey];
                                 let manuallyDisabled = false;
                                 let manuallyEnabled = false;
@@ -668,7 +698,6 @@ const Matchup = () => {
                                 } else if (playerDisableStatus === 'disabled' || playerDisableStatus === 'disabledForWeek') {
                                     manuallyDisabled = true;
                                 } else if (typeof playerDisableStatus === 'object' && playerDisableStatus) {
-                                    // Check if disabled for this specific day
                                     if (playerDisableStatus.days && playerDisableStatus.days[dateStr]) {
                                         manuallyDisabled = true;
                                     } else if (playerDisableStatus.week === 'disabled' || playerDisableStatus.week === 'disabledForWeek') {
@@ -676,7 +705,6 @@ const Matchup = () => {
                                     }
                                 }
                                 
-                                // If manually enabled, override auto-disabled. Otherwise, respect both auto and manual disabled.
                                 const isDisabled = manuallyEnabled ? false : (autoDisabled || manuallyDisabled);
                                 
                                 dayStats.players.push({
@@ -690,7 +718,6 @@ const Matchup = () => {
                                     selectedPosition: player.selectedPosition || player.selected_position
                                 });
                                 
-                                // Only add to totals if player is enabled
                                 if (!isDisabled) {
                                     dayStats.totals.points += playerAvg.points || 0;
                                     dayStats.totals.rebounds += playerAvg.rebounds || 0;
@@ -709,20 +736,19 @@ const Matchup = () => {
                     }
                     
                     dailyProjections.push(dayStats);
-                    current.setDate(current.getDate() + 1);
                 }
-
-                // Calculate actual stats from games already played
+    
+                // Calculate actual stats from games already played (before today)
                 players.forEach(player => {
                     const playerId = player.nbaPlayerId || player.yahooPlayerId || player.id;
                     const playerActual = actualStats[playerId] || {};
-
+    
                     Object.keys(actual).forEach(key => {
                         actual[key] += playerActual[key] || 0;
                     });
                 });
-
-                // Sum up all projected stats from daily projections
+    
+                // Sum up projected stats from today onwards
                 const projected = {
                     points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
                     threePointers: 0, turnovers: 0,
@@ -737,24 +763,24 @@ const Matchup = () => {
                         });
                     }
                 });
-
+    
                 const total = {};
                 Object.keys(actual).forEach(key => {
                     total[key] = actual[key] + projected[key];
                 });
-
+    
                 return { actual, projected, total, dailyProjections };
             };
-
+    
             const team1Projection = calculateTeamProjection(team1WithTeams, team1Averages, team1Actual);
             const team2Projection = calculateTeamProjection(team2WithTeams, team2Averages, team2Actual);
-
+    
             // Calculate category winners
             const categories = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers'];
             const categoryResults = {};
             let team1Score = 0;
             let team2Score = 0;
-
+    
             categories.forEach(cat => {
                 const t1 = team1Projection.total[cat];
                 const t2 = team2Projection.total[cat];
@@ -769,20 +795,18 @@ const Matchup = () => {
                     categoryResults[cat] = { winner: 'Tie', team1: t1, team2: t2 };
                 }
             });
-
-            // Handle percentages
+    
+            // FG%
             const t1FgPct = team1Projection.total.fieldGoalsAttempted > 0 
                 ? (team1Projection.total.fieldGoalsMade / team1Projection.total.fieldGoalsAttempted) * 100 
                 : 0;
             const t2FgPct = team2Projection.total.fieldGoalsAttempted > 0 
                 ? (team2Projection.total.fieldGoalsMade / team2Projection.total.fieldGoalsAttempted) * 100 
                 : 0;
-
+    
             if (t1FgPct > t2FgPct) {
                 categoryResults.fieldGoalPercentage = { 
-                    winner: matchup.team1.name, 
-                    team1: t1FgPct, 
-                    team2: t2FgPct,
+                    winner: matchup.team1.name, team1: t1FgPct, team2: t2FgPct,
                     team1Made: team1Projection.total.fieldGoalsMade,
                     team1Attempted: team1Projection.total.fieldGoalsAttempted,
                     team2Made: team2Projection.total.fieldGoalsMade,
@@ -791,9 +815,7 @@ const Matchup = () => {
                 team1Score++;
             } else if (t2FgPct > t1FgPct) {
                 categoryResults.fieldGoalPercentage = { 
-                    winner: matchup.team2.name, 
-                    team1: t1FgPct, 
-                    team2: t2FgPct,
+                    winner: matchup.team2.name, team1: t1FgPct, team2: t2FgPct,
                     team1Made: team1Projection.total.fieldGoalsMade,
                     team1Attempted: team1Projection.total.fieldGoalsAttempted,
                     team2Made: team2Projection.total.fieldGoalsMade,
@@ -802,28 +824,25 @@ const Matchup = () => {
                 team2Score++;
             } else {
                 categoryResults.fieldGoalPercentage = { 
-                    winner: 'Tie', 
-                    team1: t1FgPct, 
-                    team2: t2FgPct,
+                    winner: 'Tie', team1: t1FgPct, team2: t2FgPct,
                     team1Made: team1Projection.total.fieldGoalsMade,
                     team1Attempted: team1Projection.total.fieldGoalsAttempted,
                     team2Made: team2Projection.total.fieldGoalsMade,
                     team2Attempted: team2Projection.total.fieldGoalsAttempted
                 };
             }
-
+    
+            // FT%
             const t1FtPct = team1Projection.total.freeThrowsAttempted > 0 
                 ? (team1Projection.total.freeThrowsMade / team1Projection.total.freeThrowsAttempted) * 100 
                 : 0;
             const t2FtPct = team2Projection.total.freeThrowsAttempted > 0 
                 ? (team2Projection.total.freeThrowsMade / team2Projection.total.freeThrowsAttempted) * 100 
                 : 0;
-
+    
             if (t1FtPct > t2FtPct) {
                 categoryResults.freeThrowPercentage = { 
-                    winner: matchup.team1.name, 
-                    team1: t1FtPct, 
-                    team2: t2FtPct,
+                    winner: matchup.team1.name, team1: t1FtPct, team2: t2FtPct,
                     team1Made: team1Projection.total.freeThrowsMade,
                     team1Attempted: team1Projection.total.freeThrowsAttempted,
                     team2Made: team2Projection.total.freeThrowsMade,
@@ -832,9 +851,7 @@ const Matchup = () => {
                 team1Score++;
             } else if (t2FtPct > t1FtPct) {
                 categoryResults.freeThrowPercentage = { 
-                    winner: matchup.team2.name, 
-                    team1: t1FtPct, 
-                    team2: t2FtPct,
+                    winner: matchup.team2.name, team1: t1FtPct, team2: t2FtPct,
                     team1Made: team1Projection.total.freeThrowsMade,
                     team1Attempted: team1Projection.total.freeThrowsAttempted,
                     team2Made: team2Projection.total.freeThrowsMade,
@@ -843,17 +860,15 @@ const Matchup = () => {
                 team2Score++;
             } else {
                 categoryResults.freeThrowPercentage = { 
-                    winner: 'Tie', 
-                    team1: t1FtPct, 
-                    team2: t2FtPct,
+                    winner: 'Tie', team1: t1FtPct, team2: t2FtPct,
                     team1Made: team1Projection.total.freeThrowsMade,
                     team1Attempted: team1Projection.total.freeThrowsAttempted,
                     team2Made: team2Projection.total.freeThrowsMade,
                     team2Attempted: team2Projection.total.freeThrowsAttempted
                 };
             }
-
-            // Turnovers (lower is better)
+    
+            // Turnovers
             const t1To = team1Projection.total.turnovers;
             const t2To = team2Projection.total.turnovers;
             if (t1To < t2To) {
@@ -865,11 +880,11 @@ const Matchup = () => {
             } else {
                 categoryResults.turnovers = { winner: 'Tie', team1: t1To, team2: t2To };
             }
-
+    
             setMatchupProjection({
-                weekStart: weekStart.toLocaleDateString(),
-                weekEnd: weekEnd.toLocaleDateString(),
-                currentDate: currentDate.toLocaleDateString(),
+                weekStart: weekStart.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
+                weekEnd: weekEnd.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
+                currentDate: currentDate.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
                 team1: {
                     name: matchup.team1.name,
                     ...team1Projection
@@ -882,11 +897,12 @@ const Matchup = () => {
                 team1Score,
                 team2Score
             });
-
+    
         } catch (error) {
             console.error('Error calculating matchup projection:', error);
         }
     };
+
 
     const handleLoadLeague = async () => {
         if (!selectedLeague || !userId) return;
