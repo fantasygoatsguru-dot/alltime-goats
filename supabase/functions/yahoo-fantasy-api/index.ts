@@ -3,6 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const YAHOO_CLIENT_ID = Deno.env.get("YAHOO_CLIENT_ID") || "";
+const YAHOO_CLIENT_SECRET = Deno.env.get("YAHOO_CLIENT_SECRET") || "";
 const GAME_ID = "466"; // NBA 2025-26 season
 
 const corsHeaders = {
@@ -65,19 +67,65 @@ interface YahooPlayerWithStatsDTO {
 // Helper Functions
 // ──────────────────────────────────────────────────────────────
 
+// UPDATED: Now auto-refreshes expired tokens
 async function getAccessToken(userId: string): Promise<string> {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   
   const { data: tokenData, error } = await supabase
     .from("yahoo_tokens")
-    .select("*")
+    .select("access_token, refresh_token, expires_at")
     .eq("user_id", userId)
     .single();
 
   if (error || !tokenData) throw new Error("No valid token found");
-  if (new Date(tokenData.expires_at) < new Date()) throw new Error("Token expired, please refresh");
 
-  return tokenData.access_token;
+  const now = new Date();
+  const expiresAt = new Date(tokenData.expires_at);
+
+  // If token is still valid
+  if (expiresAt > now) {
+    return tokenData.access_token;
+  }
+
+  const authString = btoa(`${YAHOO_CLIENT_ID}:${YAHOO_CLIENT_SECRET}`);
+  const response = await fetch("https://api.login.yahoo.com/oauth2/get_token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Basic ${authString}`,
+    },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token: tokenData.refresh_token,
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error("Yahoo refresh failed:", errText);
+    throw new Error("Failed to refresh token");
+  }
+
+  const newTokens = await response.json();
+  const newExpiresAt = new Date(Date.now() + (newTokens.expires_in * 1000));
+
+  // Update DB with new tokens
+  const { error: updateError } = await supabase
+    .from("yahoo_tokens")
+    .update({
+      access_token: newTokens.access_token,
+      refresh_token: newTokens.refresh_token ?? tokenData.refresh_token, // Yahoo may not return new refresh token
+      expires_at: newExpiresAt.toISOString(),
+    })
+    .eq("user_id", userId);
+
+  if (updateError) {
+    console.error("Failed to update token in DB:", updateError);
+    throw new Error("Failed to save refreshed token");
+  }
+
+  console.log("Token refreshed and saved");
+  return newTokens.access_token;
 }
 
 async function getNbaIdFromYahooId(supabase: any, yahooId: number): Promise<number | null> {
