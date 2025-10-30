@@ -76,12 +76,8 @@ const isDev = window.location.hostname === 'localhost' || window.location.hostna
 
 const Matchup = () => {
     // Team state
-    const [team1Players, setTeam1Players] = useState(
-        DEFAULT_PLAYERS.team1.map(p => ({ ...p, id: p.nbaPlayerId || p.yahooPlayerId, active: true }))
-    );
-    const [team2Players, setTeam2Players] = useState(
-        DEFAULT_PLAYERS.team2.map(p => ({ ...p, id: p.nbaPlayerId || p.yahooPlayerId, active: true }))
-    );
+    const [team1Players, setTeam1Players] = useState([]);
+    const [team2Players, setTeam2Players] = useState([]);
     const [team1Name, setTeam1Name] = useState("Team 1");
     const [team2Name, setTeam2Name] = useState("Team 2");
     
@@ -346,7 +342,6 @@ const Matchup = () => {
     
     // Ref to prevent double-processing of OAuth callback
     const hasProcessedCallback = useRef(false);
-    const hasAutoSelectedInitialPlayers = useRef(false);
 
     const fetchAllPlayersFromSupabase = useCallback(async () => {
         return await fetchAllPlayers();
@@ -431,8 +426,6 @@ const Matchup = () => {
                     }))
                 );
                 
-                // Reset auto-selection flag when new teams are loaded
-                hasAutoSelectedInitialPlayers.current = false;
 
                 // Calculate projection after setting matchup
                 if (scheduleData) {
@@ -444,23 +437,17 @@ const Matchup = () => {
             setError(err.message || "Failed to fetch current matchup");
         } finally {
             setLoading(false);
+            // If user is connected, keep spinner until teams are loaded
+            if (initialLoading && isConnected && team1Players.length > 0) {
+                setInitialLoading(false);
+            }
         }
     };
     const calculateMatchupProjection = async (matchup) => {
         if (!scheduleData || !matchup) return;
     
         try {
-            // Helper to convert a Date object to YYYY-MM-DD string in Eastern Time
-            const toEasternDateString = (date) => {
-                return date.toLocaleString('en-US', {
-                    timeZone: 'America/New_York',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                }).split(',')[0].split('/').reverse().join('-').replace(/^(\d+)-(\d+)-(\d+)$/, '$3-$1-$2');
-            };
-            
-            // Better approach: get YYYY-MM-DD directly in Eastern Time
+            // Get YYYY-MM-DD directly in Eastern Time
             const getEasternDateString = (date) => {
                 const parts = date.toLocaleString('en-US', {
                     timeZone: 'America/New_York',
@@ -946,6 +933,11 @@ const getCurrentWeekDates = () => {
                         }))
                         : []
                 );
+                
+                // If user is connected, mark initial loading as complete once teams are loaded
+                if (initialLoading && isConnected) {
+                    setInitialLoading(false);
+                }
             }
         } catch (err) {
             setError(err.message || "Failed to load league");
@@ -1151,66 +1143,7 @@ const getCurrentWeekDates = () => {
         loadPlayers();
     }, [fetchAllPlayersFromSupabase]);
 
-    // Auto-select first player from each team for comparison
-    // This runs only once on initial load after stats are loaded to ensure we match names correctly
-    useEffect(() => {
-        // Only auto-select if:
-        // 1. We haven't auto-selected before (tracked by ref)
-        // 2. Both teams have players
-        // 3. No players are currently selected
-        // 4. Player stats are loaded
-        // Note: This should NOT run when teams change due to user adding players manually
-        if (!hasAutoSelectedInitialPlayers.current && 
-            team1Players.length > 0 && 
-            team2Players.length > 0 && 
-            selectedPlayers.length === 0 && 
-            playerStats.length > 0) {
-            
-            const activeTeam1Players = team1Players.filter(p => p.active).slice(0, 1);
-            const activeTeam2Players = team2Players.filter(p => p.active).slice(0, 1);
-            
-            const playersToAdd = [...activeTeam1Players, ...activeTeam2Players];
-            
-            if (playersToAdd.length > 0) {
-                // Match selected players with actual player stats to get correct names
-                const matchedPlayers = playersToAdd.map(p => {
-                    const playerId = normalizePlayerId(p.nbaPlayerId || p.yahooPlayerId || p.id);
-                    
-                    // Find matching player in stats by ID
-                    const matchingStat = playerStats.find(stat => {
-                        if (!stat || !stat.playerId) return false;
-                        const statPlayerId = normalizePlayerId(stat.playerId);
-                        return playerId && statPlayerId && playerId === statPlayerId;
-                    });
-                    
-                    // Use the playerName from stats if found, otherwise fall back to p.name
-                    const matchedName = matchingStat?.playerName || p.name;
-                    
-                    return {
-                        id: playerId || p.id,
-                        name: matchedName,
-                        nbaPlayerId: p.nbaPlayerId,
-                        yahooPlayerId: p.yahooPlayerId
-                    };
-                }).filter(p => p.name); // Only include players with valid names
-                
-                if (matchedPlayers.length > 0) {
-                    const newPlayers = matchedPlayers.map(p => ({
-                        id: p.id,
-                        name: p.name,
-                        nbaPlayerId: p.nbaPlayerId,
-                        yahooPlayerId: p.yahooPlayerId
-                    }));
-                    const newNames = matchedPlayers.map(p => p.name);
-                    
-                    setSelectedPlayers(newPlayers);
-                    setSelectedPlayerNames(newNames);
-                    hasAutoSelectedInitialPlayers.current = true;
-                }
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [team1Players, team2Players, playerStats]);
+    // Auto-selection removed - users will manually select players for comparison
 
     // Load schedule data
     useEffect(() => {
@@ -1252,18 +1185,24 @@ const getCurrentWeekDates = () => {
 
     // Fetch player stats whenever teams change
     useEffect(() => {
-        console.log('=== useEffect TRIGGERED for player stats fetch ===');
-        console.log('team1Players:', team1Players);
-        console.log('team2Players:', team2Players);
-        console.log('selectedPlayers:', selectedPlayers);
-        
+        // Don't fetch stats if there are no players yet and we're still loading
+        // This prevents showing default data before actual data is loaded
+        if (initialLoading && team1Players.length === 0 && team2Players.length === 0 && !isConnected) {
+            return;
+        }
+
         const fetchStats = async () => {
             try {
                 const activeTeam1Players = team1Players.filter((player) => player.active);
                 const activeTeam2Players = team2Players.filter((player) => player.active);
 
-                console.log('Active team1 players:', activeTeam1Players);
-                console.log('Active team2 players:', activeTeam2Players);
+                // If no players to fetch, still mark loading as complete
+                if (activeTeam1Players.length === 0 && activeTeam2Players.length === 0 && selectedPlayers.length === 0) {
+                    if (initialLoading) {
+                        setInitialLoading(false);
+                    }
+                    return;
+                }
 
                 const allPlayersToFetch = [
                     ...activeTeam1Players.map((player) => ({
@@ -1289,25 +1228,17 @@ const getCurrentWeekDates = () => {
                     return false;
                 });
 
-                console.log('Fetching stats for unique players:', uniquePlayers);
-                console.log('Selected players:', selectedPlayers);
-                console.log('Team1 players:', team1Players);
-                console.log('Team2 players:', team2Players);
-                
-                const data = await fetchPlayerStatsFromSupabase(uniquePlayers);
-                
-                console.log('Fetched data:', data);
-                
-                const teamAveragesEntry = data.find((entry) => entry.teamAverages);
-                const playerStatsData = data.filter((entry) => entry.stats && entry.playerName);
-                
-                console.log('Player stats data:', playerStatsData);
-                console.log('Team averages:', teamAveragesEntry);
-                
-                setPlayerStats([
-                    ...playerStatsData,
-                    ...(teamAveragesEntry ? [{ teamAverages: teamAveragesEntry.teamAverages }] : []),
-                ]);
+                if (uniquePlayers.length > 0) {
+                    const data = await fetchPlayerStatsFromSupabase(uniquePlayers);
+                    
+                    const teamAveragesEntry = data.find((entry) => entry.teamAverages);
+                    const playerStatsData = data.filter((entry) => entry.stats && entry.playerName);
+                    
+                    setPlayerStats([
+                        ...playerStatsData,
+                        ...(teamAveragesEntry ? [{ teamAverages: teamAveragesEntry.teamAverages }] : []),
+                    ]);
+                }
             } catch (error) {
                 console.error("Error fetching player stats:", error);
             } finally {
@@ -1318,7 +1249,7 @@ const getCurrentWeekDates = () => {
         };
 
         fetchStats();
-    }, [team1Players, team2Players, selectedPlayers, fetchPlayerStatsFromSupabase, initialLoading]);
+    }, [team1Players, team2Players, selectedPlayers, fetchPlayerStatsFromSupabase, initialLoading, isConnected]);
 
     // OAuth callback handler
     useEffect(() => {
