@@ -244,6 +244,50 @@ const MatchupProjectionTracker = ({
                                 const isExpanded = expandedCategory === catKey;
                                 const isPct = catKey === 'fieldGoalPercentage' || catKey === 'freeThrowPercentage';
                                 
+                                // Map internal category keys to Yahoo category names
+                                const yahooCategoryMap = {
+                                    points: 'Points',
+                                    rebounds: 'Rebounds',
+                                    assists: 'Assists',
+                                    steals: 'Steals',
+                                    blocks: 'Blocks',
+                                    threePointers: 'Three Pointers Made',
+                                    turnovers: 'Turnovers',
+                                    fieldGoalPercentage: 'Field Goal Percentage',
+                                    freeThrowPercentage: 'Free Throw Percentage'
+                                };
+                                
+                                // Get actual stats from Yahoo (currentMatchup.stats.categories)
+                                const yahooCategoryName = yahooCategoryMap[catKey];
+                                const yahooStats = currentMatchup?.stats?.categories?.[yahooCategoryName];
+                                
+                                // Use Yahoo stats if available, otherwise fall back to calculated
+                                let team1CurrentValue, team2CurrentValue;
+                                if (yahooStats) {
+                                    if (isPct && yahooStats.team1?.nominator !== undefined) {
+                                        // For percentages, use nominator/denominator from Yahoo
+                                        team1CurrentValue = `${yahooStats.team1.nominator}/${yahooStats.team1.denominator}`;
+                                        team2CurrentValue = `${yahooStats.team2?.nominator || 0}/${yahooStats.team2?.denominator || 0}`;
+                                    } else if (!isPct) {
+                                        // For other stats, use the numeric value
+                                        team1CurrentValue = yahooStats.team1?.toFixed(1) || '0.0';
+                                        team2CurrentValue = yahooStats.team2?.toFixed(1) || '0.0';
+                                    } else {
+                                        // Fallback for percentages
+                                        team1CurrentValue = `${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
+                                        team2CurrentValue = `${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
+                                    }
+                                } else {
+                                    // Fallback to calculated values if Yahoo stats not available
+                                    if (isPct) {
+                                        team1CurrentValue = `${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
+                                        team2CurrentValue = `${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
+                                    } else {
+                                        team1CurrentValue = (matchupProjection.team1.actual?.[catKey] || 0).toFixed(1);
+                                        team2CurrentValue = (matchupProjection.team2.actual?.[catKey] || 0).toFixed(1);
+                                    }
+                                }
+                                
                                 return (
                                     <React.Fragment key={catKey}>
                                         <TableRow 
@@ -266,16 +310,10 @@ const MatchupProjectionTracker = ({
                                                 }}
                                             >
                                                 <Box sx={{ color: "#4CAF50" }}>
-                                                    {isPct 
-                                                        ? `${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                        : (matchupProjection.team1.actual?.[catKey] || 0).toFixed(1)
-                                                    }
+                                                    {team1CurrentValue}
                                                 </Box>
                                                 <Box sx={{ color: "#ff6f61" }}>
-                                                    {isPct 
-                                                        ? `${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                        : (matchupProjection.team2.actual?.[catKey] || 0).toFixed(1)
-                                                    }
+                                                    {team2CurrentValue}
                                                 </Box>
                                             </TableCell>
                                             {matchupProjection.team1.dailyProjections.map((day, idx) => (
@@ -309,18 +347,88 @@ const MatchupProjectionTracker = ({
                                                 </TableCell>
                                             ))}
                                             <TableCell align="center">
-                                                <Box sx={{ color: "#4CAF50", fontWeight: 'bold' }}>
-                                                    {isPct 
-                                                        ? `${(catData.team1Made || 0).toFixed(0)}/${(catData.team1Attempted || 0).toFixed(0)} (${catData.team1Attempted > 0 ? ((catData.team1Made / catData.team1Attempted) * 100).toFixed(1) : 0}%)`
-                                                        : (catData.team1 || 0).toFixed(1)
+                                                {(() => {
+                                                    // Sum projected stats for remaining days (from today onwards)
+                                                    let team1Projected = 0, team2Projected = 0;
+                                                    let team1ProjectedMade = 0, team1ProjectedAttempted = 0;
+                                                    let team2ProjectedMade = 0, team2ProjectedAttempted = 0;
+                                                    
+                                                    matchupProjection.team1.dailyProjections.forEach((day, idx) => {
+                                                        if (!day.isPast && day.totals) {
+                                                            if (isPct) {
+                                                                if (catKey === 'fieldGoalPercentage') {
+                                                                    team1ProjectedMade += day.totals.fieldGoalsMade || 0;
+                                                                    team1ProjectedAttempted += day.totals.fieldGoalsAttempted || 0;
+                                                                } else if (catKey === 'freeThrowPercentage') {
+                                                                    team1ProjectedMade += day.totals.freeThrowsMade || 0;
+                                                                    team1ProjectedAttempted += day.totals.freeThrowsAttempted || 0;
+                                                                }
+                                                                const team2Day = matchupProjection.team2.dailyProjections[idx];
+                                                                if (team2Day && team2Day.totals) {
+                                                                    if (catKey === 'fieldGoalPercentage') {
+                                                                        team2ProjectedMade += team2Day.totals.fieldGoalsMade || 0;
+                                                                        team2ProjectedAttempted += team2Day.totals.fieldGoalsAttempted || 0;
+                                                                    } else if (catKey === 'freeThrowPercentage') {
+                                                                        team2ProjectedMade += team2Day.totals.freeThrowsMade || 0;
+                                                                        team2ProjectedAttempted += team2Day.totals.freeThrowsAttempted || 0;
+                                                                    }
+                                                                }
+                                                            } else {
+                                                                team1Projected += day.totals[catKey] || 0;
+                                                                const team2Day = matchupProjection.team2.dailyProjections[idx];
+                                                                if (team2Day && team2Day.totals) {
+                                                                    team2Projected += team2Day.totals[catKey] || 0;
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                    
+                                                    // Calculate total: Yahoo current + projected future
+                                                    let team1TotalValue, team2TotalValue;
+                                                    
+                                                    if (yahooStats) {
+                                                        if (isPct && yahooStats.team1?.nominator !== undefined) {
+                                                            // For percentages: sum Yahoo made/attempted + projected made/attempted
+                                                            const totalMade1 = yahooStats.team1.nominator + team1ProjectedMade;
+                                                            const totalAttempted1 = yahooStats.team1.denominator + team1ProjectedAttempted;
+                                                            const totalMade2 = (yahooStats.team2?.nominator || 0) + team2ProjectedMade;
+                                                            const totalAttempted2 = (yahooStats.team2?.denominator || 0) + team2ProjectedAttempted;
+                                                            
+                                                            team1TotalValue = `${totalMade1.toFixed(0)}/${totalAttempted1.toFixed(0)} (${totalAttempted1 > 0 ? ((totalMade1 / totalAttempted1) * 100).toFixed(1) : 0}%)`;
+                                                            team2TotalValue = `${totalMade2.toFixed(0)}/${totalAttempted2.toFixed(0)} (${totalAttempted2 > 0 ? ((totalMade2 / totalAttempted2) * 100).toFixed(1) : 0}%)`;
+                                                        } else if (!isPct) {
+                                                            // For other stats: sum Yahoo value + projected
+                                                            const total1 = (parseFloat(yahooStats.team1) || 0) + team1Projected;
+                                                            const total2 = (parseFloat(yahooStats.team2) || 0) + team2Projected;
+                                                            team1TotalValue = total1.toFixed(1);
+                                                            team2TotalValue = total2.toFixed(1);
+                                                        } else {
+                                                            // Fallback for percentages
+                                                            team1TotalValue = `${(catData.team1Made || 0).toFixed(0)}/${(catData.team1Attempted || 0).toFixed(0)} (${catData.team1Attempted > 0 ? ((catData.team1Made / catData.team1Attempted) * 100).toFixed(1) : 0}%)`;
+                                                            team2TotalValue = `${(catData.team2Made || 0).toFixed(0)}/${(catData.team2Attempted || 0).toFixed(0)} (${catData.team2Attempted > 0 ? ((catData.team2Made / catData.team2Attempted) * 100).toFixed(1) : 0}%)`;
+                                                        }
+                                                    } else {
+                                                        // Fallback to calculated if Yahoo stats not available
+                                                        if (isPct) {
+                                                            team1TotalValue = `${(catData.team1Made || 0).toFixed(0)}/${(catData.team1Attempted || 0).toFixed(0)} (${catData.team1Attempted > 0 ? ((catData.team1Made / catData.team1Attempted) * 100).toFixed(1) : 0}%)`;
+                                                            team2TotalValue = `${(catData.team2Made || 0).toFixed(0)}/${(catData.team2Attempted || 0).toFixed(0)} (${catData.team2Attempted > 0 ? ((catData.team2Made / catData.team2Attempted) * 100).toFixed(1) : 0}%)`;
+                                                        } else {
+                                                            team1TotalValue = (catData.team1 || 0).toFixed(1);
+                                                            team2TotalValue = (catData.team2 || 0).toFixed(1);
+                                                        }
                                                     }
-                                                </Box>
-                                                <Box sx={{ color: "#ff6f61", fontWeight: 'bold' }}>
-                                                    {isPct 
-                                                        ? `${(catData.team2Made || 0).toFixed(0)}/${(catData.team2Attempted || 0).toFixed(0)} (${catData.team2Attempted > 0 ? ((catData.team2Made / catData.team2Attempted) * 100).toFixed(1) : 0}%)`
-                                                        : (catData.team2 || 0).toFixed(1)
-                                                    }
-                                                </Box>
+                                                    
+                                                    return (
+                                                        <>
+                                                            <Box sx={{ color: "#4CAF50", fontWeight: 'bold' }}>
+                                                                {team1TotalValue}
+                                                            </Box>
+                                                            <Box sx={{ color: "#ff6f61", fontWeight: 'bold' }}>
+                                                                {team2TotalValue}
+                                                            </Box>
+                                                        </>
+                                                    );
+                                                })()}
                                             </TableCell>
                                             <TableCell>
                                                 <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold', fontSize: '0.75rem' }} style={{ color: textColor }}>
