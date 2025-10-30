@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Matchup Projection</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Roboto', Arial, sans-serif; background-color: #121212; color: #e0e0e0;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #121212;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <!-- Main Container -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #1e1e1e; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="padding: 30px 40px; background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <img src="https://fantasygoats.guru/media/goat.png" alt="Fantasy Goats Guru" width="60" height="60" style="display: block; margin: 0 auto 15px;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <h1 style="margin: 0; font-size: 28px; font-weight: bold; color: #ffffff; font-family: 'Roboto Mono', monospace;">
+                                            Weekly Matchup Projection
+                                        </h1>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="padding: 30px 40px 20px;">
+                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #e0e0e0;">
+                                Hi <strong style="color: #4a90e2;">${user_name}</strong>,
+                            </p>
+                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #e0e0e0;">
+                                Here's your weekly matchup projection based on current player averages. Get ready to dominate! 🏀
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Matchup Header -->
+                    <tr>
+                        <td style="padding: 0 40px 20px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center" style="padding: 20px; background-color: #252525; border-radius: 8px;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td align="center" style="padding: 0 10px;">
+                                                    <div style="font-size: 18px; font-weight: bold; color: #4CAF50; margin-bottom: 5px;">
+                                                        ${team1_name}
+                                                    </div>
+                                                    <div style="font-size: 32px; font-weight: bold; color: #4CAF50; font-family: 'Roboto Mono', monospace;">
+                                                        ${team1_score}
+                                                    </div>
+                                                </td>
+                                                <td align="center" style="padding: 0 20px;">
+                                                    <div style="font-size: 24px; font-weight: bold; color: #b0bec5;">
+                                                        vs
+                                                    </div>
+                                                </td>
+                                                <td align="center" style="padding: 0 10px;">
+                                                    <div style="font-size: 18px; font-weight: bold; color: #ff6f61; margin-bottom: 5px;">
+                                                        ${team2_name}
+                                                    </div>
+                                                    <div style="font-size: 32px; font-weight: bold; color: #ff6f61; font-family: 'Roboto Mono', monospace;">
+                                                        ${team2_score}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </td>
+                    </tr>
+
+                    <!-- Category Breakdown -->
+                    <tr>
+                        <td style="padding: 0 40px 30px;">
+                            <h2 style="margin: 0 0 15px; font-size: 20px; font-weight: bold; color: #4a90e2; font-family: 'Roboto Mono', monospace;">
+                                Category Breakdown
+                            </h2>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #252525; border-radius: 8px; overflow: hidden;">
+                                <thead>
+                                    <tr style="background-color: #2a2a2a;">
+                                        <th align="left" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #4a90e2;">
+                                            Category
+                                        </th>
+                                        <th align="center" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #4CAF50; border-bottom: 2px solid #4a90e2;">
+                                            ${team1_name}
+                                        </th>
+                                        <th align="center" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #ff6f61; border-bottom: 2px solid #4a90e2;">
+                                            ${team2_name}
+                                        </th>
+                                        <th align="center" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #4a90e2; border-bottom: 2px solid #4a90e2;">
+                                            Winner
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${category_breakdown}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Day-by-Day Breakdown -->
+                    <tr>
+                        <td style="padding: 0 40px 30px;">
+                            <h2 style="margin: 0 0 15px; font-size: 20px; font-weight: bold; color: #4a90e2; font-family: 'Roboto Mono', monospace;">
+                                Day-by-Day Projections
+                            </h2>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #252525; border-radius: 8px; overflow: hidden; font-size: 11px;">
+                                <thead>
+                                    <tr style="background-color: #2a2a2a;">
+                                        <th align="center" style="padding: 8px 4px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #4a90e2;">
+                                            Day
+                                        </th>
+                                        <th align="center" colspan="2" style="padding: 8px 4px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #4a90e2;">
+                                            PTS
+                                        </th>
+                                        <th align="center" colspan="2" style="padding: 8px 4px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #4a90e2;">
+                                            3PT
+                                        </th>
+                                        <th align="center" colspan="2" style="padding: 8px 4px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #4a90e2;">
+                                            REB
+                                        </th>
+                                        <th align="center" colspan="2" style="padding: 8px 4px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #4a90e2;">
+                                            AST
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${daily_breakdown}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Call to Action -->
+                    <tr>
+                        <td align="center" style="padding: 0 40px 30px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 6px; background-color: #4a90e2;">
+                                        <a href="https://fantasygoats.guru/matchup" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: 'Roboto Mono', monospace;">
+                                            View Full Matchup →
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Tips Section -->
+                    <tr>
+                        <td style="padding: 0 40px 30px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: rgba(74, 144, 226, 0.1); border-left: 4px solid #4a90e2; border-radius: 8px; padding: 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0 0 10px; font-size: 14px; font-weight: bold; color: #4a90e2;">
+                                            💡 Pro Tip
+                                        </p>
+                                        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #e0e0e0;">
+                                            These projections are based on season averages. Check daily to monitor injured players and schedule changes!
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 40px; background-color: #252525; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <p style="margin: 0 0 10px; font-size: 12px; color: #b0bec5;">
+                                            © 2025 Fantasy Goats Guru. All rights reserved.
+                                        </p>
+                                        <p style="margin: 0; font-size: 12px; color: #b0bec5;">
+                                            <a href="https://fantasygoats.guru/profile" style="color: #4a90e2; text-decoration: none;">Update Preferences</a>
+                                            &nbsp;|&nbsp;
+                                            <a href="https://fantasygoats.guru/privacy-policy" style="color: #4a90e2; text-decoration: none;">Privacy Policy</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

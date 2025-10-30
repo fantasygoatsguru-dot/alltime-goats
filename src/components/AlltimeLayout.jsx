@@ -7,6 +7,7 @@ import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
 import Matchup from '../Pages/Matchup';
 import About from '../Pages/About';
+import UserProfile from '../Pages/UserProfile';
 import { useAuth } from '../contexts/AuthContext';
 
 const AlltimeLayout = () => {
@@ -103,6 +104,8 @@ const AlltimeLayout = () => {
         return <Matchup />;
       case '/about':
         return <About />;
+      case '/profile':
+        return <UserProfile />;
       default:
         return <Alltime />;
     }
@@ -265,6 +268,9 @@ const AlltimeLayout = () => {
                       </Typography>
                     )}
                   </Box>
+                </MenuItem>
+                <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}>
+                  Profile
                 </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <Logout sx={{ mr: 1, fontSize: '1.2rem' }} />

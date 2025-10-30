@@ -38,6 +38,7 @@ const App = () => {
               <Route path="/" element={<Navigate to="/matchup" replace />} /> {/* Default to /matchup */}
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/about" element={<AlltimeLayout />} />
+              <Route path="/profile" element={<AlltimeLayout />} />
               <Route path="/teams" element={<AlltimeLayout />} />
               <Route path="/seasons" element={<AlltimeLayout />} />
               <Route path="/table" element={<AlltimeLayout />} />

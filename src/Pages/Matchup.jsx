@@ -1185,18 +1185,12 @@ const getCurrentWeekDates = () => {
 
     // Fetch player stats whenever teams change
     useEffect(() => {
-        // Don't fetch stats if there are no players yet and we're still loading
-        // This prevents showing default data before actual data is loaded
-        if (initialLoading && team1Players.length === 0 && team2Players.length === 0 && !isConnected) {
-            return;
-        }
-
         const fetchStats = async () => {
             try {
                 const activeTeam1Players = team1Players.filter((player) => player.active);
                 const activeTeam2Players = team2Players.filter((player) => player.active);
 
-                // If no players to fetch, still mark loading as complete
+                // If no players to fetch, mark loading as complete
                 if (activeTeam1Players.length === 0 && activeTeam2Players.length === 0 && selectedPlayers.length === 0) {
                     if (initialLoading) {
                         setInitialLoading(false);
@@ -1437,7 +1431,6 @@ const getCurrentWeekDates = () => {
                                     }}
                         >
                             {team1Players.map((player, index) => {
-                                console.log('Team1 Player:', player);
                                 return (
                                 <ListItem
                                     key={`${player.id}-${index}`}
@@ -1622,7 +1615,6 @@ const getCurrentWeekDates = () => {
                                     }}
                         >
                             {team2Players.map((player, index) => {
-                                console.log('Team2 Player:', player);
                                 return (
                                 <ListItem
                                     key={`${player.id}-${index}`}
