@@ -311,7 +311,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                         <RechartsTooltip
                             contentStyle={{
                                 backgroundColor: "#ffffff",
-                                border: "1px solid #4a90e2",
+                                border: "1px solid #1976d2",
                                 borderRadius: "4px",
                             }}
                             formatter={(value, name) => {
@@ -324,7 +324,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                                 return [`${formatValue(rawValue, category)} (Z: ${(value || 0).toFixed(2)})`, name];
                             }}
                             labelStyle={{ color: "#212121", display: "none" }}
-                            cursor={{ stroke: "#4a90e2", strokeWidth: 1 }}
+                            cursor={{ stroke: "#1976d2", strokeWidth: 1 }}
                         />
                         <Legend
                             wrapperStyle={{
@@ -679,10 +679,10 @@ const PlayerComparisonGraph = ({
             >
                 <ResponsiveContainer width="100%" height={300}>
                     <RadarChart outerRadius="70%" data={playerData}>
-                        <PolarGrid stroke="#4a90e2" />
+                        <PolarGrid stroke="#1976d2" />
                         <PolarAngleAxis
                             dataKey="skill"
-                            stroke="#e0e0e0"
+                            stroke="#424242"
                             tick={{
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontSize: 12,
@@ -694,13 +694,13 @@ const PlayerComparisonGraph = ({
                             angle={90}
                             domain={[0, 4]}
                             tick={false}
-                            stroke="#4a90e2"
+                            stroke="#1976d2"
                         />
                         {radarComponents}
                         <RechartsTooltip
                             contentStyle={{
                                 backgroundColor: "#ffffff",
-                                border: "1px solid #4a90e2",
+                                border: "1px solid #1976d2",
                                 borderRadius: "4px",
                             }}
                             formatter={(value, name) => {
@@ -743,7 +743,7 @@ const PlayerComparisonGraph = ({
                                 return [`${formatValue(value, category)}`, name];
                             }}
                             labelStyle={{ color: "#212121", display: "none" }}
-                            cursor={{ stroke: "#4a90e2", strokeWidth: 1 }}
+                            cursor={{ stroke: "#1976d2", strokeWidth: 1 }}
                         />
                         <Legend
                             wrapperStyle={{
@@ -843,7 +843,7 @@ const PlayerComparisonGraph = ({
                     <Button
                         onClick={handleCloseDialog}
                         sx={{
-                            color: "#4a90e2",
+                            color: "#1976d2",
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
@@ -1090,7 +1090,7 @@ const Alltime = () => {
                     mb: 3,
                     fontWeight: "bold",
                     textAlign: "center",
-                    color: "#4a90e2",
+                    color: "#1976d2",
                     fontFamily: '"Roboto Mono", monospace',
                 }}
             >
@@ -1130,14 +1130,14 @@ const Alltime = () => {
                                         "& .MuiOutlinedInput-root": {
                                             color: "#212121",
                                             "& fieldset": {
-                                                borderColor: "#4a90e2",
+                                                borderColor: "#1976d2",
                                             },
                                             "&:hover fieldset": {
-                                                borderColor: "#80deea",
+                                                borderColor: "#1565c0",
                                             },
                                         },
                                         "& .MuiInputLabel-root": {
-                                            color: "#b0bec5",
+                                            color: "#424242",
                                         },
                                     }}
                                 />
@@ -1153,9 +1153,9 @@ const Alltime = () => {
                         <FormControl fullWidth>
                             <InputLabel 
                                 sx={{ 
-                                    color: "#b0bec5",
+                                    color: "#424242",
                                     "&.Mui-focused": {
-                                        color: "#4a90e2",
+                                        color: "#1976d2",
                                     },
                                 }}
                             >
@@ -1176,14 +1176,14 @@ const Alltime = () => {
                                         borderColor: "#80deea",
                                     },
                                     "& .MuiSelect-icon": {
-                                        color: "#4a90e2",
+                                        color: "#1976d2",
                                     },
-                                    "&.Mui-disabled": {
-                                        color: "#666666",
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#666666",
+                                        "&.Mui-disabled": {
+                                            color: "#9e9e9e",
+                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                borderColor: "#e0e0e0",
+                                            },
                                         },
-                                    },
                                 }}
                             >
                                 {selectedPlayer?.seasons.map((season) => (
@@ -1198,9 +1198,9 @@ const Alltime = () => {
                         <FormControl fullWidth>
                             <InputLabel 
                                 sx={{ 
-                                    color: "#b0bec5",
+                                    color: "#424242",
                                     "&.Mui-focused": {
-                                        color: "#4a90e2",
+                                        color: "#1976d2",
                                     },
                                 }}
                             >
@@ -1220,7 +1220,7 @@ const Alltime = () => {
                                         borderColor: "#80deea",
                                     },
                                     "& .MuiSelect-icon": {
-                                        color: "#4a90e2",
+                                        color: "#1976d2",
                                     },
                                 }}
                             >
@@ -1237,15 +1237,15 @@ const Alltime = () => {
                             startIcon={<AddIcon />}
                             fullWidth
                             sx={{
-                                bgcolor: "#4a90e2",
-                                "&:hover": {
-                                    bgcolor: "#80deea",
-                                },
+                            bgcolor: "#1976d2",
+                            "&:hover": {
+                                bgcolor: "#1565c0",
+                            },
                                 height: "56px",
-                                "&.Mui-disabled": {
-                                    bgcolor: "#666666",
-                                    color: "#999999",
-                                },
+                            "&.Mui-disabled": {
+                                bgcolor: "#e0e0e0",
+                                color: "#9e9e9e",
+                            },
                             }}
                         >
                             Add
@@ -1260,7 +1260,7 @@ const Alltime = () => {
                     <FormControl fullWidth variant="outlined" size="small">
                         <InputLabel
                             sx={{
-                                color: "#b0bec5",
+                                color: "#424242",
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontSize: "0.875rem",
                             }}
@@ -1277,9 +1277,9 @@ const Alltime = () => {
                                 borderRadius: 1,
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontSize: "0.875rem",
-                                "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
-                                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
-                                "& .MuiSelect-icon": { color: "#4a90e2" },
+                                "& .MuiOutlinedInput-notchedOutline": { borderColor: "#1976d2" },
+                                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#1565c0" },
+                                "& .MuiSelect-icon": { color: "#1976d2" },
                             }}
                         >
                             {presetTeams.map((team) => (
@@ -1303,7 +1303,7 @@ const Alltime = () => {
                     <IconButton
                         onClick={handleSwitchTeams}
                         sx={{
-                            color: "#4a90e2",
+                            color: "#1976d2",
                             "&:hover": {
                                 color: "#80deea",
                                 backgroundColor: "rgba(74, 144, 226, 0.1)",
@@ -1317,7 +1317,7 @@ const Alltime = () => {
                     <FormControl fullWidth variant="outlined" size="small">
                         <InputLabel
                             sx={{
-                                color: "#b0bec5",
+                                color: "#424242",
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontSize: "0.875rem",
                             }}
@@ -1334,9 +1334,9 @@ const Alltime = () => {
                                 borderRadius: 1,
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontSize: "0.875rem",
-                                "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
-                                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
-                                "& .MuiSelect-icon": { color: "#4a90e2" },
+                                "& .MuiOutlinedInput-notchedOutline": { borderColor: "#1976d2" },
+                                "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#1565c0" },
+                                "& .MuiSelect-icon": { color: "#1976d2" },
                             }}
                         >
                             {presetTeams.map((team) => (
@@ -1365,7 +1365,7 @@ const Alltime = () => {
                             variant="h6"
                             sx={{
                                 mb: 2,
-                                color: "#4a90e2",
+                                color: "#1976d2",
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontWeight: "bold",
                                 fontSize: "0.875rem",
@@ -1388,7 +1388,7 @@ const Alltime = () => {
                                     borderRadius: "3px",
                                 },
                                 "&::-webkit-scrollbar-thumb": {
-                                    background: "#4a90e2",
+                                    background: "#1976d2",
                                     borderRadius: "3px",
                                 },
                             }}
@@ -1401,10 +1401,10 @@ const Alltime = () => {
                                         px: 1,
                                         mb: 0.5,
                                         borderRadius: 1,
-                                        bgcolor: player.active ? "rgba(74, 144, 226, 0.1)" : "rgba(158, 158, 158, 0.1)",
-                                        border: `1px solid ${player.active ? "rgba(74, 144, 226, 0.2)" : "rgba(158, 158, 158, 0.2)"}`,
+                                        bgcolor: player.active ? "rgba(25, 118, 210, 0.1)" : "rgba(158, 158, 158, 0.1)",
+                                        border: `1px solid ${player.active ? "rgba(25, 118, 210, 0.2)" : "rgba(158, 158, 158, 0.2)"}`,
                                         "&:hover": {
-                                            bgcolor: player.active ? "rgba(74, 144, 226, 0.15)" : "rgba(158, 158, 158, 0.15)",
+                                            bgcolor: player.active ? "rgba(25, 118, 210, 0.15)" : "rgba(158, 158, 158, 0.15)",
                                         },
                                     }}
                                 >
@@ -1422,8 +1422,8 @@ const Alltime = () => {
                                             onClick={() => handleToggleActive(team1Name, player.name)}
                                             size="small"
                                             sx={{
-                                                color: player.active ? "#4a90e2" : "#b0bec5",
-                                                "&:hover": { bgcolor: "rgba(74, 144, 226, 0.2)" },
+                                                color: player.active ? "#1976d2" : "#9e9e9e",
+                                                "&:hover": { bgcolor: "rgba(25, 118, 210, 0.2)" },
                                             }}
                                         >
                                             {player.active ? <VisibilityIcon /> : <VisibilityOffIcon />}
@@ -1437,14 +1437,14 @@ const Alltime = () => {
                                             size="small"
                                             sx={{
                                                 color: selectedPlayerNames.includes(`${player.name} (${player.season})`)
-                                                    ? "#4a90e2"
+                                                    ? "#1976d2"
                                                     : "#4CAF50",
                                                 bgcolor: selectedPlayerNames.includes(`${player.name} (${player.season})`)
-                                                    ? "rgba(74, 144, 226, 0.2)"
+                                                    ? "rgba(25, 118, 210, 0.2)"
                                                     : "transparent",
                                                 "&:hover": {
                                                     bgcolor: selectedPlayerNames.includes(`${player.name} (${player.season})`)
-                                                        ? "rgba(74, 144, 226, 0.3)"
+                                                        ? "rgba(25, 118, 210, 0.3)"
                                                         : "rgba(76, 175, 80, 0.2)",
                                                 },
                                             }}
@@ -1478,7 +1478,7 @@ const Alltime = () => {
                             variant="subtitle1"
                             sx={{
                                 mb: 2,
-                                color: "#4a90e2",
+                                color: "#1976d2",
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontWeight: "bold",
                                 fontSize: "0.875rem",
@@ -1501,7 +1501,7 @@ const Alltime = () => {
                                     borderRadius: "3px",
                                 },
                                 "&::-webkit-scrollbar-thumb": {
-                                    background: "#4a90e2",
+                                    background: "#1976d2",
                                     borderRadius: "3px",
                                 },
                             }}
@@ -1514,10 +1514,10 @@ const Alltime = () => {
                                         px: 1,
                                         mb: 0.5,
                                         borderRadius: 1,
-                                        bgcolor: player.active ? "rgba(74, 144, 226, 0.1)" : "rgba(158, 158, 158, 0.1)",
-                                        border: `1px solid ${player.active ? "rgba(74, 144, 226, 0.2)" : "rgba(158, 158, 158, 0.2)"}`,
+                                        bgcolor: player.active ? "rgba(25, 118, 210, 0.1)" : "rgba(158, 158, 158, 0.1)",
+                                        border: `1px solid ${player.active ? "rgba(25, 118, 210, 0.2)" : "rgba(158, 158, 158, 0.2)"}`,
                                         "&:hover": {
-                                            bgcolor: player.active ? "rgba(74, 144, 226, 0.15)" : "rgba(158, 158, 158, 0.15)",
+                                            bgcolor: player.active ? "rgba(25, 118, 210, 0.15)" : "rgba(158, 158, 158, 0.15)",
                                         },
                                     }}
                                 >
@@ -1535,8 +1535,8 @@ const Alltime = () => {
                                             onClick={() => handleToggleActive(team2Name, player.name)}
                                             size="small"
                                             sx={{
-                                                color: player.active ? "#4a90e2" : "#b0bec5",
-                                                "&:hover": { bgcolor: "rgba(74, 144, 226, 0.2)" },
+                                                color: player.active ? "#1976d2" : "#9e9e9e",
+                                                "&:hover": { bgcolor: "rgba(25, 118, 210, 0.2)" },
                                             }}
                                         >
                                             {player.active ? <VisibilityIcon /> : <VisibilityOffIcon />}
@@ -1550,14 +1550,14 @@ const Alltime = () => {
                                             size="small"
                                             sx={{
                                                 color: selectedPlayerNames.includes(`${player.name} (${player.season})`)
-                                                    ? "#4a90e2"
+                                                    ? "#1976d2"
                                                     : "#4CAF50",
                                                 bgcolor: selectedPlayerNames.includes(`${player.name} (${player.season})`)
-                                                    ? "rgba(74, 144, 226, 0.2)"
+                                                    ? "rgba(25, 118, 210, 0.2)"
                                                     : "transparent",
                                                 "&:hover": {
                                                     bgcolor: selectedPlayerNames.includes(`${player.name} (${player.season})`)
-                                                        ? "rgba(74, 144, 226, 0.3)"
+                                                        ? "rgba(25, 118, 210, 0.3)"
                                                         : "rgba(76, 175, 80, 0.2)",
                                                 },
                                             }}

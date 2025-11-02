@@ -371,7 +371,7 @@ const AlltimeGames = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: "#121212", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)", minHeight: "100vh" }}>
 
       <Grid container spacing={3}>
         <Grid item xs={12}>
@@ -379,7 +379,7 @@ const AlltimeGames = () => {
             variant="h5"
             sx={{
               mb: 3,
-              color: "#E0E0E0",
+              color: "#212121",
               fontWeight: 500,
               letterSpacing: 1,
               textTransform: "uppercase",
@@ -404,11 +404,11 @@ const AlltimeGames = () => {
                   sx={{
                     width: 200,
                     backgroundColor: "#ffffff",
-                    "& .MuiInputBase-input": { color: "#E0E0E0" },
-                    "& .MuiInputLabel-root": { color: "#B0B0B0" },
+                    "& .MuiInputBase-input": { color: "#212121" },
+                    "& .MuiInputLabel-root": { color: "#424242" },
                     "& .MuiOutlinedInput-root": {
                       "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                      "&:hover fieldset": { borderColor: "#555555" },
+                      "&:hover fieldset": { borderColor: "#1976d2" },
                     },
                   }}
                 />
@@ -419,16 +419,16 @@ const AlltimeGames = () => {
             {(filterType?.isNumeric || filterType?.isHeight) ? (
               <>
                 <FormControl sx={{ width: 100 }}>
-                  <InputLabel sx={{ color: "#B0B0B0" }}>Operator</InputLabel>
+                  <InputLabel sx={{ color: "#424242" }}>Operator</InputLabel>
                   <Select
                     value={filterOperator}
                     onChange={(e) => setFilterOperator(e.target.value)}
                     sx={{
                       backgroundColor: "#ffffff",
                       color: "#212121",
-                      "& .MuiSvgIcon-root": { color: "#E0E0E0" },
+                      "& .MuiSvgIcon-root": { color: "#424242" },
                       "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                      "&:hover fieldset": { borderColor: "#555555" },
+                      "&:hover fieldset": { borderColor: "#1976d2" },
                     }}
                   >
                     {operators.map((op) => (
@@ -455,11 +455,11 @@ const AlltimeGames = () => {
                   sx={{
                     width: 150,
                     backgroundColor: "#ffffff",
-                    "& .MuiInputBase-input": { color: "#E0E0E0" },
-                    "& .MuiInputLabel-root": { color: "#B0B0B0" },
+                    "& .MuiInputBase-input": { color: "#212121" },
+                    "& .MuiInputLabel-root": { color: "#424242" },
                     "& .MuiOutlinedInput-root": {
                       "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                      "&:hover fieldset": { borderColor: "#555555" },
+                      "&:hover fieldset": { borderColor: "#1976d2" },
                     },
                   }}
                 />
@@ -485,7 +485,7 @@ const AlltimeGames = () => {
                       "& .MuiInputLabel-root": { color: "#B0B0B0" },
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#555555" },
+                        "&:hover fieldset": { borderColor: "#1976d2" },
                       },
                     }}
                   />
@@ -499,9 +499,9 @@ const AlltimeGames = () => {
               onClick={handleAddFilter}
               disabled={!filterType || (!filterValue?.length && !filterNumericValue)}
               sx={{
-                backgroundColor: "#424242",
-                color: "#E0E0E0",
-                "&:hover": { backgroundColor: "#616161" },
+                backgroundColor: "#1976d2",
+                color: "#ffffff",
+                "&:hover": { backgroundColor: "#1565c0" },
                 textTransform: "none",
                 fontWeight: 500,
               }}
@@ -513,9 +513,9 @@ const AlltimeGames = () => {
               variant="outlined"
               onClick={handleClearFilters}
               sx={{
-                color: "#E0E0E0",
+                color: "#424242",
                 borderColor: "rgba(0, 0, 0, 0.12)",
-                "&:hover": { borderColor: "#bdbdbd", backgroundColor: "#f5f5f5" },
+                "&:hover": { borderColor: "#1976d2", backgroundColor: "rgba(25, 118, 210, 0.04)" },
                 textTransform: "none",
                 fontWeight: 500,
               }}
@@ -535,7 +535,7 @@ const AlltimeGames = () => {
                   mr: 1,
                   mb: 1,
                       backgroundColor: "#ffffff",
-                  color: "#E0E0E0",
+                  color: "#212121",
                   border: "1px solid #333333",
                 }}
               />
@@ -565,7 +565,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "playerName"}
                       direction={sortColumn === "playerName" ? sortDirection : "asc"}
                       onClick={() => handleSort("playerName")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Player
                     </TableSortLabel>
@@ -585,7 +585,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "season"}
                       direction={sortColumn === "season" ? sortDirection : "asc"}
                       onClick={() => handleSort("season")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Season
                     </TableSortLabel>
@@ -605,7 +605,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "position"}
                       direction={sortColumn === "position" ? sortDirection : "asc"}
                       onClick={() => handleSort("position")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Position
                     </TableSortLabel>
@@ -625,7 +625,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "teamName"}
                       direction={sortColumn === "teamName" ? sortDirection : "asc"}
                       onClick={() => handleSort("teamName")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Team
                     </TableSortLabel>
@@ -645,7 +645,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "nationality"}
                       direction={sortColumn === "nationality" ? sortDirection : "asc"}
                       onClick={() => handleSort("nationality")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Nationality
                     </TableSortLabel>
@@ -665,7 +665,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "height"}
                       direction={sortColumn === "height" ? sortDirection : "asc"}
                       onClick={() => handleSort("height")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Height
                     </TableSortLabel>
@@ -685,7 +685,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "seasonExperience"}
                       direction={sortColumn === "seasonExperience" ? sortDirection : "asc"}
                       onClick={() => handleSort("seasonExperience")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Exp
                     </TableSortLabel>
@@ -706,7 +706,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "points"}
                       direction={sortColumn === "points" ? sortDirection : "asc"}
                       onClick={() => handleSort("points")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Points
                     </TableSortLabel>
@@ -727,7 +727,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "rebounds"}
                       direction={sortColumn === "rebounds" ? sortDirection : "asc"}
                       onClick={() => handleSort("rebounds")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Rebounds
                     </TableSortLabel>
@@ -748,7 +748,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "assists"}
                       direction={sortColumn === "assists" ? sortDirection : "asc"}
                       onClick={() => handleSort("assists")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Assists
                     </TableSortLabel>
@@ -769,7 +769,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "steals"}
                       direction={sortColumn === "steals" ? sortDirection : "asc"}
                       onClick={() => handleSort("steals")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Steals
                     </TableSortLabel>
@@ -790,7 +790,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "blocks"}
                       direction={sortColumn === "blocks" ? sortDirection : "asc"}
                       onClick={() => handleSort("blocks")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Blocks
                     </TableSortLabel>
@@ -811,7 +811,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "field_goal_percentage"}
                       direction={sortColumn === "field_goal_percentage" ? sortDirection : "asc"}
                       onClick={() => handleSort("field_goal_percentage")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       FG%
                     </TableSortLabel>
@@ -832,7 +832,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "free_throw_percentage"}
                       direction={sortColumn === "free_throw_percentage" ? sortDirection : "asc"}
                       onClick={() => handleSort("free_throw_percentage")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       FT%
                     </TableSortLabel>
@@ -853,7 +853,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "three_pointers"}
                       direction={sortColumn === "three_pointers" ? sortDirection : "asc"}
                       onClick={() => handleSort("three_pointers")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       3PT
                     </TableSortLabel>
@@ -874,7 +874,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "turnovers"}
                       direction={sortColumn === "turnovers" ? sortDirection : "asc"}
                       onClick={() => handleSort("turnovers")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       TOV
                     </TableSortLabel>
@@ -895,7 +895,7 @@ const AlltimeGames = () => {
                       active={sortColumn === "fantasy_points"}
                       direction={sortColumn === "fantasy_points" ? sortDirection : "asc"}
                       onClick={() => handleSort("fantasy_points")}
-                      sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
                       Fantasy Pts
                     </TableSortLabel>
@@ -906,12 +906,12 @@ const AlltimeGames = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={17} align="center">
-                      <CircularProgress sx={{ color: "#E0E0E0" }} />
+                      <CircularProgress sx={{ color: "#1976d2" }} />
                     </TableCell>
                   </TableRow>
                 ) : paginatedStats.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={17} align="center" sx={{ color: "#E0E0E0" }}>
+                    <TableCell colSpan={17} align="center" sx={{ color: "#424242" }}>
                       No data available
                     </TableCell>
                   </TableRow>
@@ -947,7 +947,7 @@ const AlltimeGames = () => {
                               width: 32,
                               height: 32,
                               border: "1px solid rgba(0, 0, 0, 0.12)",
-                              "&:hover": { border: "1px solid #555555" },
+                              "&:hover": { border: "1px solid #1976d2" },
                             }}
                           />
                           {stat.playerName}
@@ -1150,7 +1150,7 @@ const AlltimeGames = () => {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             sx={{
-              color: "#E0E0E0",
+              color: "#212121",
               "& .MuiTablePagination-selectLabel": { color: "#E0E0E0" },
               "& .MuiTablePagination-displayedRows": { color: "#E0E0E0" },
             }}

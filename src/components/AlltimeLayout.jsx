@@ -262,23 +262,41 @@ const AlltimeLayout = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          p: 2,
-          borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+          px: { xs: 2, sm: 3 },
+          py: 1.5,
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+          borderBottom: '2px solid #e0e0e0',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1100,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <IconButton
             onClick={handleMenuOpen}
-            sx={{ p: 0 }}
+            sx={{
+              p: 0,
+              transition: 'transform 0.2s ease',
+              '&:hover': {
+                transform: 'scale(1.08)',
+              },
+            }}
             aria-label="Open navigation menu"
           >
-            <img
+            <Avatar
               src="https://www.svgrepo.com/show/396571/goat.svg"
               alt="GOAT"
-              style={{
-                width: '40px',
-                height: '40px',
-                filter: 'invert(0)',
+              sx={{
+                width: { xs: 40, sm: 50 },
+                height: { xs: 40, sm: 50 },
+                border: '3px solid #4a90e2',
+                bgcolor: 'transparent',
+                p: 0.5,
+                boxShadow: '0 2px 8px rgba(74, 144, 226, 0.3)',
+                '& img': {
+                  filter: 'invert(0)',
+                },
               }}
             />
           </IconButton>
@@ -290,30 +308,90 @@ const AlltimeLayout = () => {
               sx: {
                 backgroundColor: '#ffffff',
                 color: '#212121',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                borderRadius: 2,
+                mt: 1,
+                minWidth: 180,
               },
             }}
           >
             <MenuItem
               onClick={() => handleMenuSelect('/matchup')}
               selected={location.pathname === '/matchup'}
+              sx={{
+                py: 1.5,
+                px: 2,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.15)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                  },
+                },
+              }}
             >
               Matchups
             </MenuItem>
             <MenuItem
               onClick={() => handleMenuSelect('/rankings')}
               selected={location.pathname === '/rankings'}
+              sx={{
+                py: 1.5,
+                px: 2,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.15)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                  },
+                },
+              }}
             >
               Rankings
             </MenuItem>
             <MenuItem
               onClick={() => handleMenuSelect('/seasons')}
               selected={location.pathname === '/seasons' || location.pathname === '/table'}
+              sx={{
+                py: 1.5,
+                px: 2,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.15)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                  },
+                },
+              }}
             >
               History
             </MenuItem>
             <MenuItem
               onClick={() => handleMenuSelect('/about')}
               selected={location.pathname === '/about'}
+              sx={{
+                py: 1.5,
+                px: 2,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.15)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                  },
+                },
+              }}
             >
               About
             </MenuItem>
@@ -322,38 +400,61 @@ const AlltimeLayout = () => {
             variant="h5"
             component="h1"
             sx={{
-              fontSize: { xs: '1rem', sm: '1.5rem' },
-              fontWeight: 600,
+              fontSize: { xs: '1.1rem', sm: '1.5rem', md: '1.75rem' },
+              fontWeight: 700,
               color: '#212121',
+              background: '#4A70A9',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '-0.02em',
+              display: { xs: 'none', sm: 'block' },
             }}
           >
             Fantasy Goats Guru
           </Typography>
+          <Typography
+            variant="h6"
+            component="h1"
+            sx={{
+              fontSize: '1rem',
+              fontWeight: 700,
+              color: '#212121',
+              display: { xs: 'block', sm: 'none' },
+            }}
+          >
+            FG Guru
+          </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
           {isAuthenticated && userLeagues.length > 0 && (
             <FormControl
               size="small"
               sx={{
-                minWidth: 120,
+                minWidth: { xs: 100, sm: 140 },
                 "& .MuiOutlinedInput-root": {
                   bgcolor: "#ffffff",
                   color: "#212121",
                   fontFamily: '"Roboto Mono", monospace',
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                  borderRadius: 2,
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#4a90e2",
+                    borderColor: "#e0e0e0",
+                    borderWidth: 2,
                   },
                   "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#80deea",
+                    borderColor: "#4a90e2",
                   },
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#80deea",
+                    borderColor: "#4a90e2",
+                    borderWidth: 2,
                   },
                 },
                 "& .MuiInputLabel-root": {
-                  color: "#424242",
+                  color: "#757575",
                   fontFamily: '"Roboto Mono", monospace',
-                  fontSize: "0.75rem",
+                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                  fontWeight: 600,
                   "&.Mui-focused": {
                     color: "#4a90e2",
                   },
@@ -397,17 +498,30 @@ const AlltimeLayout = () => {
               indicatorColor="primary"
               sx={{
                 minWidth: 'fit-content',
+                bgcolor: '#ffffff',
+                borderRadius: 2,
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
                 '& .MuiTab-root': {
-                  minWidth: { xs: 40, sm: 100 },
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  padding: { xs: '6px 8px', sm: '12px 16px' },
-                  color: '#212121',
+                  minWidth: { xs: 60, sm: 100 },
+                  fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                  fontWeight: 600,
+                  padding: { xs: '8px 12px', sm: '10px 20px' },
+                  color: '#757575',
+                  textTransform: 'none',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    color: '#4a90e2',
+                    backgroundColor: 'rgba(74, 144, 226, 0.05)',
+                  },
                   '&.Mui-selected': {
                     color: '#4a90e2',
+                    fontWeight: 700,
                   },
                 },
                 '& .MuiTabs-indicator': {
                   backgroundColor: '#4a90e2',
+                  height: 3,
+                  borderRadius: '3px 3px 0 0',
                 },
               }}
             >
@@ -420,7 +534,13 @@ const AlltimeLayout = () => {
             <>
               <IconButton
                 onClick={handleProfileMenuOpen}
-                sx={{ p: 0 }}
+                sx={{
+                  p: 0,
+                  transition: 'transform 0.2s ease',
+                  '&:hover': {
+                    transform: 'scale(1.08)',
+                  },
+                }}
                 aria-label="User profile menu"
               >
                 <Avatar
@@ -429,10 +549,11 @@ const AlltimeLayout = () => {
                     : displayPicture}
                   alt={displayName}
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: { xs: 36, sm: 42 },
+                    height: { xs: 36, sm: 42 },
                     border: '2px solid #4a90e2',
                     cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(74, 144, 226, 0.3)',
                   }}
                 >
                   {!displayPicture && displayName ? displayName.charAt(0).toUpperCase() : 'U'}
@@ -446,27 +567,63 @@ const AlltimeLayout = () => {
                   sx: {
                     backgroundColor: '#ffffff',
                     color: '#212121',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                    borderRadius: 2,
                     mt: 1,
+                    minWidth: 220,
                   },
                 }}
               >
-                <MenuItem disabled sx={{ opacity: 1, '&.Mui-disabled': { opacity: 1 } }}>
+                <MenuItem
+                  disabled
+                  sx={{
+                    opacity: 1,
+                    '&.Mui-disabled': {
+                      opacity: 1,
+                      backgroundColor: 'rgba(74, 144, 226, 0.05)',
+                    },
+                    py: 2,
+                    px: 2.5,
+                    borderBottom: '1px solid #e0e0e0',
+                  }}
+                >
                   <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#212121' }}>
                       {displayName}
                     </Typography>
                     {displayEmail && (
-                      <Typography variant="caption" sx={{ color: '#424242' }}>
+                      <Typography variant="caption" sx={{ color: '#757575', mt: 0.5 }}>
                         {displayEmail}
                       </Typography>
                     )}
                   </Box>
                 </MenuItem>
-                <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}>
+                <MenuItem
+                  onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}
+                  sx={{
+                    py: 1.5,
+                    px: 2.5,
+                    fontWeight: 500,
+                    '&:hover': {
+                      backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                    },
+                  }}
+                >
                   Profile
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>
-                  <Logout sx={{ mr: 1, fontSize: '1.2rem' }} />
+                <MenuItem
+                  onClick={handleLogout}
+                  sx={{
+                    py: 1.5,
+                    px: 2.5,
+                    fontWeight: 500,
+                    color: '#d32f2f',
+                    '&:hover': {
+                      backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                    },
+                  }}
+                >
+                  <Logout sx={{ mr: 1.5, fontSize: '1.2rem' }} />
                   Logout
                 </MenuItem>
               </Menu>

@@ -22,7 +22,7 @@ import {
   Avatar,
   CircularProgress,
 } from "@mui/material";
-import { fetchAllPlayers, fetchFilteredPlayerAverages } from "../api";
+import { fetchFilteredPlayerAverages } from "../api";
 
 const AlltimeTable = () => {
   const [loading, setLoading] = useState(false);
@@ -93,19 +93,35 @@ const AlltimeTable = () => {
     { value: "=", label: "=" },
   ];
 
-  // Color coding based on z-scores
+  // Color coding based on z-scores (light mode friendly)
   const getColorForValue = (value) => {
-    if (value < -5) return "#FF0000"; // Bright red
-    if (value >= -5 && value < -4) return "#FF3333";
-    if (value >= -4 && value < -3) return "#FF6666";
-    if (value >= -3 && value < -2) return "#FF9999";
-    if (value >= -2 && value < -1) return "#FFCCCC";
-    if (value >= -1 && value <= 1) return "#FFFFFF"; // Neutral
-    if (value > 1 && value <= 2) return "#CCFFCC";
-    if (value > 2 && value <= 3) return "#99FF99";
-    if (value > 3 && value <= 4) return "#66FF66";
-    if (value > 4 && value <= 5) return "#33FF33";
-    return "#00FF00"; // Bright green (> 5)
+    if (value < -5) return "#ffebee"; // Very light red
+    if (value >= -5 && value < -4) return "#ffcdd2";
+    if (value >= -4 && value < -3) return "#ef9a9a";
+    if (value >= -3 && value < -2) return "#e57373";
+    if (value >= -2 && value < -1) return "#ef5350";
+    if (value >= -1 && value <= 1) return "#ffffff"; // Neutral
+    if (value > 1 && value <= 2) return "#c8e6c9";
+    if (value > 2 && value <= 3) return "#a5d6a7";
+    if (value > 3 && value <= 4) return "#81c784";
+    if (value > 4 && value <= 5) return "#66bb6a";
+    return "#4caf50"; // Green (> 5)
+  };
+
+  // Get appropriate text color based on background
+  const getTextColor = (bgColor) => {
+    // For light backgrounds, use dark text
+    const lightBgs = ["#ffffff", "#ffebee", "#ffcdd2", "#c8e6c9", "#a5d6a7"];
+    if (lightBgs.includes(bgColor)) {
+      return "#212121";
+    }
+    // For medium backgrounds, use dark text
+    const mediumBgs = ["#ef9a9a", "#e57373", "#81c784", "#66bb6a"];
+    if (mediumBgs.includes(bgColor)) {
+      return "#212121";
+    }
+    // For darker backgrounds, use white text
+    return "#ffffff";
   };
 
   // Function to normalize player names by removing special characters
@@ -128,17 +144,6 @@ const AlltimeTable = () => {
     return `${(value * 100).toFixed(decimals)}%`;
   };
 
-  useEffect(() => {
-    const loadPlayers = async () => {
-      try {
-        const data = await fetchAllPlayers();
-        setPlayers(data);
-      } catch (error) {
-        console.error("Error loading players:", error);
-      }
-    };
-    loadPlayers();
-  }, []);
 
   useEffect(() => {
     const loadPlayerStats = async () => {
@@ -373,7 +378,7 @@ const AlltimeTable = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: "#121212", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)", minHeight: "100vh" }}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={9}>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -381,7 +386,7 @@ const AlltimeTable = () => {
               variant="h5"
               sx={{
                 mb: 3,
-                color: "#E0E0E0",
+                color: "#212121",
                 fontWeight: 500,
                 letterSpacing: 1,
                 textTransform: "uppercase",
@@ -406,11 +411,11 @@ const AlltimeTable = () => {
                     sx={{
                       width: 200,
                       backgroundColor: "#ffffff",
-                      "& .MuiInputBase-input": { color: "#E0E0E0" },
-                      "& .MuiInputLabel-root": { color: "#B0B0B0" },
+                    "& .MuiInputBase-input": { color: "#212121" },
+                    "& .MuiInputLabel-root": { color: "#424242" },
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#555555" },
+                        "&:hover fieldset": { borderColor: "#1976d2" },
                       },
                     }}
                   />
@@ -421,16 +426,16 @@ const AlltimeTable = () => {
               {(filterType?.isNumeric || filterType?.isHeight) ? (
                 <>
                   <FormControl sx={{ width: 100 }}>
-                    <InputLabel sx={{ color: "#B0B0B0" }}>Operator</InputLabel>
+                    <InputLabel sx={{ color: "#424242" }}>Operator</InputLabel>
                     <Select
                       value={filterOperator}
                       onChange={(e) => setFilterOperator(e.target.value)}
                       sx={{
                         backgroundColor: "#ffffff",
                         color: "#212121",
-                        "& .MuiSvgIcon-root": { color: "#E0E0E0" },
+                        "& .MuiSvgIcon-root": { color: "#424242" },
                         "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#555555" },
+                        "&:hover fieldset": { borderColor: "#1976d2" },
                       }}
                     >
                       {operators.map((op) => (
@@ -457,11 +462,11 @@ const AlltimeTable = () => {
                     sx={{
                       width: 150,
                       backgroundColor: "#ffffff",
-                      "& .MuiInputBase-input": { color: "#E0E0E0" },
-                      "& .MuiInputLabel-root": { color: "#B0B0B0" },
+                    "& .MuiInputBase-input": { color: "#212121" },
+                    "& .MuiInputLabel-root": { color: "#424242" },
                       "& .MuiOutlinedInput-root": {
                         "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#555555" },
+                        "&:hover fieldset": { borderColor: "#1976d2" },
                       },
                     }}
                   />
@@ -483,11 +488,11 @@ const AlltimeTable = () => {
                       sx={{
                         width: 250,
                         backgroundColor: "#ffffff",
-                        "& .MuiInputBase-input": { color: "#E0E0E0" },
-                        "& .MuiInputLabel-root": { color: "#B0B0B0" },
+                    "& .MuiInputBase-input": { color: "#212121" },
+                    "& .MuiInputLabel-root": { color: "#424242" },
                         "& .MuiOutlinedInput-root": {
                           "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                          "&:hover fieldset": { borderColor: "#555555" },
+                          "&:hover fieldset": { borderColor: "#1976d2" },
                         },
                       }}
                     />
@@ -501,9 +506,9 @@ const AlltimeTable = () => {
                 onClick={handleAddFilter}
                 disabled={!filterType || (!filterValue?.length && !filterNumericValue)}
                 sx={{
-                  backgroundColor: "#424242",
-                  color: "#E0E0E0",
-                  "&:hover": { backgroundColor: "#616161" },
+                backgroundColor: "#1976d2",
+                color: "#ffffff",
+                "&:hover": { backgroundColor: "#1565c0" },
                   textTransform: "none",
                   fontWeight: 500,
                 }}
@@ -515,9 +520,9 @@ const AlltimeTable = () => {
                 variant="outlined"
                 onClick={handleClearFilters}
                 sx={{
-                  color: "#E0E0E0",
-                  borderColor: "rgba(0, 0, 0, 0.12)",
-                  "&:hover": { borderColor: "#bdbdbd", backgroundColor: "#f5f5f5" },
+                color: "#424242",
+                borderColor: "rgba(0, 0, 0, 0.12)",
+                "&:hover": { borderColor: "#1976d2", backgroundColor: "rgba(25, 118, 210, 0.04)" },
                   textTransform: "none",
                   fontWeight: 500,
                 }}
@@ -538,7 +543,7 @@ const AlltimeTable = () => {
             <Typography
               variant="h6"
               sx={{
-                color: "#E0E0E0",
+                color: "#212121",
                 fontWeight: 500,
                 letterSpacing: 1,
                 textTransform: "uppercase",
@@ -688,7 +693,7 @@ const AlltimeTable = () => {
             <TableRow sx={{ backgroundColor: "#ffffff" }}>
               <TableCell
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -701,14 +706,14 @@ const AlltimeTable = () => {
                   active={sortColumn === "playerName"}
                   direction={sortColumn === "playerName" ? sortDirection : "asc"}
                   onClick={() => handleSort("playerName")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Player
                 </TableSortLabel>
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -721,14 +726,14 @@ const AlltimeTable = () => {
                   active={sortColumn === "season"}
                   direction={sortColumn === "season" ? sortDirection : "asc"}
                   onClick={() => handleSort("season")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Season
                 </TableSortLabel>
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -741,14 +746,14 @@ const AlltimeTable = () => {
                   active={sortColumn === "position"}
                   direction={sortColumn === "position" ? sortDirection : "asc"}
                   onClick={() => handleSort("position")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Position
                 </TableSortLabel>
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -761,14 +766,14 @@ const AlltimeTable = () => {
                   active={sortColumn === "teamName"}
                   direction={sortColumn === "teamName" ? sortDirection : "asc"}
                   onClick={() => handleSort("teamName")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Team
                 </TableSortLabel>
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -781,14 +786,14 @@ const AlltimeTable = () => {
                   active={sortColumn === "nationality"}
                   direction={sortColumn === "nationality" ? sortDirection : "asc"}
                   onClick={() => handleSort("nationality")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Nationality
                 </TableSortLabel>
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -801,14 +806,14 @@ const AlltimeTable = () => {
                   active={sortColumn === "height"}
                   direction={sortColumn === "height" ? sortDirection : "asc"}
                   onClick={() => handleSort("height")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Height
                 </TableSortLabel>
               </TableCell>
               <TableCell
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -821,7 +826,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "seasonExperience"}
                   direction={sortColumn === "seasonExperience" ? sortDirection : "asc"}
                   onClick={() => handleSort("seasonExperience")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Exp
                 </TableSortLabel>
@@ -829,7 +834,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -842,7 +847,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "points"}
                   direction={sortColumn === "points" ? sortDirection : "asc"}
                   onClick={() => handleSort("points")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Points
                 </TableSortLabel>
@@ -850,7 +855,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -863,7 +868,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "rebounds"}
                   direction={sortColumn === "rebounds" ? sortDirection : "asc"}
                   onClick={() => handleSort("rebounds")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Rebounds
                 </TableSortLabel>
@@ -871,7 +876,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -884,7 +889,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "assists"}
                   direction={sortColumn === "assists" ? sortDirection : "asc"}
                   onClick={() => handleSort("assists")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Assists
                 </TableSortLabel>
@@ -892,7 +897,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -905,7 +910,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "steals"}
                   direction={sortColumn === "steals" ? sortDirection : "asc"}
                   onClick={() => handleSort("steals")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Steals
                 </TableSortLabel>
@@ -913,7 +918,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -926,7 +931,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "blocks"}
                   direction={sortColumn === "blocks" ? sortDirection : "asc"}
                   onClick={() => handleSort("blocks")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Blocks
                 </TableSortLabel>
@@ -934,7 +939,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -947,7 +952,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "field_goal_percentage"}
                   direction={sortColumn === "field_goal_percentage" ? sortDirection : "asc"}
                   onClick={() => handleSort("field_goal_percentage")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   FG%
                 </TableSortLabel>
@@ -955,7 +960,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -968,7 +973,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "free_throw_percentage"}
                   direction={sortColumn === "free_throw_percentage" ? sortDirection : "asc"}
                   onClick={() => handleSort("free_throw_percentage")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   FT%
                 </TableSortLabel>
@@ -976,7 +981,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -989,7 +994,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "three_pointers"}
                   direction={sortColumn === "three_pointers" ? sortDirection : "asc"}
                   onClick={() => handleSort("three_pointers")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   3PT
                 </TableSortLabel>
@@ -997,7 +1002,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1010,7 +1015,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "points_z"}
                   direction={sortColumn === "points_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("points_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Points Z
                 </TableSortLabel>
@@ -1018,7 +1023,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1031,7 +1036,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "rebounds_z"}
                   direction={sortColumn === "rebounds_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("rebounds_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Reb Z
                 </TableSortLabel>
@@ -1039,7 +1044,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1052,7 +1057,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "assists_z"}
                   direction={sortColumn === "assists_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("assists_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Ast Z
                 </TableSortLabel>
@@ -1060,7 +1065,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1073,7 +1078,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "steals_z"}
                   direction={sortColumn === "steals_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("steals_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Stl Z
                 </TableSortLabel>
@@ -1081,7 +1086,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1094,7 +1099,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "blocks_z"}
                   direction={sortColumn === "blocks_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("blocks_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Blk Z
                 </TableSortLabel>
@@ -1102,7 +1107,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1115,7 +1120,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "field_goal_percentage_z"}
                   direction={sortColumn === "field_goal_percentage_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("field_goal_percentage_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   FG% Z
                 </TableSortLabel>
@@ -1123,7 +1128,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1136,7 +1141,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "free_throw_percentage_z"}
                   direction={sortColumn === "free_throw_percentage_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("free_throw_percentage_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   FT% Z
                 </TableSortLabel>
@@ -1144,7 +1149,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1157,7 +1162,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "turnovers"}
                   direction={sortColumn === "turnovers" ? sortDirection : "asc"}
                   onClick={() => handleSort("turnovers")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   TOV
                 </TableSortLabel>
@@ -1165,7 +1170,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1178,7 +1183,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "turnovers_z"}
                   direction={sortColumn === "turnovers_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("turnovers_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   TOV Z
                 </TableSortLabel>
@@ -1186,7 +1191,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1199,7 +1204,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "three_pointers_z"}
                   direction={sortColumn === "three_pointers_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("three_pointers_z")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   3PT Z
                 </TableSortLabel>
@@ -1207,7 +1212,7 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#E0E0E0",
+                  color: "#212121",
                   borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
@@ -1220,7 +1225,7 @@ const AlltimeTable = () => {
                   active={sortColumn === "total_value"}
                   direction={sortColumn === "total_value" ? sortDirection : "asc"}
                   onClick={() => handleSort("total_value")}
-                  sx={{ color: "#E0E0E0", "&:hover": { color: "#FFFFFF" } }}
+                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                 >
                   Total Val
                 </TableSortLabel>
@@ -1231,15 +1236,15 @@ const AlltimeTable = () => {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={26} align="center" sx={{ py: 4 }}>
-                  <CircularProgress sx={{ color: "#4a90e2" }} />
-                  <Typography sx={{ mt: 2, color: "#b0bec5" }}>
+                      <CircularProgress sx={{ color: "#1976d2" }} />
+                      <Typography sx={{ mt: 2, color: "#424242" }}>
                     Loading player statistics...
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : sortedPlayerStats.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={26} align="center" sx={{ py: 4, color: "#b0bec5" }}>
+                <TableCell colSpan={26} align="center" sx={{ py: 4, color: "#424242" }}>
                   No players found. Try adjusting your filters.
                 </TableCell>
               </TableRow>
@@ -1254,7 +1259,7 @@ const AlltimeTable = () => {
               >
                 <TableCell
                   sx={{
-                    color: "#E0E0E0",
+                    color: "#212121",
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
@@ -1276,7 +1281,7 @@ const AlltimeTable = () => {
                         height: 32,
                         border: '1px solid rgba(0, 0, 0, 0.12)',
                         '&:hover': {
-                          border: '1px solid #555555',
+                          border: '1px solid #1976d2',
                         }
                       }}
                     />
@@ -1285,7 +1290,7 @@ const AlltimeTable = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#E0E0E0",
+                    color: "#212121",
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
@@ -1295,7 +1300,7 @@ const AlltimeTable = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#E0E0E0",
+                    color: "#212121",
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
@@ -1305,7 +1310,7 @@ const AlltimeTable = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#E0E0E0",
+                    color: "#212121",
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
@@ -1315,7 +1320,7 @@ const AlltimeTable = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#E0E0E0",
+                    color: "#212121",
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
@@ -1325,7 +1330,7 @@ const AlltimeTable = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#E0E0E0",
+                    color: "#212121",
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
@@ -1335,7 +1340,7 @@ const AlltimeTable = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#E0E0E0",
+                    color: "#212121",
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
@@ -1346,7 +1351,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.points_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.points_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.points_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1358,7 +1364,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.rebounds_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.rebounds_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.rebounds_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1370,7 +1377,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.assists_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.assists_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.assists_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1382,7 +1390,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.steals_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.steals_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.steals_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1394,7 +1403,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.blocks_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.blocks_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.blocks_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1406,7 +1416,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.field_goal_percentage_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1418,7 +1429,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.free_throw_percentage_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1430,7 +1442,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.three_pointers_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.three_pointers_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.three_pointers_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1442,7 +1455,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.points_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.points_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.points_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1454,7 +1468,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.rebounds_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.rebounds_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.rebounds_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1466,7 +1481,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.assists_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.assists_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.assists_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1478,7 +1494,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.steals_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.steals_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.steals_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1490,7 +1507,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.blocks_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.blocks_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.blocks_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1502,7 +1520,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.field_goal_percentage_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1514,7 +1533,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.free_throw_percentage_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1526,7 +1546,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.turnovers_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.turnovers_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.turnovers_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1538,7 +1559,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.turnovers_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.turnovers_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.turnovers_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1550,7 +1572,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.three_pointers_z || 0),
+                    bgcolor: getColorForValue(stat.stats?.three_pointers_z || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.three_pointers_z || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
@@ -1562,7 +1585,8 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    color: getColorForValue(stat.stats?.total_value || 0),
+                    bgcolor: getColorForValue(stat.stats?.total_value || 0),
+                    color: getTextColor(getColorForValue(stat.stats?.total_value || 0)),
                     borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
