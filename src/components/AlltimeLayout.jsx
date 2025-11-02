@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography, Tabs, Tab, CircularProgress, Link, IconButton, Menu, MenuItem, Avatar } from '@mui/material';
+import { Box, Container, Typography, Tabs, Tab, CircularProgress, Link, IconButton, Menu, MenuItem, Avatar, FormControl, InputLabel, Select } from '@mui/material';
 import { Logout } from '@mui/icons-material';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
 import Matchup from '../Pages/Matchup';
+import Rankings from '../Pages/Rankings';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
 import { useAuth } from '../contexts/AuthContext';
+import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
 
 const AlltimeLayout = () => {
@@ -20,6 +22,8 @@ const AlltimeLayout = () => {
   const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
   const [profileAnchorEl, setProfileAnchorEl] = useState(null); // For profile menu
   const [userProfile, setUserProfile] = useState(null);
+  const [userLeagues, setUserLeagues] = useState([]);
+  const [selectedLeague, setSelectedLeague] = useState("");
   
   // Fetch user profile to override OAuth data if it exists
   useEffect(() => {
@@ -57,13 +61,47 @@ const AlltimeLayout = () => {
   const displayEmail = userProfile?.email || user?.email || '';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
 
+  // Fetch user leagues if authenticated
+  useEffect(() => {
+    const fetchUserLeagues = async () => {
+      if (!user?.userId) {
+        setUserLeagues([]);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase.functions.invoke("yahoo-fantasy-api", {
+          body: {
+            action: "getUserLeagues",
+            userId: user.userId,
+          },
+        });
+
+        if (error) throw error;
+        
+        if (data?.leagues && data.leagues.length > 0) {
+          setUserLeagues(data.leagues);
+          if (!selectedLeague) {
+            setSelectedLeague(data.leagues[0].leagueId);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user leagues:', err);
+      }
+    };
+    
+    if (isAuthenticated) {
+      fetchUserLeagues();
+    }
+  }, [user?.userId, isAuthenticated, selectedLeague]);
+
   useEffect(() => {
     if (location.pathname === '/seasons' || location.pathname === '/table') {
       setTabValue(1);
     } else if (location.pathname === '/games') {
       setTabValue(2);
-    } else if (location.pathname === '/matchup') {
-      setTabValue(0); // No tab selected for Matchup
+    } else if (location.pathname === '/matchup' || location.pathname === '/league' || location.pathname === '/rankings') {
+      setTabValue(0); // No tab selected for these pages
     } else if (location.pathname === '/teams' || location.pathname === '/charts') {
       setTabValue(0);
     } else {
@@ -140,6 +178,8 @@ const AlltimeLayout = () => {
         return <AlltimeGames />;
       case '/matchup':
         return <Matchup />;
+      case '/rankings':
+        return <Rankings />;
       case '/about':
         return <About />;
       case '/profile':
@@ -149,9 +189,11 @@ const AlltimeLayout = () => {
     }
   };
 
-  const isMatchup = location.pathname === '/matchup';
-  const isAbout = location.pathname === '/about';
-  const isProfile = location.pathname === '/profile';
+  const isSpecialPage = location.pathname === '/matchup' || 
+                       location.pathname === '/league' || 
+                       location.pathname === '/rankings' || 
+                       location.pathname === '/about' || 
+                       location.pathname === '/profile';
 
   return (
     <Box
@@ -207,7 +249,13 @@ const AlltimeLayout = () => {
               onClick={() => handleMenuSelect('/matchup')}
               selected={location.pathname === '/matchup'}
             >
-              Matchup
+              Matchups
+            </MenuItem>
+            <MenuItem
+              onClick={() => handleMenuSelect('/rankings')}
+              selected={location.pathname === '/rankings'}
+            >
+              Rankings
             </MenuItem>
             <MenuItem
               onClick={() => handleMenuSelect('/seasons')}
@@ -235,7 +283,65 @@ const AlltimeLayout = () => {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {!isMatchup && !isAbout && !isProfile && (
+          {isAuthenticated && userLeagues.length > 0 && (
+            <FormControl
+              size="small"
+              sx={{
+                minWidth: 120,
+                "& .MuiOutlinedInput-root": {
+                  bgcolor: "#1e1e1e",
+                  color: "#e0e0e0",
+                  fontFamily: '"Roboto Mono", monospace',
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#4a90e2",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#80deea",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#80deea",
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: "#b0bec5",
+                  fontFamily: '"Roboto Mono", monospace',
+                  fontSize: "0.75rem",
+                  "&.Mui-focused": {
+                    color: "#4a90e2",
+                  },
+                },
+                "& .MuiSelect-icon": {
+                  color: "#4a90e2",
+                },
+              }}
+            >
+              <InputLabel>League</InputLabel>
+              <Select
+                value={selectedLeague}
+                onChange={(e) => setSelectedLeague(e.target.value)}
+                label="League"
+              >
+                {userLeagues.map((league) => (
+                  <MenuItem
+                    key={league.leagueId}
+                    value={league.leagueId}
+                    sx={{
+                      fontFamily: '"Roboto Mono", monospace',
+                      fontSize: '0.875rem',
+                      bgcolor: '#1e1e1e',
+                      color: '#e0e0e0',
+                      '&:hover': {
+                        bgcolor: 'rgba(74, 144, 226, 0.1)',
+                      },
+                    }}
+                  >
+                    {league.name} {league.season ? `(${league.season})` : ''}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+          {!isSpecialPage && (
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
@@ -353,7 +459,13 @@ const AlltimeLayout = () => {
             </Box>
           </Box>
         ) : (
-          renderContent()
+          <LeagueProvider
+            selectedLeague={selectedLeague}
+            onLeagueChange={setSelectedLeague}
+            userLeagues={userLeagues}
+          >
+            {renderContent()}
+          </LeagueProvider>
         )}
       </Container>
 

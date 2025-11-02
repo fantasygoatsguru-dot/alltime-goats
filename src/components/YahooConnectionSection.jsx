@@ -18,8 +18,6 @@ const YahooConnectionSection = ({
     isConnected,
     loading,
     userLeagues,
-    selectedLeague,
-    onLeagueChange,
     onYahooConnect,
     allLeagueTeams,
     selectedTeam1,
@@ -29,7 +27,18 @@ const YahooConnectionSection = ({
 }) => {
     if (!isConnected && userLeagues.length === 0) {
         return (
-            <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1, textAlign: "center" }}>
+            <Box
+                sx={{
+                    mb: 4,
+                    p: 3,
+                    bgcolor: "#252525",
+                    borderRadius: 2,
+                    textAlign: "center",
+                    maxWidth: 500,
+                    mx: "auto",
+                    border: "1px solid #333",
+                }}
+            >
                 <Typography
                     variant="body1"
                     sx={{
@@ -38,7 +47,7 @@ const YahooConnectionSection = ({
                         fontFamily: '"Roboto Mono", monospace',
                     }}
                 >
-                    Add your players or load them from Yahoo Fantasy
+                    Load players from Yahoo Fantasy
                 </Typography>
                 <Button
                     variant="outlined"
@@ -54,10 +63,10 @@ const YahooConnectionSection = ({
                         },
                         fontFamily: '"Roboto Mono", monospace',
                         px: 4,
-                        py: 1.5,
+                        py: 1.2,
                     }}
                 >
-                    {loading ? "Connecting..." : "Connect to Yahoo Fantasy"}
+                    {loading ? "Connecting..." : "Connect to Yahoo"}
                 </Button>
             </Box>
         );
@@ -66,53 +75,36 @@ const YahooConnectionSection = ({
     if (!isConnected || userLeagues.length === 0) return null;
 
     return (
-        <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
-            <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={3}>
-                    <FormControl fullWidth>
-                        <InputLabel
-                            sx={{
-                                color: "#b0bec5",
-                                "&.Mui-focused": { color: "#4a90e2" },
-                            }}
-                        >
-                            Select League
-                        </InputLabel>
-                        <Select
-                            value={selectedLeague}
-                            onChange={(e) => onLeagueChange(e.target.value)}
-                            label="Select League"
-                            sx={{
-                                bgcolor: "#252525",
-                                color: "#e0e0e0",
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                    borderColor: "#4a90e2",
-                                },
-                                "&:hover .MuiOutlinedInput-notchedOutline": {
-                                    borderColor: "#80deea",
-                                },
-                                "& .MuiSelect-icon": { color: "#4a90e2" },
-                            }}
-                        >
-                            {userLeagues.map((league) => (
-                                <MenuItem key={league.leagueId} value={league.leagueId}>
-                                    {league.name} ({league.season})
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Grid>
+        <Box
+            sx={{
+                mb: 4,
+                p: 3,
+                bgcolor: "#252525",
+                borderRadius: 2,
+                maxWidth: 800,
+                mx: "auto",
+                border: "1px solid #333",
+            }}
+        >
+            <Typography
+                variant="h6"
+                sx={{
+                    textAlign: "center",
+                    mb: 3,
+                    color: "#4a90e2",
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontWeight: "bold",
+                }}
+            >
+                Select Teams to Compare
+            </Typography>
+
+            <Grid container spacing={2} alignItems="center" justifyContent="center">
                 {allLeagueTeams.length > 0 ? (
                     <>
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} sm={5}>
                             <FormControl fullWidth>
-                                <InputLabel
-                                    sx={{
-                                        color: "#b0bec5",
-                                        "&.Mui-focused": { color: "#4a90e2" },
-                                        fontFamily: '"Roboto Mono", monospace',
-                                    }}
-                                >
+                                <InputLabel sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace' }}>
                                     Team 1
                                 </InputLabel>
                                 <Select
@@ -120,27 +112,19 @@ const YahooConnectionSection = ({
                                     onChange={(e) => onTeamSelect("team1", e.target.value)}
                                     label="Team 1"
                                     sx={{
-                                        bgcolor: "#252525",
                                         color: "#e0e0e0",
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#4a90e2",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#80deea",
-                                        },
+                                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
                                         "& .MuiSelect-icon": { color: "#4a90e2" },
                                         fontFamily: '"Roboto Mono", monospace',
                                     }}
                                 >
                                     {allLeagueTeams.map((team) => (
-                                        <MenuItem 
-                                            key={team.key} 
+                                        <MenuItem
+                                            key={team.key}
                                             value={team.name}
                                             disabled={team.name === selectedTeam2}
-                                            sx={{
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                "&.Mui-disabled": { opacity: 0.5 },
-                                            }}
+                                            sx={{ fontFamily: '"Roboto Mono", monospace' }}
                                         >
                                             {team.name}
                                         </MenuItem>
@@ -148,38 +132,24 @@ const YahooConnectionSection = ({
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid
-                            item
-                            xs={12}
-                            md={1}
-                            sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        >
-                            <IconButton
-                                onClick={onSwitchTeams}
-                                sx={{
-                                    color: "#4a90e2",
-                                    "&:hover": {
-                                        color: "#80deea",
-                                        backgroundColor: "rgba(74, 144, 226, 0.1)",
-                                    },
-                                }}
-                            >
-                                <SwitchIcon fontSize="large" />
-                            </IconButton>
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                            <FormControl fullWidth>
-                                <InputLabel
+
+                        <Grid item xs={12} sm={2}>
+                            <Box sx={{ display: "flex", justifyContent: "center" }}>
+                                <IconButton
+                                    onClick={onSwitchTeams}
                                     sx={{
-                                        color: "#b0bec5",
-                                        "&.Mui-focused": { color: "#4a90e2" },
-                                        fontFamily: '"Roboto Mono", monospace',
+                                        color: "#4a90e2",
+                                        "&:hover": { bgcolor: "rgba(74, 144, 226, 0.1)" },
                                     }}
                                 >
+                                    <SwitchIcon />
+                                </IconButton>
+                            </Box>
+                        </Grid>
+
+                        <Grid item xs={12} sm={5}>
+                            <FormControl fullWidth>
+                                <InputLabel sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace' }}>
                                     Team 2
                                 </InputLabel>
                                 <Select
@@ -187,27 +157,19 @@ const YahooConnectionSection = ({
                                     onChange={(e) => onTeamSelect("team2", e.target.value)}
                                     label="Team 2"
                                     sx={{
-                                        bgcolor: "#252525",
                                         color: "#e0e0e0",
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#4a90e2",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            borderColor: "#80deea",
-                                        },
+                                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
                                         "& .MuiSelect-icon": { color: "#4a90e2" },
                                         fontFamily: '"Roboto Mono", monospace',
                                     }}
                                 >
                                     {allLeagueTeams.map((team) => (
-                                        <MenuItem 
-                                            key={team.key} 
+                                        <MenuItem
+                                            key={team.key}
                                             value={team.name}
                                             disabled={team.name === selectedTeam1}
-                                            sx={{
-                                                fontFamily: '"Roboto Mono", monospace',
-                                                "&.Mui-disabled": { opacity: 0.5 },
-                                            }}
+                                            sx={{ fontFamily: '"Roboto Mono", monospace' }}
                                         >
                                             {team.name}
                                         </MenuItem>
@@ -215,34 +177,24 @@ const YahooConnectionSection = ({
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} md={2} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            {loading && (
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <CircularProgress size={20} />
-                                    <Typography
-                                        sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontSize: '0.875rem'
-                                        }}
-                                    >
-                                        Loading...
+
+                        {loading && (
+                            <Grid item xs={12}>
+                                <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2, gap: 1 }}>
+                                    <CircularProgress size={20} sx={{ color: "#4a90e2" }} />
+                                    <Typography sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace' }}>
+                                        Loading teams...
                                     </Typography>
                                 </Box>
-                            )}
-                        </Grid>
+                            </Grid>
+                        )}
                     </>
                 ) : loading ? (
-                    <Grid item xs={12} md={9}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <CircularProgress size={20} />
-                            <Typography
-                                sx={{
-                                    color: "#b0bec5",
-                                    fontFamily: '"Roboto Mono", monospace',
-                                }}
-                            >
-                                Loading team data from Yahoo...
+                    <Grid item xs={12}>
+                        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2 }}>
+                            <CircularProgress size={24} sx={{ color: "#4a90e2" }} />
+                            <Typography sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace' }}>
+                                Loading your teams...
                             </Typography>
                         </Box>
                     </Grid>
@@ -253,4 +205,3 @@ const YahooConnectionSection = ({
 };
 
 export default YahooConnectionSection;
-

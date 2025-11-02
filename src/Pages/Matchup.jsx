@@ -48,6 +48,7 @@ import {
     Legend,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
+import { useLeague } from "../contexts/LeagueContext";
 import { 
     supabase, 
     fetchAllPlayersFromSupabase as fetchAllPlayers,
@@ -98,7 +99,6 @@ const Matchup = () => {
     const [currentMatchup, setCurrentMatchup] = useState(null);
     const [matchupProjection, setMatchupProjection] = useState(null);
     const [scheduleData, setScheduleData] = useState(null);
-    const [titleHovered, setTitleHovered] = useState(false);
     const [disabledPlayers, setDisabledPlayers] = useState(() => {
         const saved = localStorage.getItem('disabledPlayers');
         return saved ? JSON.parse(saved) : {};
@@ -328,6 +328,9 @@ const Matchup = () => {
     const userId = user?.userId || null;
     const isConnected = isAuthenticated;
     
+    // League context
+    const { selectedLeague, onLeagueChange, userLeagues } = useLeague();
+    
     // Loading and error state
     const [loading, setLoading] = useState(false);
     const [loadingTeams, setLoadingTeams] = useState(false);
@@ -335,8 +338,6 @@ const Matchup = () => {
     const [error, setError] = useState(null);
     
     // Yahoo Fantasy state
-    const [userLeagues, setUserLeagues] = useState([]);
-    const [selectedLeague, setSelectedLeague] = useState("");
     const [allLeagueTeams, setAllLeagueTeams] = useState([]);
     const [selectedTeam1, setSelectedTeam1] = useState("");
     const [selectedTeam2, setSelectedTeam2] = useState("");
@@ -398,8 +399,6 @@ const Matchup = () => {
             });
 
             if (data.matchup) {
-                setCurrentMatchup(data.matchup);
-                
                 // Set the teams as default
                 setTeam1Name(data.matchup.team1.name);
                 setTeam2Name(data.matchup.team2.name);
@@ -428,11 +427,9 @@ const Matchup = () => {
                     }))
                 );
                 
-
-                // Calculate projection after setting matchup
-                if (scheduleData) {
-                    calculateMatchupProjection(data.matchup);
-                }
+                // Set currentMatchup last - the useEffect will handle projection calculation
+                // This ensures all state is set before projection calculation
+                setCurrentMatchup(data.matchup);
             }
         } catch (err) {
             console.error("Error fetching current matchup:", err);
@@ -446,7 +443,12 @@ const Matchup = () => {
         }
     };
     const calculateMatchupProjection = async (matchup) => {
-        if (!scheduleData || !matchup) return;
+        if (!scheduleData || !matchup) {
+            console.log('Cannot calculate projection:', { hasScheduleData: !!scheduleData, hasMatchup: !!matchup });
+            return;
+        }
+        
+        console.log('Calculating matchup projection for:', matchup.team1.name, 'vs', matchup.team2.name);
     
         try {
             // Get YYYY-MM-DD directly in Eastern Time
@@ -870,7 +872,7 @@ const getCurrentWeekDates = () => {
                 categoryResults.turnovers = { winner: 'Tie', team1: t1To, team2: t2To };
             }
     
-            setMatchupProjection({
+            const projectionData = {
                 weekStart: weekStart.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
                 weekEnd: weekEnd.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
                 currentDate: currentDate.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
@@ -885,10 +887,14 @@ const getCurrentWeekDates = () => {
                 categoryResults,
                 team1Score,
                 team2Score
-            });
+            };
+            
+            console.log('Setting matchup projection:', projectionData);
+            setMatchupProjection(projectionData);
     
         } catch (error) {
             console.error('Error calculating matchup projection:', error);
+            setMatchupProjection(null);
         }
     };
 
@@ -1186,7 +1192,17 @@ const getCurrentWeekDates = () => {
     // Recalculate projection when schedule data loads or matchup changes
     useEffect(() => {
         if (scheduleData && currentMatchup) {
-            calculateMatchupProjection(currentMatchup);
+            // Reset projection first to ensure fresh calculation
+            setMatchupProjection(null);
+            // Use a small delay to ensure all state updates have been processed
+            const timer = setTimeout(() => {
+                calculateMatchupProjection(currentMatchup);
+            }, 100);
+            return () => clearTimeout(timer);
+        } else if (currentMatchup && !scheduleData) {
+            // If we have matchup but no schedule yet, wait for schedule to load
+            console.log('Waiting for schedule data to calculate projection...');
+            setMatchupProjection(null);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scheduleData, currentMatchup]);
@@ -1198,7 +1214,17 @@ const getCurrentWeekDates = () => {
             // If league changed or teams haven't been loaded, reload
             if (previousLeagueRef.current !== selectedLeague || allLeagueTeams.length === 0) {
                 previousLeagueRef.current = selectedLeague;
-            handleLoadLeague();
+                // Clear teams and matchup when league changes
+                setTeam1Players([]);
+                setTeam2Players([]);
+                setTeam1Name("Team 1");
+                setTeam2Name("Team 2");
+                setCurrentMatchup(null);
+                setMatchupProjection(null);
+                setAllLeagueTeams([]);
+                setSelectedTeam1("");
+                setSelectedTeam2("");
+                handleLoadLeague();
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1206,11 +1232,11 @@ const getCurrentWeekDates = () => {
 
     // Auto-fetch current matchup when league is available
     useEffect(() => {
-        if (selectedLeague && userId && isConnected && !currentMatchup && !loading) {
+        if (selectedLeague && userId && isConnected && !currentMatchup && !loading && allLeagueTeams.length > 0) {
             handleFetchCurrentMatchup();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedLeague, userId, isConnected]);
+    }, [selectedLeague, userId, isConnected, allLeagueTeams.length]);
 
     // Fetch player stats whenever teams change
     useEffect(() => {
@@ -1365,9 +1391,10 @@ const getCurrentWeekDates = () => {
                 .then((data) => {
                     console.log("User leagues response:", data);
                     if (data?.leagues && data.leagues.length > 0) {
-                        setUserLeagues(data.leagues);
-                        // Auto-select first league
-                        setSelectedLeague(data.leagues[0].leagueId);
+                        // Auto-select first league via context
+                        if (onLeagueChange && !selectedLeague) {
+                            onLeagueChange(data.leagues[0].leagueId);
+                        }
                     }
                 })
                 .catch((err) => {
@@ -1379,6 +1406,7 @@ const getCurrentWeekDates = () => {
                     setLoading(false);
                 });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId, login]);
 
     // Auto-fetch leagues when user is already authenticated
@@ -1392,9 +1420,9 @@ const getCurrentWeekDates = () => {
             })
                 .then((data) => {
                     console.log("User leagues response:", data);
-                    if (data?.leagues && data.leagues.length > 0) {
-                        setUserLeagues(data.leagues);
-                        setSelectedLeague(data.leagues[0].leagueId);
+                    if (data?.leagues && data.leagues.length > 0 && onLeagueChange && !selectedLeague) {
+                        // Auto-select first league via context
+                        onLeagueChange(data.leagues[0].leagueId);
                     }
                 })
                 .catch((err) => {
@@ -1405,6 +1433,7 @@ const getCurrentWeekDates = () => {
                     setLoading(false);
                 });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated, userId, userLeagues.length, loading]);
 
     // Fetch weekly matchup results when teams change
@@ -1467,7 +1496,7 @@ const getCurrentWeekDates = () => {
                     fontFamily: '"Roboto Mono", monospace',
                 }}
             >
-                FantasyGoatsGuru Comparison
+                Fantasy Goats Comparison
             </Typography>
 
             {error && (
@@ -1481,8 +1510,6 @@ const getCurrentWeekDates = () => {
                 isConnected={isConnected}
                 loading={loadingTeams || (isConnected && allLeagueTeams.length === 0 && selectedLeague)}
                 userLeagues={userLeagues}
-                selectedLeague={selectedLeague}
-                onLeagueChange={setSelectedLeague}
                 onYahooConnect={handleYahooConnect}
                 allLeagueTeams={allLeagueTeams}
                 selectedTeam1={selectedTeam1}
@@ -1893,12 +1920,14 @@ const getCurrentWeekDates = () => {
             />
 
             {/* Current Yahoo Matchup - Week Tracker */}
-            <MatchupProjectionTracker
-                matchupProjection={matchupProjection}
-                currentMatchup={currentMatchup}
-                onPlayerStatusChange={handlePlayerStatusChange}
-                isConnected={isConnected}
-            />
+            {(isConnected || matchupProjection) && (
+                <MatchupProjectionTracker
+                    matchupProjection={matchupProjection}
+                    currentMatchup={currentMatchup}
+                    onPlayerStatusChange={handlePlayerStatusChange}
+                    isConnected={isConnected}
+                />
+            )}
         </Box>
     );
 };
