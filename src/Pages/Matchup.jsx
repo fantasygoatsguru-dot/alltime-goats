@@ -67,8 +67,8 @@ const DEFAULT_PLAYERS = {
         { nbaPlayerId: 203076, yahooPlayerId: 5007, name: "Anthony Davis" }
     ],
     team2: [
-        { nbaPlayerId: 1629029, yahooPlayerId: 6014, name: "Luka Doncic" },
-        { nbaPlayerId: 201566, yahooPlayerId: 4563, name: "James Harden" }
+        { nbaPlayerId: 1628378, yahooPlayerId: 1628378, name: "Donovan Mitchell" },
+        { nbaPlayerId: 1630166, yahooPlayerId: 1630166, name: "Deni Avdija" }
     ]
 };
 
@@ -98,6 +98,7 @@ const Matchup = () => {
     const [currentMatchup, setCurrentMatchup] = useState(null);
     const [matchupProjection, setMatchupProjection] = useState(null);
     const [scheduleData, setScheduleData] = useState(null);
+    const [titleHovered, setTitleHovered] = useState(false);
     const [disabledPlayers, setDisabledPlayers] = useState(() => {
         const saved = localStorage.getItem('disabledPlayers');
         return saved ? JSON.parse(saved) : {};
@@ -342,6 +343,7 @@ const Matchup = () => {
     
     // Ref to prevent double-processing of OAuth callback
     const hasProcessedCallback = useRef(false);
+    const hasInitializedDefaults = useRef(false);
 
     const fetchAllPlayersFromSupabase = useCallback(async () => {
         return await fetchAllPlayers();
@@ -1129,6 +1131,29 @@ const getCurrentWeekDates = () => {
         }
     };
 
+    // Initialize DEFAULT_PLAYERS if teams are empty (only if not connected to Yahoo)
+    useEffect(() => {
+        if (!hasInitializedDefaults.current && !isConnected && team1Players.length === 0 && team2Players.length === 0 && !initialLoading) {
+            hasInitializedDefaults.current = true;
+            const team1Default = DEFAULT_PLAYERS.team1.map((p) => ({
+                id: p.nbaPlayerId || p.yahooPlayerId,
+                name: p.name,
+                yahooPlayerId: p.yahooPlayerId,
+                nbaPlayerId: p.nbaPlayerId,
+                active: true,
+            }));
+            const team2Default = DEFAULT_PLAYERS.team2.map((p) => ({
+                id: p.nbaPlayerId || p.yahooPlayerId,
+                name: p.name,
+                yahooPlayerId: p.yahooPlayerId,
+                nbaPlayerId: p.nbaPlayerId,
+                active: true,
+            }));
+            setTeam1Players(team1Default);
+            setTeam2Players(team2Default);
+        }
+    }, [isConnected, initialLoading, team1Players.length, team2Players.length]);
+
     // Load all players on mount
     useEffect(() => {
         const loadPlayers = async () => {
@@ -1143,7 +1168,6 @@ const getCurrentWeekDates = () => {
         loadPlayers();
     }, [fetchAllPlayersFromSupabase]);
 
-    // Auto-selection removed - users will manually select players for comparison
 
     // Load schedule data
     useEffect(() => {
