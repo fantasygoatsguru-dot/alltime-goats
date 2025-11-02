@@ -184,7 +184,7 @@ const UserProfile = () => {
                 elevation={3}
                 sx={{
                     p: { xs: 2, md: 4 },
-                    bgcolor: '#252525',
+                    bgcolor: '#f8f9fa',
                     borderRadius: 2,
                 }}
             >
@@ -218,7 +218,7 @@ const UserProfile = () => {
                         variant="h6"
                         sx={{
                             mb: 2,
-                            color: '#e0e0e0',
+                            color: '#212121',
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
@@ -238,7 +238,7 @@ const UserProfile = () => {
                                 color: '#b0bec5',
                             },
                             '& .MuiOutlinedInput-root': {
-                                color: '#e0e0e0',
+                                color: '#212121',
                                 '& fieldset': {
                                     borderColor: '#4a90e2',
                                 },
@@ -263,7 +263,7 @@ const UserProfile = () => {
                                 color: '#b0bec5',
                             },
                             '& .MuiOutlinedInput-root': {
-                                color: '#e0e0e0',
+                                color: '#212121',
                                 '& fieldset': {
                                     borderColor: '#4a90e2',
                                 },
@@ -292,7 +292,7 @@ const UserProfile = () => {
                         variant="h6"
                         sx={{
                             mb: 2,
-                            color: '#e0e0e0',
+                            color: '#212121',
                             fontFamily: '"Roboto Mono", monospace',
                         }}
                     >
@@ -321,7 +321,7 @@ const UserProfile = () => {
                         }
                         label={
                             <Box>
-                                <Typography sx={{ color: '#e0e0e0' }}>
+                                <Typography sx={{ color: '#212121' }}>
                                     Send Weekly Matchup Projections
                                 </Typography>
                             </Box>
@@ -350,7 +350,7 @@ const UserProfile = () => {
                             />
                         }
                         label={
-                            <Typography sx={{ color: '#e0e0e0' }}>
+                            <Typography sx={{ color: '#212121' }}>
                                 Get News from Fantasy Goats Guru
                             </Typography>
                         }
@@ -366,7 +366,7 @@ const UserProfile = () => {
                         disabled={saving}
                         sx={{
                             bgcolor: '#4a90e2',
-                            color: '#e0e0e0',
+                            color: '#212121',
                             fontFamily: '"Roboto Mono", monospace',
                             px: 4,
                             py: 1,
@@ -375,7 +375,7 @@ const UserProfile = () => {
                             },
                             '&.Mui-disabled': {
                                 bgcolor: '#b0bec5',
-                                color: '#e0e0e0',
+                                color: '#212121',
                             },
                         }}
                     >

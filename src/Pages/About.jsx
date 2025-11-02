@@ -29,7 +29,7 @@ const About = () => {
         display: 'flex',
         flexDirection: 'column',
         py: 4,
-        bgcolor: 'black',
+        bgcolor: '#777C6D',
         fontFamily: '"Poppins", "Roboto", sans-serif',
       }}
     >

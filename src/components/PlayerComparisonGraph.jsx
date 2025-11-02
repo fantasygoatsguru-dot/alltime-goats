@@ -8,6 +8,7 @@ import {
     DialogContent,
     DialogActions,
     Tooltip,
+    useTheme,
 } from "@mui/material";
 import {
     RadarChart,
@@ -25,6 +26,9 @@ const PlayerComparisonGraph = ({
     playerNames = [], 
     onClearPlayers = () => {} 
 }) => {
+    const theme = useTheme();
+    const isDark = theme.palette.mode === "dark";
+
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -121,8 +125,8 @@ const PlayerComparisonGraph = ({
                 key="empty"
                 name="Empty"
                 dataKey="Empty"
-                stroke="#4a90e2"
-                fill="#4a90e2"
+                stroke={isDark ? "#666" : "#ccc"}
+                fill={isDark ? "#666" : "#ccc"}
                 fillOpacity={0.1}
             />
         );
@@ -146,14 +150,30 @@ const PlayerComparisonGraph = ({
         return safeValue.toFixed(2);
     };
 
+    const chartBg = isDark ? "#1e1e1e" : "#ffffff";
+    const textColor = isDark ? "#e0e0e0" : "#212121";
+    const gridColor = isDark ? "#444" : "#ddd";
+    const axisColor = isDark ? "#aaa" : "#666";
+    const tooltipBg = isDark ? "#2a2a2a" : "#ffffff";
+    const tooltipBorder = isDark ? "#4a90e2" : "#4a90e2";
+    const dialogBg = isDark ? "#2a2a2a" : "#ffffff";
+    const dialogText = isDark ? "#e0e0e0" : "#212121";
+
     return (
-        <Box sx={{ p: 2, bgcolor: "#252525", borderRadius: 1, mt: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Box sx={{ 
+            p: 3, 
+            bgcolor: chartBg, 
+            borderRadius: 2, 
+            mt: 2,
+            boxShadow: isDark ? "0 4px 20px rgba(0,0,0,0.5)" : "0 4px 20px rgba(0,0,0,0.1)",
+            border: `1px solid ${isDark ? "#333" : "#ddd"}`,
+        }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography
                         variant="h5"
                         sx={{
-                            color: "#e0e0e0",
+                            color: textColor,
                             fontFamily: '"Roboto Mono", monospace',
                             fontWeight: "bold",
                         }}
@@ -161,23 +181,26 @@ const PlayerComparisonGraph = ({
                         Player Comparison
                     </Typography>
                     <Tooltip 
-                        title="Compare up to 4 individual players side-by-side using z-scores."
+                        title="Compare up to 4 players using standardized z-scores. Click categories for raw stats."
                         arrow
+                        sx={{ 
+                            bgcolor: isDark ? "#333" : "#666",
+                        }}
                     >
                         <Box 
                             sx={{ 
-                                bgcolor: '#333', 
+                                bgcolor: isDark ? "#444" : "#eee", 
                                 borderRadius: '50%', 
-                                width: 20, 
-                                height: 20, 
+                                width: 24, 
+                                height: 24, 
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 justifyContent: 'center',
                                 cursor: 'help',
-                                fontSize: '0.75rem',
-                                color: '#4a90e2',
+                                fontSize: '0.8rem',
+                                color: "#4a90e2",
                                 fontWeight: 'bold',
-                                border: '1px solid #4a90e2'
+                                border: `1px solid ${isDark ? "#4a90e2" : "#666"}`,
                             }}
                         >
                             i
@@ -202,16 +225,18 @@ const PlayerComparisonGraph = ({
                     </Button>
                 )}
             </Box>
-            <Box sx={{ height: "400px" }}>
-                <ResponsiveContainer width="100%" height={300}>
-                    <RadarChart outerRadius="70%" data={playerData}>
-                        <PolarGrid stroke="#4a90e2" />
+
+            <Box sx={{ height: "420px", width: "100%" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart outerRadius="75%" data={playerData}>
+                        <PolarGrid stroke={gridColor} strokeDasharray="3 3" />
                         <PolarAngleAxis
                             dataKey="skill"
-                            stroke="#e0e0e0"
+                            stroke={axisColor}
                             tick={{
                                 fontFamily: '"Roboto Mono", monospace',
-                                fontSize: 12,
+                                fontSize: 13,
+                                fill: textColor,
                             }}
                             onClick={(e) => handleCategoryClick(e.value)}
                             style={{ cursor: "pointer" }}
@@ -219,16 +244,20 @@ const PlayerComparisonGraph = ({
                         <PolarRadiusAxis
                             angle={90}
                             domain={[0, 4]}
-                            tick={false}
-                            stroke="#4a90e2"
+                            tick={{ fill: axisColor, fontSize: 11 }}
+                            stroke={gridColor}
                         />
                         {radarComponents}
                         <RechartsTooltip
                             contentStyle={{
-                                backgroundColor: "#252525",
-                                border: "1px solid #4a90e2",
-                                borderRadius: "4px",
+                                backgroundColor: tooltipBg,
+                                border: `1px solid ${tooltipBorder}`,
+                                borderRadius: "8px",
+                                padding: "10px",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
                             }}
+                            itemStyle={{ color: textColor }}
+                            labelStyle={{ color: textColor, fontWeight: "bold" }}
                             formatter={(value, name) => {
                                 if (name === "Empty") return ["No players selected", name];
                                 const category = playerData.find((d) => d[name] === value)?.skill;
@@ -266,16 +295,17 @@ const PlayerComparisonGraph = ({
                                     }
                                     return [`${formatValue(rawValue, category)} (Z: ${(value || 0).toFixed(2)})`, name];
                                 }
-                                return [`${formatValue(value, category)}`, name];
+                                return [`Z: ${(value || 0).toFixed(2)}`, name];
                             }}
-                            labelStyle={{ color: "#e0e0e0", display: "none" }}
-                            cursor={{ stroke: "#4a90e2", strokeWidth: 1 }}
+                            cursor={{ stroke: "#4a90e2", strokeWidth: 2, strokeDasharray: "5 5" }}
                         />
                         <Legend
                             wrapperStyle={{
                                 fontFamily: '"Roboto Mono", monospace',
-                                color: "#e0e0e0",
+                                color: textColor,
+                                paddingTop: "20px",
                             }}
+                            iconType="circle"
                         />
                     </RadarChart>
                 </ResponsiveContainer>
@@ -285,25 +315,30 @@ const PlayerComparisonGraph = ({
                 open={openDialog}
                 onClose={handleCloseDialog}
                 fullWidth
+                maxWidth="sm"
                 PaperProps={{
                     sx: {
-                        bgcolor: "#252525",
-                        borderRadius: 1,
+                        bgcolor: dialogBg,
+                        borderRadius: 2,
+                        boxShadow: isDark ? "0 8px 32px rgba(0,0,0,0.6)" : "0 8px 32px rgba(0,0,0,0.15)",
+                        border: `1px solid ${isDark ? "#444" : "#ddd"}`,
                     },
                 }}
             >
                 <DialogTitle
                     sx={{
-                        color: "#e0e0e0",
+                        color: textColor,
                         fontFamily: '"Roboto Mono", monospace',
                         fontWeight: "bold",
+                        borderBottom: `1px solid ${isDark ? "#444" : "#ddd"}`,
+                        pb: 2,
                     }}
                 >
                     {selectedCategory} Breakdown
                 </DialogTitle>
-                <DialogContent>
-                    {selectedCategory && (
-                        <Box sx={{ mt: 2 }}>
+                <DialogContent sx={{ pt: 3 }}>
+                    {selectedCategory && validPlayerNames.length > 0 ? (
+                        <Box>
                             {validPlayerNames.map((playerName, index) => {
                                 const player = playerDataMap[playerName];
                                 const stats = player?.stats || {};
@@ -339,38 +374,65 @@ const PlayerComparisonGraph = ({
                                         break;
                                 }
 
+                                const zValue = playerData.find(d => d.skill === selectedCategory)?.[playerName] || 0;
+
                                 return (
-                                    <Box key={index} sx={{ mb: 2 }}>
+                                    <Box 
+                                        key={index} 
+                                        sx={{ 
+                                            mb: 3, 
+                                            p: 2, 
+                                            bgcolor: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)",
+                                            borderRadius: 1,
+                                            border: `1px dashed ${colors[index % colors.length]}33`,
+                                        }}
+                                    >
                                         <Typography
                                             variant="h6"
                                             sx={{
                                                 color: colors[index % colors.length],
                                                 fontFamily: '"Roboto Mono", monospace',
                                                 mb: 1,
+                                                fontWeight: "bold",
                                             }}
                                         >
                                             {playerName}
                                         </Typography>
                                         <Typography
                                             sx={{
-                                                color: "#e0e0e0",
+                                                color: dialogText,
                                                 fontFamily: '"Roboto Mono", monospace',
+                                                mb: 0.5,
                                             }}
                                         >
-                                            Value: {formatValue(value, selectedCategory)}
+                                            Raw: <strong>{formatValue(value, selectedCategory)}</strong>
+                                        </Typography>
+                                        <Typography
+                                            sx={{
+                                                color: "#4a90e2",
+                                                fontFamily: '"Roboto Mono", monospace',
+                                                fontSize: "0.9rem",
+                                            }}
+                                        >
+                                            Z-Score: <strong>{zValue.toFixed(2)}</strong>
                                         </Typography>
                                     </Box>
                                 );
                             })}
                         </Box>
+                    ) : (
+                        <Typography sx={{ color: dialogText, fontFamily: '"Roboto Mono", monospace' }}>
+                            No player data available.
+                        </Typography>
                     )}
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{ borderTop: `1px solid ${isDark ? "#444" : "#ddd"}`, pt: 2 }}>
                     <Button
                         onClick={handleCloseDialog}
                         sx={{
                             color: "#4a90e2",
                             fontFamily: '"Roboto Mono", monospace',
+                            fontWeight: "bold",
                         }}
                     >
                         Close
@@ -382,4 +444,3 @@ const PlayerComparisonGraph = ({
 };
 
 export default PlayerComparisonGraph;
-

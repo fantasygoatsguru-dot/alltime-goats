@@ -52,8 +52,8 @@ const DatabaseLoader = ({ children }) => {
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #121212 0%, #1e1e1e 100%)',
-          color: '#e0e0e0',
+          background: 'linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)',
+          color: '#212121',
           padding: 3,
         }}
       >
@@ -74,8 +74,8 @@ const DatabaseLoader = ({ children }) => {
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, #121212 0%, #1e1e1e 100%)',
-          color: '#e0e0e0',
+          background: 'linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)',
+          color: '#212121',
           padding: 3,
         }}
       >

@@ -405,11 +405,11 @@ const AlltimeTable = () => {
                     variant="outlined"
                     sx={{
                       width: 200,
-                      backgroundColor: "#1E1E1E",
+                      backgroundColor: "#ffffff",
                       "& .MuiInputBase-input": { color: "#E0E0E0" },
                       "& .MuiInputLabel-root": { color: "#B0B0B0" },
                       "& .MuiOutlinedInput-root": {
-                        "& fieldset": { borderColor: "#333333" },
+                        "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
                         "&:hover fieldset": { borderColor: "#555555" },
                       },
                     }}
@@ -426,10 +426,10 @@ const AlltimeTable = () => {
                       value={filterOperator}
                       onChange={(e) => setFilterOperator(e.target.value)}
                       sx={{
-                        backgroundColor: "#1E1E1E",
-                        color: "#E0E0E0",
+                        backgroundColor: "#ffffff",
+                        color: "#212121",
                         "& .MuiSvgIcon-root": { color: "#E0E0E0" },
-                        "& fieldset": { borderColor: "#333333" },
+                        "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
                         "&:hover fieldset": { borderColor: "#555555" },
                       }}
                     >
@@ -456,11 +456,11 @@ const AlltimeTable = () => {
                     }
                     sx={{
                       width: 150,
-                      backgroundColor: "#1E1E1E",
+                      backgroundColor: "#ffffff",
                       "& .MuiInputBase-input": { color: "#E0E0E0" },
                       "& .MuiInputLabel-root": { color: "#B0B0B0" },
                       "& .MuiOutlinedInput-root": {
-                        "& fieldset": { borderColor: "#333333" },
+                        "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
                         "&:hover fieldset": { borderColor: "#555555" },
                       },
                     }}
@@ -482,11 +482,11 @@ const AlltimeTable = () => {
                       variant="outlined"
                       sx={{
                         width: 250,
-                        backgroundColor: "#1E1E1E",
+                        backgroundColor: "#ffffff",
                         "& .MuiInputBase-input": { color: "#E0E0E0" },
                         "& .MuiInputLabel-root": { color: "#B0B0B0" },
                         "& .MuiOutlinedInput-root": {
-                          "& fieldset": { borderColor: "#333333" },
+                          "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
                           "&:hover fieldset": { borderColor: "#555555" },
                         },
                       }}
@@ -516,8 +516,8 @@ const AlltimeTable = () => {
                 onClick={handleClearFilters}
                 sx={{
                   color: "#E0E0E0",
-                  borderColor: "#333333",
-                  "&:hover": { borderColor: "#555555", backgroundColor: "#1E1E1E" },
+                  borderColor: "rgba(0, 0, 0, 0.12)",
+                  "&:hover": { borderColor: "#bdbdbd", backgroundColor: "#f5f5f5" },
                   textTransform: "none",
                   fontWeight: 500,
                 }}
@@ -624,7 +624,7 @@ const AlltimeTable = () => {
                       <Typography
                         variant="caption"
                         sx={{
-                          color: "#E0E0E0",
+                          color: "#212121",
                           mt: 0.5,
                           textAlign: 'center',
                           maxWidth: '100%',
@@ -670,9 +670,9 @@ const AlltimeTable = () => {
                     sx={{
                       mr: 1,
                       mb: 1,
-                      backgroundColor: "#1E1E1E",
-                      color: "#E0E0E0",
-                      border: "1px solid #333333",
+                      backgroundColor: "#ffffff",
+                      color: "#212121",
+                      border: "1px solid rgba(0, 0, 0, 0.12)",
                     }}
                   />
                 ))}
@@ -681,16 +681,16 @@ const AlltimeTable = () => {
               {/* Table */}
       <TableContainer
         component={Paper}
-        sx={{ backgroundColor: "#121212", border: "1px solid #333333" }}
+        sx={{ backgroundColor: "#f5f5f5", border: "1px solid rgba(0, 0, 0, 0.12)" }}
       >
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
-            <TableRow sx={{ backgroundColor: "#1E1E1E" }}>
+            <TableRow sx={{ backgroundColor: "#ffffff" }}>
               <TableCell
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -709,8 +709,8 @@ const AlltimeTable = () => {
               <TableCell
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -729,8 +729,8 @@ const AlltimeTable = () => {
               <TableCell
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -749,8 +749,8 @@ const AlltimeTable = () => {
               <TableCell
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -769,8 +769,8 @@ const AlltimeTable = () => {
               <TableCell
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -789,8 +789,8 @@ const AlltimeTable = () => {
               <TableCell
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -809,8 +809,8 @@ const AlltimeTable = () => {
               <TableCell
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -830,8 +830,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -851,8 +851,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -872,8 +872,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -893,8 +893,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -914,8 +914,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -935,8 +935,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -956,8 +956,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -977,8 +977,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -998,8 +998,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1019,8 +1019,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1040,8 +1040,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1061,8 +1061,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1082,8 +1082,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1103,8 +1103,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1124,8 +1124,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1145,8 +1145,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1166,8 +1166,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1187,8 +1187,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1208,8 +1208,8 @@ const AlltimeTable = () => {
                 align="right"
                 sx={{
                   color: "#E0E0E0",
-                  borderRight: "1px solid #333333",
-                  borderBottom: "1px solid #333333",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                   fontWeight: 700,
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
@@ -1248,14 +1248,14 @@ const AlltimeTable = () => {
               <TableRow
                 key={index}
                 sx={{
-                  "&:hover": { backgroundColor: "#1A1A1A" },
-                  borderBottom: "1px solid #333333",
+                  "&:hover": { backgroundColor: "#f5f5f5" },
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                 }}
               >
                 <TableCell
                   sx={{
                     color: "#E0E0E0",
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
                   }}
@@ -1274,7 +1274,7 @@ const AlltimeTable = () => {
                       sx={{ 
                         width: 32, 
                         height: 32,
-                        border: '1px solid #333333',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
                         '&:hover': {
                           border: '1px solid #555555',
                         }
@@ -1286,7 +1286,7 @@ const AlltimeTable = () => {
                 <TableCell
                   sx={{
                     color: "#E0E0E0",
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
                   }}
@@ -1296,7 +1296,7 @@ const AlltimeTable = () => {
                 <TableCell
                   sx={{
                     color: "#E0E0E0",
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
                   }}
@@ -1306,7 +1306,7 @@ const AlltimeTable = () => {
                 <TableCell
                   sx={{
                     color: "#E0E0E0",
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
                   }}
@@ -1316,7 +1316,7 @@ const AlltimeTable = () => {
                 <TableCell
                   sx={{
                     color: "#E0E0E0",
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
                   }}
@@ -1326,7 +1326,7 @@ const AlltimeTable = () => {
                 <TableCell
                   sx={{
                     color: "#E0E0E0",
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
                   }}
@@ -1336,7 +1336,7 @@ const AlltimeTable = () => {
                 <TableCell
                   sx={{
                     color: "#E0E0E0",
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontSize: "0.85rem",
                   }}
@@ -1347,7 +1347,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.points_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1359,7 +1359,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.rebounds_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1371,7 +1371,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.assists_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1383,7 +1383,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.steals_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1395,7 +1395,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.blocks_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1407,7 +1407,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1419,7 +1419,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1431,7 +1431,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.three_pointers_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1443,7 +1443,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.points_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1455,7 +1455,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.rebounds_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1467,7 +1467,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.assists_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1479,7 +1479,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.steals_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1491,7 +1491,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.blocks_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1503,7 +1503,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1515,7 +1515,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1527,7 +1527,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.turnovers_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1539,7 +1539,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.turnovers_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1551,7 +1551,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.three_pointers_z || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",
@@ -1563,7 +1563,7 @@ const AlltimeTable = () => {
                   align="right"
                   sx={{
                     color: getColorForValue(stat.stats?.total_value || 0),
-                    borderRight: "1px solid #333333",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                     p: 1,
                     fontFamily: "'Roboto Mono', monospace",
                     fontSize: "0.85rem",

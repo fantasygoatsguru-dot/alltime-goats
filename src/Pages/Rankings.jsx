@@ -136,8 +136,8 @@ const Rankings = () => {
     };
 
     const getTextColor = (bgColor) => {
-        if (!bgColor || bgColor === 'transparent') return '#e0e0e0';
-        return '#e0e0e0';
+        if (!bgColor || bgColor === 'transparent') return '#212121';
+        return '#212121';
     };
 
     const formatValue = (value, column) => {
@@ -194,8 +194,8 @@ const Rankings = () => {
                 sx={{
                     p: 2,
                     minHeight: '100vh',
-                    background: 'linear-gradient(135deg, #0a0e17 0%, #1a1a2e 100%)',
-                    color: '#e0e0e0',
+                    background: 'linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)',
+                    color: '#212121',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -220,8 +220,8 @@ const Rankings = () => {
                     mb: 4,
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    color: '#a5d6a7',
-                    textShadow: '0 0 8px rgba(165, 214, 167, 0.2)',
+                    color: '#1976d2',
+                    textShadow: 'none',
                     fontFamily: '"Roboto Mono", monospace',
                     letterSpacing: '0.5px',
                 }}
@@ -233,8 +233,8 @@ const Rankings = () => {
                 sx={{
                     overflowX: 'auto',
                     borderRadius: 2,
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                    bgcolor: '#16213e',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                    bgcolor: '#ffffff',
                 }}
             >
                 <TableContainer
@@ -244,7 +244,7 @@ const Rankings = () => {
                             height: 10,
                         },
                         '&::-webkit-scrollbar-track': {
-                            background: '#0f1b3d',
+                            background: '#e0e0e0',
                             borderRadius: 5,
                         },
                         '&::-webkit-scrollbar-thumb': {
@@ -264,8 +264,8 @@ const Rankings = () => {
                                         key={column.id}
                                         align={column.align || 'center'}
                                         sx={{
-                                            bgcolor: '#0f1b3d',
-                                            color: '#80deea',
+                                            bgcolor: '#f5f5f5',
+                                            color: '#1976d2',
                                             fontFamily: '"Roboto Mono", monospace',
                                             fontWeight: 'bold',
                                             fontSize: '0.82rem',
@@ -281,15 +281,15 @@ const Rankings = () => {
                                                 direction={orderBy === column.id ? order : 'desc'}
                                                 onClick={() => handleSort(column.id)}
                                                 sx={{
-                                                    color: '#80deea !important',
+                                                    color: '#1976d2 !important',
                                                     '&.Mui-active': {
-                                                        color: '#a5d6a7 !important',
+                                                        color: '#2e7d32 !important',
                                                     },
                                                     '& .MuiTableSortLabel-icon': {
-                                                        color: '#a5d6a7 !important',
+                                                        color: '#2e7d32 !important',
                                                     },
                                                     '&:hover': {
-                                                        color: '#c8e6c9 !important',
+                                                        color: '#4caf50 !important',
                                                     },
                                                 }}
                                             >
@@ -311,24 +311,24 @@ const Rankings = () => {
                                     sx={{
                                         '&:nth-of-type(odd)': {
                                             bgcolor: isMyPlayer 
-                                                ? 'rgba(165, 214, 167, 0.15)' 
-                                                : 'rgba(15, 27, 61, 0.3)',
+                                                ? 'rgba(25, 118, 210, 0.05)' 
+                                                : '#fafafa',
                                         },
                                         '&:nth-of-type(even)': {
                                             bgcolor: isMyPlayer 
-                                                ? 'rgba(165, 214, 167, 0.2)' 
-                                                : 'transparent',
+                                                ? 'rgba(25, 118, 210, 0.08)' 
+                                                : '#ffffff',
                                         },
-                                        borderLeft: isMyPlayer ? '4px solid #4a90e2' : 'none',
-                                        borderRight: isMyPlayer ? '4px solid #4a90e2' : 'none',
+                                        borderLeft: isMyPlayer ? '4px solid #1976d2' : 'none',
+                                        borderRight: isMyPlayer ? '4px solid #1976d2' : 'none',
                                         '&:hover': {
                                             bgcolor: isMyPlayer
-                                                ? 'rgba(165, 214, 167, 0.25) !important'
-                                                : 'rgba(165, 214, 167, 0.1) !important',
+                                                ? 'rgba(25, 118, 210, 0.08) !important'
+                                                : 'rgba(0, 0, 0, 0.04) !important',
                                             transform: 'translateY(-1px)',
                                             boxShadow: isMyPlayer
-                                                ? '0 4px 12px rgba(74, 144, 226, 0.4)'
-                                                : '0 4px 12px rgba(165, 214, 167, 0.15)',
+                                                ? '0 4px 12px rgba(25, 118, 210, 0.2)'
+                                                : '0 2px 8px rgba(0, 0, 0, 0.1)',
                                         },
                                         transition: 'all 0.25s ease',
                                     }}
@@ -349,14 +349,14 @@ const Rankings = () => {
                                                     fontSize: '0.8rem',
                                                     fontWeight: column.id === 'player_name' ? 'bold' : 'medium',
                                                     transition: 'background-color 0.4s ease',
-                                                    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                                                    borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
                                                 }}
                                             >
                                                 {column.id === 'player_name' ? (
                                                     <Typography sx={{ 
                                                         fontWeight: 'bold', 
-                                                        color: isMyPlayer ? '#4a90e2' : '#a5d6a7',
-                                                        textShadow: isMyPlayer ? '0 0 8px rgba(74, 144, 226, 0.5)' : 'none',
+                                                        color: isMyPlayer ? '#1976d2' : '#1976d2',
+                                                        textShadow: 'none',
                                                     }}>
                                                         {isMyPlayer && '⭐ '}
                                                         {value}
@@ -381,7 +381,7 @@ const Rankings = () => {
                     display: 'block',
                     textAlign: 'center',
                     mt: 2,
-                    color: '#80deea',
+                    color: '#424242',
                     fontFamily: '"Roboto Mono", monospace',
                     opacity: 0.7,
                 }}

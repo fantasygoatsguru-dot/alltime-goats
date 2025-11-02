@@ -31,19 +31,19 @@ const YahooConnectionSection = ({
                 sx={{
                     mb: 4,
                     p: 3,
-                    bgcolor: "#252525",
+                    bgcolor: "#f8f9fa",
                     borderRadius: 2,
                     textAlign: "center",
                     maxWidth: 500,
                     mx: "auto",
-                    border: "1px solid #333",
+                    border: "1px solid rgba(0, 0, 0, 0.12)",
                 }}
             >
                 <Typography
                     variant="body1"
                     sx={{
                         mb: 2,
-                        color: "#e0e0e0",
+                        color: "#212121",
                         fontFamily: '"Roboto Mono", monospace',
                     }}
                 >
@@ -79,7 +79,6 @@ const YahooConnectionSection = ({
             sx={{
                 mb: 4,
                 p: 3,
-                bgcolor: "#252525",
                 borderRadius: 2,
                 maxWidth: 800,
                 mx: "auto",
@@ -104,7 +103,7 @@ const YahooConnectionSection = ({
                     <>
                         <Grid item xs={12} sm={5}>
                             <FormControl fullWidth>
-                                <InputLabel sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace' }}>
+                                <InputLabel sx={{ color: "#424242", fontFamily: '"Roboto Mono", monospace' }}>
                                     Team 1
                                 </InputLabel>
                                 <Select
@@ -112,7 +111,7 @@ const YahooConnectionSection = ({
                                     onChange={(e) => onTeamSelect("team1", e.target.value)}
                                     label="Team 1"
                                     sx={{
-                                        color: "#e0e0e0",
+                                        color: "#212121",
                                         "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
                                         "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
                                         "& .MuiSelect-icon": { color: "#4a90e2" },
@@ -149,7 +148,7 @@ const YahooConnectionSection = ({
 
                         <Grid item xs={12} sm={5}>
                             <FormControl fullWidth>
-                                <InputLabel sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace' }}>
+                                <InputLabel sx={{ color: "#424242", fontFamily: '"Roboto Mono", monospace' }}>
                                     Team 2
                                 </InputLabel>
                                 <Select
@@ -157,7 +156,7 @@ const YahooConnectionSection = ({
                                     onChange={(e) => onTeamSelect("team2", e.target.value)}
                                     label="Team 2"
                                     sx={{
-                                        color: "#e0e0e0",
+                                        color: "#212121",
                                         "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
                                         "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
                                         "& .MuiSelect-icon": { color: "#4a90e2" },

@@ -1502,8 +1502,8 @@ const getCurrentWeekDates = () => {
                 sx={{
                     p: 2,
                     minHeight: "100vh",
-                    background: "linear-gradient(135deg, #121212 0%, #1e1e1e 100%)",
-                    color: "#e0e0e0",
+                    background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)",
+                    color: "#212121",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
@@ -1519,8 +1519,7 @@ const getCurrentWeekDates = () => {
             sx={{
                 p: 2,
                 minHeight: "100vh",
-                background: "linear-gradient(135deg, #121212 0%, #1e1e1e 100%)",
-                color: "#e0e0e0",
+                color: "#212121",
             }}
         >
             <Typography
@@ -1563,7 +1562,7 @@ const getCurrentWeekDates = () => {
                             <Box sx={{ mb: 2 }}>
                                 <List
                                     sx={{
-                                        bgcolor: "#252525",
+                                        bgcolor: "#f5f5f5",
                                         borderRadius: 1,
                                         p: 1,
                                         maxHeight: 400,
@@ -1593,7 +1592,7 @@ const getCurrentWeekDates = () => {
                                         primary={player.name}
                                         primaryTypographyProps={{
                                             fontFamily: '"Roboto Mono", monospace',
-                                            color: "#e0e0e0",
+                                            color: "#212121",
                                             fontSize: "0.875rem",
                                         }}
                                     />
@@ -1682,7 +1681,7 @@ const getCurrentWeekDates = () => {
                             <FormControl fullWidth variant="outlined" size="small">
                                 <InputLabel 
                                     sx={{ 
-                                        color: "#b0bec5",
+                                        color: "#424242",
                                         fontFamily: "'Roboto Mono', monospace",
                                         fontSize: '0.875rem'
                                     }}
@@ -1694,8 +1693,7 @@ const getCurrentWeekDates = () => {
                                     onChange={(e) => setTeam1AddPlayer(e.target.value)}
                                     label="Add Player"
                                     sx={{
-                                        bgcolor: "#252525",
-                                        color: "#e0e0e0",
+                                        color: "#212121",
                                         borderRadius: 1,
                                         fontFamily: "'Roboto Mono', monospace",
                                         fontSize: '0.875rem',
@@ -1726,7 +1724,7 @@ const getCurrentWeekDates = () => {
                                 disabled={!team1AddPlayer}
                                 sx={{
                                     bgcolor: "#4a90e2",
-                                    color: "#e0e0e0",
+                                    color: "#212121",
                                     fontFamily: "'Roboto Mono', monospace",
                                     "&:hover": {
                                         bgcolor: "#80deea"
@@ -1747,7 +1745,7 @@ const getCurrentWeekDates = () => {
                             <Box sx={{ mb: 2 }}>
                                 <List
                                     sx={{
-                                        bgcolor: "#252525",
+                                        bgcolor: "#f5f5f5",
                                         borderRadius: 1,
                                         p: 1,
                                         maxHeight: 400,
@@ -1777,7 +1775,7 @@ const getCurrentWeekDates = () => {
                                         primary={player.name}
                                         primaryTypographyProps={{
                                             fontFamily: '"Roboto Mono", monospace',
-                                            color: "#e0e0e0",
+                                            color: "#212121",
                                             fontSize: "0.875rem",
                                         }}
                                     />
@@ -1866,7 +1864,7 @@ const getCurrentWeekDates = () => {
                             <FormControl fullWidth variant="outlined" size="small">
                                 <InputLabel 
                                     sx={{ 
-                                        color: "#b0bec5",
+                                        color: "#424242",
                                         fontFamily: "'Roboto Mono', monospace",
                                         fontSize: '0.875rem'
                                     }}
@@ -1878,8 +1876,7 @@ const getCurrentWeekDates = () => {
                                     onChange={(e) => setTeam2AddPlayer(e.target.value)}
                                     label="Add Player"
                                     sx={{
-                                        bgcolor: "#252525",
-                                        color: "#e0e0e0",
+                                        color: "#212121",
                                         borderRadius: 1,
                                         fontFamily: "'Roboto Mono', monospace",
                                         fontSize: '0.875rem',
@@ -1910,7 +1907,7 @@ const getCurrentWeekDates = () => {
                                 disabled={!team2AddPlayer}
                                 sx={{
                                     bgcolor: "#4a90e2",
-                                    color: "#e0e0e0",
+                                    color: "#212121",
                                     fontFamily: "'Roboto Mono', monospace",
                                     "&:hover": {
                                         bgcolor: "#80deea"

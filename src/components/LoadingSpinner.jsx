@@ -10,7 +10,7 @@ const LoadingSpinner = ({ loading, error, teams, minHeight = "calc(100vh - 64px)
                     justifyContent: "center",
                     alignItems: "center",
                     minHeight: minHeight,
-                    background: "linear-gradient(135deg, #121212 0%, #1e1e1e 100%)",
+                    background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)",
                 }}
             >
                 <CircularProgress size={60} sx={{ color: "#4a90e2" }} />
@@ -29,7 +29,7 @@ const LoadingSpinner = ({ loading, error, teams, minHeight = "calc(100vh - 64px)
     if (!teams || teams.length === 0) {
         return (
             <Box sx={{ p: 3, minHeight: minHeight }}>
-                <Typography color="#e0e0e0">No team data available.</Typography>
+                <Typography color="#424242">No team data available.</Typography>
             </Box>
         );
     }

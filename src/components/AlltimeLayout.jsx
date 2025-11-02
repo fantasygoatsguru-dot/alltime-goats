@@ -249,8 +249,8 @@ const AlltimeLayout = () => {
         display: 'flex',
         flexDirection: 'column',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #121212 0%, #1e1e1e 100%)',
-        color: '#e0e0e0',
+        background: '#EEEEEE',
+        color: '#f5f5f5',
         '@media (maxWidth: 600px)': {
           padding: '8px',
         },
@@ -263,7 +263,7 @@ const AlltimeLayout = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           p: 2,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -278,7 +278,7 @@ const AlltimeLayout = () => {
               style={{
                 width: '40px',
                 height: '40px',
-                filter: 'invert(1)',
+                filter: 'invert(0)',
               }}
             />
           </IconButton>
@@ -288,8 +288,8 @@ const AlltimeLayout = () => {
             onClose={handleMenuClose}
             PaperProps={{
               sx: {
-                backgroundColor: '#1e1e1e',
-                color: '#e0e0e0',
+                backgroundColor: '#ffffff',
+                color: '#212121',
               },
             }}
           >
@@ -324,7 +324,7 @@ const AlltimeLayout = () => {
             sx={{
               fontSize: { xs: '1rem', sm: '1.5rem' },
               fontWeight: 600,
-              color: '#e0e0e0',
+              color: '#212121',
             }}
           >
             Fantasy Goats Guru
@@ -337,8 +337,8 @@ const AlltimeLayout = () => {
               sx={{
                 minWidth: 120,
                 "& .MuiOutlinedInput-root": {
-                  bgcolor: "#1e1e1e",
-                  color: "#e0e0e0",
+                  bgcolor: "#ffffff",
+                  color: "#212121",
                   fontFamily: '"Roboto Mono", monospace',
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: "#4a90e2",
@@ -351,7 +351,7 @@ const AlltimeLayout = () => {
                   },
                 },
                 "& .MuiInputLabel-root": {
-                  color: "#b0bec5",
+                  color: "#424242",
                   fontFamily: '"Roboto Mono", monospace',
                   fontSize: "0.75rem",
                   "&.Mui-focused": {
@@ -376,8 +376,8 @@ const AlltimeLayout = () => {
                     sx={{
                       fontFamily: '"Roboto Mono", monospace',
                       fontSize: '0.875rem',
-                      bgcolor: '#1e1e1e',
-                      color: '#e0e0e0',
+                      bgcolor: '#ffffff',
+                      color: '#212121',
                       '&:hover': {
                         bgcolor: 'rgba(74, 144, 226, 0.1)',
                       },
@@ -401,7 +401,7 @@ const AlltimeLayout = () => {
                   minWidth: { xs: 40, sm: 100 },
                   fontSize: { xs: '0.75rem', sm: '0.875rem' },
                   padding: { xs: '6px 8px', sm: '12px 16px' },
-                  color: '#e0e0e0',
+                  color: '#212121',
                   '&.Mui-selected': {
                     color: '#4a90e2',
                   },
@@ -444,8 +444,8 @@ const AlltimeLayout = () => {
                 onClose={handleProfileMenuClose}
                 PaperProps={{
                   sx: {
-                    backgroundColor: '#1e1e1e',
-                    color: '#e0e0e0',
+                    backgroundColor: '#ffffff',
+                    color: '#212121',
                     mt: 1,
                   },
                 }}
@@ -456,7 +456,7 @@ const AlltimeLayout = () => {
                       {displayName}
                     </Typography>
                     {displayEmail && (
-                      <Typography variant="caption" sx={{ color: '#b0bec5' }}>
+                      <Typography variant="caption" sx={{ color: '#424242' }}>
                         {displayEmail}
                       </Typography>
                     )}
@@ -484,7 +484,7 @@ const AlltimeLayout = () => {
               justifyContent: 'center',
               alignItems: 'center',
               minHeight: '400px',
-              backgroundColor: '#121212',
+              backgroundColor: '#f5f5f5',
             }}
           >
             <Box sx={{ textAlign: 'center' }}>
@@ -498,7 +498,7 @@ const AlltimeLayout = () => {
               <Typography
                 variant="h6"
                 sx={{
-                  color: '#e0e0e0',
+                  color: '#212121',
                   fontFamily: '"Roboto Mono", monospace',
                 }}
               >
@@ -527,8 +527,8 @@ const AlltimeLayout = () => {
           mt: 'auto',
           py: 2,
           textAlign: 'center',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          backgroundColor: '#1e1e1e',
+          borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+          backgroundColor: '#ffffff',
         }}
       >
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>

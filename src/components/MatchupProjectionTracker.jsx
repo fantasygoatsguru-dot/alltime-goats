@@ -43,11 +43,11 @@ const MatchupProjectionTracker = ({
 
     if (!isConnected) {
         return (
-            <Box sx={{ mt: 4, p: 4, bgcolor: "#252525", borderRadius: 1, textAlign: 'center' }}>
+            <Box sx={{ mt: 4, p: 4, bgcolor: "#f8f9fa", borderRadius: 1, textAlign: 'center', border: "1px solid rgba(0, 0, 0, 0.12)" }}>
                 <Typography
                     variant="h6"
                     sx={{
-                        color: "#b0bec5",
+                        color: "#424242",
                         fontFamily: '"Roboto Mono", monospace',
                         mb: 2
                     }}
@@ -72,7 +72,7 @@ const MatchupProjectionTracker = ({
 
     return (
         <>
-            <Box sx={{ mt: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
+            <Box sx={{ mt: 4, p: 2, bgcolor: "#f8f9fa", borderRadius: 1, border: "1px solid rgba(0, 0, 0, 0.12)" }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
                     <Typography
                         variant="h5"
@@ -113,7 +113,7 @@ const MatchupProjectionTracker = ({
                     sx={{
                         mb: 3,
                         textAlign: "center",
-                        color: "#b0bec5",
+                        color: "#424242",
                         fontFamily: '"Roboto Mono", monospace',
                     }}
                 >
@@ -125,7 +125,7 @@ const MatchupProjectionTracker = ({
                     <Typography
                         variant="body2"
                         sx={{
-                            color: "#b0bec5",
+                            color: "#424242",
                             fontFamily: '"Roboto Mono", monospace',
                             mb: 1
                         }}
@@ -135,7 +135,7 @@ const MatchupProjectionTracker = ({
                     <Typography
                         variant="h2"
                         sx={{
-                            color: "#e0e0e0",
+                            color: "#212121",
                             fontFamily: '"Roboto Mono", monospace',
                             fontWeight: 'bold',
                             mb: 1
@@ -157,7 +157,7 @@ const MatchupProjectionTracker = ({
                         <Typography
                             variant="h6"
                             sx={{
-                                color: "#b0bec5",
+                                color: "#424242",
                                 fontFamily: '"Roboto Mono", monospace',
                             }}
                         >
@@ -298,7 +298,7 @@ const MatchupProjectionTracker = ({
                                             }}
                                             onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                                         >
-                                            <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#e0e0e0", fontWeight: 'bold' }}>
+                                            <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#212121", fontWeight: 'bold' }}>
                                                 {catLabels[catKey]} {isExpanded ? '▼' : '▶'}
                                             </TableCell>
                                             <TableCell 
@@ -446,7 +446,7 @@ const MatchupProjectionTracker = ({
                                                             
                                                             return (
                                                                 <Grid item xs={12} sm={6} md={4} key={idx}>
-                                                                    <Box sx={{ bgcolor: '#252525', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #4a90e2' : '1px solid #333' }}>
+                                                                    <Box sx={{ bgcolor: '#ffffff', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #4a90e2' : '1px solid rgba(0, 0, 0, 0.12)' }}>
                                                                         <Typography variant="caption" sx={{ color: day.isToday ? '#4a90e2' : '#888', fontWeight: 'bold', display: 'block', mb: 1, textAlign: 'center' }}>
                                                                             {day.dayOfWeek} {day.monthDay} {day.isToday ? '(Today)' : ''}
                                                                         </Typography>
@@ -568,8 +568,8 @@ const MatchupProjectionTracker = ({
                 onClick={(e) => e.stopPropagation()}
                 PaperProps={{
                     sx: {
-                        bgcolor: '#252525',
-                        border: '1px solid #333',
+                        bgcolor: '#ffffff',
+                        border: '1px solid rgba(0, 0, 0, 0.12)',
                         minWidth: 200,
                         zIndex: 9999
                     }
@@ -585,7 +585,7 @@ const MatchupProjectionTracker = ({
                         handlePlayerStatusChange('enabled');
                     }}
                     sx={{ 
-                        color: '#e0e0e0',
+                        color: '#212121',
                         py: 1.5,
                         '&:hover': { bgcolor: 'rgba(76, 175, 80, 0.2)' },
                         '&:active': { bgcolor: 'rgba(76, 175, 80, 0.3)' }
@@ -600,7 +600,7 @@ const MatchupProjectionTracker = ({
                         handlePlayerStatusChange('disabledForDay');
                     }}
                     sx={{ 
-                        color: '#e0e0e0',
+                        color: '#212121',
                         py: 1.5,
                         '&:hover': { bgcolor: 'rgba(255, 152, 0, 0.2)' },
                         '&:active': { bgcolor: 'rgba(255, 152, 0, 0.3)' }
@@ -615,7 +615,7 @@ const MatchupProjectionTracker = ({
                         handlePlayerStatusChange('disabledForWeek');
                     }}
                     sx={{ 
-                        color: '#e0e0e0',
+                        color: '#212121',
                         py: 1.5,
                         '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' },
                         '&:active': { bgcolor: 'rgba(244, 67, 54, 0.3)' }

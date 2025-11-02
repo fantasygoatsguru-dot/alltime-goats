@@ -150,7 +150,7 @@ const WeeklyMatchupResults = ({
                                 <Typography
                                     variant="h6"
                                     sx={{
-                                        color: "#e0e0e0",
+                                        color: "#212121",
                                         fontFamily: '"Roboto Mono", monospace',
                                         fontWeight: 'bold',
                                         textAlign: 'center',
@@ -185,7 +185,7 @@ const WeeklyMatchupResults = ({
                 maxWidth="sm"
                 PaperProps={{
                     sx: {
-                        bgcolor: "#252525",
+                        bgcolor: "#f8f9fa",
                         borderRadius: 1,
                     }
                 }}
@@ -241,15 +241,15 @@ const WeeklyMatchupResults = ({
                                             >
                                                 <TableCell sx={{
                                                     fontFamily: '"Roboto Mono", monospace',
-                                                    color: "#e0e0e0"
+                                                    color: "#212121"
                                                 }}>{row.category}</TableCell>
                                                 <TableCell align="right" sx={{
                                                     fontFamily: '"Roboto Mono", monospace',
-                                                    color: "#e0e0e0"
+                                                    color: "#212121"
                                                 }}>{row.t1Value}</TableCell>
                                                 <TableCell align="right" sx={{
                                                     fontFamily: '"Roboto Mono", monospace',
-                                                    color: "#e0e0e0"
+                                                    color: "#212121"
                                                 }}>{row.t2Value}</TableCell>
                                                 <TableCell>
                                                     <Typography

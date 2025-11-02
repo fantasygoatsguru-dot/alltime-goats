@@ -257,12 +257,12 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
     );
 
     return (
-        <Box sx={{ p: 2, bgcolor: "#252525", borderRadius: 1, mt: 2 }}>
+        <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1, mt: 2, border: "1px solid rgba(0, 0, 0, 0.12)" }}>
             <Typography
                 variant="h5"
                 sx={{
                     mb: 2,
-                    color: "#e0e0e0",
+                    color: "#212121",
                     fontFamily: '"Roboto Mono", monospace',
                     textAlign: "center",
                     fontWeight: "bold",
@@ -310,7 +310,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                         />
                         <RechartsTooltip
                             contentStyle={{
-                                backgroundColor: "#252525",
+                                backgroundColor: "#ffffff",
                                 border: "1px solid #4a90e2",
                                 borderRadius: "4px",
                             }}
@@ -323,13 +323,13 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                                         : teamData?.[category]?.reduce((sum, player) => sum + (player.value || 0), 0) || 0;
                                 return [`${formatValue(rawValue, category)} (Z: ${(value || 0).toFixed(2)})`, name];
                             }}
-                            labelStyle={{ color: "#e0e0e0", display: "none" }}
+                            labelStyle={{ color: "#212121", display: "none" }}
                             cursor={{ stroke: "#4a90e2", strokeWidth: 1 }}
                         />
                         <Legend
                             wrapperStyle={{
                                 fontFamily: '"Roboto Mono", monospace',
-                                color: "#e0e0e0",
+                                color: "#212121",
                             }}
                         />
                     </RadarChart>
@@ -342,14 +342,14 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                 fullWidth
                 PaperProps={{
                     sx: {
-                        bgcolor: "#252525",
+                        bgcolor: "#ffffff",
                         borderRadius: 1,
                     },
                 }}
             >
                 <DialogTitle
                     sx={{
-                        color: "#e0e0e0",
+                        color: "#212121",
                         fontFamily: '"Roboto Mono", monospace',
                         fontWeight: "bold",
                     }}
@@ -377,7 +377,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                                             secondary={(player.value || 0).toFixed(2)}
                                             primaryTypographyProps={{
                                                 sx: {
-                                                    color: "#e0e0e0",
+                                                    color: "#212121",
                                                     fontFamily: '"Roboto Mono", monospace',
                                                 },
                                             }}
@@ -400,7 +400,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                                         }
                                         primaryTypographyProps={{
                                             sx: {
-                                                color: "#e0e0e0",
+                                                color: "#212121",
                                                 fontFamily: '"Roboto Mono", monospace',
                                                 fontWeight: "bold",
                                             },
@@ -435,7 +435,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                                             secondary={(player.value || 0).toFixed(2)}
                                             primaryTypographyProps={{
                                                 sx: {
-                                                    color: "#e0e0e0",
+                                                    color: "#212121",
                                                     fontFamily: '"Roboto Mono", monospace',
                                                 },
                                             }}
@@ -458,7 +458,7 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
                                         }
                                         primaryTypographyProps={{
                                             sx: {
-                                                color: "#e0e0e0",
+                                                color: "#212121",
                                                 fontFamily: '"Roboto Mono", monospace',
                                                 fontWeight: "bold",
                                             },
@@ -627,12 +627,12 @@ const PlayerComparisonGraph = ({
     };
 
     return (
-        <Box sx={{ p: 2, bgcolor: "#252525", borderRadius: 1, mt: 2 }}>
+        <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1, mt: 2, border: "1px solid rgba(0, 0, 0, 0.12)" }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Typography
                     variant="h5"
                     sx={{
-                        color: "#e0e0e0",
+                        color: "#212121",
                         fontFamily: '"Roboto Mono", monospace',
                         fontWeight: "bold",
                     }}
@@ -699,7 +699,7 @@ const PlayerComparisonGraph = ({
                         {radarComponents}
                         <RechartsTooltip
                             contentStyle={{
-                                backgroundColor: "#252525",
+                                backgroundColor: "#ffffff",
                                 border: "1px solid #4a90e2",
                                 borderRadius: "4px",
                             }}
@@ -742,13 +742,13 @@ const PlayerComparisonGraph = ({
                                 }
                                 return [`${formatValue(value, category)}`, name];
                             }}
-                            labelStyle={{ color: "#e0e0e0", display: "none" }}
+                            labelStyle={{ color: "#212121", display: "none" }}
                             cursor={{ stroke: "#4a90e2", strokeWidth: 1 }}
                         />
                         <Legend
                             wrapperStyle={{
                                 fontFamily: '"Roboto Mono", monospace',
-                                color: "#e0e0e0",
+                                color: "#212121",
                             }}
                         />
                     </RadarChart>
@@ -761,14 +761,14 @@ const PlayerComparisonGraph = ({
                 fullWidth
                 PaperProps={{
                     sx: {
-                        bgcolor: "#252525",
+                        bgcolor: "#ffffff",
                         borderRadius: 1,
                     },
                 }}
             >
                 <DialogTitle
                     sx={{
-                        color: "#e0e0e0",
+                        color: "#212121",
                         fontFamily: '"Roboto Mono", monospace',
                         fontWeight: "bold",
                     }}
@@ -827,7 +827,7 @@ const PlayerComparisonGraph = ({
                                         </Typography>
                                         <Typography
                                             sx={{
-                                                color: "#e0e0e0",
+                                                color: "#212121",
                                                 fontFamily: '"Roboto Mono", monospace',
                                             }}
                                         >
@@ -1083,7 +1083,7 @@ const Alltime = () => {
     const cappedRadius = Math.min(targetRadius, maxRadius);
 
     return (
-        <Box sx={{ p: 2, minHeight: "100vh", background: "linear-gradient(135deg, #121212 0%, #1e1e1e 100%)", color: "#e0e0e0" }}>
+        <Box sx={{ p: 2, minHeight: "100vh", background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)", color: "#212121" }}>
             <Typography
                 variant="h4"
                 sx={{
@@ -1098,7 +1098,7 @@ const Alltime = () => {
             </Typography>
 
 
-            <Box sx={{ mb: 4, p: 2, bgcolor: "#252525", borderRadius: 1 }}>
+            <Box sx={{ mb: 4, p: 2, bgcolor: "#f8f9fa", borderRadius: 1, border: "1px solid rgba(0, 0, 0, 0.12)" }}>
                 <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12} md={4}>
                         <Autocomplete
@@ -1125,10 +1125,10 @@ const Alltime = () => {
                                     label="Search Player"
                                     variant="outlined"
                                     sx={{
-                                        bgcolor: "#252525",
-                                        color: "#e0e0e0",
+                                        bgcolor: "#ffffff",
+                                        color: "#212121",
                                         "& .MuiOutlinedInput-root": {
-                                            color: "#e0e0e0",
+                                            color: "#212121",
                                             "& fieldset": {
                                                 borderColor: "#4a90e2",
                                             },
@@ -1143,7 +1143,7 @@ const Alltime = () => {
                                 />
                             )}
                             PaperComponent={({ children }) => (
-                                <Paper sx={{ bgcolor: "#252525", color: "#e0e0e0" }}>
+                                <Paper sx={{ bgcolor: "#ffffff", color: "#212121", border: "1px solid rgba(0, 0, 0, 0.12)" }}>
                                     {children}
                                 </Paper>
                             )}
@@ -1167,8 +1167,8 @@ const Alltime = () => {
                                 disabled={!selectedPlayer}
                                 label="Season"
                                 sx={{
-                                    bgcolor: "#252525",
-                                    color: "#e0e0e0",
+                                    bgcolor: "#ffffff",
+                                    color: "#212121",
                                     "& .MuiOutlinedInput-notchedOutline": {
                                         borderColor: "#4a90e2",
                                     },
@@ -1211,8 +1211,8 @@ const Alltime = () => {
                                 onChange={(e) => setSelectedTeam(e.target.value)}
                                 label="Team"
                                 sx={{
-                                    bgcolor: "#252525",
-                                    color: "#e0e0e0",
+                                    bgcolor: "#ffffff",
+                                    color: "#212121",
                                     "& .MuiOutlinedInput-notchedOutline": {
                                         borderColor: "#4a90e2",
                                     },
@@ -1272,8 +1272,8 @@ const Alltime = () => {
                             onChange={(e) => handleTeam1Change(e.target.value)}
                             label="Team 1"
                             sx={{
-                                bgcolor: "#252525",
-                                color: "#e0e0e0",
+                                bgcolor: "#ffffff",
+                                color: "#212121",
                                 borderRadius: 1,
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontSize: "0.875rem",
@@ -1329,8 +1329,8 @@ const Alltime = () => {
                             onChange={(e) => handleTeam2Change(e.target.value)}
                             label="Team 2"
                             sx={{
-                                bgcolor: "#252525",
-                                color: "#e0e0e0",
+                                bgcolor: "#ffffff",
+                                color: "#212121",
                                 borderRadius: 1,
                                 fontFamily: '"Roboto Mono", monospace',
                                 fontSize: "0.875rem",
@@ -1375,7 +1375,7 @@ const Alltime = () => {
                         </Typography>
                         <List
                             sx={{
-                                bgcolor: "#252525",
+                                bgcolor: "#ffffff",
                                 borderRadius: 1,
                                 p: 1,
                                 maxHeight: 300,
@@ -1384,7 +1384,7 @@ const Alltime = () => {
                                     width: "6px",
                                 },
                                 "&::-webkit-scrollbar-track": {
-                                    background: "#1e1e1e",
+                                    background: "#ffffff",
                                     borderRadius: "3px",
                                 },
                                 "&::-webkit-scrollbar-thumb": {
@@ -1412,7 +1412,7 @@ const Alltime = () => {
                                         primary={`${player.name} (${player.season})`}
                                         primaryTypographyProps={{
                                             fontFamily: '"Roboto Mono", monospace',
-                                            color: "#e0e0e0",
+                                            color: "#212121",
                                         }}
                                     />
                                     <Tooltip title={player.active ? "Disable Player" : "Enable Player"} arrow>
@@ -1488,7 +1488,7 @@ const Alltime = () => {
                         </Typography>
                         <List
                             sx={{
-                                bgcolor: "#252525",
+                                bgcolor: "#ffffff",
                                 borderRadius: 1,
                                 p: 1,
                                 maxHeight: 300,
@@ -1497,7 +1497,7 @@ const Alltime = () => {
                                     width: "6px",
                                 },
                                 "&::-webkit-scrollbar-track": {
-                                    background: "#1e1e1e",
+                                    background: "#ffffff",
                                     borderRadius: "3px",
                                 },
                                 "&::-webkit-scrollbar-thumb": {
@@ -1525,7 +1525,7 @@ const Alltime = () => {
                                         primary={`${player.name} (${player.season})`}
                                         primaryTypographyProps={{
                                             fontFamily: '"Roboto Mono", monospace',
-                                            color: "#e0e0e0",
+                                            color: "#212121",
                                         }}
                                     />
                                     <Tooltip title={player.active ? "Disable Player" : "Enable Player"} arrow>

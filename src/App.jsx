@@ -12,12 +12,36 @@ import { AuthProvider } from "./contexts/AuthContext";
 
 const theme = createTheme({
   palette: {
-    primary: { main: "#4a90e2" },
-    secondary: { main: "#37474f" },
-    background: { default: "#121212", paper: "#1e1e1e" },
-    text: { primary: "#e0e0e0", secondary: "#b0bec5" },
+    primary: { main: "#1976d2" },
+    secondary: { main: "#2e7d32" },
+    background: { default: "#f8f9fa", paper: "#ffffff" },
+    text: { primary: "#212121", secondary: "#424242" },
+    success: { main: "#4caf50" },
+    info: { main: "#2196f3" },
+    warning: { main: "#ff9800" },
+    error: { main: "#f44336" },
   },
-  typography: { h6: { fontWeight: 600 } },
+  typography: { 
+    h6: { fontWeight: 600 },
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: 8,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
+  },
 });
 
 const tagManagerArgs = {
