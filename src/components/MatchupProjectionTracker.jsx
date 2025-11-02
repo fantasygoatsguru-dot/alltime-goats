@@ -438,7 +438,7 @@ const MatchupProjectionTracker = ({
                                         </TableRow>
                                         {isExpanded && (
                                             <TableRow>
-                                                <TableCell colSpan={10} sx={{ bgcolor: '#1a1a1a', p: 2 }}>
+                                                <TableCell colSpan={10} sx={{ bgcolor: 'rgb(206, 195, 208)', p: 2 }}>
                                                     <Grid container spacing={2}>
                                                         {matchupProjection.team1.dailyProjections.map((day, idx) => {
                                                             if (day.isPast || (day.players.length === 0 && matchupProjection.team2.dailyProjections[idx]?.players.length === 0)) return null;
