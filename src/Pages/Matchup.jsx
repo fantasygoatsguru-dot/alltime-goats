@@ -329,7 +329,7 @@ const Matchup = () => {
     const isConnected = isAuthenticated;
     
     // League context
-    const { selectedLeague, onLeagueChange, userLeagues } = useLeague();
+    const { selectedLeague, onLeagueChange, userLeagues, leagueTeams, setLeagueTeams } = useLeague();
     
     // Loading and error state
     const [loading, setLoading] = useState(false);
@@ -337,7 +337,7 @@ const Matchup = () => {
     const [initialLoading, setInitialLoading] = useState(true);
     const [error, setError] = useState(null);
     
-    // Yahoo Fantasy state
+    // Yahoo Fantasy state - use global context if available, fallback to local state
     const [allLeagueTeams, setAllLeagueTeams] = useState([]);
     const [selectedTeam1, setSelectedTeam1] = useState("");
     const [selectedTeam2, setSelectedTeam2] = useState("");
@@ -913,6 +913,10 @@ const getCurrentWeekDates = () => {
 
             if (data.teams && data.teams.length > 0) {
                 setAllLeagueTeams(data.teams);
+                // Update global context with league teams
+                if (setLeagueTeams) {
+                    setLeagueTeams(data.teams);
+                }
                 // Set first two teams as default
                 setSelectedTeam1(data.teams[0].name);
                 setSelectedTeam2(data.teams.length > 1 ? data.teams[1].name : data.teams[0].name);
@@ -1210,7 +1214,40 @@ const getCurrentWeekDates = () => {
     // Auto-load league when selected (reload when league changes)
     const previousLeagueRef = useRef(null);
     useEffect(() => {
-        if (selectedLeague && userId && isConnected && !loadingTeams) {
+        // Use global league teams if available
+        if (leagueTeams && leagueTeams.length > 0) {
+            if (previousLeagueRef.current !== selectedLeague || allLeagueTeams.length === 0) {
+                previousLeagueRef.current = selectedLeague;
+                setAllLeagueTeams(leagueTeams);
+                // Set first two teams as default
+                setSelectedTeam1(leagueTeams[0].name);
+                setSelectedTeam2(leagueTeams.length > 1 ? leagueTeams[1].name : leagueTeams[0].name);
+                setTeam1Name(leagueTeams[0].name);
+                setTeam2Name(leagueTeams.length > 1 ? leagueTeams[1].name : leagueTeams[0].name);
+                
+                setTeam1Players(
+                    leagueTeams[0].players.map((p) => ({
+                        id: p.nbaPlayerId || p.yahooPlayerId,
+                        name: p.name,
+                        yahooPlayerId: p.yahooPlayerId,
+                        nbaPlayerId: p.nbaPlayerId,
+                        active: true,
+                    }))
+                );
+                
+                setTeam2Players(
+                    leagueTeams.length > 1 
+                        ? leagueTeams[1].players.map((p) => ({
+                            id: p.nbaPlayerId || p.yahooPlayerId,
+                            name: p.name,
+                            yahooPlayerId: p.yahooPlayerId,
+                            nbaPlayerId: p.nbaPlayerId,
+                            active: true,
+                        }))
+                        : []
+                );
+            }
+        } else if (selectedLeague && userId && isConnected && !loadingTeams) {
             // If league changed or teams haven't been loaded, reload
             if (previousLeagueRef.current !== selectedLeague || allLeagueTeams.length === 0) {
                 previousLeagueRef.current = selectedLeague;
@@ -1228,7 +1265,7 @@ const getCurrentWeekDates = () => {
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedLeague, userId, isConnected]);
+    }, [selectedLeague, userId, isConnected, leagueTeams]);
 
     // Auto-fetch current matchup when league is available
     useEffect(() => {

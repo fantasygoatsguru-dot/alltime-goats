@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Container, Typography, Tabs, Tab, CircularProgress, Link, IconButton, Menu, MenuItem, Avatar, FormControl, InputLabel, Select } from '@mui/material';
 import { Logout } from '@mui/icons-material';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
@@ -24,6 +24,7 @@ const AlltimeLayout = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [userLeagues, setUserLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState("");
+  const [leagueTeams, setLeagueTeams] = useState([]);
   
   // Fetch user profile to override OAuth data if it exists
   useEffect(() => {
@@ -94,6 +95,53 @@ const AlltimeLayout = () => {
       fetchUserLeagues();
     }
   }, [user?.userId, isAuthenticated, selectedLeague]);
+
+  // Fetch league teams when league is selected
+  useEffect(() => {
+    const fetchLeagueTeams = async () => {
+      if (!selectedLeague || !user?.userId || !isAuthenticated) {
+        setLeagueTeams([]);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase.functions.invoke("yahoo-fantasy-api", {
+          body: {
+            action: "getAllTeamsInLeague",
+            userId: user.userId,
+            leagueId: selectedLeague,
+          },
+        });
+
+        if (error) throw error;
+        
+        if (data?.teams && data.teams.length > 0) {
+          setLeagueTeams(data.teams);
+        } else {
+          setLeagueTeams([]);
+        }
+      } catch (err) {
+        console.error('Error fetching league teams:', err);
+        setLeagueTeams([]);
+      }
+    };
+    
+    fetchLeagueTeams();
+  }, [selectedLeague, user?.userId, isAuthenticated]);
+
+  // Calculate user team players from league teams
+  const userTeamPlayers = useMemo(() => {
+    if (!leagueTeams || leagueTeams.length === 0) return [];
+    
+    const userTeam = leagueTeams.find(team => team.is_owned_by_current_login === true);
+    if (!userTeam || !userTeam.players) return [];
+    
+    return userTeam.players.map(p => ({
+      nbaPlayerId: p.nbaPlayerId,
+      yahooPlayerId: p.yahooPlayerId,
+      name: p.name,
+    }));
+  }, [leagueTeams]);
 
   useEffect(() => {
     if (location.pathname === '/seasons' || location.pathname === '/table') {
@@ -463,6 +511,9 @@ const AlltimeLayout = () => {
             selectedLeague={selectedLeague}
             onLeagueChange={setSelectedLeague}
             userLeagues={userLeagues}
+            leagueTeams={leagueTeams}
+            userTeamPlayers={userTeamPlayers}
+            setLeagueTeams={setLeagueTeams}
           >
             {renderContent()}
           </LeagueProvider>

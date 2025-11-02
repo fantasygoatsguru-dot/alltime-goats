@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Box,
     Typography,
@@ -13,12 +13,32 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
+import { useLeague } from '../contexts/LeagueContext';
 
 const Rankings = () => {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [orderBy, setOrderBy] = useState('total_value');
     const [order, setOrder] = useState('desc');
+    const { userTeamPlayers } = useLeague();
+
+    // Create a Set of user's team player IDs for quick lookup
+    const userTeamPlayerIds = useMemo(() => {
+        const ids = new Set();
+        if (userTeamPlayers && userTeamPlayers.length > 0) {
+            userTeamPlayers.forEach(player => {
+                if (player.nbaPlayerId) {
+                    ids.add(player.nbaPlayerId);
+                }
+            });
+        }
+        return ids;
+    }, [userTeamPlayers]);
+
+    // Check if a player belongs to user's team
+    const isUserTeamPlayer = (player) => {
+        return userTeamPlayerIds.has(player.player_id);
+    };
 
     useEffect(() => {
         const fetchPlayers = async () => {
@@ -283,17 +303,32 @@ const Rankings = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {players.map((player, index) => (
+                            {players.map((player) => {
+                                const isMyPlayer = isUserTeamPlayer(player);
+                                return (
                                 <TableRow
                                     key={player.id}
                                     sx={{
                                         '&:nth-of-type(odd)': {
-                                            bgcolor: 'rgba(15, 27, 61, 0.3)',
+                                            bgcolor: isMyPlayer 
+                                                ? 'rgba(165, 214, 167, 0.15)' 
+                                                : 'rgba(15, 27, 61, 0.3)',
                                         },
+                                        '&:nth-of-type(even)': {
+                                            bgcolor: isMyPlayer 
+                                                ? 'rgba(165, 214, 167, 0.2)' 
+                                                : 'transparent',
+                                        },
+                                        borderLeft: isMyPlayer ? '4px solid #4a90e2' : 'none',
+                                        borderRight: isMyPlayer ? '4px solid #4a90e2' : 'none',
                                         '&:hover': {
-                                            bgcolor: 'rgba(165, 214, 167, 0.1) !important',
+                                            bgcolor: isMyPlayer
+                                                ? 'rgba(165, 214, 167, 0.25) !important'
+                                                : 'rgba(165, 214, 167, 0.1) !important',
                                             transform: 'translateY(-1px)',
-                                            boxShadow: '0 4px 12px rgba(165, 214, 167, 0.15)',
+                                            boxShadow: isMyPlayer
+                                                ? '0 4px 12px rgba(74, 144, 226, 0.4)'
+                                                : '0 4px 12px rgba(165, 214, 167, 0.15)',
                                         },
                                         transition: 'all 0.25s ease',
                                     }}
@@ -318,7 +353,12 @@ const Rankings = () => {
                                                 }}
                                             >
                                                 {column.id === 'player_name' ? (
-                                                    <Typography sx={{ fontWeight: 'bold', color: '#a5d6a7' }}>
+                                                    <Typography sx={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: isMyPlayer ? '#4a90e2' : '#a5d6a7',
+                                                        textShadow: isMyPlayer ? '0 0 8px rgba(74, 144, 226, 0.5)' : 'none',
+                                                    }}>
+                                                        {isMyPlayer && '⭐ '}
                                                         {value}
                                                     </Typography>
                                                 ) : (
@@ -328,7 +368,8 @@ const Rankings = () => {
                                         );
                                     })}
                                 </TableRow>
-                            ))}
+                            );
+                            })}
                         </TableBody>
                     </Table>
                 </TableContainer>
