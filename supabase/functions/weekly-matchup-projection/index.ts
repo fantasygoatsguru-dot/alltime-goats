@@ -78,17 +78,21 @@ const sendEmail = async (to: string, subject: string, html: string) => {
 };
 
 // ───── Yahoo token handling ─────
-async function getAccessToken(userId: string): Promise<string> {
+async function getAccessToken(userId: string, forceRefresh = false): Promise<string> {
   const { data: t, error } = await supabase
     .from('yahoo_tokens')
     .select('access_token, refresh_token, expires_at')
     .eq('user_id', userId)
     .single();
 
-  if (error || !t) throw new Error('No token');
+  if (error || !t) throw new Error(`No token found for user ${userId}`);
 
-  if (new Date(t.expires_at) > new Date()) return t.access_token;
+  const isExpired = new Date(t.expires_at) <= new Date();
+  
+  if (!forceRefresh && !isExpired) return t.access_token;
 
+  console.log(`[TOKEN] Refreshing token for user ${userId} (expired: ${isExpired}, force: ${forceRefresh})`);
+  
   const auth = btoa(`${YAHOO_CLIENT_ID}:${YAHOO_CLIENT_SECRET}`);
   const resp = await fetch('https://api.login.yahoo.com/oauth2/get_token', {
     method: 'POST',
@@ -99,7 +103,12 @@ async function getAccessToken(userId: string): Promise<string> {
     body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: t.refresh_token }),
   });
 
-  if (!resp.ok) throw new Error('Refresh failed');
+  if (!resp.ok) {
+    const errorText = await resp.text();
+    console.error(`[TOKEN] Refresh failed for user ${userId}: ${resp.status} - ${errorText}`);
+    throw new Error(`Token refresh failed: ${resp.status} - User needs to reconnect`);
+  }
+  
   const fresh = await resp.json();
   const expires = new Date(Date.now() + fresh.expires_in * 1000);
 
@@ -109,15 +118,36 @@ async function getAccessToken(userId: string): Promise<string> {
     expires_at: expires.toISOString(),
   }).eq('user_id', userId);
 
+  console.log(`[TOKEN] Token refreshed successfully for user ${userId}`);
   return fresh.access_token;
 }
 
-// ───── Yahoo request helper (adds json_f) ─────
-async function makeYahooRequest(token: string, endpoint: string): Promise<any> {
+// ───── Yahoo request helper (adds json_f, handles 401 with retry) ─────
+async function makeYahooRequest(
+  token: string, 
+  endpoint: string, 
+  userId?: string,
+  retryCount = 0
+): Promise<any> {
   const clean = endpoint.replace(/\?format=json_f$/, '');
   const url = `https://fantasysports.yahooapis.com/fantasy/v2${clean}?format=json_f`;
   const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-  if (!r.ok) throw new Error(`Yahoo ${r.status}: ${await r.text()}`);
+  
+  if (r.status === 401 && userId && retryCount === 0) {
+    console.log(`[YAHOO] 401 error, attempting token refresh for user ${userId}`);
+    try {
+      const newToken = await getAccessToken(userId, true);
+      return makeYahooRequest(newToken, endpoint, userId, 1);
+    } catch (refreshError) {
+      throw new Error(`Yahoo 401: Invalid token - User ${userId} needs to reconnect. ${refreshError instanceof Error ? refreshError.message : 'Unknown error'}`);
+    }
+  }
+  
+  if (!r.ok) {
+    const errorText = await r.text();
+    throw new Error(`Yahoo ${r.status}: ${errorText}`);
+  }
+  
   return r.json();
 }
 
@@ -235,10 +265,10 @@ async function getCurrentMatchup(userId: string, leagueId: string) {
   const leagueKey = `${GAME_ID}.l.${leagueId}`;
 
   // 1. Get current week
-  const settings = await makeYahooRequest(token, `/league/${leagueKey}/settings`);
+  const settings = await makeYahooRequest(token, `/league/${leagueKey}/settings`, userId);
 
   // 2. Find user's team (teams endpoint has the flag)
-  const teamsResp = await makeYahooRequest(token, `/league/${leagueKey}/teams`);
+  const teamsResp = await makeYahooRequest(token, `/league/${leagueKey}/teams`, userId);
   const teams = teamsResp.fantasy_content.league?.teams ?? {};
   let userTeamKey = null;
   let userTeamName = null;
@@ -257,7 +287,7 @@ async function getCurrentMatchup(userId: string, leagueId: string) {
   console.log(`[MATCHUP] user team: ${userTeamName} (${userTeamKey})`);
 
   // 3. Get the matchup for that team
-  const matchupResp = await makeYahooRequest(token, `/team/${userTeamKey}/matchups;weeks=current`);  // FIXED: use "current"
+  const matchupResp = await makeYahooRequest(token, `/team/${userTeamKey}/matchups;weeks=current`, userId);  // FIXED: use "current"
   const matchup = matchupResp.fantasy_content?.team?.matchups?.[0]?.matchup;
   console.log(`[MATCHUP] matchup: ${JSON.stringify(matchup?.teams)}`);
 
@@ -271,8 +301,8 @@ async function getCurrentMatchup(userId: string, leagueId: string) {
 
   // 4. Rosters
   const [team1Roster, team2Roster] = await Promise.all([
-    makeYahooRequest(token, `/team/${team1Raw.team_key}/roster;week=current`),  // FIXED: use "current"
-    makeYahooRequest(token, `/team/${team2Raw.team_key}/roster;week=current`),  // FIXED: use "current"
+    makeYahooRequest(token, `/team/${team1Raw.team_key}/roster;week=current`, userId),  // FIXED: use "current"
+    makeYahooRequest(token, `/team/${team2Raw.team_key}/roster;week=current`, userId),  // FIXED: use "current"
   ]);
   console.log(`[MATCHUP] team1Roster: ${JSON.stringify(team1Roster)}`);
   console.log(`[MATCHUP] team2Roster: ${JSON.stringify(team2Roster)}`);
@@ -486,51 +516,74 @@ function generateEmailHTML(userName: string, projection: any): string {
   const t1FtPct = projection.team1TotalStats.ftAttempted > 0 ? (projection.team1TotalStats.ftMade / projection.team1TotalStats.ftAttempted) * 100 : 0;
   const t2FtPct = projection.team2TotalStats.ftAttempted > 0 ? (projection.team2TotalStats.ftMade / projection.team2TotalStats.ftAttempted) * 100 : 0;
 
+  const getWinnerDisplay = (winner: string | undefined, team1: string, team2: string): string => {
+    if (!winner || winner === 'Tie') return 'Tie';
+    if (winner === team1) return team1;
+    if (winner === team2) return team2;
+    return winner;
+  };
+
+  const getWinnerColor = (winner: string | undefined, team1: string, team2: string): string => {
+    if (!winner || winner === 'Tie') return '#b0bec5';
+    if (winner === team1) return '#4CAF50';
+    if (winner === team2) return '#ff6f61';
+    return '#b0bec5';
+  };
+
   const categoryBreakdown = `
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">Points</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.points?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${projection.team1TotalStats.points.toFixed(1)}</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.points?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${projection.team2TotalStats.points.toFixed(1)}</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.points?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.points?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">3-Pointers</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.threePointers?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${projection.team1TotalStats.threePointers.toFixed(1)}</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.threePointers?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${projection.team2TotalStats.threePointers.toFixed(1)}</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.threePointers?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.threePointers?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">Rebounds</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.rebounds?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${projection.team1TotalStats.rebounds.toFixed(1)}</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.rebounds?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${projection.team2TotalStats.rebounds.toFixed(1)}</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.rebounds?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.rebounds?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">Assists</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.assists?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${projection.team1TotalStats.assists.toFixed(1)}</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.assists?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${projection.team2TotalStats.assists.toFixed(1)}</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.assists?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.assists?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">Steals</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.steals?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${projection.team1TotalStats.steals.toFixed(1)}</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.steals?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${projection.team2TotalStats.steals.toFixed(1)}</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.steals?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.steals?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">Blocks</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.blocks?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${projection.team1TotalStats.blocks.toFixed(1)}</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.blocks?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${projection.team2TotalStats.blocks.toFixed(1)}</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.blocks?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.blocks?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">FG%</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.fieldGoalPercentage?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${t1FgPct.toFixed(1)}%</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.fieldGoalPercentage?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${t2FgPct.toFixed(1)}%</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.fieldGoalPercentage?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.fieldGoalPercentage?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">FT%</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.freeThrowPercentage?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${t1FtPct.toFixed(1)}%</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.freeThrowPercentage?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${t2FtPct.toFixed(1)}%</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.freeThrowPercentage?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.freeThrowPercentage?.winner, projection.team1, projection.team2)}</td>
     </tr>
     <tr>
       <td style="padding: 8px; border: 1px solid #333; text-align: left; color: #e0e0e0;">Turnovers</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.turnovers?.winner === projection.team1 ? '#4CAF50' : '#ff6f61'};">${projection.team1TotalStats.turnovers.toFixed(1)}</td>
       <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${projection.categoryResults.turnovers?.winner === projection.team2 ? '#4CAF50' : '#ff6f61'};">${projection.team2TotalStats.turnovers.toFixed(1)}</td>
+      <td style="padding: 8px; border: 1px solid #333; text-align: center; color: ${getWinnerColor(projection.categoryResults.turnovers?.winner, projection.team1, projection.team2)}; font-weight: bold;">${getWinnerDisplay(projection.categoryResults.turnovers?.winner, projection.team1, projection.team2)}</td>
     </tr>
   `;
 
@@ -571,10 +624,38 @@ serve(async (req) => {
     const { data: profiles } = await supabase
       .from('user_profiles')
       .select('user_id, name, email')
-      .eq('is_premium', true)
       .eq('send_weekly_projections', true);
 
     if (!profiles?.length) return new Response(JSON.stringify({ message: 'No users' }), { headers: corsHeaders });
+
+    // Rate limiting: track email send timestamps (max 2 per second)
+    const emailTimestamps: number[] = [];
+    const RATE_LIMIT_EMAILS_PER_SECOND = 2;
+    
+    const waitForRateLimit = async () => {
+      const now = Date.now();
+      const oneSecondAgo = now - 1000;
+      
+      // Remove timestamps older than 1 second
+      while (emailTimestamps.length > 0 && emailTimestamps[0] < oneSecondAgo) {
+        emailTimestamps.shift();
+      }
+      
+      // If we've sent 2 emails in the last second, wait
+      if (emailTimestamps.length >= RATE_LIMIT_EMAILS_PER_SECOND) {
+        const oldestTimestamp = emailTimestamps[0];
+        const waitTime = 1000 - (now - oldestTimestamp) + 50; // Add 50ms buffer
+        if (waitTime > 0) {
+          console.log(`[RATE LIMIT] Waiting ${waitTime}ms (${emailTimestamps.length} emails in last second)`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          // Remove old timestamps after waiting
+          const afterWait = Date.now();
+          while (emailTimestamps.length > 0 && emailTimestamps[0] < afterWait - 1000) {
+            emailTimestamps.shift();
+          }
+        }
+      }
+    };
 
     let ok = 0, fail = 0;
     for (const p of profiles) {
@@ -587,7 +668,7 @@ serve(async (req) => {
 
         // get first league
         const token = await getAccessToken(p.user_id);
-        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=nba/leagues`);
+        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=nba/leagues`, p.user_id);
         
         const user = leaguesResp?.fantasy_content?.users?.[0]?.user;
         if (!user) { console.log('no user found'); continue; }
@@ -606,10 +687,19 @@ serve(async (req) => {
         console.log(`[MATCHUP] projection: ${JSON.stringify(projection)}`);
         const html = generateEmailHTML(p.name ?? 'Manager', projection);
         console.log(`[MATCHUP] html: ${html}`);
+        
+        // Rate limit before sending email
+        await waitForRateLimit();
+        
         const sent = await sendEmail(p.email, `Weekly Projection: ${projection.team1} vs ${projection.team2}`, html);
+        
+        // Record timestamp after sending (success or failure)
+        emailTimestamps.push(Date.now());
+        
         sent ? ok++ : fail++;
       } catch (e) {
-        console.error(`User ${p.user_id} error:`, e);
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error(`[ERROR] User ${p.user_id} (${p.email || 'no email'}): ${errorMessage}`);
         fail++;
       }
     }
