@@ -530,6 +530,42 @@ serve(async (req) => {
       );
     }
 
+    // ──────────────────────────────────────────────────────────
+    // 4. Get League Settings
+    // ──────────────────────────────────────────────────────────
+    if (action === "getLeagueSettings") {
+      if (!leagueId) throw new Error("League ID is required");
+
+      const leagueKey = `${GAME_ID}.l.${leagueId}`;
+      const settingsData = await makeYahooRequest(accessToken, `/league/${leagueKey}/settings`);
+      
+      const league = settingsData?.fantasy_content?.league;
+      if (!league) throw new Error("League settings not found");
+
+      const settings = league.settings;
+      
+      // Extract enabled stat categories
+      const enabledStats = (settings?.stat_categories?.stats || [])
+        .filter((stat: any) => stat?.stat?.enabled === "1" && stat?.stat?.is_only_display_stat !== "1")
+        .map((stat: any) => ({
+          statId: stat.stat.stat_id,
+          name: stat.stat.name,
+          displayName: stat.stat.display_name,
+          abbr: stat.stat.abbr,
+        }));
+
+      return new Response(
+        JSON.stringify({
+          scoringType: league.scoring_type,
+          usesPlayoff: settings?.uses_playoff === "1",
+          numTeams: parseInt(league.num_teams) || 0,
+          maxWeeklyAdds: parseInt(settings?.max_weekly_adds) || 0,
+          enabledStatCategories: enabledStats,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+
     throw new Error(`Invalid action: ${action}`);
   } catch (error) {
     console.error("Error:", error);

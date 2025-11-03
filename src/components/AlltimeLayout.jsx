@@ -402,6 +402,26 @@ const AlltimeLayout = () => {
           >
             Rankings
           </MenuItem>
+                      {/* <MenuItem
+              onClick={() => handleMenuSelect('/chat')}
+              selected={location.pathname === '/chat'}
+              sx={{
+                py: 1.5,
+                px: 2,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.15)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                  },
+                },
+              }}
+            >
+              AI Assistant
+            </MenuItem> */}
           <MenuItem
             onClick={() => handleMenuSelect('/seasons')}
             selected={location.pathname === '/seasons' || location.pathname === '/table'}

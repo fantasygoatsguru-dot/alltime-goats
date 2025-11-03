@@ -36,6 +36,7 @@ const FantasyChat = () => {
   const [includeHistory, setIncludeHistory] = useState(true);
   const [error, setError] = useState(null);
   const [showContext, setShowContext] = useState(true);
+  const [leagueSettings, setLeagueSettings] = useState(null);
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -45,11 +46,13 @@ const FantasyChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Load chat history on mount
+  // Load chat history and league settings on mount
   useEffect(() => {
     if (user?.userId && selectedLeague) {
       loadChatHistory();
+      loadLeagueSettings();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.userId, selectedLeague]);
 
   const loadChatHistory = async () => {
@@ -79,6 +82,28 @@ const FantasyChat = () => {
     }
   };
 
+  const loadLeagueSettings = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("yahoo-fantasy-api", {
+        body: {
+          action: "getLeagueSettings",
+          userId: user.userId,
+          leagueId: selectedLeague,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setLeagueSettings(data);
+      }
+    } catch (err) {
+      console.error("Error loading league settings:", err);
+      // Don't block chat if settings fail to load
+      setLeagueSettings(null);
+    }
+  };
+
   const buildLeagueContext = () => {
     const userTeam = leagueTeams?.find((team) => team.is_owned_by_current_login);
     const otherTeams = leagueTeams?.filter((team) => !team.is_owned_by_current_login) || [];
@@ -97,6 +122,13 @@ const FantasyChat = () => {
         name: team.name,
         players: team.players?.map((p) => ({ name: p.name })) || [],
       })),
+      leagueSettings: leagueSettings ? {
+        scoringType: leagueSettings.scoringType,
+        usesPlayoff: leagueSettings.usesPlayoff,
+        numTeams: leagueSettings.numTeams,
+        maxWeeklyAdds: leagueSettings.maxWeeklyAdds,
+        enabledStatCategories: leagueSettings.enabledStatCategories || [],
+      } : undefined,
     };
   };
 
