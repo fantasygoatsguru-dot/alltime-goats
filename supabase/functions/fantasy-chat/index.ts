@@ -350,6 +350,34 @@ Respond in this EXACT JSON format:
       { user_id: userId, league_id: leagueId, message_role: "assistant", message_content: JSON.stringify(result) },
     ]);
 
+    // === Track Chat Usage ===
+    // Increment chat query count and update last query timestamp
+    const { data: existingUsage } = await supabaseClient
+      .from("user_usage")
+      .select("chat_queries_count")
+      .eq("user_id", userId)
+      .single();
+
+    if (existingUsage) {
+      // Update existing record
+      await supabaseClient
+        .from("user_usage")
+        .update({
+          chat_queries_count: (existingUsage.chat_queries_count || 0) + 1,
+          last_chat_query_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId);
+    } else {
+      // Insert new record
+      await supabaseClient
+        .from("user_usage")
+        .insert({
+          user_id: userId,
+          chat_queries_count: 1,
+          last_chat_query_at: new Date().toISOString(),
+        });
+    }
+
     return new Response(JSON.stringify({ success: true, data: result }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -75,10 +75,62 @@ const AlltimeLayout = () => {
   }, [user?.userId]);
 
   // Use profile data if available, otherwise fall back to OAuth data
-  0
   const displayName = userProfile?.name || user?.name || 'User';
   const displayEmail = userProfile?.email || user?.email || '';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
+
+  // Track website visit when user is authenticated
+  useEffect(() => {
+    const trackVisit = async () => {
+      if (!user?.userId || !isAuthenticated) return;
+
+      try {
+        // Check if user_usage record exists
+        const { data: existingUsage, error: fetchError } = await supabase
+          .from('user_usage')
+          .select('website_visits_count, last_visit_at')
+          .eq('user_id', user.userId)
+          .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+          console.error('Error fetching user usage:', fetchError);
+          return;
+        }
+
+        const now = new Date();
+        const lastVisit = existingUsage?.last_visit_at ? new Date(existingUsage.last_visit_at) : null;
+        
+        // Only count as a new visit if last visit was more than 30 minutes ago
+        const shouldCountVisit = !lastVisit || (now.getTime() - lastVisit.getTime()) > 10 * 60 * 1000;
+
+        if (!shouldCountVisit) return;
+
+        if (existingUsage) {
+          // Update existing record
+          await supabase
+            .from('user_usage')
+            .update({
+              website_visits_count: (existingUsage.website_visits_count || 0) + 1,
+              last_visit_at: now.toISOString(),
+            })
+            .eq('user_id', user.userId);
+        } else {
+          // Insert new record
+          await supabase
+            .from('user_usage')
+            .insert({
+              user_id: user.userId,
+              website_visits_count: 1,
+              last_visit_at: now.toISOString(),
+            });
+        }
+      } catch (err) {
+        console.error('Error tracking visit:', err);
+      }
+    };
+
+    trackVisit();
+  }, [user?.userId, isAuthenticated]);
 
   // Fetch user leagues if authenticated
   useEffect(() => {
