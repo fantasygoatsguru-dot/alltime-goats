@@ -97,14 +97,34 @@ serve(async (req) => {
         .eq("user_id", userId)
         .eq("league_id", leagueId)
         .order("created_at", { ascending: true })
-        .limit(8); // Last 4 exchanges
+        .limit(10); // Last 5 exchanges
 
-      if (data) {
-        historyMessages = data.map(m => ({
-          role: m.message_role as "user" | "assistant",
-          content: m.message_content,
-        }));
+      if (data && data.length > 0) {
+        historyMessages = data.map(m => {
+          let content = m.message_content;
+          // Parse assistant messages (stored as JSON) back to readable text
+          if (m.message_role === "assistant") {
+            try {
+              const parsed = JSON.parse(content);
+              // Extract the main response - include key player/team names for context
+              content = parsed.response || content;
+              // If the response mentions a player name, include it for better context
+              // This helps with pronoun resolution
+            } catch {
+              // If parsing fails, use the content as-is
+              content = m.message_content;
+            }
+          }
+          return {
+            role: m.message_role as "user" | "assistant",
+            content: content.trim(),
+          };
+        }).filter(m => m.content.length > 0); // Remove empty messages
+        
         console.log(`[HISTORY] Loaded ${historyMessages.length} messages`);
+        historyMessages.forEach((m, i) => {
+          console.log(`[HISTORY ${i}] ${m.role}: ${m.content.substring(0, 80)}...`);
+        });
       }
     }
 
@@ -122,12 +142,26 @@ serve(async (req) => {
       ? `Week ${leagueContext.currentMatchup.weekNumber} vs ${leagueContext.currentMatchup.opponent}`
       : "No matchup";
 
-    // === SYSTEM PROMPT: Strict, Contextual, JSON-Only ===
-    const systemPrompt = `You are a fantasy basketball expert AI. You have full context of the user's league.
+    // === SYSTEM PROMPT: Contextual, Conversation-Aware, JSON-Only ===
+    const historyNote = historyMessages.length > 0 
+      ? `\n\nCRITICAL: You will see conversation history below. When the user uses pronouns (his, her, him, them, it, that, this, their), they ALWAYS refer to the most recently mentioned entity in the conversation history.
+
+EXAMPLE:
+- User: "Who is the best player on my team?"
+- Assistant: "Donovan Mitchell is the best player..."
+- User: "what are his stats?" → "his" = Donovan Mitchell (from the previous assistant message)
+
+RULE: If you mentioned a player/team/entity in your previous response, and the user asks about "him", "his", "their", "that", etc., they're referring to what you just mentioned. NEVER ask for clarification - use the conversation history to identify the referent.` 
+      : "";
+
+    const systemPrompt = `You are a fantasy basketball expert AI assistant. You have access to the user's league data and the full conversation history.
+
+${historyNote}
 
 CRITICAL RULES:
-- NEVER refer to previous questions unless explicitly asked
-- Answer ONLY the current user question
+- When the user uses ANY pronoun (his, her, him, them, it, that, this, their, etc.), ALWAYS look at the conversation history to find what they're referring to
+- The MOST RECENT mention in the conversation (especially in YOUR previous response) is what pronouns refer to
+- Be conversational and natural while maintaining accuracy
 - Use the EXACT league data below
 - Respond ONLY in valid JSON
 - NO extra text, NO markdown
@@ -141,11 +175,9 @@ Stat Categories: ${statCategories}
 Opponent Rosters:
 ${opponentTeams}
 
-Question: "${userMessage}"
-
 Respond in this EXACT JSON format:
 {
-  "response": "Direct answer",
+  "response": "Direct answer that uses conversation context when needed",
   "suggestions": ["Action 1", "Action 2"],
   "reasoning": "Why this works",
   "stats": {}
@@ -159,6 +191,9 @@ Respond in this EXACT JSON format:
     ];
 
     console.log("[OPENAI] Sending:", messages.length, "messages");
+    if (historyMessages.length > 0) {
+      console.log("[OPENAI] History included:", historyMessages.map(m => `${m.role}: ${m.content.substring(0, 50)}...`).join(" | "));
+    }
 
     // === Call OpenAI ===
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
