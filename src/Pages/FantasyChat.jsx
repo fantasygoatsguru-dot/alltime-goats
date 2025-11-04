@@ -24,7 +24,7 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
-import { supabase } from "../utils/supabase";
+import { supabase, CURRENT_SEASON } from "../utils/supabase";
 
 const FantasyChat = () => {
   const { user } = useAuth();
@@ -37,6 +37,7 @@ const FantasyChat = () => {
   const [error, setError] = useState(null);
   const [showContext, setShowContext] = useState(true);
   const [leagueSettings, setLeagueSettings] = useState(null);
+  const [playerStats, setPlayerStats] = useState({}); // Map of nbaPlayerId -> stats
   
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
@@ -46,14 +47,15 @@ const FantasyChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Load chat history and league settings on mount
+  // Load chat history, league settings, and player stats on mount
   useEffect(() => {
     if (user?.userId && selectedLeague) {
       loadChatHistory();
       loadLeagueSettings();
+      loadPlayerStats();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.userId, selectedLeague]);
+  }, [user?.userId, selectedLeague, leagueTeams, userTeamPlayers]);
 
   const loadChatHistory = async () => {
     try {
@@ -104,25 +106,96 @@ const FantasyChat = () => {
     }
   };
 
+  const loadPlayerStats = async () => {
+    if (!leagueTeams || leagueTeams.length === 0) return;
+
+    try {
+      // Collect all NBA player IDs from all teams
+      const allPlayerIds = new Set();
+      
+      // Add user team players
+      userTeamPlayers.forEach((p) => {
+        if (p.nbaPlayerId) {
+          allPlayerIds.add(p.nbaPlayerId);
+        }
+      });
+
+      // Add other teams' players
+      leagueTeams.forEach((team) => {
+        if (team.players) {
+          team.players.forEach((p) => {
+            if (p.nbaPlayerId) {
+              allPlayerIds.add(p.nbaPlayerId);
+            }
+          });
+        }
+      });
+
+      const playerIdArray = Array.from(allPlayerIds);
+      if (playerIdArray.length === 0) {
+        setPlayerStats({});
+        return;
+      }
+
+      // Fetch stats from Supabase
+      const { data, error } = await supabase
+        .from("player_season_averages")
+        .select("*")
+        .eq("season", CURRENT_SEASON)
+        .in("player_id", playerIdArray);
+
+      if (error) throw error;
+
+      // Create a map of player_id -> stats
+      const statsMap = {};
+      if (data) {
+        data.forEach((row) => {
+          statsMap[row.player_id] = {
+            points: row.points_per_game || 0,
+            rebounds: row.rebounds_per_game || 0,
+            assists: row.assists_per_game || 0,
+            steals: row.steals_per_game || 0,
+            blocks: row.blocks_per_game || 0,
+            threePointers: row.three_pointers_per_game || 0,
+            fieldGoalPercentage: row.field_goal_percentage || 0,
+            freeThrowPercentage: row.free_throw_percentage || 0,
+            turnovers: row.turnovers_per_game || 0,
+          };
+        });
+      }
+
+      setPlayerStats(statsMap);
+    } catch (err) {
+      console.error("Error loading player stats:", err);
+      // Don't block chat if stats fail to load
+      setPlayerStats({});
+    }
+  };
+
   const buildLeagueContext = () => {
     const userTeam = leagueTeams?.find((team) => team.is_owned_by_current_login);
     const otherTeams = leagueTeams?.filter((team) => !team.is_owned_by_current_login) || [];
 
     return {
       leagueId: selectedLeague,
-      leagueName: leagueTeams?.[0]?.league_name || "Your League",
+      leagueName: leagueSettings?.leagueName || "Your League",
       userTeam: {
         name: userTeam?.name || "Your Team",
         managerNickname: userTeam?.managerNickname || null,
         players: userTeamPlayers.map((p) => ({
           name: p.name,
           nbaPlayerId: p.nbaPlayerId,
+          stats: p.nbaPlayerId ? playerStats[p.nbaPlayerId] || null : null,
         })),
       },
       otherTeams: otherTeams.map((team) => ({
         name: team.name,
         managerNickname: team.managerNickname || null,
-        players: team.players?.map((p) => ({ name: p.name })) || [],
+        players: team.players?.map((p) => ({
+          name: p.name,
+          nbaPlayerId: p.nbaPlayerId,
+          stats: p.nbaPlayerId ? playerStats[p.nbaPlayerId] || null : null,
+        })) || [],
       })),
       leagueSettings: leagueSettings ? {
         scoringType: leagueSettings.scoringType,
@@ -306,28 +379,6 @@ const FantasyChat = () => {
               sx={{ bgcolor: "rgba(0, 0, 0, 0.05)", color: "#424242" }}
             />
           </Box>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={includeHistory}
-                onChange={(e) => setIncludeHistory(e.target.checked)}
-                size="small"
-                sx={{
-                  "& .MuiSwitch-switchBase.Mui-checked": {
-                    color: "#1976d2",
-                  },
-                  "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                    backgroundColor: "#1976d2",
-                  },
-                }}
-              />
-            }
-            label={
-              <Typography variant="caption" sx={{ color: "#424242" }}>
-                Include chat history in context
-              </Typography>
-            }
-          />
         </Paper>
       )}
 

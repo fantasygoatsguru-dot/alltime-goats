@@ -561,6 +561,7 @@ serve(async (req) => {
         JSON.stringify({
           scoringType: league.scoring_type,
           usesPlayoff: settings?.uses_playoff === "1",
+          leagueName: league.name,
           numTeams: parseInt(league.num_teams) || 0,
           maxWeeklyAdds: parseInt(settings?.max_weekly_adds) || 0,
           enabledStatCategories: enabledStats,

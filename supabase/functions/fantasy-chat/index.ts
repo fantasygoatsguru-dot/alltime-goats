@@ -15,18 +15,38 @@ interface ChatMessage {
   content: string;
 }
 
+interface PlayerStats {
+  points: number;
+  rebounds: number;
+  assists: number;
+  steals: number;
+  blocks: number;
+  threePointers: number;
+  fieldGoalPercentage: number;
+  freeThrowPercentage: number;
+  turnovers: number;
+}
+
 interface LeagueContext {
   leagueId: string;
   leagueName: string;
   userTeam: {
     name: string;
     managerNickname?: string | null;
-    players: Array<{ name: string; stats?: any }>;
+    players: Array<{ 
+      name: string; 
+      nbaPlayerId?: number | null;
+      stats?: PlayerStats | null;
+    }>;
   };
   otherTeams: Array<{
     name: string;
     managerNickname?: string | null;
-    players: Array<{ name: string }>;
+    players: Array<{ 
+      name: string; 
+      nbaPlayerId?: number | null;
+      stats?: PlayerStats | null;
+    }>;
   }>;
   currentMatchup?: { opponent: string; weekNumber: number };
   leagueSettings?: {
@@ -131,14 +151,22 @@ serve(async (req) => {
     }
 
     // === Build FULL League Context ===
-    const userPlayers = leagueContext.userTeam.players.map(p => p.name).join(", ");
+    const formatPlayerWithStats = (p: { name: string; stats?: PlayerStats | null }) => {
+      if (p.stats) {
+        return `${p.name} (${p.stats.points.toFixed(1)} PTS, ${p.stats.rebounds.toFixed(1)} REB, ${p.stats.assists.toFixed(1)} AST, ${p.stats.steals.toFixed(1)} STL, ${p.stats.blocks.toFixed(1)} BLK)`;
+      }
+      return p.name;
+    };
+
+    const userPlayers = leagueContext.userTeam.players.map(formatPlayerWithStats).join(", ");
     const userTeamManager = leagueContext.userTeam.managerNickname 
       ? ` (Manager: ${leagueContext.userTeam.managerNickname})` 
       : "";
     const opponentTeams = leagueContext.otherTeams
       .map(t => {
         const manager = t.managerNickname ? ` (Manager: ${t.managerNickname})` : "";
-        return `${t.name}${manager}: ${t.players.map(p => p.name).join(", ")}`;
+        const playersList = t.players.map(formatPlayerWithStats).join(", ");
+        return `${t.name}${manager}: ${playersList}`;
       })
       .join("\n");
 
@@ -162,6 +190,10 @@ EXAMPLE:
 RULE: If you mentioned a player/team/entity in your previous response, and the user asks about "him", "his", "their", "that", etc., they're referring to what you just mentioned. NEVER ask for clarification - use the conversation history to identify the referent.` 
       : "";
 
+    // Build list of user's current players for exclusion
+    const userPlayerNames = new Set(leagueContext.userTeam.players.map(p => p.name.toLowerCase()));
+    const userPlayerList = leagueContext.userTeam.players.map(p => p.name).join(", ");
+
     const systemPrompt = `You are a fantasy basketball expert AI assistant. You have access to the user's league data and the full conversation history.
 
 ${historyNote}
@@ -169,6 +201,24 @@ ${historyNote}
 CRITICAL RULES:
 - When the user uses ANY pronoun (his, her, him, them, it, that, this, their, etc.), ALWAYS look at the conversation history to find what they're referring to
 - The MOST RECENT mention in the conversation (especially in YOUR previous response) is what pronouns refer to
+
+TRADE TARGET RULES (CRITICAL):
+- When the user asks about "trade targets", "players to target", "who should I trade for", etc., you MUST ONLY suggest players from OTHER TEAMS (Opponent Rosters section below)
+- NEVER suggest players that the user already owns (Your Players section below)
+- The user's current players are: ${userPlayerList}
+- If a player is in "Your Players", they CANNOT be a trade target - they are already on the user's team
+- Trade targets must ONLY come from the "Opponent Rosters" section
+- Always check if a player is already on the user's team before suggesting them as a trade target
+
+NUMERICAL JUSTIFICATION RULES (CRITICAL):
+- ALWAYS include numerical data and statistics when making recommendations or justifying answers
+- When suggesting players, include their key stats (points, rebounds, assists, steals, blocks, percentages)
+- When comparing players, provide specific numbers showing why one is better than another
+- When recommending strategies, use numerical analysis (e.g., "Player X averages 25.3 PTS vs your team average of 20.1 PTS")
+- Include percentages, averages, totals, or any relevant metrics that support your recommendations
+- Use the player stats provided in the context to make data-driven recommendations
+- Never make vague claims - always back them up with specific numbers from the available data
+
 - Be conversational and natural while maintaining accuracy
 - Use the EXACT league data below
 - Respond ONLY in valid JSON
@@ -176,19 +226,23 @@ CRITICAL RULES:
 
 League: ${leagueContext.leagueName}
 Your Team: ${leagueContext.userTeam.name}${userTeamManager}
-Your Players: ${userPlayers}
+Your Players (YOU ALREADY OWN THESE - DO NOT SUGGEST THEM AS TRADE TARGETS): ${userPlayers}
 Current Matchup: ${matchup}
 Stat Categories: ${statCategories}
 
-Opponent Rosters:
+Opponent Rosters (THESE ARE TRADE TARGETS - ONLY SUGGEST PLAYERS FROM HERE):
 ${opponentTeams}
 
 Respond in this EXACT JSON format:
 {
-  "response": "Direct answer that uses conversation context when needed",
-  "suggestions": ["Action 1", "Action 2"],
-  "reasoning": "Why this works",
-  "stats": {}
+  "response": "Direct answer with numerical justifications (include stats, averages, percentages, etc.)",
+  "suggestions": ["Action 1 with numbers", "Action 2 with numbers"],
+  "reasoning": "Why this works - include specific stats and numerical comparisons",
+  "stats": {
+    "comparisons": {},
+    "averages": {},
+    "percentages": {}
+  }
 }`;
 
     // === Build Message Chain ===
