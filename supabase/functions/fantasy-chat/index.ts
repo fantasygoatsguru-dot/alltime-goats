@@ -20,10 +20,12 @@ interface LeagueContext {
   leagueName: string;
   userTeam: {
     name: string;
+    managerNickname?: string | null;
     players: Array<{ name: string; stats?: any }>;
   };
   otherTeams: Array<{
     name: string;
+    managerNickname?: string | null;
     players: Array<{ name: string }>;
   }>;
   currentMatchup?: { opponent: string; weekNumber: number };
@@ -130,8 +132,14 @@ serve(async (req) => {
 
     // === Build FULL League Context ===
     const userPlayers = leagueContext.userTeam.players.map(p => p.name).join(", ");
+    const userTeamManager = leagueContext.userTeam.managerNickname 
+      ? ` (Manager: ${leagueContext.userTeam.managerNickname})` 
+      : "";
     const opponentTeams = leagueContext.otherTeams
-      .map(t => `${t.name}: ${t.players.map(p => p.name).join(", ")}`)
+      .map(t => {
+        const manager = t.managerNickname ? ` (Manager: ${t.managerNickname})` : "";
+        return `${t.name}${manager}: ${t.players.map(p => p.name).join(", ")}`;
+      })
       .join("\n");
 
     const statCategories = leagueContext.leagueSettings?.enabledStatCategories
@@ -167,7 +175,7 @@ CRITICAL RULES:
 - NO extra text, NO markdown
 
 League: ${leagueContext.leagueName}
-Your Team: ${leagueContext.userTeam.name}
+Your Team: ${leagueContext.userTeam.name}${userTeamManager}
 Your Players: ${userPlayers}
 Current Matchup: ${matchup}
 Stat Categories: ${statCategories}

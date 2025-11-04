@@ -113,6 +113,7 @@ const FantasyChat = () => {
       leagueName: leagueTeams?.[0]?.league_name || "Your League",
       userTeam: {
         name: userTeam?.name || "Your Team",
+        managerNickname: userTeam?.managerNickname || null,
         players: userTeamPlayers.map((p) => ({
           name: p.name,
           nbaPlayerId: p.nbaPlayerId,
@@ -120,6 +121,7 @@ const FantasyChat = () => {
       },
       otherTeams: otherTeams.map((team) => ({
         name: team.name,
+        managerNickname: team.managerNickname || null,
         players: team.players?.map((p) => ({ name: p.name })) || [],
       })),
       leagueSettings: leagueSettings ? {

@@ -41,6 +41,7 @@ interface YahooTeamDTO {
   key: string;
   name: string;
   logo: string | null;
+  managerNickname: string | null;
   players: YahooPlayerDTO[];
   is_owned_by_current_login?: boolean; // Added in response
 }
@@ -500,6 +501,7 @@ serve(async (req) => {
             key: team.team_key,
             name: team.name,
             logo: team.team_logos?.team_logo?.url || null,
+            managerNickname: team.managers?.[0]?.manager?.nickname || null,
             players,
             is_owned_by_current_login: team.is_owned_by_current_login === 1,
           };
@@ -516,6 +518,7 @@ serve(async (req) => {
           key: userTeam.team.team_key,
           name: userTeam.team.name,
           logo: userTeam.team.team_logos?.team_logo?.url || null,
+          managerNickname: userTeam.team.managers?.[0]?.manager?.nickname || null,
           players: userPlayers,
           is_owned_by_current_login: true,
         });
