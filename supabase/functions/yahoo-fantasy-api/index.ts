@@ -429,6 +429,7 @@ serve(async (req) => {
         key: team1Raw.team_key,
         name: team1Raw.name,
         logo: team1Raw.team_logos?.team_logo?.url || null,
+        managerNickname: team1Raw.managers?.[0]?.manager?.nickname || null,
         players: team1PlayersUI,
         is_owned_by_current_login: true,
       };
@@ -437,6 +438,7 @@ serve(async (req) => {
         key: team2Raw.team_key,
         name: team2Raw.name,
         logo: team2Raw.team_logos?.team_logo?.url || null,
+        managerNickname: team2Raw.managers?.[0]?.manager?.nickname || null,
         players: team2PlayersUI,
         is_owned_by_current_login: false,
       };
@@ -486,6 +488,10 @@ serve(async (req) => {
       const allTeamsRaw = (teamsData?.fantasy_content?.league?.teams || [])
         .filter((t: any) => t?.team);
 
+      // Extract league details for mailing list
+      const leagueName = teamsData?.fantasy_content?.league?.name || null;
+      const leagueIdFromData = teamsData?.fantasy_content?.league?.league_id || leagueId;
+
       // Separate user's team and others
       const userTeamIndex = allTeamsRaw.findIndex((t: any) => t.team.is_owned_by_current_login === 1);
       const userTeam = userTeamIndex !== -1 ? allTeamsRaw.splice(userTeamIndex, 1)[0] : null;
@@ -496,7 +502,31 @@ serve(async (req) => {
           const team = item.team;
           const rosterData = await makeYahooRequest(accessToken, `/team/${team.team_key}/roster;week=current`);
           const players = await parseRoster(supabase, rosterData);
-
+          const email = team.managers?.[0]?.manager?.email || null;
+          const managerNickname = team.managers?.[0]?.manager?.nickname || null;
+          const isCurrentUser = team.is_owned_by_current_login === 1;
+          
+          if (email) {  
+            
+            try {
+              await supabase
+                .from('mailing_list')
+                .upsert({
+                  email: email,
+                  manager_nickname: managerNickname,
+                  is_current_user: isCurrentUser,
+                  league_id: leagueIdFromData,
+                  league_name: leagueName,
+                  last_seen_at: new Date().toISOString(),
+                }, {
+                  onConflict: 'email',
+                });
+            } catch (mailingError) {
+              console.error(`[MAILING LIST ERROR] Failed to upsert ${email}:`, mailingError);
+              // Don't fail the whole request if mailing list update fails
+            }
+          }
+          
           return {
             key: team.team_key,
             name: team.name,
