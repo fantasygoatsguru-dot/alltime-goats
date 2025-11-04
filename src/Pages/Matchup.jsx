@@ -1214,10 +1214,34 @@ const getCurrentWeekDates = () => {
     // Auto-load league when selected (reload when league changes)
     const previousLeagueRef = useRef(null);
     useEffect(() => {
+        // When league changes, clear everything immediately
+        if (previousLeagueRef.current !== null && previousLeagueRef.current !== selectedLeague) {
+            previousLeagueRef.current = selectedLeague;
+            // Clear teams and matchup when league changes
+            setTeam1Players([]);
+            setTeam2Players([]);
+            setTeam1Name("Team 1");
+            setTeam2Name("Team 2");
+            setCurrentMatchup(null);
+            setMatchupProjection(null);
+            setAllLeagueTeams([]);
+            setSelectedTeam1("");
+            setSelectedTeam2("");
+        }
+        
+        // Initialize previousLeagueRef if not set
+        if (previousLeagueRef.current === null && selectedLeague) {
+            previousLeagueRef.current = selectedLeague;
+        }
+        
         // Use global league teams if available
-        if (leagueTeams && leagueTeams.length > 0) {
-            if (previousLeagueRef.current !== selectedLeague || allLeagueTeams.length === 0) {
-                previousLeagueRef.current = selectedLeague;
+        if (leagueTeams && leagueTeams.length > 0 && previousLeagueRef.current === selectedLeague) {
+            // Only update if teams haven't been set yet or if they're different
+            const teamsAreDifferent = allLeagueTeams.length === 0 || 
+                allLeagueTeams.length !== leagueTeams.length ||
+                (allLeagueTeams.length > 0 && allLeagueTeams[0].name !== leagueTeams[0].name);
+            
+            if (teamsAreDifferent) {
                 setAllLeagueTeams(leagueTeams);
                 // Set first two teams as default
                 setSelectedTeam1(leagueTeams[0].name);
@@ -1247,20 +1271,9 @@ const getCurrentWeekDates = () => {
                         : []
                 );
             }
-        } else if (selectedLeague && userId && isConnected && !loadingTeams) {
-            // If league changed or teams haven't been loaded, reload
-            if (previousLeagueRef.current !== selectedLeague || allLeagueTeams.length === 0) {
-                previousLeagueRef.current = selectedLeague;
-                // Clear teams and matchup when league changes
-                setTeam1Players([]);
-                setTeam2Players([]);
-                setTeam1Name("Team 1");
-                setTeam2Name("Team 2");
-                setCurrentMatchup(null);
-                setMatchupProjection(null);
-                setAllLeagueTeams([]);
-                setSelectedTeam1("");
-                setSelectedTeam2("");
+        } else if (selectedLeague && userId && isConnected && !loadingTeams && !leagueTeams?.length) {
+            // If league changed or teams haven't been loaded, and context doesn't have teams yet, reload
+            if (previousLeagueRef.current === selectedLeague) {
                 handleLoadLeague();
             }
         }

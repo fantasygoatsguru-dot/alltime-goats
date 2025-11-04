@@ -402,7 +402,7 @@ const AlltimeLayout = () => {
           >
             Rankings
           </MenuItem>
-                      {/* <MenuItem
+                      <MenuItem
               onClick={() => handleMenuSelect('/chat')}
               selected={location.pathname === '/chat'}
               sx={{
@@ -421,7 +421,7 @@ const AlltimeLayout = () => {
               }}
             >
               AI Assistant
-            </MenuItem> */}
+            </MenuItem>
           <MenuItem
             onClick={() => handleMenuSelect('/seasons')}
             selected={location.pathname === '/seasons' || location.pathname === '/table'}
@@ -492,7 +492,12 @@ const AlltimeLayout = () => {
               <Select
                 labelId="league-select-label"
                 value={selectedLeague}
-                onChange={(e) => setSelectedLeague(e.target.value)}
+                onChange={(e) => {
+                  const newLeagueId = e.target.value;
+                  setSelectedLeague(newLeagueId);
+                  // Clear league teams immediately when switching leagues
+                  setLeagueTeams([]);
+                }}
                 label="League"
                 displayEmpty
                 MenuProps={{
