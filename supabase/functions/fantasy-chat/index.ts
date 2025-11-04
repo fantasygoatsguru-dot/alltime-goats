@@ -25,6 +25,17 @@ interface PlayerStats {
   fieldGoalPercentage: number;
   freeThrowPercentage: number;
   turnovers: number;
+  // Z-scores (standard deviations from mean)
+  pointsZ?: number;
+  reboundsZ?: number;
+  assistsZ?: number;
+  stealsZ?: number;
+  blocksZ?: number;
+  threePointersZ?: number;
+  fgPercentageZ?: number;
+  ftPercentageZ?: number;
+  turnoversZ?: number;
+  totalValue?: number; // Overall fantasy value score
 }
 
 interface LeagueContext {
@@ -153,7 +164,26 @@ serve(async (req) => {
     // === Build FULL League Context ===
     const formatPlayerWithStats = (p: { name: string; stats?: PlayerStats | null }) => {
       if (p.stats) {
-        return `${p.name} (${p.stats.points.toFixed(1)} PTS, ${p.stats.rebounds.toFixed(1)} REB, ${p.stats.assists.toFixed(1)} AST, ${p.stats.steals.toFixed(1)} STL, ${p.stats.blocks.toFixed(1)} BLK)`;
+        const basicStats = `${p.stats.points.toFixed(1)} PTS, ${p.stats.rebounds.toFixed(1)} REB, ${p.stats.assists.toFixed(1)} AST, ${p.stats.steals.toFixed(1)} STL, ${p.stats.blocks.toFixed(1)} BLK`;
+        
+        // Include z-scores and total value if available
+        if (p.stats.totalValue !== undefined && p.stats.totalValue !== null) {
+          const zScores: string[] = [];
+          if (p.stats.pointsZ !== undefined && p.stats.pointsZ !== null) zScores.push(`PTS z:${p.stats.pointsZ.toFixed(2)}`);
+          if (p.stats.reboundsZ !== undefined && p.stats.reboundsZ !== null) zScores.push(`REB z:${p.stats.reboundsZ.toFixed(2)}`);
+          if (p.stats.assistsZ !== undefined && p.stats.assistsZ !== null) zScores.push(`AST z:${p.stats.assistsZ.toFixed(2)}`);
+          if (p.stats.stealsZ !== undefined && p.stats.stealsZ !== null) zScores.push(`STL z:${p.stats.stealsZ.toFixed(2)}`);
+          if (p.stats.blocksZ !== undefined && p.stats.blocksZ !== null) zScores.push(`BLK z:${p.stats.blocksZ.toFixed(2)}`);
+          if (p.stats.threePointersZ !== undefined && p.stats.threePointersZ !== null) zScores.push(`3PT z:${p.stats.threePointersZ.toFixed(2)}`);
+          if (p.stats.fgPercentageZ !== undefined && p.stats.fgPercentageZ !== null) zScores.push(`FG% z:${p.stats.fgPercentageZ.toFixed(2)}`);
+          if (p.stats.ftPercentageZ !== undefined && p.stats.ftPercentageZ !== null) zScores.push(`FT% z:${p.stats.ftPercentageZ.toFixed(2)}`);
+          if (p.stats.turnoversZ !== undefined && p.stats.turnoversZ !== null) zScores.push(`TO z:${p.stats.turnoversZ.toFixed(2)}`);
+          
+          const zScoreStr = zScores.length > 0 ? ` [${zScores.join(', ')}]` : '';
+          return `${p.name} (${basicStats}, Total Value: ${p.stats.totalValue.toFixed(2)}${zScoreStr})`;
+        }
+        
+        return `${p.name} (${basicStats})`;
       }
       return p.name;
     };
@@ -219,6 +249,20 @@ NUMERICAL JUSTIFICATION RULES (CRITICAL):
 - Use the player stats provided in the context to make data-driven recommendations
 - Never make vague claims - always back them up with specific numbers from the available data
 
+Z-SCORE AND TOTAL VALUE ANALYSIS (CRITICAL):
+- Each player has z-scores (standard deviations from mean) for each stat category - these show how exceptional a player is in each category
+- A positive z-score means the player is above average, negative means below average
+- Example: points_z of 2.0 means the player scores 2 standard deviations above the mean (exceptional scorer)
+- Each player also has a total_value score - this is their overall fantasy value across all categories
+- When recommending players for trades, streaming, or punting strategies:
+  - PRIORITIZE players with HIGH total_value scores - these are the most valuable overall
+  - For PUNTING strategies: Look for players with HIGH z-scores in categories you're keeping, and LOW/NEGATIVE z-scores in categories you're punting. Mention values in the punting category in you response.
+  - Example: If punting assists, target players with high points_z, rebounds_z, steals_z, blocks_z but low/negative assists_z
+  - When comparing players, use total_value as the primary metric, then examine specific z-scores for category-specific needs
+  - Players with high total_value but low z-scores in specific categories may be perfect for punting strategies
+- ALWAYS mention z-scores and total_value when making player recommendations
+- Example: "Player X has a total_value of 5.02 with excellent blocks_z (8.07) and rebounds_z (3.52), with a low assists_z (-0.52), making them ideal for a punt assists build"
+- When user asks for team analysis, ensure to take into account all the players in the user's team, and it's z-scores. Be sure to mention explicit players and total values. When comparing to an opponent team mention the opponent team's numbers as well.
 - Be conversational and natural while maintaining accuracy
 - Use the EXACT league data below
 - Respond ONLY in valid JSON

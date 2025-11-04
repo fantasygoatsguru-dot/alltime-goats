@@ -160,6 +160,17 @@ const FantasyChat = () => {
             fieldGoalPercentage: row.field_goal_percentage || 0,
             freeThrowPercentage: row.free_throw_percentage || 0,
             turnovers: row.turnovers_per_game || 0,
+            // Z-scores
+            pointsZ: row.points_z || 0,
+            reboundsZ: row.rebounds_z || 0,
+            assistsZ: row.assists_z || 0,
+            stealsZ: row.steals_z || 0,
+            blocksZ: row.blocks_z || 0,
+            threePointersZ: row.three_pointers_z || 0,
+            fgPercentageZ: row.fg_percentage_z || 0,
+            ftPercentageZ: row.ft_percentage_z || 0,
+            turnoversZ: row.turnovers_z || 0,
+            totalValue: row.total_value || 0,
           };
         });
       }
