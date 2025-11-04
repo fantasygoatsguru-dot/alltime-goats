@@ -621,11 +621,13 @@ serve(async (req) => {
 
   try {
     console.log('=== Weekly Matchup Projection ===');
-    const { data: profiles } = await supabase
-      .from('user_profiles')
-      .select('user_id, name, email')
-      .eq('send_weekly_projections', true);
-
+    const { data: profiles, error } = await supabase
+    .from('user_profiles')
+    .select('user_id, name, email')
+    .eq('send_weekly_projections', true)
+    .not('email', 'ilike', '%yahoo%');
+  
+    if (error) { console.error('Error fetching profiles:', error); return new Response(JSON.stringify({ error: error.message }), { headers: corsHeaders, status: 500 }); }
     if (!profiles?.length) return new Response(JSON.stringify({ message: 'No users' }), { headers: corsHeaders });
 
     // Rate limiting: track email send timestamps (max 2 per second)
