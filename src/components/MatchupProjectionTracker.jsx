@@ -467,8 +467,86 @@ const MatchupProjectionTracker = ({
                                     isLoss = team2TotalNumeric > team1TotalNumeric;
                                 }
                                 
-                                const bgColor = isWin ? 'rgba(76, 175, 80, 0.1)' : isLoss ? 'rgba(244, 67, 54, 0.1)' : 'rgba(158, 158, 158, 0.05)';
-                                const textColor = isWin ? 'rgba(76, 175, 80, 0.9)' : isLoss ? 'rgba(244, 67, 54, 0.9)' : 'rgba(158, 158, 158, 0.8)';
+                                // Calculate margin intensity (0-1) based on how close the category is
+                                let marginIntensity = 0;
+                                if (isWin || isLoss) {
+                                    const diff = Math.abs(team1TotalNumeric - team2TotalNumeric);
+                                    const average = (team1TotalNumeric + team2TotalNumeric) / 2;
+                                    
+                                    if (average > 0) {
+                                        // For percentages and large numbers, use percentage difference
+                                        if (isPct || average > 10) {
+                                            // Calculate percentage difference
+                                            marginIntensity = Math.min(diff / Math.max(average, 0.1), 1);
+                                        } else {
+                                            // For small numbers, use absolute difference normalized
+                                            // Scale based on typical ranges for each category
+                                            const typicalRange = {
+                                                points: 100,
+                                                rebounds: 50,
+                                                assists: 30,
+                                                steals: 10,
+                                                blocks: 10,
+                                                threePointers: 20,
+                                                turnovers: 10
+                                            };
+                                            const range = typicalRange[catKey] || 50;
+                                            marginIntensity = Math.min(diff / range, 1);
+                                        }
+                                    }
+                                    
+                                    // Normalize intensity: map to 0.3-1.0 range for better visual distinction
+                                    // Close categories (0-20% diff) -> 0.3 intensity
+                                    // Moderate categories (20-50% diff) -> 0.5-0.7 intensity  
+                                    // Blowouts (50%+ diff) -> 0.8-1.0 intensity
+                                    if (marginIntensity < 0.2) {
+                                        marginIntensity = 0.3; // Close categories
+                                    } else if (marginIntensity < 0.5) {
+                                        marginIntensity = 0.3 + (marginIntensity - 0.2) / 0.3 * 0.3; // 0.3 to 0.6
+                                    } else {
+                                        marginIntensity = 0.6 + (marginIntensity - 0.5) / 0.5 * 0.4; // 0.6 to 1.0
+                                    }
+                                }
+                                
+                                // Calculate color intensity: use different shades based on margin
+                                // Close categories: lighter colors, Blowouts: darker/more saturated colors
+                                let bgColor, textColor;
+                                
+                                if (isWin) {
+                                    // Green shades: light green for close, dark green for blowouts
+                                    if (marginIntensity < 0.4) {
+                                        // Close win: light green
+                                        bgColor = 'rgba(200, 230, 201, 0.3)';
+                                        textColor = 'rgba(76, 175, 80, 0.8)';
+                                    } else if (marginIntensity < 0.7) {
+                                        // Moderate win: medium green
+                                        bgColor = 'rgba(129, 199, 132, 0.4)';
+                                        textColor = 'rgba(56, 142, 60, 1)';
+                                    } else {
+                                        // Blowout: dark green
+                                        bgColor = 'rgba(76, 175, 80, 0.5)';
+                                        textColor = 'rgba(27, 94, 32, 1)';
+                                    }
+                                } else if (isLoss) {
+                                    // Red shades: light red for close, dark red for blowouts
+                                    if (marginIntensity < 0.4) {
+                                        // Close loss: light red
+                                        bgColor = 'rgba(255, 205, 210, 0.3)';
+                                        textColor = 'rgba(244, 67, 54, 0.8)';
+                                    } else if (marginIntensity < 0.7) {
+                                        // Moderate loss: medium red
+                                        bgColor = 'rgba(239, 154, 154, 0.4)';
+                                        textColor = 'rgba(211, 47, 47, 1)';
+                                    } else {
+                                        // Blowout: dark red
+                                        bgColor = 'rgba(244, 67, 54, 0.5)';
+                                        textColor = 'rgba(183, 28, 28, 1)';
+                                    }
+                                } else {
+                                    // Tie: gray
+                                    bgColor = 'rgba(158, 158, 158, 0.05)';
+                                    textColor = 'rgba(158, 158, 158, 0.8)';
+                                }
                                 
                                 // Use Yahoo stats if available, otherwise fall back to calculated
                                 let team1CurrentValue, team2CurrentValue;
@@ -518,13 +596,35 @@ const MatchupProjectionTracker = ({
                                     team2TotalDisplay = team2TotalNumeric.toFixed(1);
                                 }
                                 
+                                // Calculate hover color with slightly increased intensity
+                                let hoverBgColor;
+                                if (isWin) {
+                                    if (marginIntensity < 0.4) {
+                                        hoverBgColor = 'rgba(129, 199, 132, 0.4)';
+                                    } else if (marginIntensity < 0.7) {
+                                        hoverBgColor = 'rgba(76, 175, 80, 0.5)';
+                                    } else {
+                                        hoverBgColor = 'rgba(56, 142, 60, 0.6)';
+                                    }
+                                } else if (isLoss) {
+                                    if (marginIntensity < 0.4) {
+                                        hoverBgColor = 'rgba(239, 154, 154, 0.4)';
+                                    } else if (marginIntensity < 0.7) {
+                                        hoverBgColor = 'rgba(244, 67, 54, 0.5)';
+                                    } else {
+                                        hoverBgColor = 'rgba(211, 47, 47, 0.6)';
+                                    }
+                                } else {
+                                    hoverBgColor = 'rgba(158, 158, 158, 0.1)';
+                                }
+                                
                                 return (
                                     <React.Fragment key={catKey}>
                                         <TableRow 
                                             sx={{ 
                                                 bgcolor: bgColor,
                                                 cursor: 'pointer',
-                                                '&:hover': { bgcolor: isWin ? 'rgba(76, 175, 80, 0.15)' : isLoss ? 'rgba(244, 67, 54, 0.15)' : 'rgba(158, 158, 158, 0.1)' }
+                                                '&:hover': { bgcolor: hoverBgColor }
                                             }}
                                             onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                                         >

@@ -292,10 +292,15 @@ const AlltimeLayout = () => {
   };
 
   const renderContent = () => {
+    debugger
     switch (location.pathname) {
+      case '/':
+        return <Matchup />;
       case '/seasons':
       case '/table':
         return <AlltimeTable />;
+      case '/teams':
+        return <Alltime />;
       case '/games':
         return <AlltimeGames />;
       case '/matchup':
@@ -309,12 +314,13 @@ const AlltimeLayout = () => {
       case '/profile':
         return <UserProfile />;
       default:
-        return <Alltime />;
+        return <Matchup />;
     }
   };
 
   const isSpecialPage =
     location.pathname === '/matchup' ||
+    location.pathname === '/' ||
     location.pathname === '/league' ||
     location.pathname === '/rankings' ||
     location.pathname === '/chat' ||
@@ -424,7 +430,7 @@ const AlltimeLayout = () => {
         >
           <MenuItem
             onClick={() => handleMenuSelect('/matchup')}
-            selected={location.pathname === '/matchup'}
+            selected={location.pathname === '/matchup' || location.pathname === '/'}
             sx={{
               py: 1.5,
               px: 2,

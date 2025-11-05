@@ -59,7 +59,7 @@ const App = () => {
         <DatabaseLoader>
           <Box sx={{ flexGrow: 1 }}>
             <Routes>
-              <Route path="/" element={<Navigate to="/matchup" replace />} /> {/* Default to /matchup */}
+              <Route path="/" element={<AlltimeLayout />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/about" element={<AlltimeLayout />} />
               <Route path="/profile" element={<AlltimeLayout />} />
