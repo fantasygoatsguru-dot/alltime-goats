@@ -291,8 +291,8 @@ serve(async (req) => {
       // 1. Fetch rosters (contains raw FG/FT per player)
       // ──────────────────────────────────────────────────────
       const [team1RosterResp, team2RosterResp] = await Promise.all([
-        makeYahooRequest(accessToken, `/team/${team1Raw.team_key}/roster;week=current`),
-        makeYahooRequest(accessToken, `/team/${team2Raw.team_key}/roster;week=current`),
+        makeYahooRequest(accessToken, `/team/${team1Raw.team_key}/roster`),
+        makeYahooRequest(accessToken, `/team/${team2Raw.team_key}/roster`),
       ]);
 
       // ──────────────────────────────────────────────────────
@@ -500,7 +500,7 @@ serve(async (req) => {
       const teamsWithRosters = await Promise.all(
         allTeamsRaw.map(async (item: any): Promise<YahooTeamDTO> => {
           const team = item.team;
-          const rosterData = await makeYahooRequest(accessToken, `/team/${team.team_key}/roster;week=current`);
+          const rosterData = await makeYahooRequest(accessToken, `/team/${team.team_key}/roster`);
           const players = await parseRoster(supabase, rosterData);
           const email = team.managers?.[0]?.manager?.email || null;
           const managerNickname = team.managers?.[0]?.manager?.nickname || null;
@@ -542,7 +542,7 @@ serve(async (req) => {
       const teams: YahooTeamDTO[] = [];
 
       if (userTeam) {
-        const userRosterData = await makeYahooRequest(accessToken, `/team/${userTeam.team.team_key}/roster;week=current`);
+        const userRosterData = await makeYahooRequest(accessToken, `/team/${userTeam.team.team_key}/roster`);
         const userPlayers = await parseRoster(supabase, userRosterData);
         teams.push({
           key: userTeam.team.team_key,
@@ -574,8 +574,11 @@ serve(async (req) => {
       
       const league = settingsData?.fantasy_content?.league;
       if (!league) throw new Error("League settings not found");
-
-      const settings = league.settings;
+      if(league.settings.uses_playoff === "1") {
+        const playoffsStartWeek = league.settings.playoff_start_week;
+        const playoffsEndWeek = league.settings.end_week;
+        const playoffsTeams = league.settings.playoff_teams;
+      }
       
       // Extract enabled stat categories
       const enabledStats = (settings?.stat_categories?.stats || [])

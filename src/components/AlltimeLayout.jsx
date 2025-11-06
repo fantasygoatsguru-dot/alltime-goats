@@ -24,6 +24,7 @@ import AlltimeGames from '../Pages/AlltimeGames';
 import Matchup from '../Pages/Matchup';
 import Rankings from '../Pages/Rankings';
 import FantasyChat from '../Pages/FantasyChat';
+import LeaguePlayoffs from '../Pages/LeaguePlayoffs';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
 import { useAuth } from '../contexts/AuthContext';
@@ -292,7 +293,6 @@ const AlltimeLayout = () => {
   };
 
   const renderContent = () => {
-    debugger
     switch (location.pathname) {
       case '/':
         return <Matchup />;
@@ -309,6 +309,8 @@ const AlltimeLayout = () => {
         return <Rankings />;
       case '/chat':
         return <FantasyChat />;
+      case '/playoffs':
+        return <LeaguePlayoffs />;
       case '/about':
         return <About />;
       case '/profile':
@@ -324,6 +326,7 @@ const AlltimeLayout = () => {
     location.pathname === '/league' ||
     location.pathname === '/rankings' ||
     location.pathname === '/chat' ||
+    location.pathname === '/playoffs' ||
     location.pathname === '/about' ||
     location.pathname === '/profile';
 
@@ -480,6 +483,26 @@ const AlltimeLayout = () => {
             >
               AI Assistant
             </MenuItem>
+          <MenuItem
+            onClick={() => handleMenuSelect('/playoffs')}
+            selected={location.pathname === '/playoffs'}
+            sx={{
+              py: 1.5,
+              px: 2,
+              fontWeight: 500,
+              '&:hover': {
+                backgroundColor: 'rgba(74, 144, 226, 0.1)',
+              },
+              '&.Mui-selected': {
+                backgroundColor: 'rgba(74, 144, 226, 0.15)',
+                '&:hover': {
+                  backgroundColor: 'rgba(74, 144, 226, 0.2)',
+                },
+              },
+            }}
+          >
+            Playoff Schedule
+          </MenuItem>
           <MenuItem
             onClick={() => handleMenuSelect('/seasons')}
             selected={location.pathname === '/seasons' || location.pathname === '/table'}

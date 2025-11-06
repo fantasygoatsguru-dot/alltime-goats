@@ -299,8 +299,8 @@ async function getCurrentMatchup(userId: string, leagueId: string) {
 
   // 4. Rosters
   const [team1Roster, team2Roster] = await Promise.all([
-    makeYahooRequest(token, `/team/${team1Raw.team_key}/roster;week=current`, userId),  // FIXED: use "current"
-    makeYahooRequest(token, `/team/${team2Raw.team_key}/roster;week=current`, userId),  // FIXED: use "current"
+    makeYahooRequest(token, `/team/${team1Raw.team_key}/roster`, userId),  // FIXED: use "current"
+    makeYahooRequest(token, `/team/${team2Raw.team_key}/roster`, userId),  // FIXED: use "current"
   ]);
   console.log(`[MATCHUP] team1Roster: ${JSON.stringify(team1Roster)}`);
   console.log(`[MATCHUP] team2Roster: ${JSON.stringify(team2Roster)}`);

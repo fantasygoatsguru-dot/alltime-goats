@@ -70,6 +70,7 @@ const App = () => {
               <Route path="/matchup" element={<AlltimeLayout />} />
               <Route path="/rankings" element={<AlltimeLayout />} />
               <Route path="/chat" element={<AlltimeLayout />} />
+              <Route path="/playoffs" element={<AlltimeLayout />} />
               <Route path="/*" element={<Navigate to="/matchup" replace />} />
             </Routes>
           </Box>
