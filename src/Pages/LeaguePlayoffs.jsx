@@ -157,6 +157,38 @@ const LeaguePlayoffs = () => {
     loadLeagueSettings();
   }, [isAuthenticated, selectedLeague]);
 
+  // ── Initialize disabled players (IL, IL+, INJ) ──────────────────
+  useEffect(() => {
+    if (!isAuthenticated || !Array.isArray(leagueTeams) || leagueTeams.length === 0) {
+      setDisabledPlayers({});
+      return;
+    }
+
+    const initialDisabled = {};
+    leagueTeams.forEach((team) => {
+      if (!team || !Array.isArray(team.players)) return;
+      team.players.forEach((p) => {
+        // Use the same ID format as elsewhere: id, yahooPlayerId, or nbaPlayerId
+        const playerId = p.id || p.yahooPlayerId || p.nbaPlayerId;
+        if (!playerId) return;
+        
+        const selectedPosition = p.selectedPosition || p.selected_position;
+        const status = p.status;
+        
+        // Only disable if explicitly IL, IL+, or INJ (case-sensitive check)
+        const shouldDisable = 
+          (selectedPosition && (selectedPosition === 'IL' || selectedPosition === 'IL+')) || 
+          (status && status === 'INJ');
+        
+        if (shouldDisable) {
+          initialDisabled[`${team.key}_${playerId}`] = true;
+        }
+      });
+    });
+
+    setDisabledPlayers(initialDisabled);
+  }, [isAuthenticated, leagueTeams]);
+
   // ── Player stats (logged-in) ───────────────────────────────────
   useEffect(() => {
     const loadPlayerStats = async () => {
@@ -166,31 +198,79 @@ const LeaguePlayoffs = () => {
       }
       
       setPlayerStatsLoaded(false);
-      const allIds = leagueTeams
-        .flatMap((t) => {
-          if (!t || !Array.isArray(t.players)) return [];
-          return t.players
-            .map((p) => p?.nbaPlayerId)
-            .filter((id) => id != null && id !== undefined);
-        })
-        .filter(Boolean);
       
-      if (!allIds.length) {
+      // Collect all player IDs (both NBA and Yahoo)
+      const nbaIds = [];
+      const yahooIds = [];
+      leagueTeams.forEach((t) => {
+        if (!t || !Array.isArray(t.players)) return;
+        t.players.forEach((p) => {
+          if (p?.nbaPlayerId) nbaIds.push(p.nbaPlayerId);
+          if (p?.yahooPlayerId && !p?.nbaPlayerId) yahooIds.push(p.yahooPlayerId);
+        });
+      });
+      
+      if (nbaIds.length === 0 && yahooIds.length === 0) {
         setPlayerStatsLoaded(true);
         return;
       }
 
       try {
+        // If we have Yahoo IDs, map them to NBA IDs first
+        let allNbaIds = [...nbaIds];
+        if (yahooIds.length > 0) {
+          const { data: mappingData } = await supabase
+            .from("yahoo_nba_mapping")
+            .select("yahoo_id, nba_id")
+            .in("yahoo_id", yahooIds);
+          
+          if (mappingData) {
+            const mappedNbaIds = mappingData
+              .map((m) => m.nba_id)
+              .filter((id) => id != null);
+            allNbaIds = [...allNbaIds, ...mappedNbaIds];
+          }
+        }
+        
+        // Remove duplicates
+        const uniqueNbaIds = [...new Set(allNbaIds)];
+        
+        if (uniqueNbaIds.length === 0) {
+          setPlayerStatsLoaded(true);
+          return;
+        }
+        
+        // Fetch stats using NBA IDs
         const { data, error } = await supabase
           .from("player_season_averages")
           .select("*")
-          .in("player_id", allIds)
+          .in("player_id", uniqueNbaIds)
           .eq("season", "2025-26");
         if (error) throw error;
+        
         const map = {};
         if (Array.isArray(data)) {
-          data.forEach((s) => (map[s.player_id] = s));
+          data.forEach((s) => {
+            map[s.player_id] = s;
+          });
         }
+        
+        // Also create a reverse mapping from Yahoo IDs to stats
+        if (yahooIds.length > 0) {
+          const { data: mappingData } = await supabase
+            .from("yahoo_nba_mapping")
+            .select("yahoo_id, nba_id")
+            .in("yahoo_id", yahooIds);
+          
+          if (mappingData) {
+            mappingData.forEach((m) => {
+              if (m.nba_id && map[m.nba_id]) {
+                map[m.yahoo_id] = map[m.nba_id];
+              }
+            });
+          }
+        }
+        
         setPlayerStats(map);
       } catch (e) {
         console.error("Error loading player stats:", e);
@@ -275,7 +355,9 @@ const LeaguePlayoffs = () => {
           end = new Date(week.end);
 
         players.forEach((p) => {
-          const disabled = disabledPlayers[`${team.key}_${p.id}`];
+          const playerId = p.id || p.yahooPlayerId || p.nbaPlayerId;
+          if (!playerId) return;
+          const disabled = disabledPlayers[`${team.key}_${playerId}`];
           if (disabled) return;
           const nbaTeam = p.team;
 
@@ -288,7 +370,8 @@ const LeaguePlayoffs = () => {
           });
 
           games += gamesInWeek;
-          const stat = playerStats[p.nbaPlayerId];
+          // Try nbaPlayerId first, then yahooPlayerId as fallback
+          const stat = playerStats[p.nbaPlayerId] || playerStats[p.yahooPlayerId];
           if (stat?.total_value) strength += gamesInWeek * stat.total_value;
         });
 
@@ -301,6 +384,7 @@ const LeaguePlayoffs = () => {
         teamKey: team.key,
         teamName: team.name,
         managerNickname: team.managerNickname,
+        isUserTeam: team.is_owned_by_current_login || false,
         players,
         weekData,
         totalGames,
@@ -459,12 +543,12 @@ const LeaguePlayoffs = () => {
         </FormControl>
 
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-          {playoffWeeks.map((w, i) => (
+          {playoffWeeks.map((w) => (
             <Chip
               key={w.number}
               label={`W${w.number}: ${w.label}`}
-              color={i === 0 ? "primary" : "default"}
-              variant={i === 0 ? "filled" : "outlined"}
+              color="default"
+              variant="outlined"
             />
           ))}
         </Box>
@@ -624,7 +708,16 @@ const LeaguePlayoffs = () => {
                 {sortedFantasyTeams.map((team) => (
                   <React.Fragment key={team.teamKey}>
                     {/* Summary Row */}
-                    <TableRow hover>
+                    <TableRow 
+                      hover
+                      sx={{
+                        bgcolor: team.isUserTeam ? 'rgba(74, 144, 226, 0.08)' : 'transparent',
+                        borderLeft: team.isUserTeam ? '4px solid #4a90e2' : 'none',
+                        '&:hover': {
+                          bgcolor: team.isUserTeam ? 'rgba(74, 144, 226, 0.12)' : undefined,
+                        },
+                      }}
+                    >
                       <TableCell>
                         <IconButton size="small" onClick={() => toggleTeam(team.teamKey)}>
                           {expandedTeams[team.teamKey] ? (
@@ -690,8 +783,10 @@ const LeaguePlayoffs = () => {
                               </TableHead>
                               <TableBody>
                                 {team.players.map((p) => {
-                                  const disabled = disabledPlayers[`${team.teamKey}_${p.id}`];
-                                  const stat = playerStats[p.nbaPlayerId];
+                                  const playerId = p.id || p.yahooPlayerId || p.nbaPlayerId;
+                                  const disabled = playerId ? disabledPlayers[`${team.teamKey}_${playerId}`] : false;
+                                  // Try nbaPlayerId first, then yahooPlayerId as fallback
+                                  const stat = playerStats[p.nbaPlayerId] || playerStats[p.yahooPlayerId];
                                   const z = stat?.total_value ?? 0;
 
                                   const weekGames = playoffWeeks.map((w) => {
@@ -710,7 +805,7 @@ const LeaguePlayoffs = () => {
 
                                   return (
                                     <TableRow
-                                      key={p.id}
+                                      key={playerId || p.yahooPlayerId || p.nbaPlayerId}
                                       sx={{
                                         opacity: disabled ? 0.45 : 1,
                                         textDecoration: disabled ? "line-through" : "none",
@@ -719,8 +814,9 @@ const LeaguePlayoffs = () => {
                                       <TableCell>
                                         <Checkbox
                                           checked={!disabled}
-                                          onChange={() => togglePlayer(team.teamKey, p.id)}
+                                          onChange={() => playerId && togglePlayer(team.teamKey, playerId)}
                                           size="small"
+                                          disabled={!playerId}
                                         />
                                       </TableCell>
                                       <TableCell>{p.name}</TableCell>
