@@ -48,6 +48,46 @@ const LeaguePlayoffs = () => {
   const [leagueSettingsLoaded, setLeagueSettingsLoaded] = useState(false);
   const [playerStatsLoaded, setPlayerStatsLoaded] = useState(false);
 
+  // ── SEO Structured Data ───────────────────────────────────────────
+  useEffect(() => {
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Fantasy Basketball Playoff Schedule Analyzer",
+      "description": "Analyze your fantasy basketball playoff schedule. View NBA team schedules, calculate playoff strength, and optimize your roster for fantasy basketball playoffs.",
+      "url": "https://fantasygoats.guru/playoffs",
+      "applicationCategory": "SportsApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "NBA team playoff schedule analysis",
+        "Fantasy league playoff strength calculator",
+        "Player z-score based playoff optimization",
+        "Weekly game count tracking",
+        "Playoff roster optimization tool"
+      ],
+      "keywords": "fantasy basketball playoff schedule, playoff schedule analysis, fantasy basketball playoffs, NBA playoff schedule, fantasy playoff strength"
+    };
+
+    let scriptTag = document.getElementById('playoffs-structured-data');
+    if (!scriptTag) {
+      scriptTag = document.createElement('script');
+      scriptTag.id = 'playoffs-structured-data';
+      scriptTag.type = 'application/ld+json';
+      document.head.appendChild(scriptTag);
+    }
+    scriptTag.textContent = JSON.stringify(structuredData);
+
+    return () => {
+      const tag = document.getElementById('playoffs-structured-data');
+      if (tag) tag.remove();
+    };
+  }, []);
+
   // Update view mode when authentication changes
   useEffect(() => {
     if (isAuthenticated && Array.isArray(leagueTeams) && leagueTeams.length > 0) {
@@ -376,17 +416,30 @@ const LeaguePlayoffs = () => {
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* Header */}
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: 700,
-          color: "primary.main",
-          mb: 3,
-          textAlign: { xs: "center", md: "left" },
-        }}
-      >
-        Playoff Schedule Analysis
-      </Typography>
+      <Box sx={{ mb: 3 }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            color: "primary.main",
+            mb: 1,
+            textAlign: { xs: "center", md: "left" },
+          }}
+        >
+          Fantasy Basketball Playoff Schedule Analyzer
+        </Typography>
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{
+            textAlign: { xs: "center", md: "left" },
+            maxWidth: { md: "600px" },
+          }}
+        >
+          Analyze your fantasy basketball playoff schedule, track NBA team game counts, and optimize your roster with playoff strength calculations based on player z-scores.
+        </Typography>
+      </Box>
 
       {/* Controls */}
       <Box

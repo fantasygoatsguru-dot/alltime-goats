@@ -16,6 +16,10 @@ const SEOHead = () => {
           title = 'Fantasy Matchup Analyzer | Compare Teams & Players | Fantasy Goats Guru';
           description = 'Compare fantasy basketball teams and players side-by-side. Analyze matchups, track weekly results, and project future performance with advanced statistics.';
           break;
+        case '/playoffs':
+          title = 'Fantasy Basketball Playoff Schedule | Playoff Schedule Analysis Tool';
+          description = 'Analyze your fantasy basketball playoff schedule. View NBA team schedules, calculate playoff strength, and optimize your roster for fantasy basketball playoffs. Track games per week and playoff strength by z-scores.';
+          break;
         case '/seasons':
         case '/table':
           title = 'Fantasy League History & Season Stats | Fantasy Goats Guru';
