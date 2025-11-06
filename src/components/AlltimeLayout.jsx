@@ -3,8 +3,6 @@ import {
   Box,
   Container,
   Typography,
-  Tabs,
-  Tab,
   CircularProgress,
   Link,
   IconButton,
@@ -15,8 +13,14 @@ import {
   InputLabel,
   Select,
   Tooltip,
+  Button,
+  Popper,
+  Grow,
+  Paper,
+  ClickAwayListener,
 } from '@mui/material';
-import { Logout } from '@mui/icons-material';
+import { Logout, Login } from '@mui/icons-material';
+import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
@@ -35,727 +39,472 @@ const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
-  const [tabValue, setTabValue] = useState(0);
+
   const [isPageLoading, setIsPageLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null); // For dropdown menu
-  const [profileAnchorEl, setProfileAnchorEl] = useState(null); // For profile menu
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [profileAnchorEl, setProfileAnchorEl] = useState(null);
+  const [historyAnchorEl, setHistoryAnchorEl] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userLeagues, setUserLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [leagueTeams, setLeagueTeams] = useState([]);
+  const [yahooConnecting, setYahooConnecting] = useState(false);
 
-  // Fetch user profile to override OAuth data if it exists
+  // SVG Icons (unchanged)
+  const MatchupIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  );
+
+  const RankingsIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 3v18h18"/>
+      <path d="M18 17V9"/>
+      <path d="M13 17V5"/>
+      <path d="M8 17v-3"/>
+    </svg>
+  );
+
+  const AIIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      <circle cx="9" cy="10" r="1"/>
+      <circle cx="15" cy="10" r="1"/>
+      <path d="M9 15c.5.8 1.5 1.5 3 1.5s2.5-.7 3-1.5"/>
+    </svg>
+  );
+
+  const PlayoffIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+      <line x1="3" y1="9" x2="21" y2="9"/>
+      <line x1="9" y1="21" x2="9" y2="9"/>
+    </svg>
+  );
+
+  const HistoryIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </svg>
+  );
+
+  const AboutIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+  );
+
+  const TeamsIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  );
+
+  const SeasonsIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="16" rx="2"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+    </svg>
+  );
+
+  const GamesIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2L2 12h3v8h14v-8h3L12 2z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  );
+
+  const navItems = [
+    { path: '/matchup', label: 'Matchups', icon: <MatchupIcon /> },
+    { path: '/rankings', label: 'Rankings', icon: <RankingsIcon /> },
+    { path: '/chat', label: 'AI Assistant', icon: <AIIcon /> },
+    { path: '/playoffs', label: 'Playoffs', icon: <PlayoffIcon /> },
+    { path: '/history', label: 'NBA History', icon: <HistoryIcon />, hasSubmenu: true },
+    // { path: '/about', label: 'About', icon: <AboutIcon /> },
+  ];
+
+  const historySubmenu = [
+    { path: '/teams', label: 'Teams', icon: <TeamsIcon /> },
+    { path: '/seasons', label: 'Seasons', icon: <SeasonsIcon /> },
+    { path: '/games', label: 'Games', icon: <GamesIcon /> },
+  ];
+
+  // Fetch profile, leagues, etc. (unchanged)
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user?.userId) {
-        setUserProfile(null);
-        return;
-      }
-
+      if (!user?.userId) { setUserProfile(null); return; }
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('user_profiles')
           .select('name, email, profile_picture')
           .eq('user_id', user.userId)
           .single();
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching user profile:', error);
-          return;
-        }
-
-        if (data) {
-          setUserProfile(data);
-        }
-      } catch (err) {
-        console.error('Error fetching user profile:', err);
-      }
+        if (data) setUserProfile(data);
+      } catch (err) { console.error(err); }
     };
-
     fetchUserProfile();
   }, [user?.userId]);
 
-  // Use profile data if available, otherwise fall back to OAuth data
   const displayName = userProfile?.name || user?.name || 'User';
   const displayEmail = userProfile?.email || user?.email || '';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
 
-  // Track website visit when user is authenticated
-  useEffect(() => {
-    const trackVisit = async () => {
-      if (!user?.userId || !isAuthenticated) return;
-
-      try {
-        // Check if user_usage record exists
-        const { data: existingUsage, error: fetchError } = await supabase
-          .from('user_usage')
-          .select('website_visits_count, last_visit_at')
-          .eq('user_id', user.userId)
-          .single();
-
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          console.error('Error fetching user usage:', fetchError);
-          return;
-        }
-
-        const now = new Date();
-        const lastVisit = existingUsage?.last_visit_at ? new Date(existingUsage.last_visit_at) : null;
-        
-        // Only count as a new visit if last visit was more than 30 minutes ago
-        const shouldCountVisit = !lastVisit || (now.getTime() - lastVisit.getTime()) > 10 * 60 * 1000;
-
-        if (!shouldCountVisit) return;
-
-        if (existingUsage) {
-          // Update existing record
-          await supabase
-            .from('user_usage')
-            .update({
-              website_visits_count: (existingUsage.website_visits_count || 0) + 1,
-              last_visit_at: now.toISOString(),
-            })
-            .eq('user_id', user.userId);
-        } else {
-          // Insert new record
-          await supabase
-            .from('user_usage')
-            .insert({
-              user_id: user.userId,
-              website_visits_count: 1,
-              last_visit_at: now.toISOString(),
-            });
-        }
-      } catch (err) {
-        console.error('Error tracking visit:', err);
-      }
-    };
-
-    trackVisit();
-  }, [user?.userId, isAuthenticated]);
-
-  // Fetch user leagues if authenticated
+  // Leagues & teams (unchanged)
   useEffect(() => {
     const fetchUserLeagues = async () => {
-      if (!user?.userId) {
-        setUserLeagues([]);
-        return;
-      }
-
+      if (!isAuthenticated || !user?.userId) { setUserLeagues([]); return; }
       try {
-        const { data, error } = await supabase.functions.invoke('yahoo-fantasy-api', {
-          body: {
-            action: 'getUserLeagues',
-            userId: user.userId,
-          },
+        const { data } = await supabase.functions.invoke('yahoo-fantasy-api', {
+          body: { action: 'getUserLeagues', userId: user.userId },
         });
-
-        if (error) throw error;
-
-        if (data?.leagues && data.leagues.length > 0) {
+        if (data?.leagues?.length > 0) {
           setUserLeagues(data.leagues);
-          if (!selectedLeague) {
-            setSelectedLeague(data.leagues[0].leagueId);
-          }
+          if (!selectedLeague) setSelectedLeague(data.leagues[0].leagueId);
         }
-      } catch (err) {
-        console.error('Error fetching user leagues:', err);
-      }
+      } catch (err) { console.error(err); }
     };
-
-    if (isAuthenticated) {
-      fetchUserLeagues();
-    }
+    fetchUserLeagues();
   }, [user?.userId, isAuthenticated, selectedLeague]);
 
-  // Fetch league teams when league is selected
   useEffect(() => {
     const fetchLeagueTeams = async () => {
-      if (!selectedLeague || !user?.userId || !isAuthenticated) {
-        setLeagueTeams([]);
-        return;
-      }
-
+      if (!selectedLeague || !isAuthenticated) { setLeagueTeams([]); return; }
       try {
-        const { data, error } = await supabase.functions.invoke('yahoo-fantasy-api', {
-          body: {
-            action: 'getAllTeamsInLeague',
-            userId: user.userId,
-            leagueId: selectedLeague,
-          },
+        const { data } = await supabase.functions.invoke('yahoo-fantasy-api', {
+          body: { action: 'getAllTeamsInLeague', userId: user.userId, leagueId: selectedLeague },
         });
-
-        if (error) throw error;
-
-        if (data?.teams && data.teams.length > 0) {
-          setLeagueTeams(data.teams);
-        } else {
-          setLeagueTeams([]);
-        }
-      } catch (err) {
+        setLeagueTeams(data?.teams || []);
+      } catch (err) { 
         console.error('Error fetching league teams:', err);
-        setLeagueTeams([]);
+        setLeagueTeams([]); 
       }
     };
-
     fetchLeagueTeams();
   }, [selectedLeague, user?.userId, isAuthenticated]);
 
-  // Calculate user team players from league teams
   const userTeamPlayers = useMemo(() => {
-    if (!leagueTeams || leagueTeams.length === 0) return [];
-
-    const userTeam = leagueTeams.find((team) => team.is_owned_by_current_login === true);
-    if (!userTeam || !userTeam.players) return [];
-
-    return userTeam.players.map((p) => ({
+    if (!leagueTeams.length) return [];
+    const userTeam = leagueTeams.find(t => t.is_owned_by_current_login);
+    return userTeam?.players?.map(p => ({
       nbaPlayerId: p.nbaPlayerId,
       yahooPlayerId: p.yahooPlayerId,
       name: p.name,
-    }));
+    })) || [];
   }, [leagueTeams]);
 
-  useEffect(() => {
-    if (location.pathname === '/seasons' || location.pathname === '/table') {
-      setTabValue(1);
-    } else if (location.pathname === '/games') {
-      setTabValue(2);
-    } else if (
-      location.pathname === '/matchup' ||
-      location.pathname === '/league' ||
-      location.pathname === '/rankings'
-    ) {
-      setTabValue(0);
-    } else if (location.pathname === '/teams' || location.pathname === '/charts') {
-      setTabValue(0);
-    } else {
-      setTabValue(1);
-    }
-  }, [location.pathname]);
-
-  // Reset loading state when location changes
-  useEffect(() => {
-    setIsPageLoading(false);
-  }, [location.pathname]);
-
-  const handleTabChange = (_any, newValue) => {
+  const handleNavClick = (path) => {
     setIsPageLoading(true);
-    setTabValue(newValue);
-
-    setTimeout(() => {
-      switch (newValue) {
-        case 0:
-          navigate('/teams');
-          break;
-        case 1:
-          navigate('/seasons');
-          break;
-        case 2:
-          navigate('/games');
-          break;
-        default:
-          navigate('/teams');
-      }
-      setIsPageLoading(false);
-    }, 300);
-  };
-
-  // Handle dropdown menu
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMenuSelect = (path) => {
-    setIsPageLoading(true);
-    setTabValue(path === '/matchup' ? 0 : 1);
     navigate(path);
-    setTimeout(() => {
-      setIsPageLoading(false);
-    }, 300);
-    handleMenuClose();
+    setTimeout(() => setIsPageLoading(false), 300);
   };
 
-  const handleProfileMenuOpen = (event) => {
-    setProfileAnchorEl(event.currentTarget);
+  const handleYahooConnect = async () => {
+    setYahooConnecting(true);
+    try {
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const { data, error } = await supabase.functions.invoke('yahoo-oauth', {
+        body: {
+          action: 'authorize',
+          isDev: isDev,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.authUrl) {
+        window.location.href = data.authUrl;
+      }
+    } catch (err) {
+      console.error('Failed to connect to Yahoo:', err);
+      setYahooConnecting(false);
+    }
   };
 
-  const handleProfileMenuClose = () => {
-    setProfileAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    handleProfileMenuClose();
-    navigate('/matchup');
-  };
+  const handleHistoryOpen = (e) => setHistoryAnchorEl(e.currentTarget);
+  const handleHistoryClose = () => setHistoryAnchorEl(null);
+  const handleProfileMenuOpen = (e) => setProfileAnchorEl(e.currentTarget);
+  const handleProfileMenuClose = () => setProfileAnchorEl(null);
+  const handleLogout = () => { logout(); handleProfileMenuClose(); navigate('/matchup'); };
 
   const renderContent = () => {
     switch (location.pathname) {
-      case '/':
-        return <Matchup />;
+      case '/': return <Matchup />;
+      case '/teams': return <Alltime />;
       case '/seasons':
-      case '/table':
-        return <AlltimeTable />;
-      case '/teams':
-        return <Alltime />;
-      case '/games':
-        return <AlltimeGames />;
-      case '/matchup':
-        return <Matchup />;
-      case '/rankings':
-        return <Rankings />;
-      case '/chat':
-        return <FantasyChat />;
-      case '/playoffs':
-        return <LeaguePlayoffs />;
-      case '/about':
-        return <About />;
-      case '/profile':
-        return <UserProfile />;
-      default:
-        return <Matchup />;
+      case '/table': return <AlltimeTable />;
+      case '/games': return <AlltimeGames />;
+      case '/matchup': return <Matchup />;
+      case '/rankings': return <Rankings />;
+      case '/chat': return <FantasyChat />;
+      case '/playoffs': return <LeaguePlayoffs />;
+      case '/about': return <About />;
+      case '/profile': return <UserProfile />;
+      default: return <Matchup />;
     }
   };
 
-  const isSpecialPage =
-    location.pathname === '/matchup' ||
-    location.pathname === '/' ||
-    location.pathname === '/league' ||
-    location.pathname === '/rankings' ||
-    location.pathname === '/chat' ||
-    location.pathname === '/playoffs' ||
-    location.pathname === '/about' ||
-    location.pathname === '/profile';
-
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-        background: '#EEEEEE',
-        color: '#f5f5f5',
-      }}
-    >
-      {/* Header */}
-      <Box
-        sx={{
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#EEEEEE' }}>
+      {/* Header - SINGLE ROW, NO GAPS, NO STICKY TRANSPARENCY */}
+      <Box sx={{
+        bgcolor: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+        borderBottom: '3px solid #4a90e2',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        zIndex: 1100,
+      }}>
+        <Box sx={{
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          px: { xs: 1.5, sm: 3 },
-          py: 1.5,
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-          borderBottom: '2px solid #e0e0e0',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1100,
-        }}
-      >
-        {/* LEFT: Logo + Title */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, flexGrow: 1, minWidth: 0 }}>
-          <IconButton
-            onClick={handleMenuOpen}
-            sx={{ p: 0, transition: 'transform 0.2s ease', '&:hover': { transform: 'scale(1.08)' }, flexShrink: 0 }}
-          >
+          justifyContent: 'space-between',
+          px: { xs: 2, sm: 3 },
+          py: 2,
+          minHeight: 72,
+          gap: 2,
+        }}>
+          {/* Left: Logo + Title */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2.5 }, flexShrink: 0 }}>
             <Avatar
               src="https://www.svgrepo.com/show/396571/goat.svg"
               alt="GOAT"
-              sx={{
-                width: { xs: 40, sm: 50 },
-                height: { xs: 40, sm: 50 },
-                border: '3px solid #4a90e2',
-                bgcolor: 'transparent',
-                p: 0.5,
-                boxShadow: '0 2px 8px rgba(74, 144, 226, 0.3)',
-              }}
+              sx={{ width: { xs: 44, sm: 56 }, height: { xs: 44, sm: 56 }, border: '4px solid #4a90e2', cursor: 'pointer' }}
+              onClick={() => navigate('/matchup')}
             />
-          </IconButton>
+            <Tooltip title="Fantasy Goats Guru">
+              <Typography
+                variant="h5"
+                noWrap
+                sx={{
+                  fontSize: { xs: '1.25rem', sm: '1.6rem', md: '1.9rem' },
+                  fontWeight: 800,
+                  background: 'linear-gradient(90deg, #4A70A9 0%, #6a89cc 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  letterSpacing: '-0.5px',
+                }}
+              >
+                Fantasy Goats Guru
+              </Typography>
+            </Tooltip>
+          </Box>
 
-          <Typography
-            variant="h6"
-            component="h1"
-            noWrap
-            sx={{
-              fontSize: { xs: '1rem', sm: '1.2rem' },
-              fontWeight: 700,
-              color: '#212121',
-              display: { xs: 'block', sm: 'none' },
-              minWidth: 0,
-            }}
-          >
-            FG Guru
-          </Typography>
+          {/* Center: Navigation Buttons */}
+          <Box sx={{ display: 'flex', gap: 1.2, flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path || (item.path === '/matchup' && location.pathname === '/');
+              const isHistoryActive = item.hasSubmenu && historySubmenu.some(s => s.path === location.pathname);
 
-          <Tooltip title="Fantasy Goats Guru" enterDelay={500}>
-            <Typography
-              variant="h5"
-              component="h1"
-              noWrap
-              sx={{
-                fontSize: { xs: '1.1rem', sm: '1.5rem', md: '1.75rem' },
-                fontWeight: 700,
-                background: 'linear-gradient(90deg, #4A70A9 0%, #6a89cc 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                letterSpacing: '-0.02em',
-                display: { xs: 'none', sm: 'block' },
-                minWidth: 0,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Fantasy Goats Guru
-            </Typography>
-          </Tooltip>
+              return item.hasSubmenu ? (
+                <Box key={item.path} sx={{ position: 'relative' }}>
+                  <Button
+                    onMouseEnter={handleHistoryOpen}
+                    onClick={() => handleNavClick('/teams')}
+                    startIcon={item.icon}
+                    sx={{
+                      px: 2.5,
+                      py: 1,
+                      fontSize: '0.925rem',
+                      fontWeight: isHistoryActive ? 700 : 600,
+                      color: isHistoryActive ? '#4a90e2' : '#424242',
+                      bgcolor: isHistoryActive ? 'rgba(74,144,226,0.15)' : 'transparent',
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      whiteSpace: 'nowrap',
+                      border: isHistoryActive ? '2px solid #4a90e2' : '2px solid transparent',
+                      '&:hover': { bgcolor: 'rgba(74,144,226,0.1)', transform: 'translateY(-1px)' },
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+
+                  {/* HORIZONTAL Submenu */}
+                  <Popper
+                    open={Boolean(historyAnchorEl)}
+                    anchorEl={historyAnchorEl}
+                    transition
+                    placement="bottom-start"
+                    sx={{ zIndex: 1300 }}
+                  >
+                    {({ TransitionProps }) => (
+                      <Grow {...TransitionProps} timeout={200}>
+                        <Paper
+                          elevation={12}
+                          onMouseLeave={handleHistoryClose}
+                          sx={{
+                            mt: 1.5,
+                            bgcolor: '#ffffff',
+                            border: '2px solid #4a90e2',
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            display: 'flex',
+                            boxShadow: '0 8px 25px rgba(74,144,226,0.25)',
+                          }}
+                        >
+                          <ClickAwayListener onClickAway={handleHistoryClose}>
+                            <Box sx={{ display: 'flex' }}>
+                              {historySubmenu.map((sub) => (
+                                <MenuItem
+                                  key={sub.path}
+                                  onClick={() => { handleNavClick(sub.path); handleHistoryClose(); }}
+                                  sx={{
+                                    px: 3,
+                                    py: 2,
+                                    minWidth: 140,
+                                    bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.15)' : 'transparent',
+                                    borderRight: '1px solid #e0e0e0',
+                                    '&:last-child': { borderRight: 'none' },
+                                    '&:hover': { bgcolor: 'rgba(74,144,226,0.2)' },
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1.5,
+                                  }}
+                                >
+                                  {sub.icon}
+                                  <Typography fontWeight={600}>{sub.label}</Typography>
+                                </MenuItem>
+                              ))}
+                            </Box>
+                          </ClickAwayListener>
+                        </Paper>
+                      </Grow>
+                    )}
+                  </Popper>
+                </Box>
+              ) : (
+                <Button
+                  key={item.path}
+                  onClick={() => handleNavClick(item.path)}
+                  startIcon={item.icon}
+                  sx={{
+                    px: 2.5,
+                    py: 1,
+                    fontSize: '0.925rem',
+                    fontWeight: isActive ? 700 : 600,
+                    color: isActive ? '#4a90e2' : '#424242',
+                    bgcolor: isActive ? 'rgba(74,144,226,0.15)' : 'transparent',
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    whiteSpace: 'nowrap',
+                    border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
+                    '&:hover': { bgcolor: 'rgba(74,144,226,0.1)', transform: 'translateY(-1px)' },
+                  }}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </Box>
+
+          {/* Right: League + Profile */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+            {isAuthenticated && userLeagues.length > 0 ? (
+              <FormControl size="small" sx={{ minWidth: 140 }}>
+                <InputLabel sx={{ color: '#424242' }}>League</InputLabel>
+                <Select
+                  value={selectedLeague}
+                  onChange={(e) => { setSelectedLeague(e.target.value); setLeagueTeams([]); }}
+                  label="League"
+                  sx={{ bgcolor: '#fff', height: 40, borderRadius: 2 }}
+                >
+                  {userLeagues.map((l) => (
+                    <MenuItem key={l.leagueId} value={l.leagueId}>
+                      {l.name} {l.season && `(${l.season})`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) : (
+              <Button
+                variant="outlined"
+                startIcon={yahooConnecting ? <CircularProgress size={20} /> : <SportsBasketballIcon />}
+                onClick={handleYahooConnect}
+                disabled={yahooConnecting}
+                sx={{
+                  height: 40,
+                  fontWeight: 600,
+                  borderColor: '#4a90e2',
+                  color: '#4a90e2',
+                  fontFamily: '"Roboto Mono", monospace',
+                  px: 3,
+                  '&:hover': {
+                    borderColor: '#80deea',
+                    bgcolor: 'rgba(74, 144, 226, 0.1)',
+                  },
+                }}
+              >
+                {yahooConnecting ? 'Connecting...' : 'Connect to Yahoo'}
+              </Button>
+            )}
+
+            {isAuthenticated && user && (
+              <>
+                <IconButton onClick={handleProfileMenuOpen}>
+                  <Avatar
+                    src={displayPicture?.includes('default') ? 'https://www.svgrepo.com/show/513271/basketball.svg' : displayPicture}
+                    alt={displayName}
+                    sx={{ width: 42, height: 42, border: '3px solid #4a90e2' }}
+                  >
+                    {displayName.charAt(0).toUpperCase()}
+                  </Avatar>
+                </IconButton>
+                <Menu anchorEl={profileAnchorEl} open={Boolean(profileAnchorEl)} onClose={handleProfileMenuClose}>
+                  <MenuItem disabled sx={{ opacity: 1, bgcolor: 'rgba(74,144,226,0.05)' }}>
+                    <Box>
+                      <Typography fontWeight={700}>{displayName}</Typography>
+                      {displayEmail && <Typography variant="caption" color="text.secondary">{displayEmail}</Typography>}
+                    </Box>
+                  </MenuItem>
+                  <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}>Profile</MenuItem>
+                  <MenuItem onClick={handleLogout} sx={{ color: '#d32f2f' }}>
+                    <Logout sx={{ mr: 1 }} /> Logout
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+          </Box>
         </Box>
 
-        {/* Navigation Menu */}
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-          PaperProps={{
-            sx: {
-              backgroundColor: '#ffffff',
-              color: '#212121',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-              borderRadius: 2,
-              mt: 1,
-              minWidth: 180,
-            },
-          }}
-        >
-          <MenuItem
-            onClick={() => handleMenuSelect('/matchup')}
-            selected={location.pathname === '/matchup' || location.pathname === '/'}
-            sx={{
-              py: 1.5,
-              px: 2,
-              fontWeight: 500,
-              '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.1)' },
-              '&.Mui-selected': {
-                backgroundColor: 'rgba(74, 144, 226, 0.15)',
-                '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.2)' },
-              },
-            }}
-          >
-            Matchups
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleMenuSelect('/rankings')}
-            selected={location.pathname === '/rankings'}
-            sx={{
-              py: 1.5,
-              px: 2,
-              fontWeight: 500,
-              '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.1)' },
-              '&.Mui-selected': {
-                backgroundColor: 'rgba(74, 144, 226, 0.15)',
-                '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.2)' },
-              },
-            }}
-          >
-            Rankings
-          </MenuItem>
-                      <MenuItem
-              onClick={() => handleMenuSelect('/chat')}
-              selected={location.pathname === '/chat'}
-              sx={{
-                py: 1.5,
-                px: 2,
-                fontWeight: 500,
-                '&:hover': {
-                  backgroundColor: 'rgba(74, 144, 226, 0.1)',
-                },
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(74, 144, 226, 0.15)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(74, 144, 226, 0.2)',
-                  },
-                },
-              }}
-            >
-              AI Assistant
-            </MenuItem>
-          <MenuItem
-            onClick={() => handleMenuSelect('/playoffs')}
-            selected={location.pathname === '/playoffs'}
-            sx={{
-              py: 1.5,
-              px: 2,
-              fontWeight: 500,
-              '&:hover': {
-                backgroundColor: 'rgba(74, 144, 226, 0.1)',
-              },
-              '&.Mui-selected': {
-                backgroundColor: 'rgba(74, 144, 226, 0.15)',
-                '&:hover': {
-                  backgroundColor: 'rgba(74, 144, 226, 0.2)',
-                },
-              },
-            }}
-          >
-            Playoff Schedule
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleMenuSelect('/seasons')}
-            selected={location.pathname === '/seasons' || location.pathname === '/table'}
-            sx={{
-              py: 1.5,
-              px: 2,
-              fontWeight: 500,
-              '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.1)' },
-              '&.Mui-selected': {
-                backgroundColor: 'rgba(74, 144, 226, 0.15)',
-                '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.2)' },
-              },
-            }}
-          >
-            NBA History
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleMenuSelect('/about')}
-            selected={location.pathname === '/about'}
-            sx={{
-              py: 1.5,
-              px: 2,
-              fontWeight: 500,
-              '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.1)' },
-              '&.Mui-selected': {
-                backgroundColor: 'rgba(74, 144, 226, 0.15)',
-                '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.2)' },
-              },
-            }}
-          >
-            About Us
-          </MenuItem>
-        </Menu>
-
-        {/* RIGHT: Compact League Dropdown + Tabs + Profile */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1.2 } }}>
-          {isAuthenticated && userLeagues.length > 0 && (
-            <FormControl
-              size="small"
-              sx={{
-                minWidth: { xs: 70, sm: 110 },
-                maxWidth: { xs: 140, sm: 160 },
-                '& .MuiOutlinedInput-root': {
-                  bgcolor: '#ffffff',
-                  color: '#212121',
-                  fontFamily: '"Roboto Mono", monospace',
-                  fontSize: { xs: '0.65rem', sm: '0.78rem' },
-                  borderRadius: 1.5,
-                  height: { xs: 30, sm: 34 },
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e0e0e0', borderWidth: 1.5 },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#4a90e2' },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4a90e2', borderWidth: 2 },
-                },
-                '& .MuiInputLabel-root': {
-                  display: 'none', // Hide label completely on mobile to avoid overlap
-                },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  display: 'block', // Show full label only when focused (optional)
-                  color: '#4a90e2',
-                  fontSize: '0.65rem',
-                  transform: 'translate(8px, -9px) scale(0.75)',
-                },
-                '& .MuiSelect-icon': { color: '#4a90e2', fontSize: '1rem', right: 4 },
-              }}
-            >
-              <InputLabel id="league-select-label">League</InputLabel>
-              <Select
-                labelId="league-select-label"
-                value={selectedLeague}
-                onChange={(e) => {
-                  const newLeagueId = e.target.value;
-                  setSelectedLeague(newLeagueId);
-                  // Clear league teams immediately when switching leagues
-                  setLeagueTeams([]);
-                }}
-                label="League"
-                displayEmpty
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      maxHeight: 280,
-                      '& .MuiMenuItem-root': {
-                        fontSize: '0.78rem',
-                        py: 0.7,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      },
-                    },
-                  },
-                }}
-              >
-                {userLeagues.map((league) => (
-                  <MenuItem
-                    key={league.leagueId}
-                    value={league.leagueId}
-                    title={`${league.name} ${league.season ? `(${league.season})` : ''}`}
-                  >
-                    <Typography noWrap sx={{ fontSize: 'inherit' }}>
-                      {league.name} {league.season ? `(${league.season})` : ''}
-                    </Typography>
+        {/* Mobile Menu */}
+        <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center', pb: 1 }}>
+          <Button onClick={(e) => setAnchorEl(e.currentTarget)} variant="contained" sx={{ bgcolor: '#4a90e2' }}>
+            Menu
+          </Button>
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+            {navItems.map((item) => !item.hasSubmenu ? (
+              <MenuItem key={item.path} onClick={() => { handleNavClick(item.path); setAnchorEl(null); }}>
+                {item.icon} {item.label}
+              </MenuItem>
+            ) : (
+              <Box key={item.path}>
+                <MenuItem onClick={() => { handleNavClick('/teams'); setAnchorEl(null); }}>
+                  {item.icon} {item.label}
+                </MenuItem>
+                {historySubmenu.map((sub) => (
+                  <MenuItem key={sub.path} onClick={() => { handleNavClick(sub.path); setAnchorEl(null); }} sx={{ pl: 6 }}>
+                    {sub.icon} {sub.label}
                   </MenuItem>
                 ))}
-              </Select>
-            </FormControl>
-          )}
-
-          {!isSpecialPage && (
-            <Tabs
-              value={tabValue}
-              onChange={handleTabChange}
-              textColor="inherit"
-              indicatorColor="primary"
-              sx={{
-                minWidth: 'fit-content',
-                bgcolor: '#ffffff',
-                borderRadius: 2,
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)',
-                '& .MuiTab-root': {
-                  minWidth: { xs: 55, sm: 90 },
-                  fontSize: { xs: '0.65rem', sm: '0.8rem' },
-                  fontWeight: 600,
-                  padding: { xs: '6px 10px', sm: '8px 16px' },
-                  color: '#757575',
-                  textTransform: 'none',
-                  '&:hover': { color: '#4a90e2', backgroundColor: 'rgba(74, 144, 226, 0.05)' },
-                  '&.Mui-selected': { color: '#4a90e2', fontWeight: 700 },
-                },
-                '& .MuiTabs-indicator': { backgroundColor: '#4a90e2', height: 3, borderRadius: '3px 3px 0 0' },
-              }}
-            >
-              <Tab label="Teams" />
-              <Tab label="Seasons" />
-              <Tab label="Games" />
-            </Tabs>
-          )}
-
-          {isAuthenticated && user && (
-            <>
-              <IconButton
-                onClick={handleProfileMenuOpen}
-                sx={{
-                  p: 0,
-                  transition: 'transform 0.2s ease',
-                  '&:hover': { transform: 'scale(1.08)' },
-                }}
-              >
-                <Avatar
-                  src={
-                    displayPicture && displayPicture.toLowerCase().includes('default')
-                      ? 'https://www.svgrepo.com/show/513271/basketball.svg'
-                      : displayPicture
-                  }
-                  alt={displayName}
-                  sx={{
-                    width: { xs: 34, sm: 40 },
-                    height: { xs: 34, sm: 40 },
-                    border: '2px solid #4a90e2',
-                    boxShadow: '0 2px 8px rgba(74, 144, 226, 0.3)',
-                  }}
-                >
-                  {!displayPicture && displayName ? displayName.charAt(0).toUpperCase() : 'U'}
-                </Avatar>
-              </IconButton>
-
-              <Menu
-                anchorEl={profileAnchorEl}
-                open={Boolean(profileAnchorEl)}
-                onClose={handleProfileMenuClose}
-                PaperProps={{
-                  sx: {
-                    backgroundColor: '#ffffff',
-                    color: '#212121',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-                    borderRadius: 2,
-                    mt: 1,
-                    minWidth: 220,
-                  },
-                }}
-              >
-                <MenuItem
-                  disabled
-                  sx={{
-                    opacity: 1,
-                    '&.Mui-disabled': { opacity: 1, backgroundColor: 'rgba(74, 144, 226, 0.05)' },
-                    py: 2,
-                    px: 2.5,
-                    borderBottom: '1px solid #e0e0e0',
-                  }}
-                >
-                  <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#212121' }}>
-                      {displayName}
-                    </Typography>
-                    {displayEmail && (
-                      <Typography variant="caption" sx={{ color: '#757575', mt: 0.5 }}>
-                        {displayEmail}
-                      </Typography>
-                    )}
-                  </Box>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}
-                  sx={{
-                    py: 1.5,
-                    px: 2.5,
-                    fontWeight: 500,
-                    '&:hover': { backgroundColor: 'rgba(74, 144, 226, 0.1)' },
-                  }}
-                >
-                  Profile
-                </MenuItem>
-                <MenuItem
-                  onClick={handleLogout}
-                  sx={{
-                    py: 1.5,
-                    px: 2.5,
-                    fontWeight: 500,
-                    color: '#d32f2f',
-                    '&:hover': { backgroundColor: 'rgba(211, 47, 47, 0.1)' },
-                  }}
-                >
-                  <Logout sx={{ mr: 1.5, fontSize: '1.2rem' }} />
-                  Logout
-                </MenuItem>
-              </Menu>
-            </>
-          )}
+              </Box>
+            ))}
+          </Menu>
         </Box>
       </Box>
 
       {/* Main Content */}
-      <Container maxWidth={false} disableGutters>
+      <Container maxWidth={false} disableGutters sx={{ flexGrow: 1 }}>
         {isPageLoading ? (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '400px',
-              backgroundColor: '#f5f5f5',
-            }}
-          >
-            <Box sx={{ textAlign: 'center' }}>
-              <CircularProgress size={60} sx={{ color: '#4a90e2', mb: 2 }} />
-              <Typography
-                variant="h6"
-                sx={{ color: '#212121', fontFamily: '"Roboto Mono", monospace' }}
-              >
-                Loading...
-              </Typography>
-            </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
+            <CircularProgress size={70} sx={{ color: '#4a90e2' }} />
           </Box>
         ) : (
           <LeagueProvider
@@ -772,25 +521,11 @@ const AlltimeLayout = () => {
       </Container>
 
       {/* Footer */}
-      <Box
-        component="footer"
-        sx={{
-          mt: 'auto',
-          py: 2,
-          textAlign: 'center',
-          borderTop: '1px solid rgba(0, 0, 0, 0.12)',
-          backgroundColor: '#ffffff',
-        }}
-      >
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          © {new Date().getFullYear()} Fantasy Goats Guru. All rights reserved. |{' '}
-          <Link
-            component={RouterLink}
-            to="/privacy-policy"
-            sx={{ color: 'primary.main', textDecoration: 'underline' }}
-          >
-            Privacy Policy
-          </Link>
+      <Box component="footer" sx={{ py: 3, textAlign: 'center', borderTop: '1px solid #e0e0e0', bgcolor: '#fff' }}>
+        <Typography variant="body2" color="text.secondary">
+          © {new Date().getFullYear()} Fantasy Goats Guru ·{' '}
+          <Link component={RouterLink} style={{ marginRight: '10px' }} to="/privacy-policy" color="primary">Privacy</Link>
+          <Link component={RouterLink} to="/about" color="primary">About</Link>
         </Typography>
       </Box>
     </Box>

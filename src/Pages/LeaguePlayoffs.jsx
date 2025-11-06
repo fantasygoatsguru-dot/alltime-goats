@@ -429,16 +429,6 @@ const LeaguePlayoffs = () => {
         >
           Fantasy Basketball Playoff Schedule Analyzer
         </Typography>
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{
-            textAlign: { xs: "center", md: "left" },
-            maxWidth: { md: "600px" },
-          }}
-        >
-          Analyze your fantasy basketball playoff schedule, track NBA team game counts, and optimize your roster with playoff strength calculations based on player z-scores.
-        </Typography>
       </Box>
 
       {/* Controls */}
