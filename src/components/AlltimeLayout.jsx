@@ -10,7 +10,6 @@ import {
   MenuItem,
   Avatar,
   FormControl,
-  InputLabel,
   Select,
   Tooltip,
   Button,
@@ -18,8 +17,10 @@ import {
   Grow,
   Paper,
   ClickAwayListener,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { Logout, Login } from '@mui/icons-material';
+import { Logout } from '@mui/icons-material';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
@@ -39,9 +40,11 @@ const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [isPageLoading, setIsPageLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [historyAnchorEl, setHistoryAnchorEl] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
@@ -50,7 +53,7 @@ const AlltimeLayout = () => {
   const [leagueTeams, setLeagueTeams] = useState([]);
   const [yahooConnecting, setYahooConnecting] = useState(false);
 
-  // SVG Icons (unchanged)
+  // === ICONS (unchanged - using your favorites) ===
   const MatchupIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -116,13 +119,16 @@ const AlltimeLayout = () => {
       <line x1="3" y1="10" x2="21" y2="10"/>
       <line x1="8" y1="2" x2="8" y2="6"/>
       <line x1="16" y1="2" x2="16" y2="6"/>
+      <path d="M12 14l-1 3h2l-1-3z"/>
     </svg>
   );
 
   const GamesIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 2L2 12h3v8h14v-8h3L12 2z"/>
-      <circle cx="12" cy="12" r="3"/>
+      <path d="M4 4h16v16H4z"/>
+      <path d="M8 12l4-4 4 4"/>
+      <circle cx="12" cy="15" r="2"/>
+      <path d="M4 8l8-4 8 4"/>
     </svg>
   );
 
@@ -132,7 +138,6 @@ const AlltimeLayout = () => {
     { path: '/chat', label: 'AI Assistant', icon: <AIIcon /> },
     { path: '/playoffs', label: 'Playoffs', icon: <PlayoffIcon /> },
     { path: '/history', label: 'NBA History', icon: <HistoryIcon />, hasSubmenu: true },
-    // { path: '/about', label: 'About', icon: <AboutIcon /> },
   ];
 
   const historySubmenu = [
@@ -141,16 +146,12 @@ const AlltimeLayout = () => {
     { path: '/games', label: 'Games', icon: <GamesIcon /> },
   ];
 
-  // Fetch profile, leagues, etc. (unchanged)
+  // === DATA FETCHING (unchanged) ===
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user?.userId) { setUserProfile(null); return; }
+      if (!user?.userId) return;
       try {
-        const { data } = await supabase
-          .from('user_profiles')
-          .select('name, email, profile_picture')
-          .eq('user_id', user.userId)
-          .single();
+        const { data } = await supabase.from('user_profiles').select('name, email, profile_picture').eq('user_id', user.userId).single();
         if (data) setUserProfile(data);
       } catch (err) { console.error(err); }
     };
@@ -158,13 +159,11 @@ const AlltimeLayout = () => {
   }, [user?.userId]);
 
   const displayName = userProfile?.name || user?.name || 'User';
-  const displayEmail = userProfile?.email || user?.email || '';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
 
-  // Leagues & teams (unchanged)
   useEffect(() => {
     const fetchUserLeagues = async () => {
-      if (!isAuthenticated || !user?.userId) { setUserLeagues([]); return; }
+      if (!isAuthenticated || !user?.userId) return;
       try {
         const { data } = await supabase.functions.invoke('yahoo-fantasy-api', {
           body: { action: 'getUserLeagues', userId: user.userId },
@@ -180,16 +179,13 @@ const AlltimeLayout = () => {
 
   useEffect(() => {
     const fetchLeagueTeams = async () => {
-      if (!selectedLeague || !isAuthenticated) { setLeagueTeams([]); return; }
+      if (!selectedLeague || !isAuthenticated) return;
       try {
         const { data } = await supabase.functions.invoke('yahoo-fantasy-api', {
           body: { action: 'getAllTeamsInLeague', userId: user.userId, leagueId: selectedLeague },
         });
         setLeagueTeams(data?.teams || []);
-      } catch (err) { 
-        console.error('Error fetching league teams:', err);
-        setLeagueTeams([]); 
-      }
+      } catch (err) { setLeagueTeams([]); }
     };
     fetchLeagueTeams();
   }, [selectedLeague, user?.userId, isAuthenticated]);
@@ -197,71 +193,54 @@ const AlltimeLayout = () => {
   const userTeamPlayers = useMemo(() => {
     if (!leagueTeams.length) return [];
     const userTeam = leagueTeams.find(t => t.is_owned_by_current_login);
-    return userTeam?.players?.map(p => ({
-      nbaPlayerId: p.nbaPlayerId,
-      yahooPlayerId: p.yahooPlayerId,
-      name: p.name,
-    })) || [];
+    return userTeam?.players?.map(p => ({ nbaPlayerId: p.nbaPlayerId, yahooPlayerId: p.yahooPlayerId, name: p.name })) || [];
   }, [leagueTeams]);
 
   const handleNavClick = (path) => {
     setIsPageLoading(true);
     navigate(path);
+    setMobileMenuAnchor(null);
     setTimeout(() => setIsPageLoading(false), 300);
   };
 
   const handleYahooConnect = async () => {
     setYahooConnecting(true);
     try {
-      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const { data, error } = await supabase.functions.invoke('yahoo-oauth', {
-        body: {
-          action: 'authorize',
-          isDev: isDev,
-        },
-      });
-
-      if (error) throw error;
-      if (data?.authUrl) {
-        window.location.href = data.authUrl;
-      }
+      const isDev = window.location.hostname === 'localhost';
+      const { data } = await supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } });
+      if (data?.authUrl) window.location.href = data.authUrl;
     } catch (err) {
-      console.error('Failed to connect to Yahoo:', err);
+      console.error(err);
       setYahooConnecting(false);
     }
   };
 
-  const handleHistoryOpen = (e) => setHistoryAnchorEl(e.currentTarget);
+  const handleHistoryOpen = (e) => !isMobile && setHistoryAnchorEl(e.currentTarget);
   const handleHistoryClose = () => setHistoryAnchorEl(null);
-  const handleProfileMenuOpen = (e) => setProfileAnchorEl(e.currentTarget);
-  const handleProfileMenuClose = () => setProfileAnchorEl(null);
-  const handleLogout = () => { logout(); handleProfileMenuClose(); navigate('/matchup'); };
 
   const renderContent = () => {
-    switch (location.pathname) {
-      case '/': return <Matchup />;
-      case '/teams': return <Alltime />;
-      case '/seasons':
-      case '/table': return <AlltimeTable />;
-      case '/games': return <AlltimeGames />;
-      case '/matchup': return <Matchup />;
-      case '/rankings': return <Rankings />;
-      case '/chat': return <FantasyChat />;
-      case '/playoffs': return <LeaguePlayoffs />;
-      case '/about': return <About />;
-      case '/profile': return <UserProfile />;
-      default: return <Matchup />;
-    }
+    const p = location.pathname;
+    if (p === '/' || p === '/matchup') return <Matchup />;
+    if (p === '/teams') return <Alltime />;
+    if (p === '/seasons' || p === '/table') return <AlltimeTable />;
+    if (p === '/games') return <AlltimeGames />;
+    if (p === '/rankings') return <Rankings />;
+    if (p === '/chat') return <FantasyChat />;
+    if (p === '/playoffs') return <LeaguePlayoffs />;
+    if (p === '/about') return <About />;
+    if (p === '/profile') return <UserProfile />;
+    return <Matchup />;
   };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#EEEEEE' }}>
-      {/* Header - SINGLE ROW, NO GAPS, NO STICKY TRANSPARENCY */}
+      {/* HEADER */}
       <Box sx={{
         bgcolor: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-        borderBottom: '3px solid #4a90e2',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        zIndex: 1100,
+        borderBottom: '4px solid #4a90e2',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+        position: 'relative',
+        zIndex: 1300, // Higher than before
       }}>
         <Box sx={{
           display: 'flex',
@@ -269,242 +248,267 @@ const AlltimeLayout = () => {
           justifyContent: 'space-between',
           px: { xs: 2, sm: 3 },
           py: 2,
-          minHeight: 72,
-          gap: 2,
+          minHeight: 76,
         }}>
-          {/* Left: Logo + Title */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2.5 }, flexShrink: 0 }}>
+          {/* LEFT: GOAT = MENU on mobile */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0 : 2 }}>
             <Avatar
               src="https://www.svgrepo.com/show/396571/goat.svg"
               alt="GOAT"
-              sx={{ width: { xs: 44, sm: 56 }, height: { xs: 44, sm: 56 }, border: '4px solid #4a90e2', cursor: 'pointer' }}
-              onClick={() => navigate('/matchup')}
+              onClick={(e) => isMobile ? setMobileMenuAnchor(e.currentTarget) : navigate('/matchup')}
+              sx={{
+                width: { xs: 50, sm: 56 },
+                height: { xs: 50, sm: 56 },
+                border: '4px solid #4a90e2',
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                '&:active': { transform: 'scale(0.95)' },
+              }}
             />
-            <Tooltip title="Fantasy Goats Guru">
-              <Typography
-                variant="h5"
-                noWrap
-                sx={{
-                  fontSize: { xs: '1.25rem', sm: '1.6rem', md: '1.9rem' },
-                  fontWeight: 800,
-                  background: 'linear-gradient(90deg, #4A70A9 0%, #6a89cc 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  letterSpacing: '-0.5px',
-                }}
-              >
-                Fantasy Goats Guru
-              </Typography>
-            </Tooltip>
+
+            {!isMobile && (
+              <Tooltip title="Fantasy Goats Guru">
+                <Typography
+                  variant="h5"
+                  noWrap
+                  sx={{
+                    fontSize: { sm: '1.75rem', md: '1.9rem' },
+                    fontWeight: 800,
+                    background: 'linear-gradient(90deg, #4A70A9 0%, #6a89cc 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  Fantasy Goats Guru
+                </Typography>
+              </Tooltip>
+            )}
           </Box>
 
-          {/* Center: Navigation Buttons */}
-          <Box sx={{ display: 'flex', gap: 1.2, flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.path || (item.path === '/matchup' && location.pathname === '/');
-              const isHistoryActive = item.hasSubmenu && historySubmenu.some(s => s.path === location.pathname);
+          {/* DESKTOP NAV */}
+          {!isMobile && (
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path || (item.path === '/matchup' && location.pathname === '/');
+                const isHistoryActive = item.hasSubmenu && historySubmenu.some(s => s.path === location.pathname);
 
-              return item.hasSubmenu ? (
-                <Box key={item.path} sx={{ position: 'relative' }}>
+                return item.hasSubmenu ? (
+                  <Box key={item.path} sx={{ position: 'relative' }}>
+                    <Button
+                      onMouseEnter={handleHistoryOpen}
+                      onClick={() => handleNavClick('/teams')}
+                      startIcon={item.icon}
+                      sx={{
+                        px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isHistoryActive ? 700 : 600,
+                        color: isHistoryActive ? '#4a90e2' : '#333',
+                        bgcolor: isHistoryActive ? 'rgba(74,144,226,0.18)' : 'transparent',
+                        borderRadius: 2.5, textTransform: 'none',
+                        border: isHistoryActive ? '2px solid #4a90e2' : '2px solid transparent',
+                        '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+
+                    {/* SUBMENU NOW ABOVE THE LINE */}
+                    <Popper
+                      open={Boolean(historyAnchorEl)}
+                      anchorEl={historyAnchorEl}
+                      transition
+                      sx={{ zIndex: 1400 }}
+                      modifiers={[
+                        {
+                          name: 'offset',
+                        },
+                        {
+                          name: 'flip',
+                          enabled: false,
+                        },
+                        {
+                          name: 'preventOverflow',
+                          enabled: true,
+                          options: { boundary: 'viewport' },
+                        },
+                      ]}
+                    >
+                      {({ TransitionProps }) => (
+                        <Grow {...TransitionProps}>
+                          <Paper
+                            elevation={20}
+                            onMouseLeave={handleHistoryClose}
+                            sx={{
+                              mb: 1.5,
+                              bgcolor: '#fff',
+                              border: '3px solid #4a90e2',
+                              borderRadius: 3,
+                              overflow: 'hidden',
+                              display: 'flex',
+                              boxShadow: '0 -8px 30px rgba(74,144,226,0.3)',
+                            }}
+                          >
+                            <ClickAwayListener onClickAway={handleHistoryClose}>
+                              <Box sx={{ display: 'flex' }}>
+                                {historySubmenu.map((sub) => (
+                                  <MenuItem
+                                    key={sub.path}
+                                    onClick={() => { handleNavClick(sub.path); handleHistoryClose(); }}
+                                    sx={{
+                                      px: 4, py: 2.4, minWidth: 170,
+                                      bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.18)' : 'transparent',
+                                      borderRight: '1px solid #ddd',
+                                      '&:last-child': { borderRight: 'none' },
+                                      '&:hover': { bgcolor: 'rgba(74,144,226,0.25)' },
+                                      gap: 2,
+                                    }}
+                                  >
+                                    {sub.icon}
+                                    <Typography fontWeight={600} fontSize="0.95rem">{sub.label}</Typography>
+                                  </MenuItem>
+                                ))}
+                              </Box>
+                            </ClickAwayListener>
+                          </Paper>
+                        </Grow>
+                      )}
+                    </Popper>
+                  </Box>
+                ) : (
                   <Button
-                    onMouseEnter={handleHistoryOpen}
-                    onClick={() => handleNavClick('/teams')}
+                    key={item.path}
+                    onClick={() => handleNavClick(item.path)}
                     startIcon={item.icon}
                     sx={{
-                      px: 2.5,
-                      py: 1,
-                      fontSize: '0.925rem',
-                      fontWeight: isHistoryActive ? 700 : 600,
-                      color: isHistoryActive ? '#4a90e2' : '#424242',
-                      bgcolor: isHistoryActive ? 'rgba(74,144,226,0.15)' : 'transparent',
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      whiteSpace: 'nowrap',
-                      border: isHistoryActive ? '2px solid #4a90e2' : '2px solid transparent',
-                      '&:hover': { bgcolor: 'rgba(74,144,226,0.1)', transform: 'translateY(-1px)' },
+                      px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isActive ? 700 : 600,
+                      color: isActive ? '#4a90e2' : '#333',
+                      bgcolor: isActive ? 'rgba(74,144,226,0.18)' : 'transparent',
+                      borderRadius: 2.5, textTransform: 'none',
+                      border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
+                      '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
                     }}
                   >
                     {item.label}
                   </Button>
+                );
+              })}
+            </Box>
+          )}
 
-                  {/* HORIZONTAL Submenu */}
-                  <Popper
-                    open={Boolean(historyAnchorEl)}
-                    anchorEl={historyAnchorEl}
-                    transition
-                    placement="bottom-start"
-                    sx={{ zIndex: 1300 }}
-                  >
-                    {({ TransitionProps }) => (
-                      <Grow {...TransitionProps} timeout={200}>
-                        <Paper
-                          elevation={12}
-                          onMouseLeave={handleHistoryClose}
-                          sx={{
-                            mt: 1.5,
-                            bgcolor: '#ffffff',
-                            border: '2px solid #4a90e2',
-                            borderRadius: 2,
-                            overflow: 'hidden',
-                            display: 'flex',
-                            boxShadow: '0 8px 25px rgba(74,144,226,0.25)',
-                          }}
-                        >
-                          <ClickAwayListener onClickAway={handleHistoryClose}>
-                            <Box sx={{ display: 'flex' }}>
-                              {historySubmenu.map((sub) => (
-                                <MenuItem
-                                  key={sub.path}
-                                  onClick={() => { handleNavClick(sub.path); handleHistoryClose(); }}
-                                  sx={{
-                                    px: 3,
-                                    py: 2,
-                                    minWidth: 140,
-                                    bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.15)' : 'transparent',
-                                    borderRight: '1px solid #e0e0e0',
-                                    '&:last-child': { borderRight: 'none' },
-                                    '&:hover': { bgcolor: 'rgba(74,144,226,0.2)' },
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1.5,
-                                  }}
-                                >
-                                  {sub.icon}
-                                  <Typography fontWeight={600}>{sub.label}</Typography>
-                                </MenuItem>
-                              ))}
-                            </Box>
-                          </ClickAwayListener>
-                        </Paper>
-                      </Grow>
-                    )}
-                  </Popper>
-                </Box>
-              ) : (
-                <Button
-                  key={item.path}
-                  onClick={() => handleNavClick(item.path)}
-                  startIcon={item.icon}
-                  sx={{
-                    px: 2.5,
-                    py: 1,
-                    fontSize: '0.925rem',
-                    fontWeight: isActive ? 700 : 600,
-                    color: isActive ? '#4a90e2' : '#424242',
-                    bgcolor: isActive ? 'rgba(74,144,226,0.15)' : 'transparent',
-                    borderRadius: 2,
-                    textTransform: 'none',
-                    whiteSpace: 'nowrap',
-                    border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
-                    '&:hover': { bgcolor: 'rgba(74,144,226,0.1)', transform: 'translateY(-1px)' },
-                  }}
-                >
-                  {item.label}
-                </Button>
-              );
-            })}
-          </Box>
-
-          {/* Right: League + Profile */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+          {/* RIGHT: Connect to Yahoo + Profile */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, flexShrink: 0 }}>
+            {/* CONNECT TO YAHOO BUTTON */}
             {isAuthenticated && userLeagues.length > 0 ? (
-              <FormControl size="small" sx={{ minWidth: 140 }}>
-                <InputLabel sx={{ color: '#424242' }}>League</InputLabel>
+              <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
                 <Select
                   value={selectedLeague}
-                  onChange={(e) => { setSelectedLeague(e.target.value); setLeagueTeams([]); }}
-                  label="League"
-                  sx={{ bgcolor: '#fff', height: 40, borderRadius: 2 }}
+                  onChange={(e) => setSelectedLeague(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    bgcolor: '#fff',
+                    height: 36,
+                    fontSize: '0.8rem',
+                    '& .MuiSelect-select': { py: 1 },
+                  }}
                 >
                   {userLeagues.map((l) => (
-                    <MenuItem key={l.leagueId} value={l.leagueId}>
-                      {l.name} {l.season && `(${l.season})`}
+                    <MenuItem key={l.leagueId} value={l.leagueId} sx={{ fontSize: '0.85rem' }}>
+                      {l.name.split(' ').slice(0, 2).join(' ')}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             ) : (
               <Button
-                variant="outlined"
-                startIcon={yahooConnecting ? <CircularProgress size={20} /> : <SportsBasketballIcon />}
+                variant="contained"
+                startIcon={yahooConnecting ? <CircularProgress size={18} color="inherit" /> : <SportsBasketballIcon />}
                 onClick={handleYahooConnect}
                 disabled={yahooConnecting}
                 sx={{
-                  height: 40,
+                  height: 38,
+                  fontSize: '0.8rem',
                   fontWeight: 600,
-                  borderColor: '#4a90e2',
-                  color: '#4a90e2',
-                  fontFamily: '"Roboto Mono", monospace',
-                  px: 3,
+                  bgcolor: '#4a90e2',
+                  color: 'white',
+                  borderRadius: 3,
+                  px: 2,
+                  textTransform: 'none',
+                  boxShadow: '0 4px 12px rgba(74,144,226,0.4)',
                   '&:hover': {
-                    borderColor: '#80deea',
-                    bgcolor: 'rgba(74, 144, 226, 0.1)',
+                    bgcolor: '#357abd',
+                    boxShadow: '0 6px 16px rgba(74,144,226,0.5)',
                   },
+                  '&:active': { transform: 'translateY(1px)' },
                 }}
               >
                 {yahooConnecting ? 'Connecting...' : 'Connect to Yahoo'}
               </Button>
             )}
 
+            {/* Profile */}
             {isAuthenticated && user && (
-              <>
-                <IconButton onClick={handleProfileMenuOpen}>
-                  <Avatar
-                    src={displayPicture?.includes('default') ? 'https://www.svgrepo.com/show/513271/basketball.svg' : displayPicture}
-                    alt={displayName}
-                    sx={{ width: 42, height: 42, border: '3px solid #4a90e2' }}
-                  >
-                    {displayName.charAt(0).toUpperCase()}
-                  </Avatar>
-                </IconButton>
-                <Menu anchorEl={profileAnchorEl} open={Boolean(profileAnchorEl)} onClose={handleProfileMenuClose}>
-                  <MenuItem disabled sx={{ opacity: 1, bgcolor: 'rgba(74,144,226,0.05)' }}>
-                    <Box>
-                      <Typography fontWeight={700}>{displayName}</Typography>
-                      {displayEmail && <Typography variant="caption" color="text.secondary">{displayEmail}</Typography>}
-                    </Box>
-                  </MenuItem>
-                  <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}>Profile</MenuItem>
-                  <MenuItem onClick={handleLogout} sx={{ color: '#d32f2f' }}>
-                    <Logout sx={{ mr: 1 }} /> Logout
-                  </MenuItem>
-                </Menu>
-              </>
+              <IconButton onClick={(e) => setProfileAnchorEl(e.currentTarget)}>
+                <Avatar
+                  src={displayPicture?.includes('default') ? 'https://www.svgrepo.com/show/513271/basketball.svg' : displayPicture}
+                  alt={displayName}
+                  sx={{ width: 38, height: 38, border: '2px solid #4a90e2' }}
+                >
+                  {displayName[0]}
+                </Avatar>
+              </IconButton>
             )}
           </Box>
         </Box>
 
-        {/* Mobile Menu */}
-        <Box sx={{ display: { xs: 'flex', md: 'none' }, justifyContent: 'center', pb: 1 }}>
-          <Button onClick={(e) => setAnchorEl(e.currentTarget)} variant="contained" sx={{ bgcolor: '#4a90e2' }}>
-            Menu
-          </Button>
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-            {navItems.map((item) => !item.hasSubmenu ? (
-              <MenuItem key={item.path} onClick={() => { handleNavClick(item.path); setAnchorEl(null); }}>
+        {/* MOBILE MENU */}
+        <Menu
+          anchorEl={mobileMenuAnchor}
+          open={Boolean(mobileMenuAnchor)}
+          onClose={() => setMobileMenuAnchor(null)}
+          PaperProps={{ sx: { width: 260, mt: 1.5 } }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        >
+          {navItems.map((item) => !item.hasSubmenu ? (
+            <MenuItem key={item.path} onClick={() => handleNavClick(item.path)} sx={{ py: 2, gap: 2 }}>
+              {item.icon}
+              <Typography fontWeight={600}>{item.label}</Typography>
+            </MenuItem>
+          ) : (
+            <Box key={item.path}>
+              <MenuItem onClick={() => handleNavClick('/teams')} sx={{ py: 2, gap: 2, fontWeight: 600 }}>
                 {item.icon} {item.label}
               </MenuItem>
-            ) : (
-              <Box key={item.path}>
-                <MenuItem onClick={() => { handleNavClick('/teams'); setAnchorEl(null); }}>
-                  {item.icon} {item.label}
+              {historySubmenu.map((sub) => (
+                <MenuItem
+                  key={sub.path}
+                  onClick={() => handleNavClick(sub.path)}
+                  sx={{ pl: 7, py: 1.8, bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.1)' : 'transparent' }}
+                >
+                  {sub.icon} {sub.label}
                 </MenuItem>
-                {historySubmenu.map((sub) => (
-                  <MenuItem key={sub.path} onClick={() => { handleNavClick(sub.path); setAnchorEl(null); }} sx={{ pl: 6 }}>
-                    {sub.icon} {sub.label}
-                  </MenuItem>
-                ))}
-              </Box>
-            ))}
-          </Menu>
-        </Box>
+              ))}
+            </Box>
+          ))}
+        </Menu>
       </Box>
 
-      {/* Main Content */}
+      {/* Profile Menu */}
+      <Menu anchorEl={profileAnchorEl} open={Boolean(profileAnchorEl)} onClose={() => setProfileAnchorEl(null)}>
+        <MenuItem disabled sx={{ opacity: 1 }}>
+          <Box>
+            <Typography fontWeight={700}>{displayName}</Typography>
+          </Box>
+        </MenuItem>
+        <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/profile'); }}>Profile</MenuItem>
+        <MenuItem onClick={() => { logout(); setProfileAnchorEl(null); navigate('/matchup'); }} sx={{ color: '#d32f2f' }}>
+          <Logout sx={{ mr: 1 }} /> Logout
+        </MenuItem>
+      </Menu>
+
+      {/* CONTENT & FOOTER */}
       <Container maxWidth={false} disableGutters sx={{ flexGrow: 1 }}>
         {isPageLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
-            <CircularProgress size={70} sx={{ color: '#4a90e2' }} />
+            <CircularProgress size={80} sx={{ color: '#4a90e2' }} />
           </Box>
         ) : (
           <LeagueProvider
@@ -520,12 +524,9 @@ const AlltimeLayout = () => {
         )}
       </Container>
 
-      {/* Footer */}
       <Box component="footer" sx={{ py: 3, textAlign: 'center', borderTop: '1px solid #e0e0e0', bgcolor: '#fff' }}>
-        <Typography variant="body2" color="text.secondary">
-          © {new Date().getFullYear()} Fantasy Goats Guru ·{' '}
-          <Link component={RouterLink} style={{ marginRight: '10px' }} to="/privacy-policy" color="primary">Privacy</Link>
-          <Link component={RouterLink} to="/about" color="primary">About</Link>
+        <Typography variant="caption" color="text.secondary">
+          © {new Date().getFullYear()} Fantasy Goats Guru
         </Typography>
       </Box>
     </Box>
