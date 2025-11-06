@@ -32,6 +32,7 @@ import FantasyChat from '../Pages/FantasyChat';
 import LeaguePlayoffs from '../Pages/LeaguePlayoffs';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
+import PrivacyPolicy from '../Pages/PrivacyPolicy';
 import { useAuth } from '../contexts/AuthContext';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
@@ -185,7 +186,10 @@ const AlltimeLayout = () => {
           body: { action: 'getAllTeamsInLeague', userId: user.userId, leagueId: selectedLeague },
         });
         setLeagueTeams(data?.teams || []);
-      } catch (err) { setLeagueTeams([]); }
+      } catch (err) {
+        console.error('Error fetching league teams:', err);
+        setLeagueTeams([]);
+      }
     };
     fetchLeagueTeams();
   }, [selectedLeague, user?.userId, isAuthenticated]);
@@ -229,6 +233,7 @@ const AlltimeLayout = () => {
     if (p === '/playoffs') return <LeaguePlayoffs />;
     if (p === '/about') return <About />;
     if (p === '/profile') return <UserProfile />;
+    if (p === '/privacy-policy') return <PrivacyPolicy />;
     return <Matchup />;
   };
 
@@ -499,6 +504,7 @@ const AlltimeLayout = () => {
           </Box>
         </MenuItem>
         <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/profile'); }}>Profile</MenuItem>
+        <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/about'); }}>About us</MenuItem>
         <MenuItem onClick={() => { logout(); setProfileAnchorEl(null); navigate('/matchup'); }} sx={{ color: '#d32f2f' }}>
           <Logout sx={{ mr: 1 }} /> Logout
         </MenuItem>
@@ -526,7 +532,10 @@ const AlltimeLayout = () => {
 
       <Box component="footer" sx={{ py: 3, textAlign: 'center', borderTop: '1px solid #e0e0e0', bgcolor: '#fff' }}>
         <Typography variant="caption" color="text.secondary">
-          © {new Date().getFullYear()} Fantasy Goats Guru
+          © {new Date().getFullYear()} Fantasy Goats Guru ·{' '}
+          <Link component={RouterLink} to="/privacy-policy" color="primary" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+            Privacy Policy
+          </Link>
         </Typography>
       </Box>
     </Box>
