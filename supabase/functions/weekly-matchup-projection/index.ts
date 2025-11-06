@@ -264,8 +264,6 @@ async function getCurrentMatchup(userId: string, leagueId: string) {
   const token = await getAccessToken(userId);
   const leagueKey = `${GAME_ID}.l.${leagueId}`;
 
-  // 1. Get current week
-  const settings = await makeYahooRequest(token, `/league/${leagueKey}/settings`, userId);
 
   // 2. Find user's team (teams endpoint has the flag)
   const teamsResp = await makeYahooRequest(token, `/league/${leagueKey}/teams`, userId);
