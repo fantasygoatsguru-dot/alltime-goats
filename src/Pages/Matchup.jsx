@@ -1382,6 +1382,13 @@ const getCurrentWeekDates = () => {
                             expiresAt: data.expiresAt,
                         });
                         
+                        // Navigate to return path if stored, otherwise stay on matchup
+                        const returnPath = sessionStorage.getItem('oauth_return_path') || '/matchup';
+                        sessionStorage.removeItem('oauth_return_path');
+                        if (window.location.pathname !== returnPath) {
+                            window.location.href = returnPath;
+                        }
+                        
                         // Create or update user_profile with defaults from OAuth data
                         try {
                             const { data: existingProfile, error: profileError } = await supabase

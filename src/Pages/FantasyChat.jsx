@@ -310,7 +310,7 @@ const FantasyChat = () => {
         }}
       >
         <Alert severity="info">
-          Please select a league to use the Fantasy AI Assistant.
+          Please connect to yahoo fantasy to use the Fantasy AI Assistant.
         </Alert>
       </Box>
     );

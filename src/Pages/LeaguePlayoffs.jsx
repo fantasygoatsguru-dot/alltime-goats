@@ -21,11 +21,13 @@ import {
   Tabs,
   Tab,
   CircularProgress,
+  Button,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase } from "../utils/supabase";
@@ -902,6 +904,49 @@ const LeaguePlayoffs = () => {
             </Table>
           </TableContainer>
         </>
+      )}
+
+      {/* ── Connect to Yahoo Prompt (when not logged in) ───────────── */}
+      {!isAuthenticated && (
+        <Box
+          sx={{
+            mt: 4,
+            p: 3,
+            bgcolor: "primary.main",
+            color: "white",
+            borderRadius: 2,
+            textAlign: "center",
+            boxShadow: 3,
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+            Connect to Yahoo! to see your teams playoff strength
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<SportsBasketballIcon />}
+            onClick={() => {
+              const currentPath = window.location.pathname;
+              sessionStorage.setItem('oauth_return_path', currentPath);
+              const isDev = window.location.hostname === 'localhost';
+              supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } })
+                .then(({ data }) => {
+                  if (data?.authUrl) window.location.href = data.authUrl;
+                })
+                .catch((err) => console.error(err));
+            }}
+            sx={{
+              bgcolor: "white",
+              color: "primary.main",
+              fontWeight: 600,
+              "&:hover": {
+                bgcolor: "grey.100",
+              },
+            }}
+          >
+            Connect to Yahoo
+          </Button>
+        </Box>
       )}
     </Box>
   );

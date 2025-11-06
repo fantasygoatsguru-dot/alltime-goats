@@ -40,7 +40,7 @@ import { supabase } from '../utils/supabase';
 const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, login } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -210,6 +210,10 @@ const AlltimeLayout = () => {
   const handleYahooConnect = async () => {
     setYahooConnecting(true);
     try {
+      // Store current pathname to redirect back after OAuth
+      const currentPath = location.pathname;
+      sessionStorage.setItem('oauth_return_path', currentPath);
+      
       const isDev = window.location.hostname === 'localhost';
       const { data } = await supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } });
       if (data?.authUrl) window.location.href = data.authUrl;
@@ -218,6 +222,82 @@ const AlltimeLayout = () => {
       setYahooConnecting(false);
     }
   };
+
+  // Global OAuth callback handler
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    
+    // Only handle if we have a code and user is not authenticated
+    // Skip if we're on matchup page (it has its own handler, but we'll override redirect)
+    if (code && !isAuthenticated) {
+      const returnPath = sessionStorage.getItem('oauth_return_path') || '/matchup';
+      sessionStorage.removeItem('oauth_return_path');
+      
+      // Remove code from URL immediately to prevent double-processing
+      window.history.replaceState({}, document.title, returnPath);
+      
+      // Process OAuth callback
+      const processCallback = async () => {
+        try {
+          const isDev = window.location.hostname === 'localhost';
+          const { data } = await supabase.functions.invoke('yahoo-oauth', {
+            body: { action: 'callback', code, isDev }
+          });
+          
+          if (data?.success) {
+            // Call login function from AuthContext
+            login({
+              userId: data.userId,
+              email: data.email,
+              name: data.name,
+              profilePicture: data.profilePicture,
+              expiresAt: data.expiresAt,
+            });
+            
+            // Create or update user_profile
+            try {
+              const { data: existingProfile, error: profileError } = await supabase
+                .from('user_profiles')
+                .select('user_id, name, email')
+                .eq('user_id', data.userId)
+                .single();
+              
+              if (profileError && profileError.code !== 'PGRST116') {
+                throw profileError;
+              }
+              
+              if (existingProfile && !profileError) {
+                const updateData = {};
+                if (!existingProfile.name && data.name) updateData.name = data.name;
+                if (!existingProfile.email && data.email) updateData.email = data.email;
+                if (Object.keys(updateData).length > 0) {
+                  await supabase.from('user_profiles').update(updateData).eq('user_id', data.userId);
+                }
+              } else {
+                await supabase.from('user_profiles').insert({
+                  user_id: data.userId,
+                  name: data.name || '',
+                  email: data.email || '',
+                  send_weekly_projections: true,
+                  send_news: true,
+                });
+              }
+            } catch (profileErr) {
+              console.error('Error updating user profile:', profileErr);
+            }
+            
+            // Navigate to the return path
+            navigate(returnPath);
+          }
+        } catch (err) {
+          console.error('OAuth callback error:', err);
+        }
+      };
+      
+      processCallback();
+    }
+  }, [isAuthenticated, navigate, login]);
 
   const handleHistoryOpen = (e) => !isMobile && setHistoryAnchorEl(e.currentTarget);
   const handleHistoryClose = () => setHistoryAnchorEl(null);
