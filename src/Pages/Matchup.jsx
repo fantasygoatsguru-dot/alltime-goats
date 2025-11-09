@@ -324,7 +324,7 @@ const Matchup = () => {
 
     
     // Auth context
-    const { user, isAuthenticated, login } = useAuth();
+    const { user, isAuthenticated, login, ensureValidToken } = useAuth();
     const userId = user?.userId || null;
     const isConnected = isAuthenticated;
     
@@ -359,6 +359,13 @@ const Matchup = () => {
     }, [team1Players, team2Players]);
 
     const callSupabaseFunction = async (functionName, payload) => {
+        if (functionName === "yahoo-fantasy-api" && ensureValidToken) {
+            const isValid = await ensureValidToken();
+            if (!isValid) {
+                throw new Error("Unable to refresh authentication. Please log in again.");
+            }
+        }
+
         const { data, error } = await supabase.functions.invoke(functionName, {
             body: payload,
         });
