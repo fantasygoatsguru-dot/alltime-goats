@@ -12,6 +12,8 @@ export const useLeague = () => {
             leagueTeams: [],
             userTeamPlayers: [],
             setLeagueTeams: () => {},
+            currentMatchup: null,
+            setCurrentMatchup: () => {},
         };
     }
     return context;
@@ -25,6 +27,8 @@ export const LeagueProvider = ({
     leagueTeams = [],
     userTeamPlayers = [],
     setLeagueTeams = () => {},
+    currentMatchup = null,
+    setCurrentMatchup = () => {},
 }) => {
     return (
         <LeagueContext.Provider value={{ 
@@ -34,6 +38,8 @@ export const LeagueProvider = ({
             leagueTeams,
             userTeamPlayers,
             setLeagueTeams,
+            currentMatchup,
+            setCurrentMatchup,
         }}>
             {children}
         </LeagueContext.Provider>

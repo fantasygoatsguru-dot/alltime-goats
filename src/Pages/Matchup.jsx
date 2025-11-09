@@ -330,7 +330,7 @@ const Matchup = () => {
     const isConnected = isAuthenticated;
     
     // League context
-    const { selectedLeague, onLeagueChange, userLeagues, leagueTeams, setLeagueTeams } = useLeague();
+    const { selectedLeague, onLeagueChange, userLeagues, leagueTeams, setLeagueTeams, currentMatchup: contextMatchup, setCurrentMatchup: setContextMatchup } = useLeague();
     
     // Loading and error state
     const [loading, setLoading] = useState(false);
@@ -398,6 +398,36 @@ const Matchup = () => {
     const handleFetchCurrentMatchup = async () => {
         if (!selectedLeague || !userId) return;
 
+        // Use matchup from context if available
+        if (contextMatchup) {
+            const matchup = contextMatchup;
+            setTeam1Name(matchup.team1.name);
+            setTeam2Name(matchup.team2.name);
+            setSelectedTeam1(matchup.team1.name);
+            setSelectedTeam2(matchup.team2.name);
+            setTeam1Players(
+                matchup.team1.players.map((p) => ({
+                    id: p.nbaPlayerId || p.yahooPlayerId,
+                    name: p.name,
+                    yahooPlayerId: p.yahooPlayerId,
+                    nbaPlayerId: p.nbaPlayerId,
+                    active: true,
+                }))
+            );
+            setTeam2Players(
+                matchup.team2.players.map((p) => ({
+                    id: p.nbaPlayerId || p.yahooPlayerId,
+                    name: p.name,
+                    yahooPlayerId: p.yahooPlayerId,
+                    nbaPlayerId: p.nbaPlayerId,
+                    active: true,
+                }))
+            );
+            setCurrentMatchup(matchup);
+            return;
+        }
+
+        // If not in context, fetch it
         setLoading(true);
         setError(null);
         try {
@@ -408,6 +438,11 @@ const Matchup = () => {
             });
 
             if (data.matchup) {
+                // Update context with fetched matchup
+                if (setContextMatchup) {
+                    setContextMatchup(data.matchup);
+                }
+                
                 // Set the teams as default
                 setTeam1Name(data.matchup.team1.name);
                 setTeam2Name(data.matchup.team2.name);

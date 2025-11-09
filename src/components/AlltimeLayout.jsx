@@ -53,6 +53,7 @@ const AlltimeLayout = () => {
   const [userLeagues, setUserLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState("");
   const [leagueTeams, setLeagueTeams] = useState([]);
+  const [currentMatchup, setCurrentMatchup] = useState(null);
   const [yahooConnecting, setYahooConnecting] = useState(false);
   const [loadingLeagues, setLoadingLeagues] = useState(false);
 
@@ -199,6 +200,35 @@ const AlltimeLayout = () => {
       }
     };
     fetchLeagueTeams();
+  }, [selectedLeague, user?.userId, isAuthenticated]);
+
+  useEffect(() => {
+    const fetchCurrentMatchup = async () => {
+      if (!selectedLeague || !isAuthenticated || !user?.userId) return;
+      try {
+        const { data, error } = await supabase.functions.invoke('yahoo-fantasy-api', {
+          body: { 
+            action: 'getCurrentMatchup', 
+            userId: user.userId, 
+            leagueId: selectedLeague 
+          },
+        });
+        if (error) {
+          console.error('Error fetching matchup:', error);
+          setCurrentMatchup(null);
+          return;
+        }
+        if (data?.matchup) {
+          setCurrentMatchup(data.matchup);
+        } else {
+          setCurrentMatchup(null);
+        }
+      } catch (err) {
+        console.error('Error fetching current matchup:', err);
+        setCurrentMatchup(null);
+      }
+    };
+    fetchCurrentMatchup();
   }, [selectedLeague, user?.userId, isAuthenticated]);
 
   const userTeamPlayers = useMemo(() => {
@@ -623,6 +653,8 @@ const AlltimeLayout = () => {
             leagueTeams={leagueTeams}
             userTeamPlayers={userTeamPlayers}
             setLeagueTeams={setLeagueTeams}
+            currentMatchup={currentMatchup}
+            setCurrentMatchup={setCurrentMatchup}
           >
             {renderContent()}
           </LeagueProvider>

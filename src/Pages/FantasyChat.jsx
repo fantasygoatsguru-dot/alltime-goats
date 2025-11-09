@@ -1,5 +1,5 @@
 // FantasyChat.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -26,7 +26,7 @@ import { supabase, CURRENT_SEASON } from "../utils/supabase";
 
 const FantasyChat = () => {
   const { user } = useAuth();
-  const { selectedLeague, leagueTeams, userTeamPlayers } = useLeague();
+  const { selectedLeague, leagueTeams, userTeamPlayers, currentMatchup } = useLeague();
 
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -35,6 +35,7 @@ const FantasyChat = () => {
   const [showContext, setShowContext] = useState(true);
   const [leagueSettings, setLeagueSettings] = useState({});
   const [playerStats, setPlayerStats] = useState({});
+  const [_matchupProjection, _setMatchupProjection] = useState(null);
 
   const messagesEndRef = useRef(null);
 
@@ -42,40 +43,49 @@ const FantasyChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    if (user?.userId && selectedLeague) {
-      loadChatHistory();
-      loadLeagueSettings();
-      loadPlayerStats();
-    }
-  }, [user?.userId, selectedLeague, leagueTeams, userTeamPlayers]);
-
-  const loadChatHistory = async () => {
+  const loadChatHistory = useCallback(async () => {
+    if (!user?.userId || !selectedLeague) return;
     try {
       const { data } = await supabase
         .from("fantasy_chat_messages")
-        .select("*")
+        .select("id, message_role, message_content, created_at")
         .eq("user_id", user.userId)
         .eq("league_id", selectedLeague)
         .order("created_at", { ascending: true })
         .limit(50);
 
       if (data?.length) {
-        const formatted = data.map((msg) => ({
-          role: msg.message_role,
-          content: msg.message_role === "assistant"
-            ? JSON.parse(msg.message_content)
-            : msg.message_content,
-          timestamp: msg.created_at,
-        }));
+        const formatted = data
+          .map((msg) => ({
+            id: msg.id,
+            role: msg.message_role,
+            content: msg.message_role === "assistant"
+              ? JSON.parse(msg.message_content)
+              : msg.message_content,
+            timestamp: msg.created_at,
+          }))
+          .sort((a, b) => {
+            // First sort by timestamp
+            const timeA = new Date(a.timestamp).getTime();
+            const timeB = new Date(b.timestamp).getTime();
+            if (timeA !== timeB) {
+              return timeA - timeB;
+            }
+            // If timestamps are equal (or very close), sort by ID to maintain insertion order
+            // UUIDs generated sequentially will maintain order
+            return a.id.localeCompare(b.id);
+          });
         setMessages(formatted);
+      } else {
+        setMessages([]);
       }
     } catch (err) {
       console.error("History error:", err);
     }
-  };
+  }, [user?.userId, selectedLeague]);
 
-  const loadLeagueSettings = async () => {
+  const loadLeagueSettings = useCallback(async () => {
+    if (!user?.userId || !selectedLeague) return;
     try {
       const { data } = await supabase.functions.invoke("yahoo-fantasy-api", {
         body: { action: "getLeagueSettings", userId: user.userId, leagueId: selectedLeague },
@@ -84,9 +94,9 @@ const FantasyChat = () => {
     } catch {
       setLeagueSettings({});
     }
-  };
+  }, [user?.userId, selectedLeague]);
 
-  const loadPlayerStats = async () => {
+  const loadPlayerStats = useCallback(async () => {
     if (!leagueTeams?.length) return;
     const ids = new Set();
     userTeamPlayers.forEach((p) => p.nbaPlayerId && ids.add(p.nbaPlayerId));
@@ -105,21 +115,64 @@ const FantasyChat = () => {
       map[r.player_id] = { points: r.points_per_game || 0, totalValue: r.total_value || 0 };
     });
     setPlayerStats(map);
-  };
+  }, [leagueTeams, userTeamPlayers]);
+
+  useEffect(() => {
+    if (user?.userId && selectedLeague) {
+      loadChatHistory();
+      loadLeagueSettings();
+      loadPlayerStats();
+    }
+  }, [user?.userId, selectedLeague, loadChatHistory, loadLeagueSettings, loadPlayerStats]);
 
   const buildLeagueContext = () => {
     const userTeam = leagueTeams?.find((t) => t.is_owned_by_current_login);
     const others = leagueTeams?.filter((t) => !t.is_owned_by_current_login) || [];
 
-    // Find current matchup
-    const currentMatchupObj = userTeam?.matchups?.find(m => m.is_current) ||
-                               userTeam?.matchups?.[0];
+    // Extract stat categories from league settings
+    let enabledStatCategories = [];
+    if (leagueSettings?.settings?.stat_categories?.stats) {
+      enabledStatCategories = leagueSettings.settings.stat_categories.stats;
+    } else if (leagueSettings?.stat_categories) {
+      enabledStatCategories = Array.isArray(leagueSettings.stat_categories) 
+        ? leagueSettings.stat_categories 
+        : leagueSettings.stat_categories.stats || [];
+    }
+
+    // Build matchup context from fetched matchup data
+    let matchupContext = null;
+    if (currentMatchup) {
+      matchupContext = {
+        team1: {
+          name: currentMatchup.team1?.name || "Team 1",
+          players: (currentMatchup.team1?.players || []).map((p) => ({
+            name: p.name,
+            nbaPlayerId: p.nbaPlayerId,
+            yahooPlayerId: p.yahooPlayerId,
+            position: p.selectedPosition || p.selected_position,
+            status: p.status,
+          })),
+        },
+        team2: {
+          name: currentMatchup.team2?.name || "Team 2",
+          players: (currentMatchup.team2?.players || []).map((p) => ({
+            name: p.name,
+            nbaPlayerId: p.nbaPlayerId,
+            yahooPlayerId: p.yahooPlayerId,
+            position: p.selectedPosition || p.selected_position,
+            status: p.status,
+          })),
+        },
+        week: currentMatchup.week || null,
+        isCurrent: currentMatchup.is_current || false,
+      };
+    }
 
     return {
-      leagueName: leagueSettings?.leagueName || "Your League",
+      leagueName: leagueSettings?.leagueName || leagueSettings?.name || "Your League",
       leagueSettings: {
-        scoringType: leagueSettings?.scoring_type || "head-to-head",
-        enabledStatCategories: leagueSettings?.settings?.stat_categories?.stats || [],
+        scoringType: leagueSettings?.scoring_type || leagueSettings?.settings?.scoring_type || "head-to-head",
+        enabledStatCategories: enabledStatCategories,
       },
       userTeam: {
         name: userTeam?.name || "Your Team",
@@ -139,10 +192,7 @@ const FantasyChat = () => {
           stats: playerStats[p.nbaPlayerId] || null,
         })),
       })),
-      currentMatchup: currentMatchupObj ? {
-        weekNumber: currentMatchupObj.week,
-        opponent: currentMatchupObj.opponent_team_name || "Unknown Opponent",
-      } : null,
+      currentMatchup: matchupContext,
     };
   };
 
@@ -154,7 +204,28 @@ const FantasyChat = () => {
     setError(null);
     setIsLoading(true);
 
-    setMessages((prev) => [...prev, { role: "user", content: userMsg, timestamp: new Date().toISOString() }]);
+    // Add optimistic user message with temporary ID
+    const tempId = `temp-${Date.now()}-${Math.random()}`;
+    const optimisticUserMsg = { 
+      id: tempId, 
+      role: "user", 
+      content: userMsg, 
+      timestamp: new Date().toISOString() 
+    };
+    setMessages((prev) => {
+      const updated = [...prev, optimisticUserMsg];
+      // Sort to maintain order
+      return updated.sort((a, b) => {
+        const timeA = new Date(a.timestamp).getTime();
+        const timeB = new Date(b.timestamp).getTime();
+        if (timeA !== timeB) return timeA - timeB;
+        // For temp IDs, use the timestamp part for ordering
+        if (a.id?.startsWith('temp') && b.id?.startsWith('temp')) {
+          return a.id.localeCompare(b.id);
+        }
+        return a.id?.localeCompare(b.id) || 0;
+      });
+    });
 
     try {
       const context = buildLeagueContext();
@@ -172,16 +243,27 @@ const FantasyChat = () => {
       if (invokeErr) throw invokeErr;
       if (!res?.success) throw new Error(res?.error || "AI failed");
 
-      const aiContent = res.data;
-
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: aiContent, timestamp: new Date().toISOString() },
-      ]);
+      // Reload chat history to get messages in correct order from database
+      // This ensures both user and assistant messages are properly ordered
+      await loadChatHistory();
     } catch (err) {
       console.error("Send error:", err);
       setError(err.message || "Failed to get response");
-      setMessages((prev) => prev.slice(0, -1));
+      // Remove the optimistically added user message on error
+      setMessages((prev) => {
+        const sorted = [...prev].sort((a, b) => {
+          const timeA = new Date(a.timestamp).getTime();
+          const timeB = new Date(b.timestamp).getTime();
+          return timeA - timeB;
+        });
+        // Remove the last user message if it matches what we tried to send
+        return sorted.filter((msg, idx, arr) => {
+          if (idx === arr.length - 1 && msg.role === "user" && msg.content === userMsg) {
+            return false;
+          }
+          return true;
+        });
+      });
     } finally {
       setIsLoading(false);
     }
@@ -229,7 +311,7 @@ const FantasyChat = () => {
             Fantasy AI Assistant
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {ctx.userTeam.name} {ctx.currentMatchup && `vs ${ctx.currentMatchup.opponent}`}
+            {ctx.userTeam.name} {ctx.currentMatchup && `vs ${ctx.currentMatchup.team2.name}`}
           </Typography>
         </Box>
         <IconButton onClick={() => setShowContext(!showContext)}>
@@ -248,7 +330,10 @@ const FantasyChat = () => {
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
             <Chip label={ctx.leagueName} color="primary" size="small" />
             {ctx.currentMatchup && (
-              <Chip label={`Week ${ctx.currentMatchup.weekNumber} vs ${ctx.currentMatchup.opponent}`} size="small" />
+              <Chip 
+                label={`${ctx.currentMatchup.week ? `Week ${ctx.currentMatchup.week} ` : ''}${ctx.currentMatchup.team1.name} vs ${ctx.currentMatchup.team2.name}`} 
+                size="small" 
+              />
             )}
             <Chip label={`${ctx.userTeam.players.length} players`} size="small" />
           </Box>
@@ -287,9 +372,9 @@ const FantasyChat = () => {
           </Typography>
         )}
 
-        {messages.map((msg, i) => (
+        {messages.map((msg) => (
           <Box
-            key={i}
+            key={msg.id || `${msg.role}-${msg.timestamp}`}
             sx={{
               mb: 2,
               display: "flex",

@@ -54,7 +54,10 @@ serve(async (req) => {
     });
   }
 
-  const { userId, leagueId, userMessage, leagueContext, includeHistory = true } = body;
+    const { userId, leagueId, userMessage, leagueContext, includeHistory = true } = body;
+
+    // Debug: Log matchup data
+    console.log("Matchup data received:", JSON.stringify(leagueContext.currentMatchup, null, 2));
 
   try {
     // === 1. Auth ===
@@ -150,9 +153,73 @@ serve(async (req) => {
       })
       .join("\n");
 
-    const matchup = leagueContext.currentMatchup
-      ? `Week ${leagueContext.currentMatchup.weekNumber} vs ${leagueContext.currentMatchup.opponent}`
-      : "No active matchup";
+    // Build detailed matchup information
+    let matchup = "No active matchup";
+    let matchupDetails = "";
+    
+    if (leagueContext.currentMatchup) {
+      const m = leagueContext.currentMatchup;
+      const week = m.week || m.weekNumber || "Unknown";
+      const team1Name = m.team1?.name || "Team 1";
+      const team2Name = m.team2?.name || "Team 2";
+      
+      matchup = `Week ${week}: ${team1Name} vs ${team2Name}`;
+      
+      // Build detailed matchup breakdown
+      if (m.team1 && m.team2) {
+        const team1Players = m.team1.players || [];
+        const team2Players = m.team2.players || [];
+        
+        const formatMatchupPlayer = (p: any) => {
+          const pos = p.position ? ` [${p.position}]` : "";
+          const status = p.status ? ` (${p.status})` : "";
+          return `${p.name}${pos}${status}`;
+        };
+        
+        const team1List = team1Players.map(formatMatchupPlayer).join(", ");
+        const team2List = team2Players.map(formatMatchupPlayer).join(", ");
+        
+        // Determine which team is the user's team
+        const userTeamName = leagueContext.userTeam.name;
+        const isTeam1User = team1Name === userTeamName || team1Name.includes(userTeamName) || userTeamName.includes(team1Name);
+        const userTeamInMatchup = isTeam1User ? team1Name : team2Name;
+        const opponentTeamInMatchup = isTeam1User ? team2Name : team1Name;
+        const userTeamPlayersList = isTeam1User ? team1List : team2List;
+        const opponentPlayersList = isTeam1User ? team2List : team1List;
+        
+        matchupDetails = `\n\nCURRENT MATCHUP DETAILS:
+Your Team (${userTeamInMatchup}): ${userTeamPlayersList || "No players"}
+Opponent (${opponentTeamInMatchup}): ${opponentPlayersList || "No players"}`;
+        
+        // Include projection if available
+        if (m.projection) {
+          const proj = m.projection;
+          const userScore = isTeam1User ? (proj.team1Score || 0) : (proj.team2Score || 0);
+          const opponentScore = isTeam1User ? (proj.team2Score || 0) : (proj.team1Score || 0);
+          
+          matchupDetails += `\n\nPROJECTION:
+Your Score: ${userScore}
+Opponent Score: ${opponentScore}`;
+          
+          if (proj.categoryResults) {
+            const cats = Object.entries(proj.categoryResults)
+              .map(([cat, result]: [string, any]) => {
+                const userValue = isTeam1User ? (result.team1 || 0) : (result.team2 || 0);
+                const opponentValue = isTeam1User ? (result.team2 || 0) : (result.team1 || 0);
+                let winner = "TIE";
+                if (result.winner === userTeamInMatchup) {
+                  winner = "YOU";
+                } else if (result.winner === opponentTeamInMatchup) {
+                  winner = "OPPONENT";
+                }
+                return `${cat}: ${winner} (You: ${userValue} vs Opponent: ${opponentValue})`;
+              })
+              .join("\n");
+            matchupDetails += `\nCategory Breakdown:\n${cats}`;
+          }
+        }
+      }
+    }
 
     const cats = leagueContext.leagueSettings?.enabledStatCategories
       ?.map((c: any) => c.abbr || c.displayName)
@@ -167,7 +234,8 @@ CRITICAL LEAGUE DATA (USE THIS FIRST):
 League: ${leagueContext.leagueName}
 Your Team: ${leagueContext.userTeam.name}${userTeamMgr}
 Your Players (NEVER suggest these): ${userPlayers}
-Current Matchup: ${matchup}
+Current Matchup: ${matchup}${matchupDetails}
+IMPORTANT: When asked about the matchup, use the matchup details above. You have full information about both teams, their players, positions, and statuses. Use this data to provide specific matchup analysis.
 Scoring Categories: ${cats}
 
 TRADE/STREAM TARGETS ONLY FROM THESE TEAMS:
@@ -231,10 +299,29 @@ Respond ONLY in valid JSON:
     }
 
     // === 7. SAVE ===
-    await supabase.from("fantasy_chat_messages").insert([
-      { user_id: userId, league_id: leagueId, message_role: "user", message_content: userMessage },
-      { user_id: userId, league_id: leagueId, message_role: "assistant", message_content: JSON.stringify(result) },
-    ]);
+    // Insert messages sequentially to ensure proper ordering
+    // Use explicit timestamps to guarantee order
+    const now = new Date();
+    const userTimestamp = now.toISOString();
+    const assistantTimestamp = new Date(now.getTime() + 1).toISOString(); // 1ms later
+    
+    // First insert user message
+    await supabase.from("fantasy_chat_messages").insert({
+      user_id: userId,
+      league_id: leagueId,
+      message_role: "user",
+      message_content: userMessage,
+      created_at: userTimestamp,
+    });
+    
+    // Then insert assistant message with slightly later timestamp
+    await supabase.from("fantasy_chat_messages").insert({
+      user_id: userId,
+      league_id: leagueId,
+      message_role: "assistant",
+      message_content: JSON.stringify(result),
+      created_at: assistantTimestamp,
+    });
 
     // === 8. USAGE (FIXED) ===
     try {
