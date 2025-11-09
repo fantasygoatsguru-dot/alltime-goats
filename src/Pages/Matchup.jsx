@@ -61,6 +61,7 @@ import WeeklyMatchupResults from "../components/WeeklyMatchupResults";
 import YahooConnectionSection from "../components/YahooConnectionSection";
 import StatsComparisonGraph from "../components/StatsComparisonGraph";
 import PlayerComparisonGraph from "../components/PlayerComparisonGraph";
+import ReassuringLoader from "../components/ReassuringLoader";
 
 const DEFAULT_PLAYERS = {
     team1: [
@@ -345,6 +346,7 @@ const Matchup = () => {
     // Ref to prevent double-processing of OAuth callback
     const hasProcessedCallback = useRef(false);
     const hasInitializedDefaults = useRef(false);
+    const previousIsAuthenticatedRef = useRef(isAuthenticated);
 
     const fetchAllPlayersFromSupabase = useCallback(async () => {
         return await fetchAllPlayers();
@@ -443,10 +445,7 @@ const Matchup = () => {
             setError(err.message || "Failed to fetch current matchup");
         } finally {
             setLoading(false);
-            // If user is connected, keep spinner until teams are loaded
-            if (initialLoading && isConnected && team1Players.length > 0) {
-                setInitialLoading(false);
-            }
+            // Don't stop initial loading here - wait for stats and projection to complete
         }
     };
     const calculateMatchupProjection = async (matchup) => {
@@ -898,10 +897,19 @@ const getCurrentWeekDates = () => {
             
             console.log('Setting matchup projection:', projectionData);
             setMatchupProjection(projectionData);
+            
+            // Mark initial loading as complete after matchup projection is calculated
+            if (initialLoading) {
+                setInitialLoading(false);
+            }
     
         } catch (error) {
             console.error('Error calculating matchup projection:', error);
             setMatchupProjection(null);
+            // Mark loading as complete even if projection fails
+            if (initialLoading) {
+                setInitialLoading(false);
+            }
         }
     };
 
@@ -953,10 +961,7 @@ const getCurrentWeekDates = () => {
                         : []
                 );
                 
-                // If user is connected, mark initial loading as complete once teams are loaded
-                if (initialLoading && isConnected) {
-                    setInitialLoading(false);
-                }
+                // Don't stop initial loading here - wait for matchup and stats to complete
             }
         } catch (err) {
             setError(err.message || "Failed to load league");
@@ -1286,6 +1291,20 @@ const getCurrentWeekDates = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLeague, userId, isConnected, leagueTeams]);
+    
+    // Fallback: Turn off initial loading if teams are loaded but no matchup is being fetched
+    useEffect(() => {
+        if (initialLoading && isConnected && team1Players.length > 0 && team2Players.length > 0 && !loading && !currentMatchup) {
+            // If we have teams loaded but no matchup was fetched (manual team selection), stop loading
+            const timer = setTimeout(() => {
+                if (initialLoading) {
+                    console.log('Stopping initial loading - teams loaded without matchup');
+                    setInitialLoading(false);
+                }
+            }, 2000); // Wait 2 seconds to ensure matchup fetch had a chance to start
+            return () => clearTimeout(timer);
+        }
+    }, [initialLoading, isConnected, team1Players.length, team2Players.length, loading, currentMatchup]);
 
     // Auto-fetch current matchup when league is available
     useEffect(() => {
@@ -1302,9 +1321,9 @@ const getCurrentWeekDates = () => {
                 const activeTeam1Players = team1Players.filter((player) => player.active);
                 const activeTeam2Players = team2Players.filter((player) => player.active);
 
-                // If no players to fetch, mark loading as complete
+                // If no players to fetch and not connected to Yahoo, mark loading as complete
                 if (activeTeam1Players.length === 0 && activeTeam2Players.length === 0 && selectedPlayers.length === 0) {
-                    if (initialLoading) {
+                    if (initialLoading && !isConnected) {
                         setInitialLoading(false);
                     }
                     return;
@@ -1345,10 +1364,15 @@ const getCurrentWeekDates = () => {
                     ...(teamAveragesEntry ? [{ teamAverages: teamAveragesEntry.teamAverages }] : []),
                 ]);
                 }
+                
+                // If not connected to Yahoo (using default players), mark loading as complete after stats are loaded
+                if (initialLoading && !isConnected) {
+                    setInitialLoading(false);
+                }
             } catch (error) {
                 console.error("Error fetching player stats:", error);
-            } finally {
-                if (initialLoading) {
+                // Mark loading as complete even if there's an error
+                if (initialLoading && !isConnected) {
                     setInitialLoading(false);
                 }
             }
@@ -1371,6 +1395,7 @@ const getCurrentWeekDates = () => {
             window.history.replaceState({}, document.title, "/matchup");
             
             setLoading(true);
+            setInitialLoading(true); // Reset initial loading when connecting
             console.log("Processing OAuth callback with code:", code.substring(0, 10) + "...");
             
             callSupabaseFunction("yahoo-oauth", {
@@ -1473,11 +1498,32 @@ const getCurrentWeekDates = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId, login]);
 
+    // Handle transition from disconnected to connected
+    useEffect(() => {
+        // If user just connected (transitioned from false to true)
+        if (!previousIsAuthenticatedRef.current && isAuthenticated) {
+            console.log("User just connected - resetting loading state");
+            // Clear existing teams and reset loading
+            setTeam1Players([]);
+            setTeam2Players([]);
+            setTeam1Name("Team 1");
+            setTeam2Name("Team 2");
+            setCurrentMatchup(null);
+            setMatchupProjection(null);
+            setAllLeagueTeams([]);
+            setSelectedTeam1("");
+            setSelectedTeam2("");
+            setInitialLoading(true); // Show spinner while loading Yahoo data
+        }
+        previousIsAuthenticatedRef.current = isAuthenticated;
+    }, [isAuthenticated]);
+
     // Auto-fetch leagues when user is already authenticated
     useEffect(() => {
         if (isAuthenticated && userId && userLeagues.length === 0 && !loading && !hasProcessedCallback.current) {
             console.log("User is authenticated, fetching leagues for userId:", userId);
             setLoading(true);
+            setInitialLoading(true); // Ensure spinner shows while fetching
             callSupabaseFunction("yahoo-fantasy-api", {
                 action: "getUserLeagues",
                 userId: userId,
@@ -1525,19 +1571,14 @@ const getCurrentWeekDates = () => {
     // Show loading state on initial load
     if (initialLoading) {
         return (
-            <Box
-                sx={{
-                    p: 2,
-                    minHeight: "100vh",
-                    background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)",
-                    color: "#212121",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
-                <CircularProgress />
-            </Box>
+            <ReassuringLoader 
+                type={isConnected ? 'matchup' : 'default'}
+                customMessage={isConnected ? 'Loading your matchup' : 'Preparing your matchup'}
+                customSubtext={isConnected 
+                    ? 'Gathering player stats, projections, and team data' 
+                    : 'Setting up the comparison tool for you'}
+                minHeight="100vh"
+            />
         );
     }
 

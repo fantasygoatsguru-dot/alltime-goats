@@ -36,6 +36,7 @@ import PrivacyPolicy from '../Pages/PrivacyPolicy';
 import { useAuth } from '../contexts/AuthContext';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
+import ReassuringLoader from './ReassuringLoader';
 
 const AlltimeLayout = () => {
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const AlltimeLayout = () => {
   const [selectedLeague, setSelectedLeague] = useState("");
   const [leagueTeams, setLeagueTeams] = useState([]);
   const [yahooConnecting, setYahooConnecting] = useState(false);
+  const [loadingLeagues, setLoadingLeagues] = useState(false);
 
   // === ICONS (unchanged - using your favorites) ===
   const MatchupIcon = () => (
@@ -165,6 +167,7 @@ const AlltimeLayout = () => {
   useEffect(() => {
     const fetchUserLeagues = async () => {
       if (!isAuthenticated || !user?.userId) return;
+      setLoadingLeagues(true);
       try {
         const { data } = await supabase.functions.invoke('yahoo-fantasy-api', {
           body: { action: 'getUserLeagues', userId: user.userId },
@@ -173,7 +176,11 @@ const AlltimeLayout = () => {
           setUserLeagues(data.leagues);
           if (!selectedLeague) setSelectedLeague(data.leagues[0].leagueId);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { 
+        console.error(err); 
+      } finally {
+        setLoadingLeagues(false);
+      }
     };
     fetchUserLeagues();
   }, [user?.userId, isAuthenticated, selectedLeague]);
@@ -209,6 +216,7 @@ const AlltimeLayout = () => {
 
   const handleYahooConnect = async () => {
     setYahooConnecting(true);
+    setIsPageLoading(true); // Show spinner immediately
     try {
       // Store current pathname to redirect back after OAuth
       const currentPath = location.pathname;
@@ -216,10 +224,16 @@ const AlltimeLayout = () => {
       
       const isDev = window.location.hostname === 'localhost';
       const { data } = await supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } });
-      if (data?.authUrl) window.location.href = data.authUrl;
+      if (data?.authUrl) {
+        // Small delay to ensure spinner is visible before redirect
+        setTimeout(() => {
+          window.location.href = data.authUrl;
+        }, 100);
+      }
     } catch (err) {
       console.error(err);
       setYahooConnecting(false);
+      setIsPageLoading(false);
     }
   };
 
@@ -239,6 +253,7 @@ const AlltimeLayout = () => {
       
       // Process OAuth callback
       const processCallback = async () => {
+        setIsPageLoading(true); // Show spinner while processing callback
         try {
           const isDev = window.location.hostname === 'localhost';
           const { data } = await supabase.functions.invoke('yahoo-oauth', {
@@ -289,9 +304,12 @@ const AlltimeLayout = () => {
             
             // Navigate to the return path
             navigate(returnPath);
+          } else {
+            setIsPageLoading(false);
           }
         } catch (err) {
           console.error('OAuth callback error:', err);
+          setIsPageLoading(false);
         }
       };
       
@@ -592,10 +610,11 @@ const AlltimeLayout = () => {
 
       {/* CONTENT & FOOTER */}
       <Container maxWidth={false} disableGutters sx={{ flexGrow: 1 }}>
-        {isPageLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
-            <CircularProgress size={80} sx={{ color: '#4a90e2' }} />
-          </Box>
+        {isPageLoading || (loadingLeagues && isAuthenticated) ? (
+          <ReassuringLoader 
+            type={loadingLeagues && isAuthenticated ? 'leagues' : 'page'}
+            minHeight="70vh"
+          />
         ) : (
           <LeagueProvider
             selectedLeague={selectedLeague}
