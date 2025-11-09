@@ -13,6 +13,11 @@ import {
   List,
   ListItem,
   ListItemText,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import {
   Send as SendIcon,
@@ -106,13 +111,33 @@ const FantasyChat = () => {
 
     const { data } = await supabase
       .from("player_season_averages")
-      .select("player_id, points_per_game, total_value")
+      .select("player_id, points_per_game, rebounds_per_game, assists_per_game, steals_per_game, blocks_per_game, three_pointers_per_game, field_goal_percentage, free_throw_percentage, turnovers_per_game, total_value, points_z, rebounds_z, assists_z, steals_z, blocks_z, three_pointers_z, fg_percentage_z, ft_percentage_z, turnovers_z")
       .eq("season", CURRENT_SEASON)
       .in("player_id", Array.from(ids));
 
     const map = {};
     data?.forEach((r) => {
-      map[r.player_id] = { points: r.points_per_game || 0, totalValue: r.total_value || 0 };
+      map[r.player_id] = {
+        points: r.points_per_game || 0,
+        rebounds: r.rebounds_per_game || 0,
+        assists: r.assists_per_game || 0,
+        steals: r.steals_per_game || 0,
+        blocks: r.blocks_per_game || 0,
+        threePointers: r.three_pointers_per_game || 0,
+        fieldGoalPercentage: r.field_goal_percentage || 0,
+        freeThrowPercentage: r.free_throw_percentage || 0,
+        turnovers: r.turnovers_per_game || 0,
+        totalValue: r.total_value || 0,
+        pointsZ: r.points_z || 0,
+        reboundsZ: r.rebounds_z || 0,
+        assistsZ: r.assists_z || 0,
+        stealsZ: r.steals_z || 0,
+        blocksZ: r.blocks_z || 0,
+        threePointersZ: r.three_pointers_z || 0,
+        fieldGoalPercentageZ: r.fg_percentage_z || 0,
+        freeThrowPercentageZ: r.ft_percentage_z || 0,
+        turnoversZ: r.turnovers_z || 0,
+      };
     });
     setPlayerStats(map);
   }, [leagueTeams, userTeamPlayers]);
@@ -302,6 +327,57 @@ const FantasyChat = () => {
     }
   };
 
+  const renderStatTable = (statTable) => {
+    if (!statTable || !statTable.stats) return null;
+    
+    const stats = statTable.stats;
+    const statEntries = Object.entries(stats).filter(([, value]) => value !== null && value !== undefined);
+    
+    if (statEntries.length === 0) return null;
+
+    const statLabels = {
+      points: "PTS",
+      rebounds: "REB",
+      assists: "AST",
+      steals: "STL",
+      blocks: "BLK",
+      threePointers: "3PM",
+      fieldGoalPercentage: "FG%",
+      freeThrowPercentage: "FT%",
+      turnovers: "TO",
+    };
+
+    return (
+      <Box sx={{ mt: 2, mb: 2 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600, mb: 1, display: "block" }}>
+          {statTable.playerName} - Averages
+        </Typography>
+        <Table size="small" sx={{ border: "1px solid #e0e0e0", borderRadius: 1, overflow: "hidden" }}>
+          <TableHead>
+            <TableRow sx={{ background: "#f5f5f5" }}>
+              {statEntries.map(([key]) => (
+                <TableCell key={key} sx={{ fontWeight: 600, py: 1, px: 1.5, fontSize: "0.75rem" }}>
+                  {statLabels[key] || key}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              {statEntries.map(([key, value]) => (
+                <TableCell key={key} sx={{ py: 1, px: 1.5, fontSize: "0.75rem", textAlign: "center" }}>
+                  {typeof value === "number" ? (
+                    key.includes("Percentage") ? `${value.toFixed(1)}%` : value.toFixed(1)
+                  ) : value}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
+    );
+  };
+
   return (
     <Box sx={{ p: 3, background: "#fafafa", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 2 }}>
@@ -398,6 +474,16 @@ const FantasyChat = () => {
                   <Typography sx={{ whiteSpace: "pre-wrap", mb: 2 }}>
                     {safeText(msg.content)}
                   </Typography>
+
+                  {msg.content?.statTables?.length > 0 && (
+                    <Box sx={{ mt: 2 }}>
+                      {msg.content.statTables.map((statTable, idx) => (
+                        <Box key={idx}>
+                          {renderStatTable(statTable)}
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
 
                   {msg.content?.suggestions?.length > 0 && (
                     <Box sx={{ mt: 2, p: 2, background: "#e8f5e8", borderRadius: 1 }}>

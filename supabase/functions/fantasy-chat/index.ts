@@ -56,7 +56,8 @@ serve(async (req) => {
 
     const { userId, leagueId, userMessage, leagueContext, includeHistory = true } = body;
 
-    // Debug: Log matchup data
+    // Debug: Log request data
+    console.log("User message:", userMessage);
     console.log("Matchup data received:", JSON.stringify(leagueContext.currentMatchup, null, 2));
 
   try {
@@ -77,7 +78,7 @@ serve(async (req) => {
         .eq("user_id", userId)
         .eq("league_id", leagueId)
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(6); // Reduce history to prevent confusion
 
       if (data?.length) {
         history = data.reverse().map(m => ({
@@ -88,6 +89,8 @@ serve(async (req) => {
         }));
       }
     }
+    
+    console.log("Chat history length:", history.length);
 
     // === 3. RAG ===
     const rag = await getRelevantKnowledge(userMessage);
@@ -227,6 +230,44 @@ Opponent Score: ${opponentScore}`;
 
     const userPlayerList = leagueContext.userTeam.players.map((p: any) => p.name).join(", ");
 
+    // Create structured player stats database for AI reference
+    const createPlayerStatsDb = () => {
+      const allPlayers = [
+        ...leagueContext.userTeam.players,
+        ...leagueContext.otherTeams.flatMap((t: any) => t.players)
+      ];
+      
+      return allPlayers.reduce((db: any, player: any) => {
+        if (player.name && player.stats) {
+          db[player.name] = {
+            points: player.stats.points || 0,
+            rebounds: player.stats.rebounds || 0,
+            assists: player.stats.assists || 0,
+            steals: player.stats.steals || 0,
+            blocks: player.stats.blocks || 0,
+            threePointers: player.stats.threePointers || 0,
+            fieldGoalPercentage: (player.stats.fieldGoalPercentage || 0) * 100,
+            freeThrowPercentage: (player.stats.freeThrowPercentage || 0) * 100,
+            turnovers: player.stats.turnovers || 0,
+            totalValue: player.stats.totalValue || 0,
+            pointsZ: player.stats.pointsZ || 0,
+            reboundsZ: player.stats.reboundsZ || 0,
+            assistsZ: player.stats.assistsZ || 0,
+            stealsZ: player.stats.stealsZ || 0,
+            blocksZ: player.stats.blocksZ || 0,
+            threePointersZ: player.stats.threePointersZ || 0,
+            fieldGoalPercentageZ: player.stats.fieldGoalPercentageZ || 0,
+            freeThrowPercentageZ: player.stats.freeThrowPercentageZ || 0,
+            turnoversZ: player.stats.turnoversZ || 0,
+          };
+        }
+        return db;
+      }, {});
+    };
+
+    const playerStatsDb = createPlayerStatsDb();
+    console.log("Player stats DB sample:", Object.keys(playerStatsDb).slice(0, 3));
+
     // === 5. SYSTEM PROMPT — BEST OF BOTH WORLDS ===
     const systemPrompt = `You are the #1 fantasy basketball AI in the world.
 
@@ -254,12 +295,39 @@ ${rag || "None"}
 
 YOUR OWN PLAYERS: ${userPlayerList}
 
+PLAYER STATS DATABASE (use these exact numbers for statTables):
+${JSON.stringify(playerStatsDb, null, 2)}
+
+CRITICAL INSTRUCTIONS:
+1. IGNORE previous conversation if it contradicts current question (focus on what user JUST asked)
+2. Answer the EXACT question being asked (pay attention to punt strategy specified - punt FT%, punt assists, etc.)
+3. When mentioning player statistics with numbers, ALWAYS include a statTable with exact stats from the database above
+4. Use the exact player names and stat values from the database
+5. Only mention players that exist in the database above
+
 Respond ONLY in valid JSON:
 {
   "response": "Natural answer with numbers and z-scores",
   "suggestions": ["Stream Jarrett Allen (TV:6.8, BLK:2.9z)"],
-  "reasoning": "Detailed numerical breakdown"
-}`;
+  "reasoning": "Detailed numerical breakdown",
+  "statTables": [
+    {
+      "playerName": "Giannis Antetokounmpo",
+      "stats": {
+        "points": 27.0,
+        "rebounds": 11.0,
+        "assists": 8.0,
+        "steals": 1.2,
+        "blocks": 1.1
+      }
+    }
+  ]
+}
+
+statTables is an array of objects. Each object has:
+- playerName: string (exact player name)
+- stats: object with numeric values for points, rebounds, assists, steals, blocks (include only stats you mention in your response)
+Only include statTables when you mention specific numeric statistics for players.`;
 
     // === 6. GPT CALL ===
     const messages = [
@@ -297,6 +365,9 @@ Respond ONLY in valid JSON:
     } catch {
       result = { response: content, suggestions: [], reasoning: "JSON parse failed" };
     }
+
+    // Debug: Log response
+    console.log("AI Response:", JSON.stringify(result, null, 2));
 
     // === 7. SAVE ===
     // Insert messages sequentially to ensure proper ordering
