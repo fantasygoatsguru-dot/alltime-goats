@@ -109,4 +109,4 @@ import_map = "./functions/weekly-matchup-projection/deno.json"
 entrypoint = "./functions/weekly-matchup-projection/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
-static_files = [ "./functions/weekly-matchup-projection/*.html", "./functions/weekly-matchup-projection/*.json" ]
+static_files = [ "./functions/weekly-matchup-projection/*.html", "./functions/weekly-matchup-projection/schedule.json" ]

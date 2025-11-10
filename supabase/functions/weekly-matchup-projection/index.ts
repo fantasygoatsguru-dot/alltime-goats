@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import SCHEDULE_DATA from "./schedule.json" with { type: "json" };
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
@@ -21,23 +22,13 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
-// ───── Load schedule data ─────
-let SCHEDULE_DATA: Record<string, string[]> = {};
-try {
-  const scheduleText = await Deno.readTextFile('./schedule.json');
-  SCHEDULE_DATA = JSON.parse(scheduleText);
-  console.log('Loaded NBA schedule');
-} catch (e) {
-  console.error('Failed to load schedule:', e);
-}
-
 // ───── Email template ─────
 let EMAIL_TEMPLATE: string;
 try {
   EMAIL_TEMPLATE = await Deno.readTextFile('./email-template.html');
-  console.log('Loaded email template');
+  console.log('[TEMPLATE] Loaded email template');
 } catch (e) {
-  console.error('Failed to load email template:', e);
+  console.error('[TEMPLATE] Failed to load template:', e);
   EMAIL_TEMPLATE = '<!DOCTYPE html><html><body><p>Template error</p></body></html>';
 }
 
@@ -249,7 +240,7 @@ async function parseRoster(raw: any): Promise<YahooPlayerDTO[]> {
           nbaPlayerId: nbaId,
           name: p.name?.full ?? 'Unknown',
           position: p.primary_position,
-          selectedPosition: item.selected_position?.position ?? null,  // FIXED: from item
+          selectedPosition: p.selected_position?.position ?? null,  // FIXED: from item
           team: p.editorial_team_abbr,
           nbaTeam: nbaTeam,
           status: p.status ?? 'Active',
