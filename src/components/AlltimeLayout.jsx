@@ -28,6 +28,7 @@ import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
 import Matchup from '../Pages/Matchup';
 import MyTeam from '../Pages/MyTeam';
+import MatchupProjection from '../Pages/MatchupProjection';
 import Rankings from '../Pages/Rankings';
 import FantasyChat from '../Pages/FantasyChat';
 import LeaguePlayoffs from '../Pages/LeaguePlayoffs';
@@ -143,8 +144,20 @@ const AlltimeLayout = () => {
     </svg>
   );
 
+  const ProjectionIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 3v18h18"/>
+      <path d="M7 16l4-4 4 4 6-6"/>
+      <circle cx="7" cy="16" r="2"/>
+      <circle cx="11" cy="12" r="2"/>
+      <circle cx="15" cy="16" r="2"/>
+      <circle cx="21" cy="10" r="2"/>
+    </svg>
+  );
+
   const navItems = [
     { path: '/matchup', label: 'Matchups', icon: <MatchupIcon /> },
+    { path: '/matchup-projection', label: 'Weekly Projection', icon: <ProjectionIcon /> },
     { path: '/my-team', label: 'My Team', icon: <MyTeamIcon /> },
     { path: '/rankings', label: 'Rankings', icon: <RankingsIcon /> },
     { path: '/chat', label: 'AI Assistant', icon: <AIIcon /> },
@@ -361,6 +374,7 @@ const AlltimeLayout = () => {
   const renderContent = () => {
     const p = location.pathname;
     if (p === '/' || p === '/matchup') return <Matchup />;
+    if (p === '/matchup-projection') return <MatchupProjection />;
     if (p === '/my-team') return <MyTeam />;
     if (p === '/teams') return <Alltime />;
     if (p === '/seasons' || p === '/table') return <AlltimeTable />;

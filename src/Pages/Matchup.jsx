@@ -56,7 +56,6 @@ import {
     fetchWeeklyMatchupResults as fetchWeeklyResults,
     CURRENT_SEASON
 } from "../utils/supabase";
-import MatchupProjectionTracker from "../components/MatchupProjectionTracker";
 import WeeklyMatchupResults from "../components/WeeklyMatchupResults";
 import YahooConnectionSection from "../components/YahooConnectionSection";
 import StatsComparisonGraph from "../components/StatsComparisonGraph";
@@ -98,231 +97,18 @@ const Matchup = () => {
     
     // Current matchup state
     const [currentMatchup, setCurrentMatchup] = useState(null);
+    // eslint-disable-next-line no-unused-vars
     const [matchupProjection, setMatchupProjection] = useState(null);
     const [scheduleData, setScheduleData] = useState(null);
-    const [disabledPlayers, setDisabledPlayers] = useState(() => {
+    const [disabledPlayers] = useState(() => {
         const saved = localStorage.getItem('disabledPlayers');
         return saved ? JSON.parse(saved) : {};
     });
     
-    // Player status handler for projection tracker
-    const handlePlayerStatusChange = (playerId, newStatus, dateStr = null) => {
-        const updatedDisabledPlayers = { ...disabledPlayers };
-        const currentStatus = updatedDisabledPlayers[playerId];
-        
-        if (newStatus === 'enabled') {
-            if (dateStr && typeof currentStatus === 'object' && currentStatus?.days) {
-                // Enable player for specific day by removing that day from disabled days
-                const updatedDays = { ...currentStatus.days };
-                delete updatedDays[dateStr];
-                
-                if (Object.keys(updatedDays).length === 0) {
-                    // No more day-specific disables
-                    if (currentStatus.week === 'disabled' || currentStatus.week === 'disabledForWeek') {
-                        // Still disabled for week, keep week status only
-                        updatedDisabledPlayers[playerId] = { week: currentStatus.week };
-                    } else {
-                        // No week disable either, remove the whole entry (fully enabled)
-                        delete updatedDisabledPlayers[playerId];
-                    }
-                } else {
-                    // Still has other day-specific disables
-                    updatedDisabledPlayers[playerId] = { 
-                        ...currentStatus, 
-                        days: updatedDays 
-                    };
-                }
-            } else {
-                // Explicitly enable player globally (overrides auto-disabled IL/IL+ status and removes all disables)
-                updatedDisabledPlayers[playerId] = 'enabled';
-            }
-        } else if (newStatus === 'disabledForDay' && dateStr) {
-            // Store day-specific disabling
-            if (!updatedDisabledPlayers[playerId] || typeof updatedDisabledPlayers[playerId] === 'string') {
-                // Convert existing string value to object or create new object
-                const existingStatus = updatedDisabledPlayers[playerId];
-                updatedDisabledPlayers[playerId] = existingStatus === 'enabled' ? {} : (existingStatus ? { week: existingStatus } : {});
-            }
-            updatedDisabledPlayers[playerId] = {
-                ...(typeof updatedDisabledPlayers[playerId] === 'object' ? updatedDisabledPlayers[playerId] : {}),
-                days: {
-                    ...(updatedDisabledPlayers[playerId]?.days || {}),
-                    [dateStr]: true
-                }
-            };
-            // Remove 'enabled' if it was set
-            if (updatedDisabledPlayers[playerId].enabled) {
-                delete updatedDisabledPlayers[playerId].enabled;
-            }
-        } else {
-            // For 'disabled' or 'disabledForWeek', store at player level
-            updatedDisabledPlayers[playerId] = newStatus;
-        }
-        
-        setDisabledPlayers(updatedDisabledPlayers);
-        localStorage.setItem('disabledPlayers', JSON.stringify(updatedDisabledPlayers));
-        
-        // Recalculate projection with updated disabled players (frontend only, no API calls)
-        recalculateProjectionWithDisabledPlayers(updatedDisabledPlayers);
-    };
-
-    // Recalculate projections on the frontend only (no API calls)
-    const recalculateProjectionWithDisabledPlayers = (updatedDisabledPlayers) => {
-        if (!matchupProjection) return;
-
-        const isPlayerAutoDisabled = (player) => {
-            const position = player.selectedPosition || player.selected_position;
-            const status = player.status;
-            return position === 'IL+' || position === 'IL' || status === 'INJ' || status === 'OUT';
-        };
-
-        // Helper to recalculate daily projections for a team
-        const recalculateDailyProjections = (dailyProjections) => {
-            return dailyProjections.map(day => {
-                const newTotals = {
-                    points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
-                    threePointers: 0, turnovers: 0,
-                    fieldGoalsMade: 0, fieldGoalsAttempted: 0,
-                    freeThrowsMade: 0, freeThrowsAttempted: 0
-                };
-
-                const updatedPlayers = day.players.map(player => {
-                    const autoDisabled = isPlayerAutoDisabled(player);
-                    
-                    // Check manual disable status
-                    const playerDisableStatus = updatedDisabledPlayers[player.id];
-                    let manuallyDisabled = false;
-                    let manuallyEnabled = false;
-                    
-                    if (playerDisableStatus === 'enabled') {
-                        manuallyEnabled = true;
-                    } else if (playerDisableStatus === 'disabled' || playerDisableStatus === 'disabledForWeek') {
-                        manuallyDisabled = true;
-                    } else if (typeof playerDisableStatus === 'object' && playerDisableStatus) {
-                        // Check if disabled for this specific day
-                        if (playerDisableStatus.days && playerDisableStatus.days[day.date]) {
-                            manuallyDisabled = true;
-                        } else if (playerDisableStatus.week === 'disabled' || playerDisableStatus.week === 'disabledForWeek') {
-                            manuallyDisabled = true;
-                        }
-                    }
-                    
-                    // If manually enabled, override auto-disabled. Otherwise, respect both auto and manual disabled.
-                    const isDisabled = manuallyEnabled ? false : (autoDisabled || manuallyDisabled);
-
-                    // Only add to totals if player is enabled
-                    if (!isDisabled) {
-                        newTotals.points += player.stats.points || 0;
-                        newTotals.rebounds += player.stats.rebounds || 0;
-                        newTotals.assists += player.stats.assists || 0;
-                        newTotals.steals += player.stats.steals || 0;
-                        newTotals.blocks += player.stats.blocks || 0;
-                        newTotals.threePointers += player.stats.threePointers || 0;
-                        newTotals.turnovers += player.stats.turnovers || 0;
-                        newTotals.fieldGoalsMade += player.stats.fieldGoalsMade || 0;
-                        newTotals.fieldGoalsAttempted += player.stats.fieldGoalsAttempted || 0;
-                        newTotals.freeThrowsMade += player.stats.freeThrowsMade || 0;
-                        newTotals.freeThrowsAttempted += player.stats.freeThrowsAttempted || 0;
-                    }
-
-                    return { ...player, disabled: isDisabled };
-                });
-
-                return { ...day, players: updatedPlayers, totals: newTotals };
-            });
-        };
-
-        // Recalculate both teams
-        const team1Updated = {
-            ...matchupProjection.team1,
-            dailyProjections: recalculateDailyProjections(matchupProjection.team1.dailyProjections)
-        };
-
-        const team2Updated = {
-            ...matchupProjection.team2,
-            dailyProjections: recalculateDailyProjections(matchupProjection.team2.dailyProjections)
-        };
-
-        // Recalculate category results
-        const categoryResults = {};
-        let team1Score = 0;
-        let team2Score = 0;
-
-        const categories = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers', 'turnovers'];
-        
-        categories.forEach(cat => {
-            const team1Total = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals[cat] || 0), 0);
-            const team2Total = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals[cat] || 0), 0);
-            
-            let winner = 'Tie';
-            if (cat === 'turnovers') {
-                if (team1Total < team2Total) { winner = team1Updated.name; team1Score++; }
-                else if (team2Total < team1Total) { winner = team2Updated.name; team2Score++; }
-            } else {
-                if (team1Total > team2Total) { winner = team1Updated.name; team1Score++; }
-                else if (team2Total > team1Total) { winner = team2Updated.name; team2Score++; }
-            }
-            
-            categoryResults[cat] = { team1: team1Total, team2: team2Total, winner };
-        });
-
-        // FG%
-        const team1FgMade = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsMade || 0), 0);
-        const team1FgAttempted = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsAttempted || 0), 0);
-        const team2FgMade = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsMade || 0), 0);
-        const team2FgAttempted = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsAttempted || 0), 0);
-        
-        const t1FgPct = team1FgAttempted > 0 ? (team1FgMade / team1FgAttempted) * 100 : 0;
-        const t2FgPct = team2FgAttempted > 0 ? (team2FgMade / team2FgAttempted) * 100 : 0;
-        
-        let fgWinner = 'Tie';
-        if (t1FgPct > t2FgPct) { fgWinner = team1Updated.name; team1Score++; }
-        else if (t2FgPct > t1FgPct) { fgWinner = team2Updated.name; team2Score++; }
-        
-        categoryResults.fieldGoalPercentage = {
-            winner: fgWinner,
-            team1: t1FgPct,
-            team2: t2FgPct,
-            team1Made: team1FgMade,
-            team1Attempted: team1FgAttempted,
-            team2Made: team2FgMade,
-            team2Attempted: team2FgAttempted
-        };
-
-        // FT%
-        const team1FtMade = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsMade || 0), 0);
-        const team1FtAttempted = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsAttempted || 0), 0);
-        const team2FtMade = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsMade || 0), 0);
-        const team2FtAttempted = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsAttempted || 0), 0);
-        
-        const t1FtPct = team1FtAttempted > 0 ? (team1FtMade / team1FtAttempted) * 100 : 0;
-        const t2FtPct = team2FtAttempted > 0 ? (team2FtMade / team2FtAttempted) * 100 : 0;
-        
-        let ftWinner = 'Tie';
-        if (t1FtPct > t2FtPct) { ftWinner = team1Updated.name; team1Score++; }
-        else if (t2FtPct > t1FtPct) { ftWinner = team2Updated.name; team2Score++; }
-        
-        categoryResults.freeThrowPercentage = {
-            winner: ftWinner,
-            team1: t1FtPct,
-            team2: t2FtPct,
-            team1Made: team1FtMade,
-            team1Attempted: team1FtAttempted,
-            team2Made: team2FtMade,
-            team2Attempted: team2FtAttempted
-        };
-
-        // Update the matchup projection
-        setMatchupProjection({
-            ...matchupProjection,
-            team1: team1Updated,
-            team2: team2Updated,
-            categoryResults,
-            team1Score,
-            team2Score
-        });
-    };
-
+    // Note: Matchup projection calculation is kept for potential future use
+    // The MatchupProjectionTracker display has been moved to the /matchup-projection page
+    // This page focuses on team comparison and player analysis
+    
     
     // Auth context
     const { user, isAuthenticated, login, ensureValidToken } = useAuth();
@@ -2060,16 +1846,6 @@ const getCurrentWeekDates = () => {
                 team1Name={team1Name}
                 team2Name={team2Name}
             />
-
-            {/* Current Yahoo Matchup - Week Tracker */}
-            {(isConnected || matchupProjection) && (
-                <MatchupProjectionTracker
-                    matchupProjection={matchupProjection}
-                    currentMatchup={currentMatchup}
-                    onPlayerStatusChange={handlePlayerStatusChange}
-                    isConnected={isConnected}
-                />
-            )}
         </Box>
     );
 };
