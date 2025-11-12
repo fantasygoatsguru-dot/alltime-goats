@@ -33,6 +33,10 @@ import MatchupProjection from '../Pages/MatchupProjection';
 import Rankings from '../Pages/Rankings';
 import FantasyChat from '../Pages/FantasyChat';
 import LeaguePlayoffs from '../Pages/LeaguePlayoffs';
+import NBAPlayoffs from '../Pages/NBAPlayoffs';
+import MyLeaguePlayoffs from '../Pages/MyLeaguePlayoffs';
+import NBARegularSeason from '../Pages/NBARegularSeason';
+import MyLeagueRegularSeason from '../Pages/MyLeagueRegularSeason';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
 import PrivacyPolicy from '../Pages/PrivacyPolicy';
@@ -52,6 +56,7 @@ const AlltimeLayout = () => {
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [historyAnchorEl, setHistoryAnchorEl] = useState(null);
+  const [scheduleAnchorEl, setScheduleAnchorEl] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userLeagues, setUserLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState("");
@@ -166,6 +171,15 @@ const AlltimeLayout = () => {
     </svg>
   );
 
+  const ScheduleIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  );
+
   const navItems = [
     { path: '/matchup', label: 'Matchups', icon: <MatchupIcon /> },
     { path: '/matchup-projection', label: 'Weekly Projection', icon: <ProjectionIcon /> },
@@ -173,8 +187,15 @@ const AlltimeLayout = () => {
     { path: '/rankings', label: 'Rankings', icon: <RankingsIcon /> },
     { path: '/season-games', label: 'Top Season Games', icon: <SeasonGamesIcon /> },
     { path: '/chat', label: 'AI Assistant', icon: <AIIcon /> },
-    { path: '/playoffs', label: 'Playoffs', icon: <PlayoffIcon /> },
+    { path: '/schedule', label: 'Schedule', icon: <ScheduleIcon />, hasSubmenu: true },
     { path: '/history', label: 'NBA History', icon: <HistoryIcon />, hasSubmenu: true },
+  ];
+
+  const scheduleSubmenu = [
+    { path: '/nba-playoffs', label: 'NBA Playoffs', icon: <PlayoffIcon /> },
+    { path: '/my-league-playoffs', label: 'My League Playoffs', icon: <MyTeamIcon /> },
+    { path: '/nba-regular-season', label: 'NBA Regular Season', icon: <ScheduleIcon /> },
+    { path: '/my-league-regular-season', label: 'My League Season', icon: <MyTeamIcon /> },
   ];
 
   const historySubmenu = [
@@ -382,6 +403,8 @@ const AlltimeLayout = () => {
 
   const handleHistoryOpen = (e) => !isMobile && setHistoryAnchorEl(e.currentTarget);
   const handleHistoryClose = () => setHistoryAnchorEl(null);
+  const handleScheduleOpen = (e) => !isMobile && setScheduleAnchorEl(e.currentTarget);
+  const handleScheduleClose = () => setScheduleAnchorEl(null);
 
   const renderContent = () => {
     const p = location.pathname;
@@ -395,6 +418,10 @@ const AlltimeLayout = () => {
     if (p === '/rankings') return <Rankings />;
     if (p === '/chat') return <FantasyChat />;
     if (p === '/playoffs') return <LeaguePlayoffs />;
+    if (p === '/nba-playoffs') return <NBAPlayoffs />;
+    if (p === '/my-league-playoffs') return <MyLeaguePlayoffs />;
+    if (p === '/nba-regular-season') return <NBARegularSeason />;
+    if (p === '/my-league-regular-season') return <MyLeagueRegularSeason />;
     if (p === '/about') return <About />;
     if (p === '/profile') return <UserProfile />;
     if (p === '/privacy-policy') return <PrivacyPolicy />;
@@ -459,20 +486,29 @@ const AlltimeLayout = () => {
             <Box sx={{ display: 'flex', gap: 1.5 }}>
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path || (item.path === '/matchup' && location.pathname === '/');
-                const isHistoryActive = item.hasSubmenu && historySubmenu.some(s => s.path === location.pathname);
+                const isScheduleActive = item.path === '/schedule' && scheduleSubmenu.some(s => s.path === location.pathname);
+                const isHistoryActive = item.path === '/history' && historySubmenu.some(s => s.path === location.pathname);
+                const isSubmenuActive = isScheduleActive || isHistoryActive;
+
+                // Determine which submenu to use and which handlers
+                const submenu = item.path === '/schedule' ? scheduleSubmenu : (item.path === '/history' ? historySubmenu : []);
+                const handleOpen = item.path === '/schedule' ? handleScheduleOpen : handleHistoryOpen;
+                const handleClose = item.path === '/schedule' ? handleScheduleClose : handleHistoryClose;
+                const anchorEl = item.path === '/schedule' ? scheduleAnchorEl : historyAnchorEl;
+                const defaultPath = item.path === '/schedule' ? '/nba-playoffs' : '/teams';
 
                 return item.hasSubmenu ? (
                   <Box key={item.path} sx={{ position: 'relative' }}>
                     <Button
-                      onMouseEnter={handleHistoryOpen}
-                      onClick={() => handleNavClick('/teams')}
+                      onMouseEnter={handleOpen}
+                      onClick={() => handleNavClick(defaultPath)}
                       startIcon={item.icon}
                       sx={{
-                        px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isHistoryActive ? 700 : 600,
-                        color: isHistoryActive ? '#4a90e2' : '#333',
-                        bgcolor: isHistoryActive ? 'rgba(74,144,226,0.18)' : 'transparent',
+                        px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isSubmenuActive ? 700 : 600,
+                        color: isSubmenuActive ? '#4a90e2' : '#333',
+                        bgcolor: isSubmenuActive ? 'rgba(74,144,226,0.18)' : 'transparent',
                         borderRadius: 2.5, textTransform: 'none',
-                        border: isHistoryActive ? '2px solid #4a90e2' : '2px solid transparent',
+                        border: isSubmenuActive ? '2px solid #4a90e2' : '2px solid transparent',
                         '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
                       }}
                     >
@@ -481,8 +517,8 @@ const AlltimeLayout = () => {
 
                     {/* SUBMENU NOW ABOVE THE LINE */}
                     <Popper
-                      open={Boolean(historyAnchorEl)}
-                      anchorEl={historyAnchorEl}
+                      open={Boolean(anchorEl)}
+                      anchorEl={anchorEl}
                       transition
                       sx={{ zIndex: 1400 }}
                       modifiers={[
@@ -504,7 +540,7 @@ const AlltimeLayout = () => {
                         <Grow {...TransitionProps}>
                           <Paper
                             elevation={20}
-                            onMouseLeave={handleHistoryClose}
+                            onMouseLeave={handleClose}
                             sx={{
                               mb: 1.5,
                               bgcolor: '#fff',
@@ -515,12 +551,12 @@ const AlltimeLayout = () => {
                               boxShadow: '0 -8px 30px rgba(74,144,226,0.3)',
                             }}
                           >
-                            <ClickAwayListener onClickAway={handleHistoryClose}>
+                            <ClickAwayListener onClickAway={handleClose}>
                               <Box sx={{ display: 'flex' }}>
-                                {historySubmenu.map((sub) => (
+                                {submenu.map((sub) => (
                                   <MenuItem
                                     key={sub.path}
-                                    onClick={() => { handleNavClick(sub.path); handleHistoryClose(); }}
+                                    onClick={() => { handleNavClick(sub.path); handleClose(); }}
                                     sx={{
                                       px: 4, py: 2.4, minWidth: 170,
                                       bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.18)' : 'transparent',
@@ -643,10 +679,10 @@ const AlltimeLayout = () => {
             </MenuItem>
           ) : (
             <Box key={item.path}>
-              <MenuItem onClick={() => handleNavClick('/teams')} sx={{ py: 2, gap: 2, fontWeight: 600 }}>
+              <MenuItem onClick={() => handleNavClick(item.path === '/schedule' ? '/nba-playoffs' : '/teams')} sx={{ py: 2, gap: 2, fontWeight: 600 }}>
                 {item.icon} {item.label}
               </MenuItem>
-              {historySubmenu.map((sub) => (
+              {(item.path === '/schedule' ? scheduleSubmenu : historySubmenu).map((sub) => (
                 <MenuItem
                   key={sub.path}
                   onClick={() => handleNavClick(sub.path)}
