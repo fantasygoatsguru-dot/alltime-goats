@@ -55,8 +55,10 @@ const AlltimeLayout = () => {
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
-  const [historyAnchorEl, setHistoryAnchorEl] = useState(null);
+  const [leagueAnchorEl, setLeagueAnchorEl] = useState(null);
+  const [rankingsAnchorEl, setRankingsAnchorEl] = useState(null);
   const [scheduleAnchorEl, setScheduleAnchorEl] = useState(null);
+  const [alltimeAnchorEl, setAlltimeAnchorEl] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userLeagues, setUserLeagues] = useState([]);
   const [selectedLeague, setSelectedLeague] = useState("");
@@ -181,27 +183,35 @@ const AlltimeLayout = () => {
   );
 
   const navItems = [
-    { path: '/matchup', label: 'Matchups', icon: <MatchupIcon /> },
-    { path: '/matchup-projection', label: 'Weekly Projection', icon: <ProjectionIcon /> },
-    { path: '/my-team', label: 'My Team', icon: <MyTeamIcon /> },
-    { path: '/rankings', label: 'Rankings', icon: <RankingsIcon /> },
-    { path: '/season-games', label: 'Top Season Games', icon: <SeasonGamesIcon /> },
-    { path: '/chat', label: 'AI Assistant', icon: <AIIcon /> },
+    { path: '/league', label: 'League', icon: <MatchupIcon />, hasSubmenu: true },
+    { path: '/rankings', label: 'Rankings', icon: <RankingsIcon />, hasSubmenu: true },
+    { path: '/chat', label: 'AI Helper', icon: <AIIcon /> },
     { path: '/schedule', label: 'Schedule', icon: <ScheduleIcon />, hasSubmenu: true },
-    { path: '/history', label: 'NBA History', icon: <HistoryIcon />, hasSubmenu: true },
+    { path: '/alltime', label: 'Alltime', icon: <HistoryIcon />, hasSubmenu: true },
+  ];
+
+  const leagueSubmenu = [
+    { path: '/my-team', label: 'My Team', icon: <MyTeamIcon />, requiresAuth: false },
+    { path: '/matchup-projection', label: 'Team Comparison', icon: <ProjectionIcon />, requiresAuth: false },
+    { path: '/matchup', label: 'Matchup', icon: <MatchupIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your matchups' },
+  ];
+
+  const rankingsSubmenu = [
+    { path: '/rankings', label: 'Players', icon: <GamesIcon />, requiresAuth: false },
+    { path: '/season-games', label: 'Games', icon: <SeasonGamesIcon />, requiresAuth: false },
   ];
 
   const scheduleSubmenu = [
-    { path: '/nba-playoffs', label: 'NBA Playoffs', icon: <PlayoffIcon /> },
-    { path: '/my-league-playoffs', label: 'My League Playoffs', icon: <MyTeamIcon /> },
-    { path: '/nba-regular-season', label: 'NBA Regular Season', icon: <ScheduleIcon /> },
-    { path: '/my-league-regular-season', label: 'My League Season', icon: <MyTeamIcon /> },
+    { path: '/my-league-regular-season', label: 'My Season', icon: <MyTeamIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your league schedule' },
+    { path: '/nba-regular-season', label: 'NBA Season', icon: <ScheduleIcon />, requiresAuth: false },
+    { path: '/my-league-playoffs', label: 'My Playoffs', icon: <MyTeamIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your playoff schedule' },
+    { path: '/nba-playoffs', label: 'NBA Playoffs', icon: <PlayoffIcon />, requiresAuth: false },
   ];
 
-  const historySubmenu = [
-    { path: '/teams', label: 'Teams', icon: <TeamsIcon /> },
-    { path: '/seasons', label: 'Seasons', icon: <SeasonsIcon /> },
-    { path: '/games', label: 'Games', icon: <GamesIcon /> },
+  const alltimeSubmenu = [
+    { path: '/teams', label: 'Alltime Teams', icon: <TeamsIcon />, requiresAuth: false },
+    { path: '/seasons', label: 'Alltime Seasons', icon: <SeasonsIcon />, requiresAuth: false },
+    { path: '/games', label: 'Alltime Games', icon: <GamesIcon />, requiresAuth: false },
   ];
 
   // === DATA FETCHING (unchanged) ===
@@ -401,10 +411,14 @@ const AlltimeLayout = () => {
     }
   }, [isAuthenticated, navigate, login]);
 
-  const handleHistoryOpen = (e) => !isMobile && setHistoryAnchorEl(e.currentTarget);
-  const handleHistoryClose = () => setHistoryAnchorEl(null);
+  const handleLeagueOpen = (e) => !isMobile && setLeagueAnchorEl(e.currentTarget);
+  const handleLeagueClose = () => setLeagueAnchorEl(null);
+  const handleRankingsOpen = (e) => !isMobile && setRankingsAnchorEl(e.currentTarget);
+  const handleRankingsClose = () => setRankingsAnchorEl(null);
   const handleScheduleOpen = (e) => !isMobile && setScheduleAnchorEl(e.currentTarget);
   const handleScheduleClose = () => setScheduleAnchorEl(null);
+  const handleAlltimeOpen = (e) => !isMobile && setAlltimeAnchorEl(e.currentTarget);
+  const handleAlltimeClose = () => setAlltimeAnchorEl(null);
 
   const renderContent = () => {
     const p = location.pathname;
@@ -485,23 +499,23 @@ const AlltimeLayout = () => {
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 1.5 }}>
               {navItems.map((item) => {
-                const isActive = location.pathname === item.path || (item.path === '/matchup' && location.pathname === '/');
-                const isScheduleActive = item.path === '/schedule' && scheduleSubmenu.some(s => s.path === location.pathname);
-                const isHistoryActive = item.path === '/history' && historySubmenu.some(s => s.path === location.pathname);
-                const isSubmenuActive = isScheduleActive || isHistoryActive;
+                // Get submenu config
+                const submenuMap = {
+                  '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/my-team' },
+                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/season-games' },
+                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/nba-regular-season' },
+                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: handleAlltimeClose, defaultPath: '/teams' },
+                };
 
-                // Determine which submenu to use and which handlers
-                const submenu = item.path === '/schedule' ? scheduleSubmenu : (item.path === '/history' ? historySubmenu : []);
-                const handleOpen = item.path === '/schedule' ? handleScheduleOpen : handleHistoryOpen;
-                const handleClose = item.path === '/schedule' ? handleScheduleClose : handleHistoryClose;
-                const anchorEl = item.path === '/schedule' ? scheduleAnchorEl : historyAnchorEl;
-                const defaultPath = item.path === '/schedule' ? '/nba-playoffs' : '/teams';
+                const config = submenuMap[item.path];
+                const isActive = location.pathname === item.path || (item.path === '/matchup' && location.pathname === '/');
+                const isSubmenuActive = config && config.submenu.some(s => s.path === location.pathname);
 
                 return item.hasSubmenu ? (
                   <Box key={item.path} sx={{ position: 'relative' }}>
                     <Button
-                      onMouseEnter={handleOpen}
-                      onClick={() => handleNavClick(defaultPath)}
+                      onMouseEnter={config.handleOpen}
+                      onClick={() => handleNavClick(config.defaultPath)}
                       startIcon={item.icon}
                       sx={{
                         px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isSubmenuActive ? 700 : 600,
@@ -515,24 +529,17 @@ const AlltimeLayout = () => {
                       {item.label}
                     </Button>
 
-                    {/* SUBMENU NOW ABOVE THE LINE */}
+                    {/* VERTICAL SUBMENU */}
                     <Popper
-                      open={Boolean(anchorEl)}
-                      anchorEl={anchorEl}
+                      open={Boolean(config.anchorEl)}
+                      anchorEl={config.anchorEl}
+                      placement="bottom-start"
                       transition
                       sx={{ zIndex: 1400 }}
                       modifiers={[
                         {
                           name: 'offset',
-                        },
-                        {
-                          name: 'flip',
-                          enabled: false,
-                        },
-                        {
-                          name: 'preventOverflow',
-                          enabled: true,
-                          options: { boundary: 'viewport' },
+                          options: { offset: [0, 8] },
                         },
                       ]}
                     >
@@ -540,36 +547,55 @@ const AlltimeLayout = () => {
                         <Grow {...TransitionProps}>
                           <Paper
                             elevation={20}
-                            onMouseLeave={handleClose}
+                            onMouseLeave={config.handleClose}
                             sx={{
-                              mb: 1.5,
                               bgcolor: '#fff',
                               border: '3px solid #4a90e2',
                               borderRadius: 3,
                               overflow: 'hidden',
-                              display: 'flex',
-                              boxShadow: '0 -8px 30px rgba(74,144,226,0.3)',
+                              minWidth: 220,
+                              boxShadow: '0 8px 30px rgba(74,144,226,0.3)',
                             }}
                           >
-                            <ClickAwayListener onClickAway={handleClose}>
-                              <Box sx={{ display: 'flex' }}>
-                                {submenu.map((sub) => (
-                                  <MenuItem
-                                    key={sub.path}
-                                    onClick={() => { handleNavClick(sub.path); handleClose(); }}
-                                    sx={{
-                                      px: 4, py: 2.4, minWidth: 170,
-                                      bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.18)' : 'transparent',
-                                      borderRight: '1px solid #ddd',
-                                      '&:last-child': { borderRight: 'none' },
-                                      '&:hover': { bgcolor: 'rgba(74,144,226,0.25)' },
-                                      gap: 2,
-                                    }}
-                                  >
-                                    {sub.icon}
-                                    <Typography fontWeight={600} fontSize="0.95rem">{sub.label}</Typography>
-                                  </MenuItem>
-                                ))}
+                            <ClickAwayListener onClickAway={config.handleClose}>
+                              <Box>
+                                {config.submenu.map((sub) => {
+                                  const isDisabled = sub.requiresAuth && !isAuthenticated;
+                                  
+                                  return (
+                                    <Tooltip 
+                                      key={sub.path} 
+                                      title={isDisabled && sub.tooltip ? sub.tooltip : ''} 
+                                      placement="right"
+                                      arrow
+                                    >
+                                      <span>
+                                        <MenuItem
+                                          onClick={() => { 
+                                            if (!isDisabled) {
+                                              handleNavClick(sub.path); 
+                                              config.handleClose(); 
+                                            }
+                                          }}
+                                          disabled={isDisabled}
+                                          sx={{
+                                            px: 3, py: 2,
+                                            bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.18)' : 'transparent',
+                                            borderBottom: '1px solid #f0f0f0',
+                                            '&:last-child': { borderBottom: 'none' },
+                                            '&:hover': { bgcolor: isDisabled ? 'transparent' : 'rgba(74,144,226,0.12)' },
+                                            opacity: isDisabled ? 0.5 : 1,
+                                            cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                            gap: 2,
+                                          }}
+                                        >
+                                          {sub.icon}
+                                          <Typography fontWeight={600} fontSize="0.95rem">{sub.label}</Typography>
+                                        </MenuItem>
+                                      </span>
+                                    </Tooltip>
+                                  );
+                                })}
                               </Box>
                             </ClickAwayListener>
                           </Paper>
@@ -672,27 +698,49 @@ const AlltimeLayout = () => {
           anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
-          {navItems.map((item) => !item.hasSubmenu ? (
-            <MenuItem key={item.path} onClick={() => handleNavClick(item.path)} sx={{ py: 2, gap: 2 }}>
-              {item.icon}
-              <Typography fontWeight={600}>{item.label}</Typography>
-            </MenuItem>
-          ) : (
-            <Box key={item.path}>
-              <MenuItem onClick={() => handleNavClick(item.path === '/schedule' ? '/nba-playoffs' : '/teams')} sx={{ py: 2, gap: 2, fontWeight: 600 }}>
-                {item.icon} {item.label}
+          {navItems.map((item) => {
+            const submenuMap = {
+              '/league': leagueSubmenu,
+              '/rankings': rankingsSubmenu,
+              '/schedule': scheduleSubmenu,
+              '/alltime': alltimeSubmenu,
+            };
+            const submenu = submenuMap[item.path];
+            const defaultPath = item.path === '/league' ? '/my-team' : 
+                               item.path === '/rankings' ? '/season-games' : 
+                               item.path === '/schedule' ? '/nba-regular-season' : '/teams';
+
+            return !item.hasSubmenu ? (
+              <MenuItem key={item.path} onClick={() => handleNavClick(item.path)} sx={{ py: 2, gap: 2 }}>
+                {item.icon}
+                <Typography fontWeight={600}>{item.label}</Typography>
               </MenuItem>
-              {(item.path === '/schedule' ? scheduleSubmenu : historySubmenu).map((sub) => (
-                <MenuItem
-                  key={sub.path}
-                  onClick={() => handleNavClick(sub.path)}
-                  sx={{ pl: 7, py: 1.8, bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.1)' : 'transparent' }}
-                >
-                  {sub.icon} {sub.label}
+            ) : (
+              <Box key={item.path}>
+                <MenuItem onClick={() => handleNavClick(defaultPath)} sx={{ py: 2, gap: 2, fontWeight: 600 }}>
+                  {item.icon} {item.label}
                 </MenuItem>
-              ))}
-            </Box>
-          ))}
+                {submenu.map((sub) => {
+                  const isDisabled = sub.requiresAuth && !isAuthenticated;
+                  return (
+                    <MenuItem
+                      key={sub.path}
+                      onClick={() => !isDisabled && handleNavClick(sub.path)}
+                      disabled={isDisabled}
+                      sx={{ 
+                        pl: 7, 
+                        py: 1.8, 
+                        bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.1)' : 'transparent',
+                        opacity: isDisabled ? 0.5 : 1,
+                      }}
+                    >
+                      {sub.icon} {sub.label}
+                    </MenuItem>
+                  );
+                })}
+              </Box>
+            );
+          })}
         </Menu>
       </Box>
 

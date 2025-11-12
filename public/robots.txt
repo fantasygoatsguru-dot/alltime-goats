@@ -1,4 +1,31 @@
+# Allow all crawlers
 User-agent: *
 Allow: /
 
-Sitemap: https://fantasygoats.guru/sitemap.xml 
+# Public pages - encourage indexing
+Allow: /my-team
+Allow: /matchup-projection
+Allow: /season-games
+Allow: /rankings
+Allow: /nba-regular-season
+Allow: /nba-playoffs
+Allow: /teams
+Allow: /seasons
+Allow: /games
+Allow: /about
+Allow: /privacy-policy
+
+# Private/Auth-required pages - discourage but don't block
+Disallow: /matchup
+Disallow: /my-league-regular-season
+Disallow: /my-league-playoffs
+Disallow: /profile
+
+# Utility routes
+Disallow: /playoffs
+
+# Sitemap
+Sitemap: https://fantasygoats.guru/sitemap.xml
+
+# Crawl delay (optional, helps prevent server overload)
+Crawl-delay: 1
