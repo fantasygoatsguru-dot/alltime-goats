@@ -526,7 +526,7 @@ const AlltimeLayout = () => {
             <Box sx={{ display: 'flex', gap: 1.5 }}>
               {navItems.map((item) => {
                 // Get submenu config
-                const submenuMap = {
+                const submenuMap = { 
                   '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/my-team' },
                   '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/rankings' },
                   '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/nba-regular-season' },
