@@ -42,14 +42,6 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- AI Helper -->
-  <url>
-    <loc>https://fantasygoats.guru/chat</loc>
-    <lastmod>2025-11-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
   <!-- Schedule Section -->
   <url>
     <loc>https://fantasygoats.guru/nba-regular-season</loc>

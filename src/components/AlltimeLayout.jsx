@@ -185,7 +185,7 @@ const AlltimeLayout = () => {
   const navItems = [
     { path: '/league', label: 'League', icon: <MatchupIcon />, hasSubmenu: true },
     { path: '/rankings', label: 'Rankings', icon: <RankingsIcon />, hasSubmenu: true },
-    { path: '/chat', label: 'AI Helper', icon: <AIIcon /> },
+    { path: '/chat', label: 'AI Helper', icon: <AIIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to access AI Assistant' },
     { path: '/schedule', label: 'Schedule', icon: <ScheduleIcon />, hasSubmenu: true },
     { path: '/alltime', label: 'Alltime', icon: <HistoryIcon />, hasSubmenu: true },
   ];
@@ -411,13 +411,39 @@ const AlltimeLayout = () => {
     }
   }, [isAuthenticated, navigate, login]);
 
-  const handleLeagueOpen = (e) => !isMobile && setLeagueAnchorEl(e.currentTarget);
+  const closeAllMenus = () => {
+    setLeagueAnchorEl(null);
+    setRankingsAnchorEl(null);
+    setScheduleAnchorEl(null);
+    setAlltimeAnchorEl(null);
+  };
+
+  const handleLeagueOpen = (e) => {
+    if (isMobile) return;
+    closeAllMenus();
+    setLeagueAnchorEl(e.currentTarget);
+  };
   const handleLeagueClose = () => setLeagueAnchorEl(null);
-  const handleRankingsOpen = (e) => !isMobile && setRankingsAnchorEl(e.currentTarget);
+  
+  const handleRankingsOpen = (e) => {
+    if (isMobile) return;
+    closeAllMenus();
+    setRankingsAnchorEl(e.currentTarget);
+  };
   const handleRankingsClose = () => setRankingsAnchorEl(null);
-  const handleScheduleOpen = (e) => !isMobile && setScheduleAnchorEl(e.currentTarget);
+  
+  const handleScheduleOpen = (e) => {
+    if (isMobile) return;
+    closeAllMenus();
+    setScheduleAnchorEl(e.currentTarget);
+  };
   const handleScheduleClose = () => setScheduleAnchorEl(null);
-  const handleAlltimeOpen = (e) => !isMobile && setAlltimeAnchorEl(e.currentTarget);
+  
+  const handleAlltimeOpen = (e) => {
+    if (isMobile) return;
+    closeAllMenus();
+    setAlltimeAnchorEl(e.currentTarget);
+  };
   const handleAlltimeClose = () => setAlltimeAnchorEl(null);
 
   const renderContent = () => {
@@ -502,7 +528,7 @@ const AlltimeLayout = () => {
                 // Get submenu config
                 const submenuMap = {
                   '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/my-team' },
-                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/season-games' },
+                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/rankings' },
                   '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/nba-regular-season' },
                   '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: handleAlltimeClose, defaultPath: '/teams' },
                 };
@@ -604,21 +630,36 @@ const AlltimeLayout = () => {
                     </Popper>
                   </Box>
                 ) : (
-                  <Button
-                    key={item.path}
-                    onClick={() => handleNavClick(item.path)}
-                    startIcon={item.icon}
-                    sx={{
-                      px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isActive ? 700 : 600,
-                      color: isActive ? '#4a90e2' : '#333',
-                      bgcolor: isActive ? 'rgba(74,144,226,0.18)' : 'transparent',
-                      borderRadius: 2.5, textTransform: 'none',
-                      border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
-                      '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
-                    }}
+                  <Tooltip 
+                    title={item.requiresAuth && !isAuthenticated && item.tooltip ? item.tooltip : ''} 
+                    placement="bottom"
+                    arrow
                   >
-                    {item.label}
-                  </Button>
+                    <span>
+                      <Button
+                        key={item.path}
+                        onClick={() => {
+                          if (!(item.requiresAuth && !isAuthenticated)) {
+                            handleNavClick(item.path);
+                          }
+                        }}
+                        disabled={item.requiresAuth && !isAuthenticated}
+                        startIcon={item.icon}
+                        sx={{
+                          px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isActive ? 700 : 600,
+                          color: isActive ? '#4a90e2' : '#333',
+                          bgcolor: isActive ? 'rgba(74,144,226,0.18)' : 'transparent',
+                          borderRadius: 2.5, textTransform: 'none',
+                          border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
+                          '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
+                          opacity: (item.requiresAuth && !isAuthenticated) ? 0.5 : 1,
+                          cursor: (item.requiresAuth && !isAuthenticated) ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {item.label}
+                      </Button>
+                    </span>
+                  </Tooltip>
                 );
               })}
             </Box>
@@ -711,9 +752,27 @@ const AlltimeLayout = () => {
                                item.path === '/schedule' ? '/nba-regular-season' : '/teams';
 
             return !item.hasSubmenu ? (
-              <MenuItem key={item.path} onClick={() => handleNavClick(item.path)} sx={{ py: 2, gap: 2 }}>
+              <MenuItem 
+                key={item.path} 
+                onClick={() => {
+                  if (!(item.requiresAuth && !isAuthenticated)) {
+                    handleNavClick(item.path);
+                  }
+                }} 
+                disabled={item.requiresAuth && !isAuthenticated}
+                sx={{ 
+                  py: 2, 
+                  gap: 2,
+                  opacity: (item.requiresAuth && !isAuthenticated) ? 0.5 : 1,
+                }}
+              >
                 {item.icon}
                 <Typography fontWeight={600}>{item.label}</Typography>
+                {item.requiresAuth && !isAuthenticated && item.tooltip && (
+                  <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
+                    🔒
+                  </Typography>
+                )}
               </MenuItem>
             ) : (
               <Box key={item.path}>
