@@ -26,6 +26,7 @@ import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
+import SeasonGames from '../Pages/SeasonGames';
 import Matchup from '../Pages/Matchup';
 import MyTeam from '../Pages/MyTeam';
 import MatchupProjection from '../Pages/MatchupProjection';
@@ -155,11 +156,22 @@ const AlltimeLayout = () => {
     </svg>
   );
 
+  const SeasonGamesIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+      <path d="M3 9h18"/>
+      <path d="M9 21V9"/>
+      <circle cx="15" cy="15" r="3"/>
+      <path d="M15 12v3l2 1"/>
+    </svg>
+  );
+
   const navItems = [
     { path: '/matchup', label: 'Matchups', icon: <MatchupIcon /> },
     { path: '/matchup-projection', label: 'Weekly Projection', icon: <ProjectionIcon /> },
     { path: '/my-team', label: 'My Team', icon: <MyTeamIcon /> },
     { path: '/rankings', label: 'Rankings', icon: <RankingsIcon /> },
+    { path: '/season-games', label: 'Top Season Games', icon: <SeasonGamesIcon /> },
     { path: '/chat', label: 'AI Assistant', icon: <AIIcon /> },
     { path: '/playoffs', label: 'Playoffs', icon: <PlayoffIcon /> },
     { path: '/history', label: 'NBA History', icon: <HistoryIcon />, hasSubmenu: true },
@@ -379,6 +391,7 @@ const AlltimeLayout = () => {
     if (p === '/teams') return <Alltime />;
     if (p === '/seasons' || p === '/table') return <AlltimeTable />;
     if (p === '/games') return <AlltimeGames />;
+    if (p === '/season-games') return <SeasonGames />;
     if (p === '/rankings') return <Rankings />;
     if (p === '/chat') return <FantasyChat />;
     if (p === '/playoffs') return <LeaguePlayoffs />;
