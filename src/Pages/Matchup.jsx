@@ -347,6 +347,7 @@ const Matchup = () => {
     const hasProcessedCallback = useRef(false);
     const hasInitializedDefaults = useRef(false);
     const previousIsAuthenticatedRef = useRef(isAuthenticated);
+    const hasFetchedLeagueTeamsRef = useRef(false);
 
     const fetchAllPlayersFromSupabase = useCallback(async () => {
         return await fetchAllPlayers();
@@ -1264,6 +1265,7 @@ const getCurrentWeekDates = () => {
         // When league changes, clear everything immediately
         if (previousLeagueRef.current !== null && previousLeagueRef.current !== selectedLeague) {
             previousLeagueRef.current = selectedLeague;
+            hasFetchedLeagueTeamsRef.current = false; // Reset fetch flag for new league
             // Clear teams and matchup when league changes
             setTeam1Players([]);
             setTeam2Players([]);
@@ -1320,7 +1322,9 @@ const getCurrentWeekDates = () => {
             }
         } else if (selectedLeague && userId && isConnected && !loadingTeams && !leagueTeams?.length) {
             // If league changed or teams haven't been loaded, and context doesn't have teams yet, reload
-            if (previousLeagueRef.current === selectedLeague) {
+            // But only if we haven't already fetched for this league
+            if (previousLeagueRef.current === selectedLeague && !hasFetchedLeagueTeamsRef.current) {
+                hasFetchedLeagueTeamsRef.current = true;
                 handleLoadLeague();
             }
         }
@@ -1538,6 +1542,7 @@ const getCurrentWeekDates = () => {
         // If user just connected (transitioned from false to true)
         if (!previousIsAuthenticatedRef.current && isAuthenticated) {
             console.log("User just connected - resetting loading state");
+            hasFetchedLeagueTeamsRef.current = false; // Allow fetching for newly authenticated user
             // Clear existing teams and reset loading
             setTeam1Players([]);
             setTeam2Players([]);

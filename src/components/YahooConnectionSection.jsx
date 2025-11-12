@@ -24,8 +24,9 @@ const YahooConnectionSection = ({
     selectedTeam2,
     onTeamSelect,
     onSwitchTeams,
+    showTeamSelectors = true,
 }) => {
-    if (!isConnected && userLeagues.length === 0) {
+    if (!isConnected && userLeagues?.length === 0) {
         return (
             <Box
                 sx={{
@@ -47,7 +48,7 @@ const YahooConnectionSection = ({
                         fontFamily: '"Roboto Mono", monospace',
                     }}
                 >
-                    Load players from Yahoo Fantasy
+                    Load your teams players from Yahoo Fantasy
                 </Typography>
                 <Button
                     variant="outlined"
@@ -72,7 +73,12 @@ const YahooConnectionSection = ({
         );
     }
 
-    if (!isConnected || userLeagues.length === 0) return null;
+    if (!isConnected || userLeagues?.length === 0) return null;
+
+    // If showTeamSelectors is false, don't show the team selection UI
+    if (!showTeamSelectors) {
+        return null;
+    }
 
     return (
         <Box
@@ -99,7 +105,7 @@ const YahooConnectionSection = ({
             </Typography>
 
             <Grid container spacing={2} alignItems="center" justifyContent="center">
-                {allLeagueTeams.length > 0 ? (
+                {allLeagueTeams?.length > 0 ? (
                     <>
                         <Grid item xs={12} sm={5}>
                             <FormControl fullWidth>

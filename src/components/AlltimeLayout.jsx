@@ -27,6 +27,7 @@ import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
 import AlltimeGames from '../Pages/AlltimeGames';
 import Matchup from '../Pages/Matchup';
+import MyTeam from '../Pages/MyTeam';
 import Rankings from '../Pages/Rankings';
 import FantasyChat from '../Pages/FantasyChat';
 import LeaguePlayoffs from '../Pages/LeaguePlayoffs';
@@ -136,8 +137,15 @@ const AlltimeLayout = () => {
     </svg>
   );
 
+  const MyTeamIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"/>
+    </svg>
+  );
+
   const navItems = [
     { path: '/matchup', label: 'Matchups', icon: <MatchupIcon /> },
+    { path: '/my-team', label: 'My Team', icon: <MyTeamIcon /> },
     { path: '/rankings', label: 'Rankings', icon: <RankingsIcon /> },
     { path: '/chat', label: 'AI Assistant', icon: <AIIcon /> },
     { path: '/playoffs', label: 'Playoffs', icon: <PlayoffIcon /> },
@@ -353,6 +361,7 @@ const AlltimeLayout = () => {
   const renderContent = () => {
     const p = location.pathname;
     if (p === '/' || p === '/matchup') return <Matchup />;
+    if (p === '/my-team') return <MyTeam />;
     if (p === '/teams') return <Alltime />;
     if (p === '/seasons' || p === '/table') return <AlltimeTable />;
     if (p === '/games') return <AlltimeGames />;
