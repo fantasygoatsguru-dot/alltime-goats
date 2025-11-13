@@ -46,6 +46,132 @@ import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
 import ReassuringLoader from './ReassuringLoader';
 
+// === ICON WRAPPER FOR RESPONSIVE SIZING ===
+const IconWrapper = ({ children }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const size = isMobile ? 30 : 40;
+  return React.cloneElement(children, {
+    style: { width: size, height: size, ...children.props.style },
+  });
+};
+const MyTeamIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"/>
+  </svg>
+);
+
+// === SUBMENU ICONS (unchanged - keep your favorites) ===
+const MatchupIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const RankingsIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M3 3v18h18"/>
+    <path d="M18 17V9"/>
+    <path d="M13 17V5"/>
+    <path d="M8 17v-3"/>
+  </svg>
+);
+
+const AIIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <circle cx="9" cy="10" r="1"/>
+    <circle cx="15" cy="10" r="1"/>
+    <path d="M9 15c.5.8 1.5 1.5 3 1.5s2.5-.7 3-1.5"/>
+  </svg>
+);
+
+const PlayoffIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+    <line x1="3" y1="9" x2="21" y2="9"/>
+    <line x1="9" y1="21" x2="9" y2="9"/>
+  </svg>
+);
+
+const HistoryIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+);
+
+const AboutIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="16" x2="12" y2="12"/>
+    <line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
+const TeamsIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const SeasonsIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="4" width="18" height="16" rx="2"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <path d="M12 14l-1 3h2l-1-3z"/>
+  </svg>
+);
+
+const GamesIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M4 4h16v16H4z"/>
+    <path d="M8 12l4-4 4 4"/>
+    <circle cx="12" cy="15" r="2"/>
+    <path d="M4 8l8-4 8 4"/>
+  </svg>
+);
+
+
+
+const ProjectionIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M3 3v18h18"/>
+    <path d="M7 16l4-4 4 4 6-6"/>
+    <circle cx="7" cy="16" r="2"/>
+    <circle cx="11" cy="12" r="2"/>
+    <circle cx="15" cy="16" r="2"/>
+    <circle cx="21" cy="10" r="2"/>
+  </svg>
+);
+
+const SeasonGamesIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+    <path d="M3 9h18"/>
+    <path d="M9 21V9"/>
+    <circle cx="15" cy="15" r="3"/>
+    <path d="M15 12v3l2 1"/>
+  </svg>
+);
+
+const ScheduleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/>
+    <line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+  
 const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,127 +195,64 @@ const AlltimeLayout = () => {
   const [yahooConnecting, setYahooConnecting] = useState(false);
   const [loadingLeagues, setLoadingLeagues] = useState(false);
 
-  // === ICONS (unchanged - using your favorites) ===
-  const MatchupIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>
-  );
-
-  const RankingsIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 3v18h18"/>
-      <path d="M18 17V9"/>
-      <path d="M13 17V5"/>
-      <path d="M8 17v-3"/>
-    </svg>
-  );
-
-  const AIIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      <circle cx="9" cy="10" r="1"/>
-      <circle cx="15" cy="10" r="1"/>
-      <path d="M9 15c.5.8 1.5 1.5 3 1.5s2.5-.7 3-1.5"/>
-    </svg>
-  );
-
-  const PlayoffIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-      <line x1="3" y1="9" x2="21" y2="9"/>
-      <line x1="9" y1="21" x2="9" y2="9"/>
-    </svg>
-  );
-
-  const HistoryIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10"/>
-      <polyline points="12 6 12 12 16 14"/>
-    </svg>
-  );
-
-  const AboutIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="12" y1="16" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12.01" y2="8"/>
-    </svg>
-  );
-
-  const TeamsIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-      <circle cx="9" cy="7" r="4"/>
-      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-    </svg>
-  );
-
-  const SeasonsIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="4" width="18" height="16" rx="2"/>
-      <line x1="3" y1="10" x2="21" y2="10"/>
-      <line x1="8" y1="2" x2="8" y2="6"/>
-      <line x1="16" y1="2" x2="16" y2="6"/>
-      <path d="M12 14l-1 3h2l-1-3z"/>
-    </svg>
-  );
-
-  const GamesIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4 4h16v16H4z"/>
-      <path d="M8 12l4-4 4 4"/>
-      <circle cx="12" cy="15" r="2"/>
-      <path d="M4 8l8-4 8 4"/>
-    </svg>
-  );
-
-  const MyTeamIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"/>
-    </svg>
-  );
-
-  const ProjectionIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 3v18h18"/>
-      <path d="M7 16l4-4 4 4 6-6"/>
-      <circle cx="7" cy="16" r="2"/>
-      <circle cx="11" cy="12" r="2"/>
-      <circle cx="15" cy="16" r="2"/>
-      <circle cx="21" cy="10" r="2"/>
-    </svg>
-  );
-
-  const SeasonGamesIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-      <path d="M3 9h18"/>
-      <path d="M9 21V9"/>
-      <circle cx="15" cy="15" r="3"/>
-      <path d="M15 12v3l2 1"/>
-    </svg>
-  );
-
-  const ScheduleIcon = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-      <line x1="16" y1="2" x2="16" y2="6"/>
-      <line x1="8" y1="2" x2="8" y2="6"/>
-      <line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-  );
-
+  // === MAIN NAV ITEMS WITH NEW SVGs ===
   const navItems = [
-    { path: '/league', label: 'League', icon: <MatchupIcon />, hasSubmenu: true },
-    { path: '/rankings', label: 'Rankings', icon: <RankingsIcon />, hasSubmenu: true },
-    { path: '/chat', label: 'AI Helper', icon: <AIIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to access AI Assistant' },
-    { path: '/schedule', label: 'Schedule', icon: <ScheduleIcon />, hasSubmenu: true },
-    { path: '/alltime', label: 'Alltime', icon: <HistoryIcon />, hasSubmenu: true },
+    {
+      path: '/league',
+      label: 'League',
+      icon: (
+        <img
+          src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/trophy.svg"
+          alt="League"
+        />
+      ),
+      hasSubmenu: true,
+    },
+    {
+      path: '/rankings',
+      label: 'Rankings',
+      icon: (
+        <img
+          src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/rankings.svg"
+          alt="Rankings"
+        />
+      ),
+      hasSubmenu: true,
+    },
+    {
+      path: '/chat',
+      label: 'AI Helper',
+      icon: (
+        <img
+          src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/brain.svg"
+          alt="AI Helper"
+        />
+      ),
+      requiresAuth: true,
+      tooltip: 'Connect to Yahoo to access AI Assistant',
+    },
+    {
+      path: '/schedule',
+      label: 'Schedule',
+      icon: (
+        <img
+          src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/calendar.svg"
+          alt="Schedule"
+        />
+      ),
+      hasSubmenu: true,
+    },
+    {
+      path: '/alltime',
+      label: 'Alltime',
+      icon: (
+        <img
+          src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/wilt.svg"
+          alt="Alltime"
+        />
+      ),
+      hasSubmenu: true,
+    },
   ];
 
   const leagueSubmenu = [
@@ -216,7 +279,8 @@ const AlltimeLayout = () => {
     { path: '/games', label: 'Alltime Games', icon: <GamesIcon />, requiresAuth: false },
   ];
 
-  // === DATA FETCHING (unchanged) ===
+  
+  // === DATA FETCHING ===
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user?.userId) return;
@@ -272,7 +336,7 @@ const AlltimeLayout = () => {
     const fetchCurrentMatchup = async () => {
       if (!selectedLeague || !isAuthenticated || !user?.userId) return;
       try {
-        const { data, error } = await supabase.functions.invoke('yahoo-fantasy-api', {
+        const { data, error } = await supibase.functions.invoke('yahoo-fantasy-api', {
           body: { 
             action: 'getCurrentMatchup', 
             userId: user.userId, 
@@ -312,16 +376,14 @@ const AlltimeLayout = () => {
 
   const handleYahooConnect = async () => {
     setYahooConnecting(true);
-    setIsPageLoading(true); // Show spinner immediately
+    setIsPageLoading(true);
     try {
-      // Store current pathname to redirect back after OAuth
       const currentPath = location.pathname;
       sessionStorage.setItem('oauth_return_path', currentPath);
       
       const isDev = window.location.hostname === 'localhost';
       const { data } = await supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } });
       if (data?.authUrl) {
-        // Small delay to ensure spinner is visible before redirect
         setTimeout(() => {
           window.location.href = data.authUrl;
         }, 100);
@@ -338,18 +400,14 @@ const AlltimeLayout = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
     
-    // Only handle if we have a code and user is not authenticated
-    // Skip if we're on matchup page (it has its own handler, but we'll override redirect)
     if (code && !isAuthenticated) {
       const returnPath = sessionStorage.getItem('oauth_return_path') || '/matchup';
       sessionStorage.removeItem('oauth_return_path');
       
-      // Remove code from URL immediately to prevent double-processing
       window.history.replaceState({}, document.title, returnPath);
       
-      // Process OAuth callback
       const processCallback = async () => {
-        setIsPageLoading(true); // Show spinner while processing callback
+        setIsPageLoading(true);
         try {
           const isDev = window.location.hostname === 'localhost';
           const { data } = await supabase.functions.invoke('yahoo-oauth', {
@@ -357,7 +415,6 @@ const AlltimeLayout = () => {
           });
           
           if (data?.success) {
-            // Call login function from AuthContext
             login({
               userId: data.userId,
               email: data.email,
@@ -366,7 +423,6 @@ const AlltimeLayout = () => {
               expiresAt: data.expiresAt,
             });
             
-            // Create or update user_profile
             try {
               const { data: existingProfile, error: profileError } = await supabase
                 .from('user_profiles')
@@ -398,7 +454,6 @@ const AlltimeLayout = () => {
               console.error('Error updating user profile:', profileErr);
             }
             
-            // Navigate to the return path
             navigate(returnPath);
           } else {
             setIsPageLoading(false);
@@ -478,7 +533,7 @@ const AlltimeLayout = () => {
         borderBottom: '4px solid #4a90e2',
         boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
         position: 'relative',
-        zIndex: 1300, // Higher than before
+        zIndex: 1300,
       }}>
         <Box sx={{
           display: 'flex',
@@ -527,7 +582,6 @@ const AlltimeLayout = () => {
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 1.5 }}>
               {navItems.map((item) => {
-                // Get submenu config
                 const submenuMap = { 
                   '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/my-team' },
                   '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/rankings' },
@@ -544,12 +598,16 @@ const AlltimeLayout = () => {
                     <Button
                       onMouseEnter={config.handleOpen}
                       onClick={() => handleNavClick(config.defaultPath)}
-                      startIcon={item.icon}
+                      startIcon={<IconWrapper>{item.icon}</IconWrapper>}
                       sx={{
-                        px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isSubmenuActive ? 700 : 600,
+                        px: { xs: 2.5, md: 3.8 },
+                        py: 1.5,
+                        fontSize: '0.95rem',
+                        fontWeight: isSubmenuActive ? 700 : 600,
                         color: isSubmenuActive ? '#4a90e2' : '#333',
                         bgcolor: isSubmenuActive ? 'rgba(74,144,226,0.18)' : 'transparent',
-                        borderRadius: 2.5, textTransform: 'none',
+                        borderRadius: 2.5,
+                        textTransform: 'none',
                         border: isSubmenuActive ? '2px solid #4a90e2' : '2px solid transparent',
                         '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
                       }}
@@ -557,19 +615,13 @@ const AlltimeLayout = () => {
                       {item.label}
                     </Button>
 
-                    {/* VERTICAL SUBMENU */}
                     <Popper
                       open={Boolean(config.anchorEl)}
                       anchorEl={config.anchorEl}
                       placement="bottom-start"
                       transition
                       sx={{ zIndex: 1400 }}
-                      modifiers={[
-                        {
-                          name: 'offset',
-                          options: { offset: [0, 8] },
-                        },
-                      ]}
+                      modifiers={[{ name: 'offset', options: { offset: [0, 8] } }]}
                     >
                       {({ TransitionProps }) => (
                         <Grow {...TransitionProps}>
@@ -589,7 +641,6 @@ const AlltimeLayout = () => {
                               <Box>
                                 {config.submenu.map((sub) => {
                                   const isDisabled = sub.requiresAuth && !isAuthenticated;
-                                  
                                   return (
                                     <Tooltip 
                                       key={sub.path} 
@@ -646,12 +697,16 @@ const AlltimeLayout = () => {
                           }
                         }}
                         disabled={item.requiresAuth && !isAuthenticated}
-                        startIcon={item.icon}
+                        startIcon={<IconWrapper>{item.icon}</IconWrapper>}
                         sx={{
-                          px: 3, py: 1.2, fontSize: '0.95rem', fontWeight: isActive ? 700 : 600,
+                          px: { xs: 2.5, md: 3.8 },
+                          py: 1.5,
+                          fontSize: '0.95rem',
+                          fontWeight: isActive ? 700 : 600,
                           color: isActive ? '#4a90e2' : '#333',
                           bgcolor: isActive ? 'rgba(74,144,226,0.18)' : 'transparent',
-                          borderRadius: 2.5, textTransform: 'none',
+                          borderRadius: 2.5,
+                          textTransform: 'none',
                           border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
                           '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
                           opacity: (item.requiresAuth && !isAuthenticated) ? 0.5 : 1,
@@ -669,7 +724,6 @@ const AlltimeLayout = () => {
 
           {/* RIGHT: Connect to Yahoo + Profile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, flexShrink: 0 }}>
-            {/* CONNECT TO YAHOO BUTTON */}
             {isAuthenticated && userLeagues.length > 0 ? (
               <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
                 <Select
@@ -717,7 +771,6 @@ const AlltimeLayout = () => {
               </Button>
             )}
 
-            {/* Profile */}
             {isAuthenticated && user && (
               <IconButton onClick={(e) => setProfileAnchorEl(e.currentTarget)}>
                 <Avatar
@@ -770,13 +823,13 @@ const AlltimeLayout = () => {
                   opacity: (item.requiresAuth && !isAuthenticated) ? 0.5 : 1,
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.3rem' }}>
-                  {item.icon}
+                <Box sx={{ width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <IconWrapper>{item.icon}</IconWrapper>
                 </Box>
                 <Typography fontWeight={600} fontSize="0.95rem">{item.label}</Typography>
                 {item.requiresAuth && !isAuthenticated && item.tooltip && (
                   <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
-                    🔒
+                    Locked
                   </Typography>
                 )}
               </MenuItem>
@@ -792,8 +845,8 @@ const AlltimeLayout = () => {
                     bgcolor: isExpanded ? 'rgba(74,144,226,0.08)' : 'transparent',
                   }}
                 >
-                  <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.3rem' }}>
-                    {item.icon}
+                  <Box sx={{ width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <IconWrapper>{item.icon}</IconWrapper>
                   </Box>
                   <Typography fontWeight={600} fontSize="0.95rem" sx={{ flex: 1 }}>
                     {item.label}
@@ -837,7 +890,7 @@ const AlltimeLayout = () => {
                           </Typography>
                           {isDisabled && sub.tooltip && (
                             <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
-                              🔒
+                              Locked
                             </Typography>
                           )}
                         </MenuItem>
