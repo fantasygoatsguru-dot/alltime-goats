@@ -1,31 +1,49 @@
+# robots.txt for Fantasy Goats Guru
+# Updated: 2025-01-13
+
 # Allow all crawlers
 User-agent: *
 Allow: /
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.svg$
 
-# Public pages - encourage indexing
-Allow: /my-team
-Allow: /matchup-projection
-Allow: /season-games
-Allow: /rankings
-Allow: /nba-regular-season
-Allow: /nba-playoffs
-Allow: /teams
-Allow: /seasons
-Allow: /games
-Allow: /about
-Allow: /privacy-policy
+# Explicitly allow public pages for better indexing
+Allow: /my-team$
+Allow: /matchup-projection$
+Allow: /season-games$
+Allow: /rankings$
+Allow: /nba-regular-season$
+Allow: /nba-playoffs$
+Allow: /teams$
+Allow: /seasons$
+Allow: /games$
+Allow: /about$
+Allow: /privacy-policy$
 
-# Private/Auth-required pages - discourage but don't block
-Disallow: /matchup
-Disallow: /my-league-regular-season
-Disallow: /my-league-playoffs
-Disallow: /profile
+# Disallow private/auth-required pages
+Disallow: /matchup$
+Disallow: /my-league-regular-season$
+Disallow: /my-league-playoffs$
+Disallow: /profile$
+Disallow: /chat$
 
-# Utility routes
-Disallow: /playoffs
+# Disallow API routes (if any)
+Disallow: /api/
 
 # Sitemap
 Sitemap: https://fantasygoats.guru/sitemap.xml
 
-# Crawl delay (optional, helps prevent server overload)
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
 Crawl-delay: 1

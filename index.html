@@ -19,32 +19,78 @@
     <!-- Canonical Tag (avoids duplicate content issues) -->
     <link rel="canonical" href="https://fantasygoats.guru/" />
 
-    <!-- Favicon + Touch Icon -->
-    <link rel="apple-touch-icon" href="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png">
-    <link rel="icon" href="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png" />
+    <!-- Favicon + Touch Icons (Multiple sizes for better compatibility) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png">
+    <link rel="shortcut icon" href="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#4a90e2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FG Guru">
 
     <!-- Open Graph (for social sharing) -->
     <meta property="og:title" content="Fantasy Goats Guru | Fantasy League History" />
     <meta property="og:description" content="Discover the GOATs of your fantasy league. Relive history, stats, and stories that made legends." />
     <meta property="og:image" content="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Fantasy Goats Guru Logo" />
     <meta property="og:url" content="https://fantasygoats.guru" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fantasy Goats Guru" />
+    <meta property="og:locale" content="en_US" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@FantasyGoatsGuru" />
     <meta name="twitter:title" content="Fantasy Goats Guru" />
     <meta name="twitter:description" content="Explore the epic history of your fantasy league." />
     <meta name="twitter:image" content="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png" />
+    <meta name="twitter:image:alt" content="Fantasy Goats Guru Logo" />
     <meta name="twitter:url" content="https://fantasygoats.guru" />
 
     <!-- Structured Data (JSON-LD for rich snippets) -->
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
-            "@type": "Website",
+            "@type": "WebSite",
             "name": "Fantasy Goats Guru",
             "url": "https://fantasygoats.guru",
-            "description": "Explore your fantasy league's rich history. Track stats, relive rivalries, and celebrate legendary performances."
+            "description": "Explore your fantasy league's rich history. Track stats, relive rivalries, and celebrate legendary performances.",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png",
+                "width": 200,
+                "height": 200
+            },
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "https://fantasygoats.guru/rankings?search={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+            },
+            "sameAs": []
+        }
+    </script>
+    
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "SportsOrganization",
+            "name": "Fantasy Goats Guru",
+            "url": "https://fantasygoats.guru",
+            "logo": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png",
+            "description": "Fantasy basketball analytics and league history platform",
+            "sport": "Basketball"
         }
     </script>
 

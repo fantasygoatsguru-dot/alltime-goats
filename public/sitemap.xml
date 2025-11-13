@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
@@ -7,22 +8,26 @@
   <!-- Home/Matchup (Public) -->
   <url>
     <loc>https://fantasygoats.guru/</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png</image:loc>
+      <image:title>Fantasy Goats Guru Logo</image:title>
+    </image:image>
   </url>
 
   <!-- League Section -->
   <url>
     <loc>https://fantasygoats.guru/my-team</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://fantasygoats.guru/matchup-projection</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -30,14 +35,14 @@
   <!-- Rankings Section -->
   <url>
     <loc>https://fantasygoats.guru/season-games</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://fantasygoats.guru/rankings</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -45,14 +50,14 @@
   <!-- Schedule Section -->
   <url>
     <loc>https://fantasygoats.guru/nba-regular-season</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://fantasygoats.guru/nba-playoffs</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -60,21 +65,21 @@
   <!-- Alltime Section -->
   <url>
     <loc>https://fantasygoats.guru/teams</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://fantasygoats.guru/seasons</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://fantasygoats.guru/games</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -82,14 +87,14 @@
   <!-- Static Pages -->
   <url>
     <loc>https://fantasygoats.guru/about</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://fantasygoats.guru/privacy-policy</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

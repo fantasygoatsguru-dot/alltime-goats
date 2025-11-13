@@ -1,0 +1,28 @@
+{
+  "name": "Fantasy Goats Guru",
+  "short_name": "FG Guru",
+  "description": "Fantasy basketball analytics and league history platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#4a90e2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["sports", "entertainment"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
+
