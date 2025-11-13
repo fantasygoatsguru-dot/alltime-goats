@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
-import DatabaseLoader from "./components/DatabaseLoader";
 import SEOHead from "./components/SEOHead";
 import TagManager from "react-gtm-module";
 import React from "react";
@@ -56,32 +55,30 @@ const App = () => {
       <AuthProvider>
         <SEOHead />
         <GoogleAnalytics />
-        <DatabaseLoader>
-          <Box sx={{ flexGrow: 1 }}>
-            <Routes>
-              <Route path="/" element={<AlltimeLayout />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/about" element={<AlltimeLayout />} />
-              <Route path="/profile" element={<AlltimeLayout />} />
-              <Route path="/teams" element={<AlltimeLayout />} />
-              <Route path="/seasons" element={<AlltimeLayout />} />
-              <Route path="/table" element={<AlltimeLayout />} />
-              <Route path="/games" element={<AlltimeLayout />} />
-              <Route path="/matchup" element={<AlltimeLayout />} />
-              <Route path="/my-team" element={<AlltimeLayout />} />
-              <Route path="/matchup-projection" element={<AlltimeLayout />} />
-              <Route path="/rankings" element={<AlltimeLayout />} />
-              <Route path="/season-games" element={<AlltimeLayout />} />
-              <Route path="/chat" element={<AlltimeLayout />} />
-              <Route path="/playoffs" element={<AlltimeLayout />} />
-              <Route path="/nba-playoffs" element={<AlltimeLayout />} />
-              <Route path="/my-league-playoffs" element={<AlltimeLayout />} />
-              <Route path="/nba-regular-season" element={<AlltimeLayout />} />
-              <Route path="/my-league-regular-season" element={<AlltimeLayout />} />
-              <Route path="/*" element={<Navigate to="/matchup" replace />} />
-            </Routes>
-          </Box>
-        </DatabaseLoader>
+        <Box sx={{ flexGrow: 1 }}>
+          <Routes>
+            <Route path="/" element={<AlltimeLayout />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/about" element={<AlltimeLayout />} />
+            <Route path="/profile" element={<AlltimeLayout />} />
+            <Route path="/teams" element={<AlltimeLayout />} />
+            <Route path="/seasons" element={<AlltimeLayout />} />
+            <Route path="/table" element={<AlltimeLayout />} />
+            <Route path="/games" element={<AlltimeLayout />} />
+            <Route path="/matchup" element={<AlltimeLayout />} />
+            <Route path="/my-team" element={<AlltimeLayout />} />
+            <Route path="/matchup-projection" element={<AlltimeLayout />} />
+            <Route path="/rankings" element={<AlltimeLayout />} />
+            <Route path="/season-games" element={<AlltimeLayout />} />
+            <Route path="/chat" element={<AlltimeLayout />} />
+            <Route path="/playoffs" element={<AlltimeLayout />} />
+            <Route path="/nba-playoffs" element={<AlltimeLayout />} />
+            <Route path="/my-league-playoffs" element={<AlltimeLayout />} />
+            <Route path="/nba-regular-season" element={<AlltimeLayout />} />
+            <Route path="/my-league-regular-season" element={<AlltimeLayout />} />
+            <Route path="/*" element={<Navigate to="/matchup" replace />} />
+          </Routes>
+        </Box>
       </AuthProvider>
     </ThemeProvider>
   );

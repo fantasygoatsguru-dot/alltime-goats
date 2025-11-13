@@ -228,25 +228,31 @@ const AlltimeTable = () => {
   }, [playerStats, sortColumn, sortDirection]);
 
   // Translate numeric season comparison to season list
+  // Input year represents the END year of the season (e.g., 2020 means 2019-20 season)
   const translateSeasonComparison = (operator, year) => {
     const parsedYear = parseInt(year, 10);
-    if (isNaN(parsedYear) || parsedYear < 1960 || parsedYear > 2023) {
+    if (isNaN(parsedYear) || parsedYear < 1961 || parsedYear > 2024) {
       return [];
     }
+    
+    // Convert input year to start year (2020 -> 2019)
+    const startYear = parsedYear - 1;
+    
     if (operator === "=") {
-      return [`${parsedYear}-${(parsedYear + 1) % 100}`];
+      const endYear = parsedYear % 100;
+      return [`${startYear}-${endYear.toString().padStart(2, '0')}`];
     }
     if (operator === ">=") {
-      return seasons.filter((season) => parseInt(season.split("-")[0], 10) >= parsedYear);
+      return seasons.filter((season) => parseInt(season.split("-")[0], 10) >= startYear);
     }
     if (operator === ">") {
-      return seasons.filter((season) => parseInt(season.split("-")[0], 10) > parsedYear);
+      return seasons.filter((season) => parseInt(season.split("-")[0], 10) > startYear);
     }
     if (operator === "<=") {
-      return seasons.filter((season) => parseInt(season.split("-")[0], 10) <= parsedYear);
+      return seasons.filter((season) => parseInt(season.split("-")[0], 10) <= startYear);
     }
     if (operator === "<") {
-      return seasons.filter((season) => parseInt(season.split("-")[0], 10) < parsedYear);
+      return seasons.filter((season) => parseInt(season.split("-")[0], 10) < startYear);
     }
     return [];
   };
@@ -284,8 +290,8 @@ const AlltimeTable = () => {
       }
       if (filterType.key === "season") {
         const year = parseInt(filterNumericValue, 10);
-        if (year < 1960 || year > 2023) {
-          alert("Please enter a year between 1960 and 2023.");
+        if (year < 1961 || year > 2024) {
+          alert("Please enter a year between 1961 and 2024.");
           return;
         }
         const seasonList = translateSeasonComparison(filterOperator, filterNumericValue);

@@ -1,279 +1,444 @@
-import { executeQuery } from './utils/database';
+import { supabase } from './utils/supabase';
 
 export const fetchAllPlayers = async () => {
   try {
-    const query = `
-      SELECT DISTINCT player_id as id, player_name as name, season
-      FROM player_season_averages 
-      ORDER BY player_name ASC
-    `;
+    const { data, error } = await supabase
+      .from('alltime_player_season_averages')
+      .select('player_id, player_name, season')
+      .order('player_name', { ascending: true })
+      .limit(1000);
     
-    const results = await executeQuery(query);
+    if (error) throw error;
     
     const playersMap = new Map();
-    results.forEach(row => {
-      if (!playersMap.has(row.id)) {
-        playersMap.set(row.id, {
-          id: row.id,
-          name: row.name,
+    data.forEach(row => {
+      if (!playersMap.has(row.player_id)) {
+        playersMap.set(row.player_id, {
+          id: row.player_id.toString(),
+          name: row.player_name,
           seasons: []
         });
       }
-      playersMap.get(row.id).seasons.push(row.season);
+      playersMap.get(row.player_id).seasons.push(row.season);
     });
     
     return Array.from(playersMap.values());
-    } catch (error) {
+  } catch (error) {
     console.error('Error fetching all players:', error);
-        throw error;
-    }
+    throw error;
+  }
 };
 
 export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
   try {
-    let query = `
-      SELECT 
-        pi.player_id as playerId,
-        pi.player_name as playerName,
-        psa.season,
-        pi.position,
-        pi.team_name as teamName,
-        pi.nationality,
-        pi.height,
-        pi.season_experience as seasonExperience,
-        psa.points_per_game as points,
-        psa.rebounds_per_game as rebounds,
-        psa.assists_per_game as assists,
-        psa.steals_per_game as steals,
-        psa.blocks_per_game as blocks,
-        psa.three_pointers_per_game as three_pointers,
-        psa.field_goal_percentage,
-        psa.free_throw_percentage,
-        psa.turnovers_per_game as turnovers,
-        psa.points_z,
-        psa.rebounds_z,
-        psa.assists_z,
-        psa.steals_z,
-        psa.blocks_z,
-        psa.three_pointers_z,
-        psa.fg_percentage_z as field_goal_percentage_z,
-        psa.ft_percentage_z as free_throw_percentage_z,
-        psa.turnovers_z,
-        psa.total_value
-      FROM player_season_averages psa
-      JOIN player_general_info pi ON psa.player_id = pi.player_id
-      WHERE 1=1
-    `;
+    // Step 1: Filter players by demographic info (nationality, team, height, experience)
+    let playerInfoQuery = supabase
+      .from('alltime_player_info')
+      .select('player_id');
     
-    const params = [];
+    let applyPlayerInfoFilter = false;
     
+    // Apply nationality filter
+    if (filterParams.nationalities && filterParams.nationalities.length > 0) {
+      playerInfoQuery = playerInfoQuery.in('nationality', filterParams.nationalities);
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Apply team filter (use team_name from player_info, not team_abbreviation)
+    if (filterParams.teamNames && filterParams.teamNames.length > 0) {
+      playerInfoQuery = playerInfoQuery.in('team_name', filterParams.teamNames);
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Apply height filter
+    if (filterParams.height) {
+      const { operand, value } = filterParams.height;
+      switch (operand) {
+        case '>': playerInfoQuery = playerInfoQuery.gt('height', value); break;
+        case '>=': playerInfoQuery = playerInfoQuery.gte('height', value); break;
+        case '<': playerInfoQuery = playerInfoQuery.lt('height', value); break;
+        case '<=': playerInfoQuery = playerInfoQuery.lte('height', value); break;
+        case '=': playerInfoQuery = playerInfoQuery.eq('height', value); break;
+      }
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Apply season experience filter
+    if (filterParams.seasonExperience) {
+      const { operand, value } = filterParams.seasonExperience;
+      switch (operand) {
+        case '>': playerInfoQuery = playerInfoQuery.gt('season_experience', value); break;
+        case '>=': playerInfoQuery = playerInfoQuery.gte('season_experience', value); break;
+        case '<': playerInfoQuery = playerInfoQuery.lt('season_experience', value); break;
+        case '<=': playerInfoQuery = playerInfoQuery.lte('season_experience', value); break;
+        case '=': playerInfoQuery = playerInfoQuery.eq('season_experience', value); break;
+      }
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Get filtered player IDs if we applied any player info filters
+    let filteredPlayerIds = null;
+    if (applyPlayerInfoFilter) {
+      const { data: playerInfoData, error: playerInfoError } = await playerInfoQuery;
+      if (playerInfoError) throw playerInfoError;
+      filteredPlayerIds = playerInfoData.map(p => p.player_id);
+      
+      // If no players match the demographic filters, return empty
+      if (filteredPlayerIds.length === 0) {
+        return [];
+      }
+    }
+    
+    // Step 2: Query season averages with stat filters
+    let seasonQuery = supabase
+      .from('alltime_player_season_averages')
+      .select('player_id, player_name, season, team_abbreviation, points_per_game, rebounds_per_game, assists_per_game, steals_per_game, blocks_per_game, three_pointers_per_game, field_goal_percentage, free_throw_percentage, turnovers_per_game, points_z, rebounds_z, assists_z, steals_z, blocks_z, three_pointers_z, fg_percentage_z, ft_percentage_z, turnovers_z, total_value');
+    
+    // Apply player ID filter if we have demographic filters
+    if (filteredPlayerIds) {
+      seasonQuery = seasonQuery.in('player_id', filteredPlayerIds);
+    }
+    
+    // Apply season filter - convert year to season format (2020 -> "2019-20")
     if (filterParams.season) {
       const seasons = Array.isArray(filterParams.season) ? filterParams.season : [filterParams.season];
-      const placeholders = seasons.map(() => '?').join(',');
-      query += ` AND psa.season IN (${placeholders})`;
-      params.push(...seasons);
+      // Each season string should be in format "YYYY-YY" where YYYY is the start year
+      // So 2020 input means 2019-20 season, not 2020-21
+      const convertedSeasons = seasons.map(s => {
+        if (s.includes('-')) {
+          return s; // Already in correct format
+        }
+        // Convert single year to season format
+        const year = parseInt(s);
+        const startYear = year - 1; // 2020 -> 2019
+        const endYear = year % 100; // 2020 -> 20
+        return `${startYear}-${endYear.toString().padStart(2, '0')}`;
+      });
+      seasonQuery = seasonQuery.in('season', convertedSeasons);
     }
     
-    if (filterParams.teamNames && filterParams.teamNames.length > 0) {
-      const placeholders = filterParams.teamNames.map(() => '?').join(',');
-      query += ` AND pi.team_name IN (${placeholders})`;
-      params.push(...filterParams.teamNames);
-    }
+    // Apply numeric filters with operators
+    const numericFields = [
+      { param: 'points', column: 'points_per_game' },
+      { param: 'rebounds', column: 'rebounds_per_game' },
+      { param: 'assists', column: 'assists_per_game' },
+      { param: 'steals', column: 'steals_per_game' },
+      { param: 'blocks', column: 'blocks_per_game' },
+      { param: 'three_pointers', column: 'three_pointers_per_game' },
+      { param: 'turnovers', column: 'turnovers_per_game' },
+      { param: 'total_value', column: 'total_value' },
+    ];
     
-    if (filterParams.nationalities && filterParams.nationalities.length > 0) {
-      const placeholders = filterParams.nationalities.map(() => '?').join(',');
-      query += ` AND pi.nationality IN (${placeholders})`;
-      params.push(...filterParams.nationalities);
-    }
-    
-    if (filterParams.seasonExperience) {
-      query += ` AND pi.season_experience ${filterParams.seasonExperience.operand} ?`;
-      params.push(filterParams.seasonExperience.value);
-    }
-    
-    if (filterParams.height) {
-      query += ` AND pi.height ${filterParams.height.operand} ?`;
-      params.push(filterParams.height.value);
-    }
-    
-    const numericFields = ['rebounds', 'points', 'assists', 'steals', 'blocks', 'three_pointers', 'turnovers', 'total_value'];
-    numericFields.forEach(field => {
-      if (filterParams[field]) {
-        const dbField = field === 'three_pointers' ? 'three_pointers_per_game' : 
-                        field === 'total_value' ? 'total_value' : `${field}_per_game`;
-        query += ` AND psa.${dbField} ${filterParams[field].operand} ?`;
-        params.push(filterParams[field].value);
+    numericFields.forEach(({ param, column }) => {
+      if (filterParams[param]) {
+        const { operand, value } = filterParams[param];
+        switch (operand) {
+          case '>':
+            seasonQuery = seasonQuery.gt(column, value);
+            break;
+          case '>=':
+            seasonQuery = seasonQuery.gte(column, value);
+            break;
+          case '<':
+            seasonQuery = seasonQuery.lt(column, value);
+            break;
+          case '<=':
+            seasonQuery = seasonQuery.lte(column, value);
+            break;
+          case '=':
+            seasonQuery = seasonQuery.eq(column, value);
+            break;
+        }
       }
     });
     
+    // Apply percentage filters
     if (filterParams.fgPercentage) {
-      query += ` AND psa.field_goal_percentage ${filterParams.fgPercentage.operand} ?`;
-      params.push(filterParams.fgPercentage.value / 100);
+      const { operand, value } = filterParams.fgPercentage;
+      const percentValue = value / 100;
+      switch (operand) {
+        case '>': seasonQuery = seasonQuery.gt('field_goal_percentage', percentValue); break;
+        case '>=': seasonQuery = seasonQuery.gte('field_goal_percentage', percentValue); break;
+        case '<': seasonQuery = seasonQuery.lt('field_goal_percentage', percentValue); break;
+        case '<=': seasonQuery = seasonQuery.lte('field_goal_percentage', percentValue); break;
+        case '=': seasonQuery = seasonQuery.eq('field_goal_percentage', percentValue); break;
+      }
     }
     
     if (filterParams.ftPercentage) {
-      query += ` AND psa.free_throw_percentage ${filterParams.ftPercentage.operand} ?`;
-      params.push(filterParams.ftPercentage.value / 100);
-    }
-    
-    query += ' ORDER BY psa.total_value DESC LIMIT 1000';
-    
-    const results = await executeQuery(query, params);
-    
-    return results.map(row => ({
-      playerId: row.playerId,
-      playerName: row.playerName,
-      season: row.season,
-      position: row.position,
-      teamName: row.teamName,
-      nationality: row.nationality,
-      height: row.height,
-      seasonExperience: row.seasonExperience,
-      stats: {
-        points: row.points,
-        rebounds: row.rebounds,
-        assists: row.assists,
-        steals: row.steals,
-        blocks: row.blocks,
-        three_pointers: row.three_pointers,
-        field_goal_percentage: row.field_goal_percentage,
-        free_throw_percentage: row.free_throw_percentage,
-        turnovers: row.turnovers,
-        points_z: row.points_z,
-        rebounds_z: row.rebounds_z,
-        assists_z: row.assists_z,
-        steals_z: row.steals_z,
-        blocks_z: row.blocks_z,
-        three_pointers_z: row.three_pointers_z,
-        field_goal_percentage_z: row.field_goal_percentage_z,
-        free_throw_percentage_z: row.free_throw_percentage_z,
-        turnovers_z: row.turnovers_z,
-        total_value: row.total_value
+      const { operand, value } = filterParams.ftPercentage;
+      const percentValue = value / 100;
+      switch (operand) {
+        case '>': seasonQuery = seasonQuery.gt('free_throw_percentage', percentValue); break;
+        case '>=': seasonQuery = seasonQuery.gte('free_throw_percentage', percentValue); break;
+        case '<': seasonQuery = seasonQuery.lt('free_throw_percentage', percentValue); break;
+        case '<=': seasonQuery = seasonQuery.lte('free_throw_percentage', percentValue); break;
+        case '=': seasonQuery = seasonQuery.eq('free_throw_percentage', percentValue); break;
       }
-    }));
-    } catch (error) {
-    console.error('Error fetching filtered player averages:', error);
-        throw error;
     }
+    
+    // Order and limit to 200 results
+    seasonQuery = seasonQuery.order('total_value', { ascending: false }).limit(200);
+    
+    const { data: seasonData, error: seasonError } = await seasonQuery;
+    
+    if (seasonError) throw seasonError;
+    
+    if (!seasonData || seasonData.length === 0) {
+      return [];
+    }
+    
+    // Get unique player IDs
+    const playerIds = [...new Set(seasonData.map(row => row.player_id))];
+    
+    // Fetch player info for all players (with limit)
+    const { data: playerInfo, error: playerInfoError } = await supabase
+      .from('alltime_player_info')
+      .select('player_id, position, nationality, height, season_experience')
+      .in('player_id', playerIds.slice(0, 200));
+    
+    if (playerInfoError) {
+      console.warn('Error fetching player info, using defaults:', playerInfoError);
+    }
+    
+    // Create a map for quick lookup
+    const playerInfoMap = (playerInfo || []).reduce((acc, info) => {
+      acc[info.player_id] = info;
+      return acc;
+    }, {});
+    
+    // Transform data to match expected format
+    return seasonData.map(row => {
+      const info = playerInfoMap[row.player_id] || {};
+      return {
+        playerId: row.player_id,
+        playerName: row.player_name,
+        season: row.season,
+        position: info.position || 'N/A',
+        teamName: row.team_abbreviation,
+        nationality: info.nationality || 'N/A',
+        height: info.height || 'N/A',
+        seasonExperience: info.season_experience || 0,
+        stats: {
+          points: row.points_per_game,
+          rebounds: row.rebounds_per_game,
+          assists: row.assists_per_game,
+          steals: row.steals_per_game,
+          blocks: row.blocks_per_game,
+          three_pointers: row.three_pointers_per_game,
+          field_goal_percentage: row.field_goal_percentage,
+          free_throw_percentage: row.free_throw_percentage,
+          turnovers: row.turnovers_per_game,
+          points_z: row.points_z,
+          rebounds_z: row.rebounds_z,
+          assists_z: row.assists_z,
+          steals_z: row.steals_z,
+          blocks_z: row.blocks_z,
+          three_pointers_z: row.three_pointers_z,
+          field_goal_percentage_z: row.fg_percentage_z,
+          free_throw_percentage_z: row.ft_percentage_z,
+          turnovers_z: row.turnovers_z,
+          total_value: row.total_value
+        }
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching filtered player averages:', error);
+    throw error;
+  }
 };
 
 export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
   try {
-    let query = `
-      SELECT 
-        pgl.player_id as playerId,
-        pgl.player_name as playerName,
-        pgl.season,
-        pi.position,
-        pi.team_name as teamName,
-        pi.nationality,
-        pi.height,
-        pi.season_experience as seasonExperience,
-        pgl.points,
-        pgl.rebounds,
-        pgl.assists,
-        pgl.steals,
-        pgl.blocks,
-        pgl.three_pointers_made as three_pointers,
-        pgl.field_goal_percentage,
-        pgl.free_throw_percentage,
-        pgl.turnovers,
-        pgl.fantasy_points
-      FROM player_game_logs pgl
-      JOIN player_general_info pi ON pgl.player_id = pi.player_id
-      WHERE 1=1
-    `;
+    // Step 1: Filter players by demographic info (nationality, team, height, experience)
+    let playerInfoQuery = supabase
+      .from('alltime_player_info')
+      .select('player_id');
     
-    const params = [];
+    let applyPlayerInfoFilter = false;
     
+    // Apply nationality filter
+    if (filterParams.nationalities && filterParams.nationalities.length > 0) {
+      playerInfoQuery = playerInfoQuery.in('nationality', filterParams.nationalities);
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Apply team filter (use team_name from player_info, not team_abbreviation)
+    if (filterParams.teamNames && filterParams.teamNames.length > 0) {
+      playerInfoQuery = playerInfoQuery.in('team_name', filterParams.teamNames);
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Apply height filter
+    if (filterParams.height) {
+      const { operand, value } = filterParams.height;
+      switch (operand) {
+        case '>': playerInfoQuery = playerInfoQuery.gt('height', value); break;
+        case '>=': playerInfoQuery = playerInfoQuery.gte('height', value); break;
+        case '<': playerInfoQuery = playerInfoQuery.lt('height', value); break;
+        case '<=': playerInfoQuery = playerInfoQuery.lte('height', value); break;
+        case '=': playerInfoQuery = playerInfoQuery.eq('height', value); break;
+      }
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Apply season experience filter
+    if (filterParams.seasonExperience) {
+      const { operand, value } = filterParams.seasonExperience;
+      switch (operand) {
+        case '>': playerInfoQuery = playerInfoQuery.gt('season_experience', value); break;
+        case '>=': playerInfoQuery = playerInfoQuery.gte('season_experience', value); break;
+        case '<': playerInfoQuery = playerInfoQuery.lt('season_experience', value); break;
+        case '<=': playerInfoQuery = playerInfoQuery.lte('season_experience', value); break;
+        case '=': playerInfoQuery = playerInfoQuery.eq('season_experience', value); break;
+      }
+      applyPlayerInfoFilter = true;
+    }
+    
+    // Get filtered player IDs if we applied any player info filters
+    let filteredPlayerIds = null;
+    if (applyPlayerInfoFilter) {
+      const { data: playerInfoData, error: playerInfoError } = await playerInfoQuery;
+      if (playerInfoError) throw playerInfoError;
+      filteredPlayerIds = playerInfoData.map(p => p.player_id);
+      
+      // If no players match the demographic filters, return empty
+      if (filteredPlayerIds.length === 0) {
+        return [];
+      }
+    }
+    
+    // Step 2: Query game logs with stat filters
+    let query = supabase
+      .from('alltime_player_game_logs')
+      .select('player_id, player_name, season, team_abbreviation, points, rebounds, assists, steals, blocks, three_pointers_made, field_goals_made, field_goals_attempted, free_throws_made, free_throws_attempted, turnovers, fantasy_points');
+    
+    // Apply player ID filter if we have demographic filters
+    if (filteredPlayerIds) {
+      query = query.in('player_id', filteredPlayerIds);
+    }
+    
+    // Apply season filter - convert year to season format (2020 -> "2019-20")
     if (filterParams.season) {
       const seasons = Array.isArray(filterParams.season) ? filterParams.season : [filterParams.season];
-      const placeholders = seasons.map(() => '?').join(',');
-      query += ` AND pgl.season IN (${placeholders})`;
-      params.push(...seasons);
+      // Each season string should be in format "YYYY-YY" where YYYY is the start year
+      // So 2020 input means 2019-20 season, not 2020-21
+      const convertedSeasons = seasons.map(s => {
+        if (s.includes('-')) {
+          return s; // Already in correct format
+        }
+        // Convert single year to season format
+        const year = parseInt(s);
+        const startYear = year - 1; // 2020 -> 2019
+        const endYear = year % 100; // 2020 -> 20
+        return `${startYear}-${endYear.toString().padStart(2, '0')}`;
+      });
+      query = query.in('season', convertedSeasons);
     }
     
-    if (filterParams.teamNames && filterParams.teamNames.length > 0) {
-      const placeholders = filterParams.teamNames.map(() => '?').join(',');
-      query += ` AND pi.team_name IN (${placeholders})`;
-      params.push(...filterParams.teamNames);
-    }
+    // Apply numeric filters with operators
+    const numericFields = [
+      { param: 'points', column: 'points' },
+      { param: 'rebounds', column: 'rebounds' },
+      { param: 'assists', column: 'assists' },
+      { param: 'steals', column: 'steals' },
+      { param: 'blocks', column: 'blocks' },
+      { param: 'three_pointers', column: 'three_pointers_made' },
+      { param: 'turnovers', column: 'turnovers' },
+      { param: 'fantasy_points', column: 'fantasy_points' },
+    ];
     
-    if (filterParams.nationalities && filterParams.nationalities.length > 0) {
-      const placeholders = filterParams.nationalities.map(() => '?').join(',');
-      query += ` AND pi.nationality IN (${placeholders})`;
-      params.push(...filterParams.nationalities);
-    }
-    
-    if (filterParams.positions && filterParams.positions.length > 0) {
-      const placeholders = filterParams.positions.map(() => '?').join(',');
-      query += ` AND pi.position IN (${placeholders})`;
-      params.push(...filterParams.positions);
-    }
-    
-    if (filterParams.seasonExperience) {
-      query += ` AND pi.season_experience ${filterParams.seasonExperience.operand} ?`;
-      params.push(filterParams.seasonExperience.value);
-    }
-    
-    if (filterParams.height) {
-      query += ` AND pi.height ${filterParams.height.operand} ?`;
-      params.push(filterParams.height.value);
-    }
-    
-    const numericFields = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'three_pointers', 'turnovers', 'fantasy_points'];
-    numericFields.forEach(field => {
-      if (filterParams[field]) {
-        const dbField = field === 'three_pointers' ? 'three_pointers_made' : field;
-        query += ` AND pgl.${dbField} ${filterParams[field].operand} ?`;
-        params.push(filterParams[field].value);
+    numericFields.forEach(({ param, column }) => {
+      if (filterParams[param]) {
+        const { operand, value } = filterParams[param];
+        switch (operand) {
+          case '>':
+            query = query.gt(column, value);
+            break;
+          case '>=':
+            query = query.gte(column, value);
+            break;
+          case '<':
+            query = query.lt(column, value);
+            break;
+          case '<=':
+            query = query.lte(column, value);
+            break;
+          case '=':
+            query = query.eq(column, value);
+            break;
+        }
       }
     });
     
-    if (filterParams.fgPercentage) {
-      query += ` AND pgl.field_goal_percentage ${filterParams.fgPercentage.operand} ?`;
-      params.push(filterParams.fgPercentage.value / 100);
+    // Order and limit to 200 results
+    query = query.order('fantasy_points', { ascending: false }).limit(200);
+    
+    const { data: gameData, error: gameError } = await query;
+    
+    if (gameError) throw gameError;
+    
+    if (!gameData || gameData.length === 0) {
+      return [];
     }
     
-    if (filterParams.ftPercentage) {
-      query += ` AND pgl.free_throw_percentage ${filterParams.ftPercentage.operand} ?`;
-      params.push(filterParams.ftPercentage.value / 100);
+    // Get unique player IDs
+    const playerIds = [...new Set(gameData.map(row => row.player_id))];
+    
+    // Fetch player info for all players (with limit)
+    const { data: playerInfo, error: playerInfoError } = await supabase
+      .from('alltime_player_info')
+      .select('player_id, position, nationality, height, season_experience')
+      .in('player_id', playerIds.slice(0, 200));
+    
+    if (playerInfoError) {
+      console.warn('Error fetching player info, using defaults:', playerInfoError);
     }
     
-    query += ' ORDER BY pgl.fantasy_points DESC LIMIT 1000';
+    // Create a map for quick lookup
+    const playerInfoMap = (playerInfo || []).reduce((acc, info) => {
+      acc[info.player_id] = info;
+      return acc;
+    }, {});
     
-    const results = await executeQuery(query, params);
-    
-    return results.map(row => ({
-      playerId: row.playerId,
-      playerName: row.playerName,
-      season: row.season,
-      position: row.position,
-      teamName: row.teamName,
-      nationality: row.nationality,
-      height: row.height,
-      seasonExperience: row.seasonExperience,
-      stats: {
-        points: row.points,
-        rebounds: row.rebounds,
-        assists: row.assists,
-        steals: row.steals,
-        blocks: row.blocks,
-        three_pointers: row.three_pointers,
-        field_goal_percentage: row.field_goal_percentage,
-        free_throw_percentage: row.free_throw_percentage,
-        turnovers: row.turnovers,
-        fantasy_points: row.fantasy_points
-      }
-    }));
-    } catch (error) {
+    // Transform data and calculate percentages
+    return gameData.map(row => {
+      const info = playerInfoMap[row.player_id] || {};
+      return {
+        playerId: row.player_id,
+        playerName: row.player_name,
+        season: row.season,
+        position: info.position || 'N/A',
+        teamName: row.team_abbreviation,
+        nationality: info.nationality || 'N/A',
+        height: info.height || 'N/A',
+        seasonExperience: info.season_experience || 0,
+        stats: {
+          points: row.points,
+          rebounds: row.rebounds,
+          assists: row.assists,
+          steals: row.steals,
+          blocks: row.blocks,
+          three_pointers: row.three_pointers_made,
+          field_goal_percentage: row.field_goals_attempted > 0 
+            ? row.field_goals_made / row.field_goals_attempted 
+            : 0,
+          free_throw_percentage: row.free_throws_attempted > 0 
+            ? row.free_throws_made / row.free_throws_attempted 
+            : 0,
+          turnovers: row.turnovers,
+          fantasy_points: row.fantasy_points
+        }
+      };
+    });
+  } catch (error) {
     console.error('Error fetching filtered player game stats:', error);
-        throw error;
-    }
+    throw error;
+  }
 };
 
 export const fetchAllTimePlayerStats = async (players) => {
-    try {
+  try {
     if (!players || players.length === 0) {
       return [];
     }
@@ -281,70 +446,73 @@ export const fetchAllTimePlayerStats = async (players) => {
     const team1Players = players.filter(p => p.team === 'team1');
     const team2Players = players.filter(p => p.team === 'team2');
     
-    const allPlayerConditions = players.map(() => '(psa.player_id = ? AND psa.season = ?)');
-    const allParams = players.flatMap(p => [p.id, p.season]);
+    // Limit to 200 players max for safety
+    const limitedPlayers = players.slice(0, 200);
     
-    const query = `
-      SELECT 
-        psa.player_id as playerId,
-        pi.player_name as playerName,
-        psa.season,
-        pi.position,
-        pi.team_name as teamName,
-        psa.points_per_game as points,
-        psa.rebounds_per_game as rebounds,
-        psa.assists_per_game as assists,
-        psa.steals_per_game as steals,
-        psa.blocks_per_game as blocks,
-        psa.three_pointers_per_game as three_pointers,
-        psa.field_goal_percentage,
-        psa.free_throw_percentage,
-        psa.turnovers_per_game as turnovers,
-        psa.points_z,
-        psa.rebounds_z,
-        psa.assists_z,
-        psa.steals_z,
-        psa.blocks_z,
-        psa.three_pointers_z,
-        psa.fg_percentage_z as field_goal_percentage_z,
-        psa.ft_percentage_z as free_throw_percentage_z,
-        psa.turnovers_z,
-        psa.total_value
-      FROM player_season_averages psa
-      JOIN player_general_info pi ON psa.player_id = pi.player_id
-      WHERE ${allPlayerConditions.join(' OR ')}
-    `;
-    
-    const results = await executeQuery(query, allParams);
-    
-    const playerStats = results.map(row => ({
-      playerId: row.playerId,
-      playerName: row.playerName,
-      season: row.season,
-      position: row.position,
-      teamName: row.teamName,
-      stats: {
-        points: row.points,
-        rebounds: row.rebounds,
-        assists: row.assists,
-        steals: row.steals,
-        blocks: row.blocks,
-        three_pointers: row.three_pointers,
-        field_goal_percentage: row.field_goal_percentage,
-        free_throw_percentage: row.free_throw_percentage,
-        turnovers: row.turnovers,
-        points_z: row.points_z,
-        rebounds_z: row.rebounds_z,
-        assists_z: row.assists_z,
-        steals_z: row.steals_z,
-        blocks_z: row.blocks_z,
-        three_pointers_z: row.three_pointers_z,
-        field_goal_percentage_z: row.field_goal_percentage_z,
-        free_throw_percentage_z: row.free_throw_percentage_z,
-        turnovers_z: row.turnovers_z,
-        total_value: row.total_value
+    // Fetch all player stats from Supabase
+    // We need to query each player-season combination
+    const fetchPromises = limitedPlayers.map(async (player) => {
+      const { data, error } = await supabase
+        .from('alltime_player_season_averages')
+        .select('*')
+        .eq('player_id', parseInt(player.id))
+        .eq('season', player.season)
+        .single();
+      
+      if (error) {
+        console.error(`Error fetching player ${player.id} season ${player.season}:`, error);
+        return null;
       }
-    }));
+      
+      return data;
+    });
+    
+    const results = await Promise.all(fetchPromises);
+    const validResults = results.filter(r => r !== null);
+    
+    // Fetch player info for additional data
+    const playerIds = [...new Set(validResults.map(r => r.player_id))];
+    const { data: playerInfo } = await supabase
+      .from('alltime_player_info')
+      .select('player_id, position')
+      .in('player_id', playerIds.slice(0, 200));
+    
+    const playerInfoMap = (playerInfo || []).reduce((acc, info) => {
+      acc[info.player_id] = info;
+      return acc;
+    }, {});
+    
+    const playerStats = validResults.map(row => {
+      const info = playerInfoMap[row.player_id] || {};
+      return {
+        playerId: row.player_id,
+        playerName: row.player_name,
+        season: row.season,
+        position: info.position || 'N/A',
+        teamName: row.team_abbreviation,
+        stats: {
+          points: row.points_per_game,
+          rebounds: row.rebounds_per_game,
+          assists: row.assists_per_game,
+          steals: row.steals_per_game,
+          blocks: row.blocks_per_game,
+          three_pointers: row.three_pointers_per_game,
+          field_goal_percentage: row.field_goal_percentage,
+          free_throw_percentage: row.free_throw_percentage,
+          turnovers: row.turnovers_per_game,
+          points_z: row.points_z,
+          rebounds_z: row.rebounds_z,
+          assists_z: row.assists_z,
+          steals_z: row.steals_z,
+          blocks_z: row.blocks_z,
+          three_pointers_z: row.three_pointers_z,
+          field_goal_percentage_z: row.fg_percentage_z,
+          free_throw_percentage_z: row.ft_percentage_z,
+          turnovers_z: row.turnovers_z,
+          total_value: row.total_value
+        }
+      };
+    });
     
     const calculateTeamStats = (teamPlayers, statsResults) => {
       const teamStats = statsResults.filter(stat => 
@@ -452,8 +620,8 @@ export const fetchAllTimePlayerStats = async (players) => {
       ...playerStats,
       { teamAverages }
     ];
-    } catch (error) {
+  } catch (error) {
     console.error('Error fetching all time player stats:', error);
-        throw error;
-    }
+    throw error;
+  }
 };
