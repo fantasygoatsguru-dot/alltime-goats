@@ -1,2 +1,8 @@
-/ads.txt  https://srv.adstxtmanager.com/19390/fantasygoats.guru  302
-/*        /index.html  200
+# Netlify redirects file
+# Remove trailing slashes and handle SPA routing
+
+# Remove trailing slashes (301 permanent redirect)
+/*/ /:splat 301!
+
+# SPA fallback - all routes go to index.html
+/* /index.html 200
