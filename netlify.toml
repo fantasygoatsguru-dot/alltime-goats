@@ -1,0 +1,17 @@
+## Netlify configuration: enforce no trailing slash and SPA fallback
+
+[build]
+  publish = "dist"
+
+[[redirects]]
+  from = "/*/"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+
