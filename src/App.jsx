@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
@@ -49,10 +49,24 @@ const tagManagerArgs = {
 
 TagManager.initialize(tagManagerArgs);
 
+const TrimTrailingSlash = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    const { pathname, search, hash } = location;
+    if (pathname !== "/" && pathname.endsWith("/")) {
+      const normalizedPath = pathname.replace(/\/+$/, "");
+      navigate(`${normalizedPath}${search}${hash}`, { replace: true });
+    }
+  }, [location.pathname, location.search, location.hash, navigate]);
+  return null;
+};
+
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
+        <TrimTrailingSlash />
         <SEOHead />
         <GoogleAnalytics />
         <Box sx={{ flexGrow: 1 }}>
