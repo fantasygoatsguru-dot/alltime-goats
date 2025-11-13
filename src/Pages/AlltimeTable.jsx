@@ -700,6 +700,21 @@ const AlltimeTable = () => {
                   textTransform: "uppercase",
                   fontSize: "0.9rem",
                   p: 1,
+                  width: "50px",
+                }}
+                align="center"
+              >
+                #
+              </TableCell>
+              <TableCell
+                sx={{
+                  color: "#212121",
+                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  fontSize: "0.9rem",
+                  p: 1,
                 }}
               >
                 <TableSortLabel
@@ -1235,7 +1250,7 @@ const AlltimeTable = () => {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={26} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={27} align="center" sx={{ py: 4 }}>
                       <CircularProgress sx={{ color: "#1976d2" }} />
                       <Typography sx={{ mt: 2, color: "#424242" }}>
                     Loading player statistics...
@@ -1244,7 +1259,7 @@ const AlltimeTable = () => {
               </TableRow>
             ) : sortedPlayerStats.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={26} align="center" sx={{ py: 4, color: "#424242" }}>
+                <TableCell colSpan={27} align="center" sx={{ py: 4, color: "#424242" }}>
                   No players found. Try adjusting your filters.
                 </TableCell>
               </TableRow>
@@ -1257,6 +1272,18 @@ const AlltimeTable = () => {
                   borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                 }}
               >
+                <TableCell
+                  align="center"
+                  sx={{
+                    color: "#1976d2",
+                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                    p: 1,
+                    fontSize: "0.85rem",
+                    fontWeight: 700,
+                  }}
+                >
+                  {index + 1}
+                </TableCell>
                 <TableCell
                   sx={{
                     color: "#212121",

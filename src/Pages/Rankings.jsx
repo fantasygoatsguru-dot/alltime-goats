@@ -161,6 +161,7 @@ const Rankings = () => {
     };
 
     const columns = [
+        { id: 'rank', label: '#', sortable: false, align: 'center' },
         { id: 'player_name', label: 'Player', sortable: true, align: 'left' },
         { id: 'team_abbreviation', label: 'Team', sortable: true },
         { id: 'total_value', label: 'Total Value', sortable: true },
@@ -303,7 +304,7 @@ const Rankings = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {players.map((player) => {
+                            {players.map((player, index) => {
                                 const isMyPlayer = isUserTeamPlayer(player);
                                 return (
                                 <TableRow
@@ -334,7 +335,7 @@ const Rankings = () => {
                                     }}
                                 >
                                     {columns.map((column) => {
-                                        const value = player[column.id];
+                                        const value = column.id === 'rank' ? index + 1 : player[column.id];
                                         const bgColor = getColorForValue(value, column.id);
                                         const textColor = getTextColor(bgColor);
 
@@ -347,12 +348,19 @@ const Rankings = () => {
                                                     color: textColor,
                                                     fontFamily: '"Roboto Mono", monospace',
                                                     fontSize: '0.8rem',
-                                                    fontWeight: column.id === 'player_name' ? 'bold' : 'medium',
+                                                    fontWeight: column.id === 'player_name' ? 'bold' : column.id === 'rank' ? 'bold' : 'medium',
                                                     transition: 'background-color 0.4s ease',
                                                     borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
                                                 }}
                                             >
-                                                {column.id === 'player_name' ? (
+                                                {column.id === 'rank' ? (
+                                                    <Typography sx={{ 
+                                                        fontWeight: 'bold', 
+                                                        color: '#1976d2',
+                                                    }}>
+                                                        {value}
+                                                    </Typography>
+                                                ) : column.id === 'player_name' ? (
                                                     <Typography sx={{ 
                                                         fontWeight: 'bold', 
                                                         color: isMyPlayer ? '#1976d2' : '#1976d2',

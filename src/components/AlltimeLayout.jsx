@@ -17,10 +17,11 @@ import {
   Grow,
   Paper,
   ClickAwayListener,
+  Collapse,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import { Logout } from '@mui/icons-material';
+import { Logout, ExpandMore } from '@mui/icons-material';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
@@ -54,6 +55,7 @@ const AlltimeLayout = () => {
 
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
+  const [mobileExpandedMenu, setMobileExpandedMenu] = useState(null);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const [leagueAnchorEl, setLeagueAnchorEl] = useState(null);
   const [rankingsAnchorEl, setRankingsAnchorEl] = useState(null);
@@ -192,8 +194,8 @@ const AlltimeLayout = () => {
 
   const leagueSubmenu = [
     { path: '/my-team', label: 'My Team', icon: <MyTeamIcon />, requiresAuth: false },
-    { path: '/matchup-projection', label: 'Team Comparison', icon: <ProjectionIcon />, requiresAuth: false },
-    { path: '/matchup', label: 'Matchup', icon: <MatchupIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your matchups' },
+    { path: '/matchup', label: 'Team Comparison', icon: <ProjectionIcon />, requiresAuth: false },
+    { path: '/matchup-projection', label: 'Matchup', icon: <MatchupIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your matchups' },
   ];
 
   const rankingsSubmenu = [
@@ -734,8 +736,11 @@ const AlltimeLayout = () => {
         <Menu
           anchorEl={mobileMenuAnchor}
           open={Boolean(mobileMenuAnchor)}
-          onClose={() => setMobileMenuAnchor(null)}
-          PaperProps={{ sx: { width: 260, mt: 1.5 } }}
+          onClose={() => {
+            setMobileMenuAnchor(null);
+            setMobileExpandedMenu(null);
+          }}
+          PaperProps={{ sx: { width: 280, mt: 1.5, maxHeight: '70vh' } }}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
@@ -747,9 +752,7 @@ const AlltimeLayout = () => {
               '/alltime': alltimeSubmenu,
             };
             const submenu = submenuMap[item.path];
-            const defaultPath = item.path === '/league' ? '/my-team' : 
-                               item.path === '/rankings' ? '/season-games' : 
-                               item.path === '/schedule' ? '/nba-regular-season' : '/teams';
+            const isExpanded = mobileExpandedMenu === item.path;
 
             return !item.hasSubmenu ? (
               <MenuItem 
@@ -762,12 +765,15 @@ const AlltimeLayout = () => {
                 disabled={item.requiresAuth && !isAuthenticated}
                 sx={{ 
                   py: 2, 
-                  gap: 2,
+                  px: 2.5,
+                  gap: 2.5,
                   opacity: (item.requiresAuth && !isAuthenticated) ? 0.5 : 1,
                 }}
               >
-                {item.icon}
-                <Typography fontWeight={600}>{item.label}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.3rem' }}>
+                  {item.icon}
+                </Box>
+                <Typography fontWeight={600} fontSize="0.95rem">{item.label}</Typography>
                 {item.requiresAuth && !isAuthenticated && item.tooltip && (
                   <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
                     🔒
@@ -776,27 +782,69 @@ const AlltimeLayout = () => {
               </MenuItem>
             ) : (
               <Box key={item.path}>
-                <MenuItem onClick={() => handleNavClick(defaultPath)} sx={{ py: 2, gap: 2, fontWeight: 600 }}>
-                  {item.icon} {item.label}
+                <MenuItem 
+                  onClick={() => setMobileExpandedMenu(isExpanded ? null : item.path)} 
+                  sx={{ 
+                    py: 2, 
+                    px: 2.5,
+                    gap: 2.5, 
+                    fontWeight: 600,
+                    bgcolor: isExpanded ? 'rgba(74,144,226,0.08)' : 'transparent',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.3rem' }}>
+                    {item.icon}
+                  </Box>
+                  <Typography fontWeight={600} fontSize="0.95rem" sx={{ flex: 1 }}>
+                    {item.label}
+                  </Typography>
+                  <ExpandMore 
+                    sx={{ 
+                      transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.3s',
+                      fontSize: '1.5rem',
+                    }} 
+                  />
                 </MenuItem>
-                {submenu.map((sub) => {
-                  const isDisabled = sub.requiresAuth && !isAuthenticated;
-                  return (
-                    <MenuItem
-                      key={sub.path}
-                      onClick={() => !isDisabled && handleNavClick(sub.path)}
-                      disabled={isDisabled}
-                      sx={{ 
-                        pl: 7, 
-                        py: 1.8, 
-                        bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.1)' : 'transparent',
-                        opacity: isDisabled ? 0.5 : 1,
-                      }}
-                    >
-                      {sub.icon} {sub.label}
-                    </MenuItem>
-                  );
-                })}
+                <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                  <Box sx={{ bgcolor: 'rgba(0,0,0,0.02)' }}>
+                    {submenu.map((sub) => {
+                      const isDisabled = sub.requiresAuth && !isAuthenticated;
+                      const isActive = location.pathname === sub.path;
+                      return (
+                        <MenuItem
+                          key={sub.path}
+                          onClick={() => !isDisabled && handleNavClick(sub.path)}
+                          disabled={isDisabled}
+                          sx={{ 
+                            pl: 7, 
+                            pr: 2.5,
+                            py: 2, 
+                            gap: 2.5,
+                            bgcolor: isActive ? 'rgba(74,144,226,0.15)' : 'transparent',
+                            borderLeft: isActive ? '3px solid #4a90e2' : '3px solid transparent',
+                            opacity: isDisabled ? 0.5 : 1,
+                            '&:hover': {
+                              bgcolor: isDisabled ? 'transparent' : 'rgba(74,144,226,0.08)',
+                            },
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.2rem' }}>
+                            {sub.icon}
+                          </Box>
+                          <Typography fontSize="0.9rem" fontWeight={isActive ? 600 : 400}>
+                            {sub.label}
+                          </Typography>
+                          {isDisabled && sub.tooltip && (
+                            <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
+                              🔒
+                            </Typography>
+                          )}
+                        </MenuItem>
+                      );
+                    })}
+                  </Box>
+                </Collapse>
               </Box>
             );
           })}

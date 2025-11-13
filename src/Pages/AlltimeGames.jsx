@@ -559,6 +559,21 @@ const AlltimeGames = () => {
                       textTransform: "uppercase",
                       fontSize: "0.9rem",
                       p: 1,
+                      width: "50px",
+                    }}
+                    align="center"
+                  >
+                    #
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      color: "#212121",
+                      borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                      borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      fontSize: "0.9rem",
+                      p: 1,
                     }}
                   >
                     <TableSortLabel
@@ -905,13 +920,13 @@ const AlltimeGames = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={17} align="center">
+                    <TableCell colSpan={18} align="center">
                       <CircularProgress sx={{ color: "#1976d2" }} />
                     </TableCell>
                   </TableRow>
                 ) : paginatedStats.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={17} align="center" sx={{ color: "#424242" }}>
+                    <TableCell colSpan={18} align="center" sx={{ color: "#424242" }}>
                       No data available
                     </TableCell>
                   </TableRow>
@@ -924,6 +939,18 @@ const AlltimeGames = () => {
                         borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
                       }}
                     >
+                      <TableCell
+                        align="center"
+                        sx={{
+                          color: "#1976d2",
+                          borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+                          p: 1,
+                          fontSize: "0.85rem",
+                          fontWeight: 700,
+                        }}
+                      >
+                        {page * rowsPerPage + index + 1}
+                      </TableCell>
                       <TableCell
                         sx={{
                           color: "#212121",
