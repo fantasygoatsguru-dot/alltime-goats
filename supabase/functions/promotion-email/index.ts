@@ -27,7 +27,7 @@ try {
   EMAIL_TEMPLATE = '<!DOCTYPE html><html><body><p>Template error</p></body></html>';
 }
 
-// ───── Resend helper ─────
+// ───── Helper functions ─────
 const sendEmail = async (to: string, subject: string, html: string) => {
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -59,6 +59,9 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   }
 };
 
+// Throttle helper — sleep for ms milliseconds
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // ───── Main handler ─────
 serve(async (req) => {
   // Handle CORS preflight
@@ -69,16 +72,15 @@ serve(async (req) => {
   try {
     console.log('[START] Promotion email function started');
 
-    // Select up to 30 eligible users from mailing_list
-    // Criteria: avoid_promotions = false AND promotion_sent = false
+    // Select up to 30 eligible users
     const { data: eligibleUsers, error: selectError } = await supabase
-    .from('mailing_list')
-    .select('email, manager_nickname')
-    .eq('avoid_promotions', false)
-    .eq('promotion_sent', false)
-    .order('random()')
-    .limit(30);
-  
+      .from('mailing_list')
+      .select('email, manager_nickname')
+      .eq('avoid_promotions', false)
+      .eq('promotion_sent', false)
+      .order('email', { ascending: true })
+      .limit(20);
+
     if (selectError) {
       console.error('[DB] Error selecting users:', selectError);
       return new Response(
@@ -104,13 +106,12 @@ serve(async (req) => {
       errors: [] as string[],
     };
 
-    // Send emails to all selected users
+    // Send emails sequentially with throttling (max 2/sec)
     for (const user of eligibleUsers) {
       const { email, manager_nickname } = user;
 
       console.log(`[PROCESS] Processing ${email}...`);
 
-      // Send the promotion email
       const emailSent = await sendEmail(
         email,
         'Fantasy Goats Guru – your Yahoo fantasy basketball secret sauce',
@@ -118,7 +119,6 @@ serve(async (req) => {
       );
 
       if (emailSent) {
-        // Update promotion_sent to true
         const { error: updateError } = await supabase
           .from('mailing_list')
           .update({ promotion_sent: true })
@@ -136,6 +136,9 @@ serve(async (req) => {
         results.failed++;
         results.errors.push(`Failed to send email to ${email}`);
       }
+
+      // Throttle: 500ms pause = max 2 emails/sec
+      await sleep(500);
     }
 
     console.log('[COMPLETE] Promotion email batch complete:', results);
