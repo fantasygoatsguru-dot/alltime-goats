@@ -2,13 +2,78 @@
 
 [build]
   publish = "dist"
+  command = "npm run build"
 
+# Remove trailing slashes (SEO best practice)
 [[redirects]]
   from = "/*/"
   to = "/:splat"
   status = 301
   force = true
 
+# Serve prerendered HTML for public routes (SEO-critical)
+# These MUST come BEFORE the catch-all SPA fallback
+[[redirects]]
+  from = "/my-team"
+  to = "/my-team/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/matchup-projection"
+  to = "/matchup-projection/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/season-games"
+  to = "/season-games/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/rankings"
+  to = "/rankings/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/nba-regular-season"
+  to = "/nba-regular-season/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/nba-playoffs"
+  to = "/nba-playoffs/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/teams"
+  to = "/teams/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/seasons"
+  to = "/seasons/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/table"
+  to = "/table/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/games"
+  to = "/games/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/about/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy-policy"
+  to = "/privacy-policy/index.html"
+  status = 200
+
+# SPA fallback for all other routes (must be LAST)
 [[redirects]]
   from = "/*"
   to = "/index.html"
