@@ -79,7 +79,7 @@ serve(async (req) => {
       .eq('avoid_promotions', false)
       .eq('promotion_sent', false)
       .order('email', { ascending: true })
-      .limit(20);
+      .limit(30);
 
     if (selectError) {
       console.error('[DB] Error selecting users:', selectError);

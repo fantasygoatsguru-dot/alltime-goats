@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Matchup Projection</title>
+    <title>Final Day Matchup Projection</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Roboto', Arial, sans-serif; background-color: #121212; color: #e0e0e0;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #121212;">
@@ -14,7 +14,7 @@
                     
                     <!-- Header -->
                     <tr>
-                        <td align="center" style="padding: 30px 40px; background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);">
+                        <td align="center" style="padding: 30px 40px; background: linear-gradient(135deg, #ff6f61 0%, #d84a3f 100%);">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                                 <tr>
                                     <td align="center">
@@ -24,7 +24,7 @@
                                 <tr>
                                     <td align="center">
                                         <h1 style="margin: 0; font-size: 28px; font-weight: bold; color: #ffffff; font-family: 'Roboto Mono', monospace;">
-                                            Weekly Matchup Projection
+                                            🔥 Final Day Matchup Projection
                                         </h1>
                                     </td>
                                 </tr>
@@ -36,10 +36,10 @@
                     <tr>
                         <td style="padding: 30px 40px 20px;">
                             <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #e0e0e0;">
-                                Hi <strong style="color: #4a90e2;">${user_name}</strong>,
+                                Hi <strong style="color: #ff6f61;">${user_name}</strong>,
                             </p>
                             <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #e0e0e0;">
-                                Here's your weekly matchup projection based on current player averages. Get ready to dominate! 🏀
+                                It's the last day of your matchup! Here's how it will end if today's players hit their season averages. Time to make your final moves! ⏰
                             </p>
                         </td>
                     </tr>
@@ -84,24 +84,37 @@
                     <!-- Category Breakdown -->
                     <tr>
                         <td style="padding: 0 40px 30px;">
-                            <h2 style="margin: 0 0 15px; font-size: 20px; font-weight: bold; color: #4a90e2; font-family: 'Roboto Mono', monospace;">
-                                Category Breakdown
+                            <h2 style="margin: 0 0 15px; font-size: 20px; font-weight: bold; color: #ff6f61; font-family: 'Roboto Mono', monospace;">
+                                Final Day Breakdown
                             </h2>
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #252525; border-radius: 8px; overflow: hidden;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #252525; border-radius: 8px; overflow: hidden; font-size: 12px;">
                                 <thead>
                                     <tr style="background-color: #2a2a2a;">
-                                        <th align="left" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #4a90e2;">
+                                        <th align="left" style="padding: 8px 6px; font-size: 12px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #ff6f61;">
                                             Category
                                         </th>
-                                        <th align="center" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #4CAF50; border-bottom: 2px solid #4a90e2;">
-                                            ${team1_name}
+                                        <th align="center" colspan="2" style="padding: 8px 6px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #ff6f61; border-left: 1px solid #444;">
+                                            Current
                                         </th>
-                                        <th align="center" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #ff6f61; border-bottom: 2px solid #4a90e2;">
-                                            ${team2_name}
+                                        <th align="center" colspan="2" style="padding: 8px 6px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #ff6f61; border-left: 1px solid #444;">
+                                            Today's Proj
                                         </th>
-                                        <th align="center" style="padding: 12px 15px; font-size: 14px; font-weight: bold; color: #4a90e2; border-bottom: 2px solid #4a90e2;">
+                                        <th align="center" colspan="2" style="padding: 8px 6px; font-size: 11px; font-weight: bold; color: #b0bec5; border-bottom: 2px solid #ff6f61; border-left: 1px solid #444;">
+                                            Final
+                                        </th>
+                                        <th align="center" style="padding: 8px 6px; font-size: 12px; font-weight: bold; color: #ff6f61; border-bottom: 2px solid #ff6f61; border-left: 1px solid #444;">
                                             Winner
                                         </th>
+                                    </tr>
+                                    <tr style="background-color: #2a2a2a;">
+                                        <th style="padding: 4px 6px; font-size: 10px; color: #b0bec5; border-bottom: 1px solid #444;"></th>
+                                        <th align="center" style="padding: 4px 4px; font-size: 10px; font-weight: normal; color: #4CAF50; border-bottom: 1px solid #444; border-left: 1px solid #444;">${team1_name}</th>
+                                        <th align="center" style="padding: 4px 4px; font-size: 10px; font-weight: normal; color: #ff6f61; border-bottom: 1px solid #444;">${team2_name}</th>
+                                        <th align="center" style="padding: 4px 4px; font-size: 10px; font-weight: normal; color: #4CAF50; border-bottom: 1px solid #444; border-left: 1px solid #444;">${team1_name}</th>
+                                        <th align="center" style="padding: 4px 4px; font-size: 10px; font-weight: normal; color: #ff6f61; border-bottom: 1px solid #444;">${team2_name}</th>
+                                        <th align="center" style="padding: 4px 4px; font-size: 10px; font-weight: normal; color: #4CAF50; border-bottom: 1px solid #444; border-left: 1px solid #444;">${team1_name}</th>
+                                        <th align="center" style="padding: 4px 4px; font-size: 10px; font-weight: normal; color: #ff6f61; border-bottom: 1px solid #444;">${team2_name}</th>
+                                        <th style="padding: 4px 6px; font-size: 10px; color: #b0bec5; border-bottom: 1px solid #444; border-left: 1px solid #444;"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -116,11 +129,10 @@
                         <td align="center" style="padding: 0 40px 30px;">
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                                 <tr>
-                                    <td align="center" style="border-radius: 6px; background-color: #4a90e2;">
-                                        <a href="https://fantasygoats.guru/matchup-projection?utm_source=email&utm_medium=scheduled_email&utm_campaign=weekly_matchup_projection" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: 'Roboto Mono', monospace;">
+                                    <td align="center" style="border-radius: 6px; background-color: #ff6f61;">
+                                        <a href="https://fantasygoats.guru/matchup-projection?utm_source=email&utm_medium=scheduled_email&utm_campaign=final_day_matchup_projection" target="_blank" style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; font-family: 'Roboto Mono', monospace;">
                                             View Full Matchup →
-                                        </a>
-                                    </td>
+                                        </a>                                                                            </td>
                                 </tr>
                             </table>
                         </td>
@@ -129,14 +141,14 @@
                     <!-- Tips Section -->
                     <tr>
                         <td style="padding: 0 40px 30px;">
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: rgba(74, 144, 226, 0.1); border-left: 4px solid #4a90e2; border-radius: 8px; padding: 20px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: rgba(255, 111, 97, 0.1); border-left: 4px solid #ff6f61; border-radius: 8px; padding: 20px;">
                                 <tr>
                                     <td>
-                                        <p style="margin: 0 0 10px; font-size: 14px; font-weight: bold; color: #4a90e2;">
-                                            💡 Pro Tip
+                                        <p style="margin: 0 0 10px; font-size: 14px; font-weight: bold; color: #ff6f61;">
+                                            💡 Last Day Tips
                                         </p>
                                         <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #e0e0e0;">
-                                            These projections are based on season averages. Check daily to monitor injured players and schedule changes!
+                                            This projection assumes today's players hit their season averages. Check for last-minute injuries and make sure all your active players are playing today!
                                         </p>
                                     </td>
                                 </tr>
@@ -154,9 +166,9 @@
                                             © 2025 Fantasy Goats Guru. All rights reserved.
                                         </p>
                                         <p style="margin: 0; font-size: 12px; color: #b0bec5;">
-                                            <a href="https://fantasygoats.guru/profile" style="color: #4a90e2; text-decoration: none;">Update Preferences</a>
+                                            <a href="https://fantasygoats.guru/profile" style="color: #ff6f61; text-decoration: none;">Update Preferences</a>
                                             &nbsp;|&nbsp;
-                                            <a href="https://fantasygoats.guru/privacy-policy" style="color: #4a90e2; text-decoration: none;">Privacy Policy</a>
+                                            <a href="https://fantasygoats.guru/privacy-policy" style="color: #ff6f61; text-decoration: none;">Privacy Policy</a>
                                         </p>
                                     </td>
                                 </tr>
