@@ -105,18 +105,29 @@ const NBAPlayoffs = () => {
     return weeks;
   }, [playoffsData, playoffStartWeek]);
 
+  // ── Helper: Parse date in US Eastern Time ────────────────────────
+  const parseEasternDate = (dateStr) => {
+    // Parse date string and treat as US Eastern time
+    const date = new Date(dateStr + 'T00:00:00-05:00'); // EST offset
+    return date;
+  };
+
   // ── NBA team games ─────────────────────────────────────────────
   const nbaTeamGames = useMemo(() => {
     if (!nbaTeamSchedule || !playoffWeeks.length) return [];
 
     const map = {};
     Object.entries(nbaTeamSchedule).forEach(([dateStr, teams]) => {
-      const gameDate = new Date(dateStr);
+      const gameDate = parseEasternDate(dateStr);
       teams.forEach((abbr) => {
         if (!map[abbr]) map[abbr] = { team: abbr, weeks: {}, total: 0 };
         playoffWeeks.forEach((week) => {
-          const s = new Date(week.start);
-          const e = new Date(week.end);
+          const s = parseEasternDate(week.start);
+          const e = parseEasternDate(week.end);
+          // Set to start of Monday and end of Sunday (inclusive)
+          s.setHours(0, 0, 0, 0);
+          e.setHours(23, 59, 59, 999);
+          
           if (gameDate >= s && gameDate <= e) {
             map[abbr].weeks[week.number] = (map[abbr].weeks[week.number] || 0) + 1;
           }

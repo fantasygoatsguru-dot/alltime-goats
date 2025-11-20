@@ -81,11 +81,13 @@ const NBARegularSeason = () => {
           })).sort((a, b) => a.number - b.number);
           setAllWeeks(weeks);
           
-          // Set current week based on today's date
+          // Set current week based on today's date (in US Eastern time)
           const today = new Date();
           const currentWeek = weeks.find(w => {
-            const start = new Date(w.start);
-            const end = new Date(w.end);
+            const start = parseEasternDate(w.start);
+            const end = parseEasternDate(w.end);
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
             return today >= start && today <= end;
           });
           if (currentWeek) {
@@ -99,16 +101,29 @@ const NBARegularSeason = () => {
     loadScheduleData();
   }, []);
 
+  // ── Helper: Parse date in US Eastern Time ────────────────────────
+  const parseEasternDate = (dateStr) => {
+    // Parse date string and treat as US Eastern time
+    const date = new Date(dateStr + 'T00:00:00-05:00'); // EST offset
+    return date;
+  };
+
   // ── Current week data ─────────────────────────────────────────────
   const currentWeekData = useMemo(() => {
     const week = allWeeks.find(w => w.number === selectedWeek);
     if (!week || !nbaTeamSchedule) return null;
 
     const teams = {};
+    // Parse week boundaries in Eastern time
+    const weekStart = parseEasternDate(week.start);
+    const weekEnd = parseEasternDate(week.end);
+    
+    // Set to start of Monday and end of Sunday (inclusive)
+    weekStart.setHours(0, 0, 0, 0);
+    weekEnd.setHours(23, 59, 59, 999);
+
     Object.entries(nbaTeamSchedule).forEach(([dateStr, teamList]) => {
-      const gameDate = new Date(dateStr);
-      const weekStart = new Date(week.start);
-      const weekEnd = new Date(week.end);
+      const gameDate = parseEasternDate(dateStr);
       
       if (gameDate >= weekStart && gameDate <= weekEnd) {
         teamList.forEach((abbr) => {
@@ -130,8 +145,10 @@ const NBARegularSeason = () => {
   const isCurrentWeek = useMemo(() => {
     if (!currentWeekData) return false;
     const today = new Date();
-    const weekStart = new Date(currentWeekData.week.start);
-    const weekEnd = new Date(currentWeekData.week.end);
+    const weekStart = parseEasternDate(currentWeekData.week.start);
+    const weekEnd = parseEasternDate(currentWeekData.week.end);
+    weekStart.setHours(0, 0, 0, 0);
+    weekEnd.setHours(23, 59, 59, 999);
     return today >= weekStart && today <= weekEnd;
   }, [currentWeekData]);
 
