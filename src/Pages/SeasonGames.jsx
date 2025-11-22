@@ -802,18 +802,10 @@ const SeasonGames = () => {
                       >
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Avatar
-                            src={`https://www.basketball-reference.com/req/202106291/images/headshots/${(() => {
-                              const names = stat.player_name.split(" ");
-                              if (names.length < 2) return "default";
-                              const firstName = names[0];
-                              const lastName = names[names.length - 1];
-                              const normalizedLastName = normalizeName(lastName);
-                              const normalizedFirstName = normalizeName(firstName);
-                              return `${normalizedLastName.substring(0, 5)}${normalizedFirstName.substring(0, 2)}01`;
-                            })()}.jpg`}
-                            onError={(e) => {
-                              e.target.src = "https://www.basketball-reference.com/req/202106291/images/headshots/default.jpg";
-                            }}
+                                src={`https://cdn.nba.com/headshots/nba/latest/260x190/${stat.player_id}.png`}
+                                onError={(e) => {
+                                  e.target.src = "https://www.basketball-reference.com/req/202106291/images/headshots/default.jpg";
+                                }}
                             sx={{
                               width: 32,
                               height: 32,
