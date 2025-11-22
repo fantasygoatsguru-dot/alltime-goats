@@ -123,7 +123,7 @@ const SeasonGames = () => {
           .from('player_game_logs')
           .select('*')
           .eq('season', CURRENT_SEASON)
-          .order('game_date', { ascending: false });
+          .order('fantasy_points', { ascending: false });
 
         // Apply filters
         filters.forEach(filter => {
