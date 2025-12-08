@@ -801,24 +801,94 @@
       "TOR",
       "UTA"
     ],
-    "2025-12-08": [
-      "IND",
-      "MIN",
-      "NOP",
-      "PHX",
-      "SAC",
-      "SAS"
-    ],
-    "2025-12-17": [
-      "CHI",
-      "CLE",
-      "LAC",
-      "MEM",
-      "MIN",
-      "OKC",
-      "SAS",
-      "WAS"
-    ],
+"2025-12-08": [
+    "SAC",
+    "IND",
+    "PHX",
+    "MIN",
+    "SAS",
+    "NOP"
+  ],
+  "2025-12-09": [
+    "MIA",
+    "ORL",
+    "NYK",
+    "TOR"
+  ],
+  "2025-12-10": [
+    "PHX",
+    "OKC",
+    "SAS",
+    "LAL"
+  ],
+  "2025-12-11": [
+    "LAC",
+    "HOU",
+    "BOS",
+    "MIL",
+    "POR",
+    "NOP",
+    "DEN",
+    "SAC"
+  ],
+  "2025-12-12": [
+    "CHI",
+    "CHA",
+    "ATL",
+    "DET",
+    "IND",
+    "PHI",
+    "CLE",
+    "WAS",
+    "UTA",
+    "MEM",
+    "BKN",
+    "DAL",
+    "MIN",
+    "GSW"
+  ],
+  "2025-12-13": [
+    "TBD"
+  ],
+  "2025-12-14": [
+    "WAS",
+    "IND",
+    "CHA",
+    "CLE",
+    "PHI",
+    "ATL",
+    "MIL",
+    "BKN",
+    "SAC",
+    "MIN",
+    "NOP",
+    "CHI",
+    "GSW",
+    "POR"
+  ],
+  "2025-12-15": [
+    "DET",
+    "BOS",
+    "DAL",
+    "UTA",
+    "HOU",
+    "DEN",
+    "MEM",
+    "LAC"
+  ],
+  "2025-12-16": [
+    "TBD"
+  ],
+  "2025-12-17": [
+    "CLE",
+    "CHI",
+    "MEM",
+    "MIN",
+    "LAC",
+    "OKC",
+    "WAS",
+    "SAS"
+  ],
     "2025-12-18": [
       "ATL",
       "BKN",
