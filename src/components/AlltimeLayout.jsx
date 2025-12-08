@@ -229,7 +229,9 @@ const AlltimeLayout = () => {
         />
       ),
       requiresAuth: true,
+      requiresPremium: true,
       tooltip: 'Connect to Yahoo to access AI Assistant',
+      premiumTooltip: 'Consider supporting us for any amount to open premium features for the season.',
     },
     {
       path: '/schedule',
@@ -285,7 +287,7 @@ const AlltimeLayout = () => {
     const fetchUserProfile = async () => {
       if (!user?.userId) return;
       try {
-        const { data } = await supabase.from('user_profiles').select('name, email, profile_picture').eq('user_id', user.userId).single();
+        const { data } = await supabase.from('user_profiles').select('name, email, profile_picture, is_premium').eq('user_id', user.userId).single();
         if (data) setUserProfile(data);
       } catch (err) { console.error(err); }
     };
@@ -294,6 +296,7 @@ const AlltimeLayout = () => {
 
   const displayName = userProfile?.name || user?.name || 'User';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
+  const isPremium = userProfile?.is_premium ?? false;
 
   useEffect(() => {
     const fetchUserLeagues = async () => {
@@ -336,7 +339,7 @@ const AlltimeLayout = () => {
     const fetchCurrentMatchup = async () => {
       if (!selectedLeague || !isAuthenticated || !user?.userId) return;
       try {
-        const { data, error } = await supibase.functions.invoke('yahoo-fantasy-api', {
+        const { data, error } = await supabase.functions.invoke('yahoo-fantasy-api', {
           body: { 
             action: 'getCurrentMatchup', 
             userId: user.userId, 
@@ -684,7 +687,25 @@ const AlltimeLayout = () => {
                   </Box>
                 ) : (
                   <Tooltip 
-                    title={item.requiresAuth && !isAuthenticated && item.tooltip ? item.tooltip : ''} 
+                    title={
+                      item.requiresAuth && !isAuthenticated && item.tooltip
+                        ? item.tooltip
+                        : item.requiresPremium && !isPremium && item.premiumTooltip
+                        ? (
+                            <Box>
+                              {item.premiumTooltip}{' '}
+                              <Link
+                                href="https://buymeacoffee.com/fantasygoatsguru"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{ color: '#fff', textDecoration: 'underline', fontWeight: 600 }}
+                              >
+                                Support us here
+                              </Link>
+                            </Box>
+                          )
+                        : ''
+                    } 
                     placement="bottom"
                     arrow
                   >
@@ -692,11 +713,12 @@ const AlltimeLayout = () => {
                       <Button
                         key={item.path}
                         onClick={() => {
-                          if (!(item.requiresAuth && !isAuthenticated)) {
+                          const isDisabled = (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium);
+                          if (!isDisabled) {
                             handleNavClick(item.path);
                           }
                         }}
-                        disabled={item.requiresAuth && !isAuthenticated}
+                        disabled={(item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium)}
                         startIcon={<IconWrapper>{item.icon}</IconWrapper>}
                         sx={{
                           px: { xs: 2.5, md: 3.8 },
@@ -709,8 +731,8 @@ const AlltimeLayout = () => {
                           textTransform: 'none',
                           border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
                           '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
-                          opacity: (item.requiresAuth && !isAuthenticated) ? 0.5 : 1,
-                          cursor: (item.requiresAuth && !isAuthenticated) ? 'not-allowed' : 'pointer',
+                          opacity: (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium) ? 0.5 : 1,
+                          cursor: (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium) ? 'not-allowed' : 'pointer',
                         }}
                       >
                         {item.label}
@@ -728,8 +750,16 @@ const AlltimeLayout = () => {
               <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
                 <Select
                   value={selectedLeague}
-                  onChange={(e) => setSelectedLeague(e.target.value)}
+                  onChange={(e) => {
+                    if (isPremium) {
+                      setSelectedLeague(e.target.value);
+                    }
+                  }}
                   displayEmpty
+                  renderValue={(value) => {
+                    const selected = userLeagues.find(l => l.leagueId === value);
+                    return selected ? selected.name.split(' ').slice(0, 2).join(' ') : '';
+                  }}
                   sx={{
                     bgcolor: '#fff',
                     height: 36,
@@ -737,11 +767,45 @@ const AlltimeLayout = () => {
                     '& .MuiSelect-select': { py: 1 },
                   }}
                 >
-                  {userLeagues.map((l) => (
-                    <MenuItem key={l.leagueId} value={l.leagueId} sx={{ fontSize: '0.85rem' }}>
-                      {l.name.split(' ').slice(0, 2).join(' ')}
-                    </MenuItem>
-                  ))}
+                  {userLeagues.map((l) => {
+                    const isDisabled = !isPremium && l.leagueId !== selectedLeague;
+                    return (
+                      <Tooltip
+                        key={l.leagueId}
+                        title={
+                          isDisabled ? (
+                            <Box>
+                              Consider supporting us for any amount to open premium features for the season.{' '}
+                              <Link
+                                href="https://buymeacoffee.com/fantasygoatsguru"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{ color: '#fff', textDecoration: 'underline', fontWeight: 600 }}
+                              >
+                                Support us here
+                              </Link>
+                            </Box>
+                          ) : ''
+                        }
+                        placement="right"
+                        arrow
+                        enterDelay={500}
+                      >
+                        <span>
+                          <MenuItem 
+                            value={l.leagueId} 
+                            disabled={isDisabled}
+                            sx={{ 
+                              fontSize: '0.85rem',
+                              opacity: isDisabled ? 0.5 : 1,
+                            }}
+                          >
+                            {l.name.split(' ').slice(0, 2).join(' ')}
+                          </MenuItem>
+                        </span>
+                      </Tooltip>
+                    );
+                  })}
                 </Select>
               </FormControl>
             ) : (
@@ -811,23 +875,24 @@ const AlltimeLayout = () => {
               <MenuItem 
                 key={item.path} 
                 onClick={() => {
-                  if (!(item.requiresAuth && !isAuthenticated)) {
+                  const isDisabled = (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium);
+                  if (!isDisabled) {
                     handleNavClick(item.path);
                   }
                 }} 
-                disabled={item.requiresAuth && !isAuthenticated}
+                disabled={(item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium)}
                 sx={{ 
                   py: 2, 
                   px: 2.5,
                   gap: 2.5,
-                  opacity: (item.requiresAuth && !isAuthenticated) ? 0.5 : 1,
+                  opacity: (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium) ? 0.5 : 1,
                 }}
               >
                 <Box sx={{ width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <IconWrapper>{item.icon}</IconWrapper>
                 </Box>
                 <Typography fontWeight={600} fontSize="0.95rem">{item.label}</Typography>
-                {item.requiresAuth && !isAuthenticated && item.tooltip && (
+                {((item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium)) && (
                   <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
                     Locked
                   </Typography>
