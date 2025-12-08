@@ -256,9 +256,9 @@ const AlltimeLayout = () => {
   ];
 
   const leagueSubmenu = [
+    { path: '/matchup', label: 'Matchup', icon: <ProjectionIcon />, requiresAuth: false },
     { path: '/my-team', label: 'My Team', icon: <MyTeamIcon />, requiresAuth: false },
-    { path: '/matchup', label: 'Team Comparison', icon: <ProjectionIcon />, requiresAuth: false },
-    { path: '/matchup-projection', label: 'Matchup', icon: <MatchupIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your matchups' },
+    { path: '/matchup-projection', label: 'Matchup Projection', icon: <MatchupIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your matchups' },
   ];
 
   const rankingsSubmenu = [
