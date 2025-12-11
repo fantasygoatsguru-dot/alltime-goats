@@ -57,7 +57,7 @@ const App = () => {
         <GoogleAnalytics />
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
-            <Route path="/" element={<AlltimeLayout />} />
+            <Route path="/" element={<Navigate to="/season-games" replace />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/about" element={<AlltimeLayout />} />
             <Route path="/profile" element={<AlltimeLayout />} />
