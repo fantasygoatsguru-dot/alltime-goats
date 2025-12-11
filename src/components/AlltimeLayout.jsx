@@ -38,6 +38,7 @@ import NBAPlayoffs from '../Pages/NBAPlayoffs';
 import MyLeaguePlayoffs from '../Pages/MyLeaguePlayoffs';
 import NBARegularSeason from '../Pages/NBARegularSeason';
 import MyLeagueRegularSeason from '../Pages/MyLeagueRegularSeason';
+import UltimateWinner from '../Pages/UltimateWinner';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
 import PrivacyPolicy from '../Pages/PrivacyPolicy';
@@ -171,6 +172,15 @@ const ScheduleIcon = () => (
     <line x1="3" y1="10" x2="21" y2="10"/>
   </svg>
 );
+
+const UltimateWinnerIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+    <line x1="3" y1="9" x2="21" y2="9"/>
+    <line x1="9" y1="21" x2="9" y2="9"/>
+    <path d="M12 5l1.5 3 3.5 0.5-2.5 2.5 0.5 3.5-3-1.5-3 1.5 0.5-3.5-2.5-2.5 3.5-0.5z"/>
+  </svg>
+);
   
 const AlltimeLayout = () => {
   const navigate = useNavigate();
@@ -261,6 +271,7 @@ const AlltimeLayout = () => {
     { path: '/matchup', label: 'Matchup', icon: <ProjectionIcon />, requiresAuth: false },
     { path: '/my-team', label: 'My Team', icon: <MyTeamIcon />, requiresAuth: false },
     { path: '/matchup-projection', label: 'Matchup Projection', icon: <MatchupIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your matchups' },
+    { path: '/ultimate-winner', label: 'Head-to-Head Matrix', icon: <UltimateWinnerIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view head-to-head matrix' },
   ];
 
   const rankingsSubmenu = [
@@ -511,6 +522,7 @@ const AlltimeLayout = () => {
     if (p === '/' || p === '/matchup') return <Matchup />;
     if (p === '/matchup-projection') return <MatchupProjection />;
     if (p === '/my-team') return <MyTeam />;
+    if (p === '/ultimate-winner') return <UltimateWinner />;
     if (p === '/teams') return <Alltime />;
     if (p === '/seasons' || p === '/table') return <AlltimeTable />;
     if (p === '/games') return <AlltimeGames />;

@@ -64,6 +64,7 @@ const App = () => {
             <Route path="/teams" element={<AlltimeLayout />} />
             <Route path="/seasons" element={<AlltimeLayout />} />
             <Route path="/table" element={<AlltimeLayout />} />
+            <Route path="/ultimate-winner" element={<AlltimeLayout />} />
             <Route path="/games" element={<AlltimeLayout />} />
             <Route path="/matchup" element={<AlltimeLayout />} />
             <Route path="/my-team" element={<AlltimeLayout />} />

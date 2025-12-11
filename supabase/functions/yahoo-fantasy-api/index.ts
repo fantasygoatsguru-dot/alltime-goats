@@ -574,10 +574,12 @@ serve(async (req) => {
       
       const league = settingsData?.fantasy_content?.league;
       if (!league) throw new Error("League settings not found");
-      if(league.settings.uses_playoff === "1") {
-        const playoffsStartWeek = league.settings.playoff_start_week;
-        const playoffsEndWeek = league.settings.end_week;
-        const playoffsTeams = league.settings.playoff_teams;
+      
+      const settings = league.settings;
+      if(settings?.uses_playoff === "1") {
+        const playoffsStartWeek = settings.playoff_start_week;
+        const playoffsEndWeek = settings.end_week;
+        const playoffsTeams = settings.playoff_teams;
       }
       
       // Extract enabled stat categories
@@ -599,6 +601,127 @@ serve(async (req) => {
           maxWeeklyAdds: parseInt(settings?.max_weekly_adds) || 0,
           enabledStatCategories: enabledStats,
         }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
+    if (action === "getScoreboard") {
+      console.log(`[getScoreboard] Starting → leagueId: ${leagueId}, week: ${week}`);
+    
+      if (!leagueId) throw new Error("League ID is required");
+      if (!week) throw new Error("Week is required");
+    
+      const leagueKey = `${GAME_ID}.l.${leagueId}`; // GAME_ID must be 466 for 2024-25
+      console.log(`[getScoreboard] Requesting: ${leagueKey} | week: ${week}`);
+    
+      let scoreboardData;
+      try {
+        scoreboardData = await makeYahooRequest(accessToken, `/league/${leagueKey}/scoreboard;week=${week}`);
+        console.log("[getScoreboard] Yahoo API success");
+      } catch (err: any) {
+        console.error("[getScoreboard] API failed:", err.message);
+        throw err;
+      }
+    
+      // Parse the league structure - league is a direct object, not an array
+      const leagueNode = scoreboardData?.fantasy_content?.league;
+      if (!leagueNode) {
+        console.error("[getScoreboard] No league found — wrong season or league ID?");
+        return new Response(JSON.stringify({ error: "Invalid league or season" }), { status: 400 });
+      }
+    
+      const scoreboardNode = leagueNode.scoreboard;
+      if (!scoreboardNode) {
+        console.warn("[getScoreboard] No scoreboard — week may not exist yet or league is old");
+        return new Response(JSON.stringify({ matchups: [], week }), { status: 200 });
+      }
+    
+      console.log("[getScoreboard] Scoreboard structure:", JSON.stringify({
+        hasMatchups: !!scoreboardNode.matchups,
+        matchupsIsArray: Array.isArray(scoreboardNode.matchups),
+        matchupsLength: scoreboardNode.matchups?.length
+      }));
+    
+      // matchups is a direct array
+      const rawMatchups = scoreboardNode.matchups;
+    
+      if (!rawMatchups || !Array.isArray(rawMatchups)) {
+        console.warn("[getScoreboard] No valid matchups array found");
+        return new Response(JSON.stringify({ matchups: [], week }), { status: 200 });
+      }
+    
+      // Filter out entries without a matchup object
+      const matchupEntries = rawMatchups.filter((m: any) => m && m.matchup);
+    
+      console.log(`[getScoreboard] Found ${matchupEntries.length} valid matchups`);
+    
+      const parsedMatchups = matchupEntries.map((entry: any, i: number) => {
+        const matchup = entry.matchup;
+        const teamsArray = matchup.teams;
+    
+        if (!Array.isArray(teamsArray) || teamsArray.length < 2) {
+          console.warn(`[getScoreboard] Matchup ${i} has bad teams structure`);
+          return null;
+        }
+    
+        const parseTeam = (teamWrapper: any) => {
+          const team = teamWrapper.team;
+          if (!team) return null;
+    
+          const stats: Record<string, number> = {};
+          const teamStats = team.team_stats?.stats || [];
+          teamStats.forEach((s: any) => {
+            const stat = s.stat;
+            if (stat?.stat_id != null && stat.value != null) {
+              stats[stat.stat_id] = parseFloat(stat.value) || 0;
+            }
+          });
+    
+          const teamPoints = team.team_points;
+          const total = teamPoints?.total;
+          
+          // team_points.total can be a string (e.g., "6") or an object with wins/losses/ties
+          let wins = 0;
+          let losses = 0;
+          let ties = 0;
+          
+          if (typeof total === 'string' || typeof total === 'number') {
+            // Simple scoring - total is just a number
+            wins = parseInt(String(total), 10) || 0;
+          } else if (total && typeof total === 'object') {
+            // Category scoring - has wins/losses/ties
+            wins = parseInt(total.wins || "0", 10) || 0;
+            losses = parseInt(total.losses || "0", 10) || 0;
+            ties = parseInt(total.ties || "0", 10) || 0;
+          }
+    
+          return {
+            key: team.team_key,
+            name: team.name || "Unknown",
+            logo: team.team_logos?.[0]?.team_logo?.url || null,
+            managerNickname: team.managers?.[0]?.manager?.nickname || "Unknown",
+            stats,
+            wins,
+            losses,
+            ties,
+            score: wins,
+          };
+        };
+    
+        const team1 = parseTeam(teamsArray[0]);
+        const team2 = parseTeam(teamsArray[1]);
+    
+        if (!team1 || !team2) {
+          console.warn(`[getScoreboard] Matchup ${i} failed to parse teams`);
+          return null;
+        }
+    
+        return { week: matchup.week, team1, team2 };
+      }).filter(Boolean);
+    
+      console.log(`[getScoreboard] Parsed ${parsedMatchups.length} complete matchups`);
+    
+      return new Response(
+        JSON.stringify({ matchups: parsedMatchups, week }, null, 2),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
