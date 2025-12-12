@@ -343,7 +343,7 @@ Only include statTables when you mention specific numeric statistics for players
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4.1-turbo",
         messages,
         temperature: 0.7,
         max_tokens: 1200,
