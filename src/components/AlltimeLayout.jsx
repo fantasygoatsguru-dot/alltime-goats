@@ -199,7 +199,7 @@ const AlltimeLayout = () => {
   const [alltimeAnchorEl, setAlltimeAnchorEl] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [userLeagues, setUserLeagues] = useState([]);
-  const [selectedLeague, setSelectedLeague] = useState("");
+  const [selectedLeague, setSelectedLeague] = useState(null);
   const [leagueTeams, setLeagueTeams] = useState([]);
   const [currentMatchup, setCurrentMatchup] = useState(null);
   const [yahooConnecting, setYahooConnecting] = useState(false);
@@ -357,7 +357,7 @@ const AlltimeLayout = () => {
   const displayName = userProfile?.name || user?.name || 'User';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
   const isPremium = userProfile?.is_premium ?? false;
-
+  
   useEffect(() => {
     const fetchUserLeagues = async () => {
       if (!isAuthenticated || !user?.userId) return;
@@ -368,7 +368,10 @@ const AlltimeLayout = () => {
         });
         if (data?.leagues?.length > 0) {
           setUserLeagues(data.leagues);
-          if (!selectedLeague) setSelectedLeague(data.leagues[0].leagueId);
+          if (!selectedLeague) {
+            const firstLeagueId = String(data.leagues[0].leagueId);
+            setSelectedLeague(firstLeagueId);
+          }
         }
       } catch (err) { 
         console.error(err); 
@@ -831,15 +834,37 @@ const AlltimeLayout = () => {
             {isAuthenticated && userLeagues.length > 0 ? (
               <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
                 <Select
-                  value={selectedLeague}
+                  value={selectedLeague || ''}
                   onChange={(e) => {
+                    const newLeagueId = e.target.value;
+                    console.log('League change attempted:', { 
+                      newLeagueId, 
+                      isPremium, 
+                      currentLeague: selectedLeague,
+                      userProfile: userProfile,
+                      is_premium_value: userProfile?.is_premium,
+                      eventValue: e.target.value,
+                      eventType: typeof e.target.value
+                    });
+                    
+                    if (!newLeagueId) {
+                      console.warn('⚠️ No league ID received in onChange');
+                      return;
+                    }
+                    
                     if (isPremium) {
-                      setSelectedLeague(e.target.value);
+                      const leagueIdStr = String(newLeagueId);
+                      console.log('✅ Premium user - allowing league switch to:', leagueIdStr);
+                      setSelectedLeague(leagueIdStr);
+                    } else {
+                      console.warn('❌ Non-premium user - league switch blocked. isPremium:', isPremium);
                     }
                   }}
                   displayEmpty
                   renderValue={(value) => {
-                    const selected = userLeagues.find(l => l.leagueId === value);
+                    if (!value) return '';
+                    const valueStr = String(value);
+                    const selected = userLeagues.find(l => String(l.leagueId) === valueStr);
                     return selected ? selected.name.split(' ').slice(0, 2).join(' ') : '';
                   }}
                   sx={{
@@ -850,12 +875,28 @@ const AlltimeLayout = () => {
                   }}
                 >
                   {userLeagues.map((l) => {
-                    const isDisabled = !isPremium && l.leagueId !== selectedLeague;
-                    return (
-                      <Tooltip
+                    const leagueIdStr = String(l.leagueId);
+                    const selectedLeagueStr = String(selectedLeague || '');
+                    const isDisabled = !isPremium && leagueIdStr !== selectedLeagueStr;
+                    const menuItem = (
+                      <MenuItem 
                         key={l.leagueId}
-                        title={
-                          isDisabled ? (
+                        value={leagueIdStr}
+                        disabled={isDisabled}
+                        sx={{ 
+                          fontSize: '0.85rem',
+                          opacity: isDisabled ? 0.5 : 1,
+                        }}
+                      >
+                        {l.name.split(' ').slice(0, 2).join(' ')}
+                      </MenuItem>
+                    );
+                    
+                    if (isDisabled) {
+                      return (
+                        <Tooltip
+                          key={l.leagueId}
+                          title={
                             <Box>
                               Consider supporting us for any amount to open premium features for the season.{' '}
                               <Link
@@ -867,26 +908,19 @@ const AlltimeLayout = () => {
                                 Support us here
                               </Link>
                             </Box>
-                          ) : ''
-                        }
-                        placement="right"
-                        arrow
-                        enterDelay={500}
-                      >
-                        <span>
-                          <MenuItem 
-                            value={l.leagueId} 
-                            disabled={isDisabled}
-                            sx={{ 
-                              fontSize: '0.85rem',
-                              opacity: isDisabled ? 0.5 : 1,
-                            }}
-                          >
-                            {l.name.split(' ').slice(0, 2).join(' ')}
-                          </MenuItem>
-                        </span>
-                      </Tooltip>
-                    );
+                          }
+                          placement="right"
+                          arrow
+                          enterDelay={500}
+                        >
+                          <span style={{ display: 'block' }}>
+                            {menuItem}
+                          </span>
+                        </Tooltip>
+                      );
+                    }
+                    
+                    return menuItem;
                   })}
                 </Select>
               </FormControl>

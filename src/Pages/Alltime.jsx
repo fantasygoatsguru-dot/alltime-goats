@@ -200,8 +200,6 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
         team2Contributions: {}
     };
     
-    console.log('StatsComparisonGraph - teamAverages:', teamAverages);
-    console.log('StatsComparisonGraph - averages:', averages);
 
     const categories = [
         "Points",
@@ -228,7 +226,6 @@ const StatsComparisonGraph = ({ teamAverages, team1Name, team2Name }) => {
         [team2Name]: averages.team2ZScores?.[category] || 0,
     }));
     
-    console.log('Radar chart data:', data);
 
     const handleCategoryClick = (category) => {
         setSelectedCategory(category);

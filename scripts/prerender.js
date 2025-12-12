@@ -47,5 +47,4 @@ html = html.replace(/<div id="root"><\/div>/, `<div id="root"></div>\n${hiddenSe
 fs.writeFileSync(indexPath, html);
 
 console.log('✅ SEO content added to index.html');
-console.log('📄 Single HTML file with embedded SEO content');
 

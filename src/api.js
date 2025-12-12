@@ -600,11 +600,6 @@ export const fetchAllTimePlayerStats = async (players) => {
       return contributions;
     };
     
-    console.log('About to calculate team averages...');
-    console.log('team1Players:', team1Players);
-    console.log('team2Players:', team2Players);
-    console.log('playerStats length:', playerStats.length);
-    
     const teamAverages = {
       team1Averages: calculateTeamStats(team1Players, playerStats),
       team2Averages: calculateTeamStats(team2Players, playerStats),

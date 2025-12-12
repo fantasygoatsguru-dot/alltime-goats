@@ -165,7 +165,6 @@ const AlltimeTable = () => {
             }, {})
           : {};
 
-        console.log("Filter params:", filterParams);
         const stats = await fetchFilteredPlayerAverages(filterParams);
         setPlayerStats(stats);
       } catch (error) {

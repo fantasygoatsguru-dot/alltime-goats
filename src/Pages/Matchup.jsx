@@ -272,11 +272,9 @@ const Matchup = () => {
     };
     const calculateMatchupProjection = async (matchup) => {
         if (!scheduleData || !matchup) {
-            console.log('Cannot calculate projection:', { hasScheduleData: !!scheduleData, hasMatchup: !!matchup });
             return;
         }
         
-        console.log('Calculating matchup projection for:', matchup.team1.name, 'vs', matchup.team2.name);
     
         try {
             // Get YYYY-MM-DD directly in Eastern Time
@@ -334,11 +332,6 @@ const getCurrentWeekDates = () => {
     
             const { weekStart, weekEnd, currentDate, todayDateStr } = getCurrentWeekDates();
             
-            console.log('=== EASTERN TIME DEBUG ===');
-            console.log('Current Eastern Date:', todayDateStr);
-            console.log('Current Eastern Day:', currentDate.toLocaleDateString('en-US', { weekday: 'long' }));
-            console.log('Week Start:', weekStart.toISOString().split('T')[0]);
-            console.log('Week End:', weekEnd.toISOString().split('T')[0]);
     
             // Get player IDs and their NBA teams
             const getPlayerTeams = async (players) => {
@@ -479,8 +472,6 @@ const getCurrentWeekDates = () => {
                     // Compare date strings directly
                     const isToday = dateStr === todayDateStr;
                     const isPast = dateStr < todayDateStr;
-                    
-                    console.log(`Day ${i}: ${dateStr} (${dayOfWeek} ${monthDay}), isToday: ${isToday}, isPast: ${isPast}, today: ${todayDateStr}`);
                     
                     const dayStats = {
                         date: dateStr,
@@ -717,7 +708,6 @@ const getCurrentWeekDates = () => {
                 team2Score
             };
             
-            console.log('Setting matchup projection:', projectionData);
             setMatchupProjection(projectionData);
             
             // Mark initial loading as complete after matchup projection is calculated
