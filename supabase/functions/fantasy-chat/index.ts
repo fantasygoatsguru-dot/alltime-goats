@@ -1,4 +1,4 @@
-// fantasy-chat — FULLY RESTORED + RAG + BULLETPROOF
+// index.ts (Deno deploy / Supabase edge function)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
@@ -7,12 +7,55 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Content-Type": "application/json",
 };
 
-// === RAG ===
+function safeJSONParse(s: string) {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
+}
+
+function extractJSONFromText(text: string) {
+  // Try to extract first JSON object from text
+  const m = text.match(/\{[\s\S]*\}$/m) || text.match(/\{[\s\S]*?\}/m);
+  if (!m) return null;
+  try {
+    return JSON.parse(m[0]);
+  } catch {
+    // best-effort: sanitize common mistakes (single quotes -> double quotes)
+    const replaced = m[0].replace(/(\r\n|\n|\r)/g, " ").replace(/'/g, '"');
+    try {
+      return JSON.parse(replaced);
+    } catch {
+      return null;
+    }
+  }
+}
+
+function normalizePlayerName(n: string) {
+  return n ? n.toLowerCase().replace(/\./g, "").trim() : "";
+}
+
+function findMentionedPlayers(userMessage: string, allPlayers: string[]) {
+  const msg = userMessage.toLowerCase();
+  const found = new Set<string>();
+  for (const p of allPlayers) {
+    const n = p.toLowerCase();
+    // simple contains — this will find "trey murphy" even if user typed "trade Trey Murphy"
+    if (msg.includes(n) || msg.includes(n.split(" ")[n.split(" ").length - 1])) {
+      found.add(p);
+    }
+  }
+  return Array.from(found);
+}
+
 async function getRelevantKnowledge(query: string): Promise<string> {
   try {
     const res = await fetch("https://api.openai.com/v1/embeddings", {
@@ -32,7 +75,7 @@ async function getRelevantKnowledge(query: string): Promise<string> {
 
     const { data: matches } = await supabase.rpc("match_knowledge", {
       query_embedding: embedding,
-      match_count: 4,
+      match_count: 3,
     });
 
     if (!matches?.length) return "";
@@ -43,390 +86,316 @@ async function getRelevantKnowledge(query: string): Promise<string> {
   }
 }
 
-// === MAIN ===
-serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
-  let body;
-  try { body = await req.json(); } catch {
-    return new Response(JSON.stringify({ success: false, error: "Invalid JSON" }), {
-      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+serve(async (req: Request) => {
+  if (req.method === "OPTIONS") {
+    return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
   }
 
-    const { userId, leagueId, userMessage, leagueContext, includeHistory = true } = body;
-
-    // Debug: Log request data
-    console.log("User message:", userMessage);
-    console.log("Matchup data received:", JSON.stringify(leagueContext.currentMatchup, null, 2));
-
+  let body;
   try {
-    // === 1. Auth ===
+    body = await req.json();
+  } catch (e) {
+    return new Response(JSON.stringify({ success: false, error: "Invalid JSON body" }), { status: 400, headers: corsHeaders });
+  }
+
+  const { userId, leagueId, userMessage, leagueContext, includeHistory = true } = body;
+
+  if (!userId || !leagueId || !userMessage) {
+    return new Response(JSON.stringify({ success: false, error: "Missing parameters" }), { status: 400, headers: corsHeaders });
+  }
+
+  // === 1. Auth / quick guard
+  try {
     const { data: token } = await supabase
       .from("yahoo_tokens")
       .select("user_id")
       .eq("user_id", userId)
       .single();
-    if (!token) throw new Error("Unauthorized");
+    if (!token) {
+      return new Response(JSON.stringify({ success: false, error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+    }
+  } catch (e) {
+    console.error("Auth check error:", e);
+    // proceed but mark unauthorized (fail safe)
+    return new Response(JSON.stringify({ success: false, error: "Auth failed" }), { status: 500, headers: corsHeaders });
+  }
 
-    // === 2. History ===
-    let history: any[] = [];
-    if (includeHistory) {
+  // === 2. History
+  let history: any[] = [];
+  if (includeHistory) {
+    try {
       const { data } = await supabase
         .from("fantasy_chat_messages")
         .select("message_role, message_content")
         .eq("user_id", userId)
         .eq("league_id", leagueId)
         .order("created_at", { ascending: false })
-        .limit(6); // Reduce history to prevent confusion
+        .limit(6);
 
       if (data?.length) {
-        history = data.reverse().map(m => ({
-          role: m.message_role,
-          content: m.message_role === "assistant"
-            ? JSON.parse(m.message_content).response || m.message_content
-            : m.message_content,
-        }));
-      }
-    }
-    
-    console.log("Chat history length:", history.length);
-
-    // === 3. RAG ===
-    const rag = await getRelevantKnowledge(userMessage);
-    const formatPlayer = (p: any) => {
-      // Safety first — if no player or no name, just return "Unknown"
-      if (!p || !p.name) return "Unknown Player";
-    
-      // If no stats at all → just return name
-      if (!p.stats) return p.name;
-    
-      const s = p.stats;
-    
-      // Helper to safely get number with fallback
-      const num = (val: any, fallback = 0) => {
-        if (val === null || val === undefined) return fallback;
-        return typeof val === "number" ? val : fallback;
-      };
-    
-      // Base stats
-      const points = num(s.points, 0).toFixed(1);
-      const reb = num(s.rebounds, 0).toFixed(1);
-      const ast = num(s.assists, 0).toFixed(1);
-      const stl = num(s.steals, 0).toFixed(1);
-      const blk = num(s.blocks, 0).toFixed(1);
-    
-      const basic = `${points}p ${reb}r ${ast}a ${stl}s ${blk}b`;
-    
-      // Z-scores and totalValue (only if they exist)
-      const extras: string[] = [];
-    
-      if (s.totalValue !== null && s.totalValue !== undefined) {
-        extras.push(`TV:${num(s.totalValue).toFixed(2)}`);
-      }
-    
-      const z = (val: any, label: string) => {
-        const n = num(val);
-        if (n !== 0) extras.push(`${label}:${n.toFixed(1)}z`);
-      };
-    
-      z(s.pointsZ, "PTS");
-      z(s.reboundsZ, "REB");
-      z(s.assistsZ, "AST");
-      z(s.stealsZ, "STL");
-      z(s.blocksZ, "BLK");
-      z(s.threePointersZ, "3PM");
-      z(s.fgPercentageZ, "FG%");
-      z(s.ftPercentageZ, "FT%");
-      z(s.turnoversZ, "TO");
-    
-      const extraStr = extras.length > 0 ? ` [${extras.join(" ")}]` : "";
-    
-      return `${p.name} (${basic}${extraStr})`;
-    };
-
-    const userPlayers = leagueContext.userTeam.players.map(formatPlayer).join(", ");
-    const userTeamMgr = leagueContext.userTeam.managerNickname ? ` (${leagueContext.userTeam.managerNickname})` : "";
-    
-    const opponentTeams = leagueContext.otherTeams
-      .map((t: any) => {
-        const mgr = t.managerNickname ? ` (${t.managerNickname})` : "";
-        const players = t.players.map(formatPlayer).join(", ");
-        return `${t.name}${mgr}: ${players}`;
-      })
-      .join("\n");
-
-    // Build detailed matchup information
-    let matchup = "No active matchup";
-    let matchupDetails = "";
-    
-    if (leagueContext.currentMatchup) {
-      const m = leagueContext.currentMatchup;
-      const week = m.week || m.weekNumber || "Unknown";
-      const team1Name = m.team1?.name || "Team 1";
-      const team2Name = m.team2?.name || "Team 2";
-      
-      matchup = `Week ${week}: ${team1Name} vs ${team2Name}`;
-      
-      // Build detailed matchup breakdown
-      if (m.team1 && m.team2) {
-        const team1Players = m.team1.players || [];
-        const team2Players = m.team2.players || [];
-        
-        const formatMatchupPlayer = (p: any) => {
-          const pos = p.position ? ` [${p.position}]` : "";
-          const status = p.status ? ` (${p.status})` : "";
-          return `${p.name}${pos}${status}`;
-        };
-        
-        const team1List = team1Players.map(formatMatchupPlayer).join(", ");
-        const team2List = team2Players.map(formatMatchupPlayer).join(", ");
-        
-        // Determine which team is the user's team
-        const userTeamName = leagueContext.userTeam.name;
-        const isTeam1User = team1Name === userTeamName || team1Name.includes(userTeamName) || userTeamName.includes(team1Name);
-        const userTeamInMatchup = isTeam1User ? team1Name : team2Name;
-        const opponentTeamInMatchup = isTeam1User ? team2Name : team1Name;
-        const userTeamPlayersList = isTeam1User ? team1List : team2List;
-        const opponentPlayersList = isTeam1User ? team2List : team1List;
-        
-        matchupDetails = `\n\nCURRENT MATCHUP DETAILS:
-Your Team (${userTeamInMatchup}): ${userTeamPlayersList || "No players"}
-Opponent (${opponentTeamInMatchup}): ${opponentPlayersList || "No players"}`;
-        
-        // Include projection if available
-        if (m.projection) {
-          const proj = m.projection;
-          const userScore = isTeam1User ? (proj.team1Score || 0) : (proj.team2Score || 0);
-          const opponentScore = isTeam1User ? (proj.team2Score || 0) : (proj.team1Score || 0);
-          
-          matchupDetails += `\n\nPROJECTION:
-Your Score: ${userScore}
-Opponent Score: ${opponentScore}`;
-          
-          if (proj.categoryResults) {
-            const cats = Object.entries(proj.categoryResults)
-              .map(([cat, result]: [string, any]) => {
-                const userValue = isTeam1User ? (result.team1 || 0) : (result.team2 || 0);
-                const opponentValue = isTeam1User ? (result.team2 || 0) : (result.team1 || 0);
-                let winner = "TIE";
-                if (result.winner === userTeamInMatchup) {
-                  winner = "YOU";
-                } else if (result.winner === opponentTeamInMatchup) {
-                  winner = "OPPONENT";
-                }
-                return `${cat}: ${winner} (You: ${userValue} vs Opponent: ${opponentValue})`;
-              })
-              .join("\n");
-            matchupDetails += `\nCategory Breakdown:\n${cats}`;
+        history = data.reverse().map((m: any) => {
+          if (m.message_role === "assistant") {
+            const parsed = safeJSONParse(m.message_content);
+            return { role: "assistant", content: parsed ? parsed : ({ response: m.message_content }) };
           }
-        }
+          return { role: "user", content: m.message_content };
+        });
       }
+    } catch (e) {
+      console.error("History load failed:", e);
     }
+  }
 
-    const cats = leagueContext.leagueSettings?.enabledStatCategories
-      ?.map((c: any) => c.abbr || c.displayName)
-      .join(", ") || "PTS, REB, AST, STL, BLK, 3PM, FG%, FT%, TO";
+  // === 3. Build player stats DB from leagueContext (UI store) but only keep relevant players
+  const allPlayersList: string[] = [];
+  try {
+    const gather = (arr) => (arr || []).forEach(p => {
+      if (p?.name && !allPlayersList.includes(p.name)) allPlayersList.push(p.name);
+    });
 
-    const userPlayerList = leagueContext.userTeam.players.map((p: any) => p.name).join(", ");
+    gather(leagueContext?.userTeam?.players || []);
+    for (const t of (leagueContext?.otherTeams || [])) gather(t.players || []);
+    gather(leagueContext?.currentMatchup?.team1?.players || []);
+    gather(leagueContext?.currentMatchup?.team2?.players || []);
+  } catch {
+    // fallback empty
+  }
 
-    // Create structured player stats database for AI reference
-    const createPlayerStatsDb = () => {
-      const allPlayers = [
-        ...leagueContext.userTeam.players,
-        ...leagueContext.otherTeams.flatMap((t: any) => t.players)
-      ];
-      
-      return allPlayers.reduce((db: any, player: any) => {
-        if (player.name && player.stats) {
-          db[player.name] = {
-            points: player.stats.points || 0,
-            rebounds: player.stats.rebounds || 0,
-            assists: player.stats.assists || 0,
-            steals: player.stats.steals || 0,
-            blocks: player.stats.blocks || 0,
-            threePointers: player.stats.threePointers || 0,
-            fieldGoalPercentage: (player.stats.fieldGoalPercentage || 0) * 100,
-            freeThrowPercentage: (player.stats.freeThrowPercentage || 0) * 100,
-            turnovers: player.stats.turnovers || 0,
-            totalValue: player.stats.totalValue || 0,
-            pointsZ: player.stats.pointsZ || 0,
-            reboundsZ: player.stats.reboundsZ || 0,
-            assistsZ: player.stats.assistsZ || 0,
-            stealsZ: player.stats.stealsZ || 0,
-            blocksZ: player.stats.blocksZ || 0,
-            threePointersZ: player.stats.threePointersZ || 0,
-            fieldGoalPercentageZ: player.stats.fieldGoalPercentageZ || 0,
-            freeThrowPercentageZ: player.stats.freeThrowPercentageZ || 0,
-            turnoversZ: player.stats.turnoversZ || 0,
-          };
-        }
-        return db;
-      }, {});
-    };
+  // determine mentioned players from user message
+  const mentioned = findMentionedPlayers(userMessage || "", allPlayersList);
 
-    const playerStatsDb = createPlayerStatsDb();
-    console.log("Player stats DB sample:", Object.keys(playerStatsDb).slice(0, 3));
+  // Always include:
+  // - all players on user's team
+  // - all players in current matchup
+  const alwaysInclude = new Set<string>();
+  (leagueContext?.userTeam?.players || []).forEach(p => p?.name && alwaysInclude.add(p.name));
+  (leagueContext?.currentMatchup?.team1?.players || []).forEach(p => p?.name && alwaysInclude.add(p.name));
+  (leagueContext?.currentMatchup?.team2?.players || []).forEach(p => p?.name && alwaysInclude.add(p.name));
+  mentioned.forEach(p => alwaysInclude.add(p));
 
-    // === 5. SYSTEM PROMPT — BEST OF BOTH WORLDS ===
-    const systemPrompt = `You are the #1 fantasy basketball AI in the world.
+  // Build filtered player stats DB
+  const playerStatsDb: Record<string, any> = {};
+  try {
+    const addIfPresent = (playerArray) => (playerArray || []).forEach(p => {
+      if (!p || !p.name) return;
+      if (!alwaysInclude.has(p.name)) return;
+      if (!p.stats) return;
+      playerStatsDb[p.name] = {
+        points: (p.stats.points ?? 0),
+        rebounds: (p.stats.rebounds ?? 0),
+        assists: (p.stats.assists ?? 0),
+        steals: (p.stats.steals ?? 0),
+        blocks: (p.stats.blocks ?? 0),
+        threePointers: (p.stats.threePointers ?? 0),
+        fieldGoalPercentage: (p.stats.fieldGoalPercentage ?? 0),
+        freeThrowPercentage: (p.stats.freeThrowPercentage ?? 0),
+        turnovers: (p.stats.turnovers ?? 0),
+        totalValue: (p.stats.totalValue ?? 0),
+        pointsZ: (p.stats.pointsZ ?? 0),
+        reboundsZ: (p.stats.reboundsZ ?? 0),
+        assistsZ: (p.stats.assistsZ ?? 0),
+        stealsZ: (p.stats.stealsZ ?? 0),
+        blocksZ: (p.stats.blocksZ ?? 0),
+        threePointersZ: (p.stats.threePointersZ ?? 0),
+        fieldGoalPercentageZ: (p.stats.fieldGoalPercentageZ ?? 0),
+        freeThrowPercentageZ: (p.stats.freeThrowPercentageZ ?? 0),
+        turnoversZ: (p.stats.turnoversZ ?? 0),
+      };
+    });
 
-CRITICAL LEAGUE DATA (USE THIS FIRST):
-League: ${leagueContext.leagueName}
-Your Team: ${leagueContext.userTeam.name}${userTeamMgr}
-Your Players (NEVER suggest these): ${userPlayers}
-Current Matchup: ${matchup}${matchupDetails}
-IMPORTANT: When asked about the matchup, use the matchup details above. You have full information about both teams, their players, positions, and statuses. Use this data to provide specific matchup analysis.
-Scoring Categories: ${cats}
+    addIfPresent(leagueContext?.userTeam?.players || []);
+    for (const t of (leagueContext?.otherTeams || [])) addIfPresent(t.players || []);
+    addIfPresent(leagueContext?.currentMatchup?.team1?.players || []);
+    addIfPresent(leagueContext?.currentMatchup?.team2?.players || []);
+  } catch (e) {
+    console.error("playerStatsDb build failed:", e);
+  }
 
-TRADE/STREAM TARGETS ONLY FROM THESE TEAMS:
-${opponentTeams}
+  // === 4. RAG: small / optional
+  const rag = await getRelevantKnowledge(userMessage);
 
-PRONOUN RULES:
-- "he/him/his/that/this/them" = most recent player/team mentioned in conversation
-- NEVER ask "who do you mean?" — use history
+  // === 5. Build a concise structured system prompt
+  const compactContext = {
+    leagueName: leagueContext?.leagueName || "Your League",
+    scoringType: leagueContext?.leagueSettings?.scoringType || "head-to-head",
+    enabledCategories: (leagueContext?.leagueSettings?.enabledStatCategories || []).map((c: any) => c.abbr || c.displayName || c),
+    userTeam: {
+      name: leagueContext?.userTeam?.name || "Your Team",
+      managerNickname: leagueContext?.userTeam?.managerNickname || null,
+      players: (leagueContext?.userTeam?.players || []).map((p: any) => p?.name || null).filter(Boolean),
+    },
+    currentMatchup: leagueContext?.currentMatchup ? {
+      week: leagueContext.currentMatchup.week || null,
+      team1: { name: leagueContext.currentMatchup.team1?.name || null },
+      team2: { name: leagueContext.currentMatchup.team2?.name || null },
+      projection: leagueContext.currentMatchup.projection || null,
+    } : null,
+    playerStatsDbKeys: Object.keys(playerStatsDb),
+  };
 
-NUMBERS RULES:
-- Always use totalValue and z-scores
-- Example: "Jalen Brunson (TV:7.2, PTS:2.1z, AST:3.0z)"
+  // System prompt — short, precise, instructs to return strict JSON only
+  const puntStrategy = leagueContext?.puntStrategy || null;
+  
+  const systemPrompt = `
+You are an expert fantasy basketball assistant. Use only the structured context below to answer. NEVER invent player statistics. Respond STRICTLY with a JSON object (no extra commentary outside JSON).
 
-RAG KNOWLEDGE (use only if relevant):
-${rag || "None"}
+---CONTEXT---
+${JSON.stringify(compactContext)}
+---PLAYER_STATS_DB---
+(Only these players are available with precise numeric stats)
+${JSON.stringify(playerStatsDb)}
+---PUNT STRATEGIES---
+${puntStrategy || "None - user is not punting any categories"}
+---RAG---
+${rag ? rag : "None"}
+---END CONTEXT---
 
-YOUR OWN PLAYERS: ${userPlayerList}
-
-PLAYER STATS DATABASE (use these exact numbers for statTables):
-${JSON.stringify(playerStatsDb, null, 2)}
-
-CRITICAL INSTRUCTIONS:
-1. IGNORE previous conversation if it contradicts current question (focus on what user JUST asked)
-2. Answer the EXACT question being asked (pay attention to punt strategy specified - punt FT%, punt assists, etc.)
-3. When mentioning player statistics with numbers, ALWAYS include a statTable with exact stats from the database above
-4. Use the exact player names and stat values from the database
-5. Only mention players that exist in the database above
-
-Respond ONLY in valid JSON:
+JSON schema required:
 {
-  "response": "Natural answer with numbers and z-scores",
-  "suggestions": ["Stream Jarrett Allen (TV:6.8, BLK:2.9z)"],
-  "reasoning": "Detailed numerical breakdown",
-  "statTables": [
-    {
-      "playerName": "Giannis Antetokounmpo",
-      "stats": {
-        "points": 27.0,
-        "rebounds": 11.0,
-        "assists": 8.0,
-        "steals": 1.2,
-        "blocks": 1.1
-      }
-    }
+  "response": "string",                 // natural language answer (short paragraph(s))
+  "suggestions": ["string"],            // actionable suggestions, e.g. "Trade X for Y", "Stream Z"
+  "reasoning": "string (optional)",     // concise reasoning for suggestions
+  "statTables": [                       // optional, include ONLY players you provide numeric stats for
+     { "playerName": "string", "stats": { "points": number, "rebounds": number, "assists": number, "steals": number, "blocks": number, "totalValue": number (optional), "pointsZ": number (optional) } }
   ]
 }
 
-statTables is an array of objects. Each object has:
-- playerName: string (exact player name)
-- stats: object with numeric values for points, rebounds, assists, steals, blocks (include only stats you mention in your response)
-Only include statTables when you mention specific numeric statistics for players.`;
+Rules:
+- Only mention players present in the PLAYER_STATS_DB section above.
+- When you include numeric stats, those numbers must come from PLAYER_STATS_DB exactly.
+- ALWAYS include a statTable for EVERY player you mention with numbers, and the stats object MUST contain ALL fields from PLAYER_STATS_DB (points, rebounds, assists, steals, blocks, threePointers, fieldGoalPercentage, freeThrowPercentage, turnovers, totalValue, and all z-scores) — even if values are 0 or not directly relevant to the response.
+- ALWAYS in a trade only suggest players from the user's team for players from the other team. NEVER suggest players from the same team.
+* ALWAYS check ---PUNT STRATEGIES--- first when suggesting trades.
+- For trades involving punt strategies:
+  * When YOU are punting a category (e.g., assists), you want to RECEIVE players with low contribution in that category and are willing to GIVE AWAY players with high contribution in that category.
+  * When the OPPONENT is punting a category (e.g., FG%), they do NOT value that category — they are willing to GIVE AWAY players with strong performance in it and prefer to RECEIVE players weak in it.
+  * Adjust perceived value accordingly: A high-FG% player is worth MORE to a team punting FG% (because it doesn't hurt them), and worth LESS to a team that cares about FG%.
+  * A low-assists player is ideal for a team punting assists — do NOT trade them away cheaply.
+  * Always suggest trades where YOU (the user) benefit or at least break even given the punt strategies.
+  * In suggestions and reasoning, clearly state how the punt strategies make the trade favorable for YOU.
+- If asked for trades, produce reasonable value-similar trades: 
+  * For 1-for-1, 2-for-2, 3-for-3, etc. totalValue difference must be <0.5. 
+    * For larger differences, suggest multi-player packages (e.g., 2-for-1, 3-for-2, etc.) to balance totalValue within 0.5. In case of a discrepancy in totalValue, the team receiving more players in the trade should have the higher totalValue generally. 
+  * Always explain fairness using totalValue comparisons in reasoning and suggestions.
+- If the model cannot produce a valid JSON, return an object with "response" explaining the issue and empty arrays for suggestions/statTables.
+`;
 
-    // === 6. GPT CALL ===
-    const messages = [
-      { role: "system", content: systemPrompt },
-      ...history,
-      { role: "user", content: userMessage },
-    ];
+  // === 6. Build messages and call GPT
+  const messagesToSend = [
+    { role: "system", content: systemPrompt },
+    ...history.map(h => ({ role: h.role, content: typeof h.content === "string" ? h.content : JSON.stringify(h.content) })),
+    { role: "user", content: userMessage },
+  ];
 
-    const gptRes = await fetch("https://api.openai.com/v1/chat/completions", {
+  try {
+    const gptReq = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4.1-turbo",
-        messages,
-        temperature: 0.7,
-        max_tokens: 1200,
-        response_format: { type: "json_object" },
+        model: "gpt-4-turbo", // use available modern model; replace with your preferred model
+        messages: messagesToSend,
+        temperature: 0.3,
+        max_tokens: 3000,
       }),
     });
 
-    if (!gptRes.ok) {
-      const err = await gptRes.text();
-      throw new Error("GPT failed: " + err);
+    if (!gptReq.ok) {
+      const errText = await gptReq.text();
+      console.error("GPT error:", errText);
+      throw new Error("GPT call failed");
     }
 
-    const { choices } = await gptRes.json();
-    const content = choices[0].message.content;
+    const gptJson = await gptReq.json();
+    const raw = gptJson?.choices?.[0]?.message?.content || "";
 
-    let result;
-    try {
-      result = JSON.parse(content);
-    } catch {
-      result = { response: content, suggestions: [], reasoning: "JSON parse failed" };
+    // Try parse JSON directly
+    let result = safeJSONParse(raw);
+    if (!result) {
+      // Attempt to extract JSON object inside text
+      result = extractJSONFromText(raw);
+    }
+    if (!result) {
+      // As a last resort, return raw text inside response field
+      result = {
+        response: String(raw).slice(0, 1000),
+        suggestions: [],
+        reasoning: "Model did not return parseable JSON. Raw output provided.",
+        statTables: [],
+      };
     }
 
-    // Debug: Log response
-    console.log("AI Response:", JSON.stringify(result, null, 2));
+    // Validate statTables: ensure only players from our playerStatsDb are present and numeric values
+    if (Array.isArray(result.statTables)) {
+      result.statTables = result.statTables.filter((st: any) => {
+        if (!st?.playerName || !playerStatsDb[st.playerName]) return false;
+        // Ensure numeric stats only — coerce to numbers where possible
+        const cleanStats: any = {};
+        const allowedKeys = [
+          "points", "rebounds", "assists", "steals", "blocks",
+          "threePointers", "fieldGoalPercentage", "freeThrowPercentage", "turnovers",
+          "totalValue",
+          "pointsZ", "reboundsZ", "assistsZ", "stealsZ", "blocksZ",
+          "threePointersZ", "fieldGoalPercentageZ", "freeThrowPercentageZ", "turnoversZ"
+        ];
+        for (const k of allowedKeys) {
+          if (st.stats?.hasOwnProperty(k) && typeof st.stats[k] === "number") {
+            cleanStats[k] = st.stats[k];
+          }
+        }
+        if (Object.keys(cleanStats).length === 0) return false;
+        st.stats = cleanStats;
+        return true;
+      });
+    } else {
+      result.statTables = [];
+    }
 
-    // === 7. SAVE ===
-    // Insert messages sequentially to ensure proper ordering
-    // Use explicit timestamps to guarantee order
+    // === 7. Persist conversation — insert user then assistant message with timestamps to preserve order
     const now = new Date();
-    const userTimestamp = now.toISOString();
-    const assistantTimestamp = new Date(now.getTime() + 1).toISOString(); // 1ms later
-    
-    // First insert user message
-    await supabase.from("fantasy_chat_messages").insert({
-      user_id: userId,
-      league_id: leagueId,
-      message_role: "user",
-      message_content: userMessage,
-      created_at: userTimestamp,
-    });
-    
-    // Then insert assistant message with slightly later timestamp
-    await supabase.from("fantasy_chat_messages").insert({
-      user_id: userId,
-      league_id: leagueId,
-      message_role: "assistant",
-      message_content: JSON.stringify(result),
-      created_at: assistantTimestamp,
-    });
+    const userTs = new Date(now.getTime()).toISOString();
+    const assistantTs = new Date(now.getTime() + 1).toISOString();
 
-    // === 8. USAGE (FIXED) ===
     try {
-      const { data: usage } = await supabase
-        .from("user_usage")
-        .select("chat_queries_count")
-        .eq("user_id", userId)
-        .single();
+      await supabase.from("fantasy_chat_messages").insert({
+        user_id: userId,
+        league_id: leagueId,
+        message_role: "user",
+        message_content: userMessage,
+        created_at: userTs,
+      });
 
-      const newCount = usage ? (usage.chat_queries_count || 0) + 1 : 1;
-
-      if (usage) {
-        await supabase
-          .from("user_usage")
-          .update({ chat_queries_count: newCount, last_chat_query_at: new Date().toISOString() })
-          .eq("user_id", userId);
-      } else {
-        await supabase
-          .from("user_usage")
-          .insert({ user_id: userId, chat_queries_count: 1, last_chat_query_at: new Date().toISOString() });
-      }
+      await supabase.from("fantasy_chat_messages").insert({
+        user_id: userId,
+        league_id: leagueId,
+        message_role: "assistant",
+        message_content: JSON.stringify(result),
+        created_at: assistantTs,
+      });
     } catch (e) {
-      console.error("Usage update failed (non-critical):", e);
+      console.error("DB insert failed:", e);
     }
 
-    return new Response(JSON.stringify({ success: true, data: result }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    // === 8. Update usage counts (best-effort)
+    (async () => {
+      try {
+        const { data: usage } = await supabase.from("user_usage").select("chat_queries_count").eq("user_id", userId).single();
+        const newCount = usage ? (usage.chat_queries_count || 0) + 1 : 1;
+        if (usage) {
+          await supabase.from("user_usage").update({ chat_queries_count: newCount, last_chat_query_at: new Date().toISOString() }).eq("user_id", userId);
+        } else {
+          await supabase.from("user_usage").insert({ user_id: userId, chat_queries_count: 1, last_chat_query_at: new Date().toISOString() });
+        }
+      } catch (err) {
+        console.error("Usage update failed:", err);
+      }
+    })();
 
-  } catch (error: any) {
-    console.error("FATAL:", error.message);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ success: true, data: result }), { headers: corsHeaders });
+  } catch (error) {
+    console.error("FATAL:", error);
+    return new Response(JSON.stringify({ success: false, error: error.message }), { status: 500, headers: corsHeaders });
   }
 });
