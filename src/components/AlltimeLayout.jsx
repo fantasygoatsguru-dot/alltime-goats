@@ -270,8 +270,24 @@ const AlltimeLayout = () => {
   const leagueSubmenu = [
     { path: '/matchup', label: 'Matchup', icon: <ProjectionIcon />, requiresAuth: false },
     { path: '/my-team', label: 'My Team', icon: <MyTeamIcon />, requiresAuth: false },
-    { path: '/matchup-projection', label: 'Matchup Projection', icon: <MatchupIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your matchups' },
-    { path: '/ultimate-winner', label: 'Head-to-Head Matrix', icon: <UltimateWinnerIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view head-to-head matrix' },
+    { 
+      path: '/matchup-projection', 
+      label: 'Matchup Projection', 
+      icon: <MatchupIcon />, 
+      requiresAuth: true, 
+      requiresPremium: true,
+      tooltip: 'Connect to Yahoo to view your matchups',
+      premiumTooltip: 'Upgrade to premium to access matchup projections'
+    },
+    { 
+      path: '/ultimate-winner', 
+      label: 'Head-to-Head Matrix', 
+      icon: <UltimateWinnerIcon />, 
+      requiresAuth: true, 
+      requiresPremium: false,
+      tooltip: 'Connect to Yahoo to view head-to-head matrix',
+      premiumTooltip: 'Upgrade to premium to access head-to-head matrix'
+    },
   ];
 
   const rankingsSubmenu = [
@@ -280,9 +296,25 @@ const AlltimeLayout = () => {
   ];
 
   const scheduleSubmenu = [
-    { path: '/my-league-regular-season', label: 'My Season', icon: <MyTeamIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your league schedule' },
+    { 
+      path: '/my-league-regular-season', 
+      label: 'My Season', 
+      icon: <MyTeamIcon />, 
+      requiresAuth: true, 
+      requiresPremium: true,
+      tooltip: 'Connect to Yahoo to view your league schedule',
+      premiumTooltip: 'Upgrade to premium to access your league schedule'
+    },
     { path: '/nba-regular-season', label: 'NBA Season', icon: <ScheduleIcon />, requiresAuth: false },
-    { path: '/my-league-playoffs', label: 'My Playoffs', icon: <MyTeamIcon />, requiresAuth: true, tooltip: 'Connect to Yahoo to view your playoff schedule' },
+    { 
+      path: '/my-league-playoffs', 
+      label: 'My Playoffs', 
+      icon: <MyTeamIcon />, 
+      requiresAuth: true, 
+      requiresPremium: true,
+      tooltip: 'Connect to Yahoo to view your playoff schedule',
+      premiumTooltip: 'Upgrade to premium to access your playoff schedule'
+    },
     { path: '/nba-playoffs', label: 'NBA Playoffs', icon: <PlayoffIcon />, requiresAuth: false },
   ];
 
@@ -298,9 +330,26 @@ const AlltimeLayout = () => {
     const fetchUserProfile = async () => {
       if (!user?.userId) return;
       try {
-        const { data } = await supabase.from('user_profiles').select('name, email, profile_picture, is_premium').eq('user_id', user.userId).single();
-        if (data) setUserProfile(data);
-      } catch (err) { console.error(err); }
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('name, email, send_weekly_projections, send_news, is_premium')
+          .eq('user_id', user.userId)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          return;
+        }
+        
+        if (data) {
+          console.log('User profile fetched successfully:', data);
+          setUserProfile(data);
+        } else {
+          console.log('No user profile found for userId:', user.userId);
+        }
+      } catch (err) { 
+        console.error('Exception fetching user profile:', err); 
+      }
     };
     fetchUserProfile();
   }, [user?.userId]);
@@ -655,11 +704,32 @@ const AlltimeLayout = () => {
                             <ClickAwayListener onClickAway={config.handleClose}>
                               <Box>
                                 {config.submenu.map((sub) => {
-                                  const isDisabled = sub.requiresAuth && !isAuthenticated;
+                                  const isDisabled = (sub.requiresAuth && !isAuthenticated) || (sub.requiresPremium && !isPremium);
+                                  const needsAuth = sub.requiresAuth && !isAuthenticated;
+                                  const needsPremium = sub.requiresPremium && !isPremium;
+                                  
+                                  const tooltipContent = needsAuth && sub.tooltip 
+                                    ? sub.tooltip 
+                                    : needsPremium && sub.premiumTooltip 
+                                    ? (
+                                        <Box>
+                                          {sub.premiumTooltip}{' '}
+                                          <Link
+                                            href="https://buymeacoffee.com/fantasygoatsguru"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{ color: '#fff', textDecoration: 'underline', fontWeight: 600 }}
+                                          >
+                                            Support us here
+                                          </Link>
+                                        </Box>
+                                      )
+                                    : '';
+                                  
                                   return (
                                     <Tooltip 
                                       key={sub.path} 
-                                      title={isDisabled && sub.tooltip ? sub.tooltip : ''} 
+                                      title={tooltipContent} 
                                       placement="right"
                                       arrow
                                     >
@@ -939,8 +1009,11 @@ const AlltimeLayout = () => {
                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                   <Box sx={{ bgcolor: 'rgba(0,0,0,0.02)' }}>
                     {submenu.map((sub) => {
-                      const isDisabled = sub.requiresAuth && !isAuthenticated;
+                      const isDisabled = (sub.requiresAuth && !isAuthenticated) || (sub.requiresPremium && !isPremium);
                       const isActive = location.pathname === sub.path;
+                      const needsAuth = sub.requiresAuth && !isAuthenticated;
+                      const needsPremium = sub.requiresPremium && !isPremium;
+                      
                       return (
                         <MenuItem
                           key={sub.path}
@@ -965,7 +1038,7 @@ const AlltimeLayout = () => {
                           <Typography fontSize="0.9rem" fontWeight={isActive ? 600 : 400}>
                             {sub.label}
                           </Typography>
-                          {isDisabled && sub.tooltip && (
+                          {isDisabled && (needsAuth ? sub.tooltip : needsPremium ? 'Premium' : '') && (
                             <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
                               Locked
                             </Typography>
