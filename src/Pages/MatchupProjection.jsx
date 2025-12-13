@@ -85,29 +85,12 @@ const MatchupProjection = () => {
     };
 
     const handlePlayerStatusChange = (playerId, newStatus, dateStr = null) => {
+        
         const updatedDisabledPlayers = { ...disabledPlayers };
         const currentStatus = updatedDisabledPlayers[playerId];
         
         if (newStatus === 'enabled') {
-            if (dateStr && typeof currentStatus === 'object' && currentStatus?.days) {
-                const updatedDays = { ...currentStatus.days };
-                delete updatedDays[dateStr];
-                
-                if (Object.keys(updatedDays).length === 0) {
-                    if (currentStatus.week === 'disabled' || currentStatus.week === 'disabledForWeek') {
-                        updatedDisabledPlayers[playerId] = { week: currentStatus.week };
-                    } else {
-                        delete updatedDisabledPlayers[playerId];
-                    }
-                } else {
-                    updatedDisabledPlayers[playerId] = { 
-                        ...currentStatus, 
-                        days: updatedDays 
-                    };
-                }
-            } else {
-                updatedDisabledPlayers[playerId] = 'enabled';
-            }
+            updatedDisabledPlayers[playerId] = 'enabled';
         } else if (newStatus === 'disabledForDay' && dateStr) {
             if (!updatedDisabledPlayers[playerId] || typeof updatedDisabledPlayers[playerId] === 'string') {
                 const existingStatus = updatedDisabledPlayers[playerId];
@@ -308,7 +291,6 @@ const MatchupProjection = () => {
 
             // Use matchup from context if available
             if (contextMatchup) {
-                console.log('Using matchup from context');
                 setCurrentMatchup(contextMatchup);
                 setInitialLoading(false);
                 return;
@@ -405,11 +387,6 @@ const MatchupProjection = () => {
     
             const { weekStart, weekEnd, currentDate, todayDateStr } = getCurrentWeekDates();
             
-            console.log('=== EASTERN TIME DEBUG ===');
-            console.log('Current Eastern Date:', todayDateStr);
-            console.log('Current Eastern Day:', currentDate.toLocaleDateString('en-US', { weekday: 'long' }));
-            console.log('Week Start:', weekStart.toISOString().split('T')[0]);
-            console.log('Week End:', weekEnd.toISOString().split('T')[0]);
     
             // Get player IDs and their NBA teams
             const getPlayerTeams = async (players) => {
@@ -788,7 +765,6 @@ const MatchupProjection = () => {
                 team2Score
             };
             
-            console.log('Setting matchup projection:', projectionData);
             setMatchupProjection(projectionData);
             setInitialLoading(false);
     
@@ -802,7 +778,6 @@ const MatchupProjection = () => {
     // Calculate projection when we have both matchup and schedule
     useEffect(() => {
         if (scheduleData && currentMatchup && !matchupProjection) {
-            console.log('Triggering projection calculation');
             calculateMatchupProjection(currentMatchup);
         }
     }, [scheduleData, currentMatchup, matchupProjection]);
