@@ -336,9 +336,10 @@ async function calculateDayByDayProjection(matchup: any) {
   }
 
   const { data: averages } = await supabase
-    .from('player_season_averages')
+    .from('player_period_averages')
     .select('*')
     .eq('season', CURRENT_SEASON)
+    .eq('period_type', 'season')
     .in('player_id', nbaIds);
 
   const avgMap = new Map(averages?.map(a => [a.player_id, a]) || []);

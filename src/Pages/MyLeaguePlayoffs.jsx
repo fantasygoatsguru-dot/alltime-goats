@@ -225,10 +225,11 @@ const MyLeaguePlayoffs = () => {
         }
         
         const { data, error } = await supabase
-          .from("player_season_averages")
+          .from("player_period_averages")
           .select("*")
           .in("player_id", uniqueNbaIds)
-          .eq("season", "2025-26");
+          .eq("season", "2025-26")
+          .eq("period_type", "season");
         if (error) throw error;
         
         const map = {};

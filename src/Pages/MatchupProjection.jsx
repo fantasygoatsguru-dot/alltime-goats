@@ -417,9 +417,10 @@ const MatchupProjection = () => {
                 if (playerIds.length === 0) return {};
     
                 const { data, error } = await supabase
-                    .from('player_season_averages')
+                    .from('player_period_averages')
                     .select('*')
                     .eq('season', CURRENT_SEASON)
+                    .eq('period_type', 'season')
                     .in('player_id', playerIds);
 
                 if (error) throw error;

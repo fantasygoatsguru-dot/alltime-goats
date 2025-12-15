@@ -11,6 +11,10 @@ import {
     TableSortLabel,
     Paper,
     CircularProgress,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
 } from '@mui/material';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
 import { useLeague } from '../contexts/LeagueContext';
@@ -20,6 +24,7 @@ const Rankings = () => {
     const [loading, setLoading] = useState(true);
     const [orderBy, setOrderBy] = useState('total_value');
     const [order, setOrder] = useState('desc');
+    const [periodType, setPeriodType] = useState('season');
     const { userTeamPlayers } = useLeague();
 
     // Create a Set of user's team player IDs for quick lookup
@@ -44,9 +49,10 @@ const Rankings = () => {
         const fetchPlayers = async () => {
             try {
                 const { data, error } = await supabase
-                    .from('player_season_averages')
+                    .from('player_period_averages')
                     .select('*')
                     .eq('season', CURRENT_SEASON)
+                    .eq('period_type', periodType)
                     .limit(200)
                     .order(orderBy, { ascending: order === 'asc' });
 
@@ -60,7 +66,7 @@ const Rankings = () => {
         };
 
         fetchPlayers();
-    }, [orderBy, order]);
+    }, [orderBy, order, periodType]);
 
     const handleSort = (column) => {
         const isAsc = orderBy === column && order === 'desc';
@@ -207,6 +213,16 @@ const Rankings = () => {
         );
     }
 
+    const getPeriodLabel = (period) => {
+        const labels = {
+            'season': 'Full Season',
+            '60_days': 'Last 60 Days',
+            '30_days': 'Last 30 Days',
+            '7_days': 'Last 7 Days',
+        };
+        return labels[period] || period;
+    };
+
     return (
         <Box
             sx={{
@@ -215,30 +231,126 @@ const Rankings = () => {
                 overflow: 'hidden',
             }}
         >
-            <Typography
-                variant="h4"
-                sx={{
-                    mb: 4,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    color: '#1976d2',
-                    textShadow: 'none',
-                    fontFamily: '"Roboto Mono", monospace',
-                    letterSpacing: '0.5px',
-                }}
-            >
-                Player Rankings {CURRENT_SEASON}
-            </Typography>
+            <Box sx={{ 
+                display: 'flex', 
+                flexDirection: { xs: 'column', md: 'row' },
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                mb: 4,
+                gap: 2,
+            }}>
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontWeight: 'bold',
+                        color: '#1976d2',
+                        textShadow: 'none',
+                        fontFamily: '"Roboto Mono", monospace',
+                        letterSpacing: '0.5px',
+                    }}
+                >
+                    Player Rankings {CURRENT_SEASON}
+                </Typography>
+                
+                <FormControl 
+                    sx={{ 
+                        minWidth: 200,
+                        bgcolor: '#ffffff',
+                        borderRadius: 1,
+                    }}
+                    size="small"
+                >
+                    <InputLabel 
+                        id="period-select-label"
+                        sx={{
+                            color: '#1976d2',
+                            fontFamily: '"Roboto Mono", monospace',
+                            '&.Mui-focused': {
+                                color: '#1976d2',
+                            },
+                        }}
+                    >
+                        Time Period
+                    </InputLabel>
+                    <Select
+                        labelId="period-select-label"
+                        id="period-select"
+                        value={periodType}
+                        label="Time Period"
+                        onChange={(e) => {
+                            setPeriodType(e.target.value);
+                            setLoading(true);
+                        }}
+                        sx={{
+                            fontFamily: '"Roboto Mono", monospace',
+                            color: '#1976d2',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#1976d2',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#2e7d32',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#2e7d32',
+                            },
+                        }}
+                    >
+                        <MenuItem value="season" sx={{ fontFamily: '"Roboto Mono", monospace' }}>
+                            Full Season
+                        </MenuItem>
+                        <MenuItem value="60_days" sx={{ fontFamily: '"Roboto Mono", monospace' }}>
+                            Last 60 Days
+                        </MenuItem>
+                        <MenuItem value="30_days" sx={{ fontFamily: '"Roboto Mono", monospace' }}>
+                            Last 30 Days
+                        </MenuItem>
+                        <MenuItem value="7_days" sx={{ fontFamily: '"Roboto Mono", monospace' }}>
+                            Last 7 Days
+                        </MenuItem>
+                    </Select>
+                </FormControl>
+            </Box>
 
-            <Box
-                sx={{
-                    overflowX: 'auto',
-                    borderRadius: 2,
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                    bgcolor: '#ffffff',
-                }}
-            >
-                <TableContainer
+            {players.length === 0 && !loading ? (
+                <Box
+                    sx={{
+                        p: 4,
+                        textAlign: 'center',
+                        bgcolor: '#ffffff',
+                        borderRadius: 2,
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                    }}
+                >
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            color: '#1976d2',
+                            fontFamily: '"Roboto Mono", monospace',
+                            mb: 2,
+                        }}
+                    >
+                        No data available for {getPeriodLabel(periodType)}
+                    </Typography>
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            color: '#666',
+                            fontFamily: '"Roboto Mono", monospace',
+                        }}
+                    >
+                        Period averages need to be calculated by running the calculate-period-averages function.
+                    </Typography>
+                </Box>
+            ) : (
+                <Box
+                    sx={{
+                        overflowX: 'auto',
+                        borderRadius: 2,
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                        bgcolor: '#ffffff',
+                    }}
+                >
+                    <TableContainer
                     sx={{
                         maxHeight: '78vh',
                         '&::-webkit-scrollbar': {
@@ -382,6 +494,7 @@ const Rankings = () => {
                     </Table>
                 </TableContainer>
             </Box>
+            )}
 
             <Typography
                 variant="caption"
@@ -394,7 +507,7 @@ const Rankings = () => {
                     opacity: 0.7,
                 }}
             >
-                Scroll horizontally to view all stats ↔
+                {players.length > 0 ? 'Scroll horizontally to view all stats ↔' : ''}
             </Typography>
         </Box>
     );

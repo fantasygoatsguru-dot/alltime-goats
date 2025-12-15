@@ -113,9 +113,10 @@ const FantasyChat = () => {
     leagueTeams.forEach((t) => t.players?.forEach((p) => p.nbaPlayerId && ids.add(p.nbaPlayerId)));
     if (!ids.size) return;
     const { data } = await supabase
-      .from("player_season_averages")
+      .from("player_period_averages")
       .select("player_id, points_per_game, rebounds_per_game, assists_per_game, steals_per_game, blocks_per_game, three_pointers_per_game, field_goal_percentage, free_throw_percentage, turnovers_per_game, total_value, points_z, rebounds_z, assists_z, steals_z, blocks_z, three_pointers_z, fg_percentage_z, ft_percentage_z, turnovers_z")
       .eq("season", CURRENT_SEASON)
+      .eq("period_type", "season")
       .in("player_id", Array.from(ids));
     const map = {};
     data?.forEach((r) => {

@@ -10,9 +10,10 @@ const CURRENT_SEASON = "2025-26";
 export const fetchAllPlayersFromSupabase = async () => {
     try {
         const { data, error } = await supabase
-            .from('player_season_averages')
+            .from('player_period_averages')
             .select('player_id, player_name')
             .eq('season', CURRENT_SEASON)
+            .eq('period_type', 'season')
             .order('player_name');
 
         if (error) throw error;
@@ -39,9 +40,10 @@ export const fetchPlayerStatsFromSupabase = async (players, team1Players, team2P
         if (playerIds.length === 0) return [];
 
         const { data, error } = await supabase
-            .from('player_season_averages')
+            .from('player_period_averages')
             .select('*')
             .eq('season', CURRENT_SEASON)
+            .eq('period_type', 'season')
             .in('player_id', playerIds);
 
         if (error) {
