@@ -69,7 +69,7 @@ const DEFAULT_PLAYERS = {
     ],
     team2: [
         { nbaPlayerId: 1628378, yahooPlayerId: 1628378, name: "Donovan Mitchell" },
-        { nbaPlayerId: 1630166, yahooPlayerId: 1630166, name: "Deni Avdija" }
+        { nbaPlayerId: 1642843, yahooPlayerId: 1642843, name: "Cooper Flagg" }
     ]
 };
 
