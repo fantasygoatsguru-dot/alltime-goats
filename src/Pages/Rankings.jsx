@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
     Box,
     Typography,
@@ -15,9 +15,24 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
+    Checkbox,
+    FormControlLabel,
+    Chip,
 } from '@mui/material';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
 import { useLeague } from '../contexts/LeagueContext';
+
+const PUNT_CATEGORIES = [
+    { key: 'points_z', label: 'PTS', fullName: 'Points' },
+    { key: 'three_pointers_z', label: '3PM', fullName: 'Three Pointers' },
+    { key: 'rebounds_z', label: 'REB', fullName: 'Rebounds' },
+    { key: 'assists_z', label: 'AST', fullName: 'Assists' },
+    { key: 'steals_z', label: 'STL', fullName: 'Steals' },
+    { key: 'blocks_z', label: 'BLK', fullName: 'Blocks' },
+    { key: 'fg_percentage_z', label: 'FG%', fullName: 'Field Goal %' },
+    { key: 'ft_percentage_z', label: 'FT%', fullName: 'Free Throw %' },
+    { key: 'turnovers_z', label: 'TO', fullName: 'Turnovers' },
+];
 
 const Rankings = () => {
     const [players, setPlayers] = useState([]);
@@ -25,6 +40,8 @@ const Rankings = () => {
     const [orderBy, setOrderBy] = useState('total_value');
     const [order, setOrder] = useState('desc');
     const [periodType, setPeriodType] = useState('season');
+    const [puntedCategories, setPuntedCategories] = useState([]);
+    const [isAdjusting, setIsAdjusting] = useState(false);
     const { userTeamPlayers } = useLeague();
 
     // Create a Set of user's team player IDs for quick lookup
@@ -41,8 +58,88 @@ const Rankings = () => {
     }, [userTeamPlayers]);
 
     // Check if a player belongs to user's team
-    const isUserTeamPlayer = (player) => {
+    const isUserTeamPlayer = useCallback((player) => {
         return userTeamPlayerIds.has(player.player_id);
+    }, [userTeamPlayerIds]);
+
+    // Calculate adjusted rankings based on punted categories
+    const adjustedPlayers = useMemo(() => {
+        if (!players.length || puntedCategories.length === 0) {
+            return players.map((p, idx) => ({
+                ...p,
+                originalRank: idx + 1,
+                adjustedTotalValue: p.total_value,
+                adjustedRank: idx + 1,
+                rankChange: 0,
+                valueChange: 0,
+            }));
+        }
+
+        // Recalculate total_value excluding punted categories
+        const allCategories = PUNT_CATEGORIES.map(c => c.key);
+        const includedCategories = allCategories.filter(c => !puntedCategories.includes(c));
+        const n = includedCategories.length;
+        const sqrtN = Math.sqrt(n);
+
+        const playersWithAdjusted = players.map((player, idx) => {
+            const sum = includedCategories.reduce((acc, cat) => acc + (player[cat] || 0), 0);
+            const adjustedTotalValue = sum / sqrtN;
+
+            return {
+                ...player,
+                originalRank: idx + 1,
+                adjustedTotalValue: Number(adjustedTotalValue.toFixed(2)),
+                valueChange: Number((adjustedTotalValue - player.total_value).toFixed(2)),
+            };
+        });
+
+        // Sort by adjusted total value
+        const sorted = [...playersWithAdjusted].sort((a, b) => b.adjustedTotalValue - a.adjustedTotalValue);
+
+        // Calculate adjusted rank and rank change
+        return sorted.map((player, idx) => ({
+            ...player,
+            adjustedRank: idx + 1,
+            rankChange: player.originalRank - (idx + 1),
+        }));
+    }, [players, puntedCategories]);
+
+    // Calculate team impact when punting
+    const teamImpact = useMemo(() => {
+        if (!userTeamPlayers || userTeamPlayers.length === 0 || puntedCategories.length === 0) {
+            return null;
+        }
+
+        const teamPlayers = adjustedPlayers.filter(p => isUserTeamPlayer(p));
+        
+        if (teamPlayers.length === 0) return null;
+
+        const totalValueChange = teamPlayers.reduce((sum, p) => sum + p.valueChange, 0);
+        const avgValueChange = totalValueChange / teamPlayers.length;
+        const playersImproved = teamPlayers.filter(p => p.valueChange > 0).length;
+        const playersDeclined = teamPlayers.filter(p => p.valueChange < 0).length;
+
+        return {
+            totalValueChange: Number(totalValueChange.toFixed(2)),
+            avgValueChange: Number(avgValueChange.toFixed(2)),
+            playersImproved,
+            playersDeclined,
+            totalPlayers: teamPlayers.length,
+        };
+    }, [adjustedPlayers, userTeamPlayers, puntedCategories.length, isUserTeamPlayer]);
+
+    const handlePuntToggle = (categoryKey) => {
+        setIsAdjusting(true);
+        setPuntedCategories(prev => {
+            if (prev.includes(categoryKey)) {
+                return prev.filter(c => c !== categoryKey);
+            } else {
+                return [...prev, categoryKey];
+            }
+        });
+        
+        // Reset adjusting state after a brief delay for smooth transition
+        setTimeout(() => setIsAdjusting(false), 300);
     };
 
     useEffect(() => {
@@ -54,7 +151,7 @@ const Rankings = () => {
                     .eq('season', CURRENT_SEASON)
                     .eq('period_type', periodType)
                     .limit(200)
-                    .order(orderBy, { ascending: order === 'asc' });
+                    .order('total_value', { ascending: false });
 
                 if (error) throw error;
                 setPlayers(data || []);
@@ -66,7 +163,7 @@ const Rankings = () => {
         };
 
         fetchPlayers();
-    }, [orderBy, order, periodType]);
+    }, [periodType]);
 
     const handleSort = (column) => {
         const isAsc = orderBy === column && order === 'desc';
@@ -166,34 +263,51 @@ const Rankings = () => {
         return value;
     };
 
-    const columns = [
-        { id: 'rank', label: '#', sortable: false, align: 'center' },
-        { id: 'player_name', label: 'Player', sortable: true, align: 'left' },
-        { id: 'team_abbreviation', label: 'Team', sortable: true },
-        { id: 'total_value', label: 'Total Value', sortable: true },
+    const columns = useMemo(() => {
+        const baseColumns = [
+            { id: 'rank', label: '#', sortable: false, align: 'center' },
+            { id: 'player_name', label: 'Player', sortable: false, align: 'left' },
+            { id: 'team_abbreviation', label: 'Team', sortable: false },
+            { id: 'total_value', label: 'Total Value', sortable: false },
+        ];
 
-        // Z-scores first
-        { id: 'points_z', label: 'PTS Z', sortable: true },
-        { id: 'rebounds_z', label: 'REB Z', sortable: true },
-        { id: 'assists_z', label: 'AST Z', sortable: true },
-        { id: 'steals_z', label: 'STL Z', sortable: true },
-        { id: 'blocks_z', label: 'BLK Z', sortable: true },
-        { id: 'three_pointers_z', label: '3PM Z', sortable: true },
-        { id: 'fg_percentage_z', label: 'FG% Z', sortable: true },
-        { id: 'ft_percentage_z', label: 'FT% Z', sortable: true },
-        { id: 'turnovers_z', label: 'TO Z', sortable: true },
+        // Add punt-related columns if punting is active
+        if (puntedCategories.length > 0) {
+            baseColumns.push(
+                { id: 'adjustedTotalValue', label: 'Adj. Value', sortable: false },
+                { id: 'valueChange', label: 'Δ Value', sortable: false },
+                { id: 'rankChange', label: 'Δ Rank', sortable: false }
+            );
+        }
 
-        // Raw stats after
-        { id: 'points_per_game', label: 'PTS', sortable: true },
-        { id: 'rebounds_per_game', label: 'REB', sortable: true },
-        { id: 'assists_per_game', label: 'AST', sortable: true },
-        { id: 'steals_per_game', label: 'STL', sortable: true },
-        { id: 'blocks_per_game', label: 'BLK', sortable: true },
-        { id: 'three_pointers_per_game', label: '3PM', sortable: true },
-        { id: 'field_goal_percentage', label: 'FG%', sortable: true },
-        { id: 'free_throw_percentage', label: 'FT%', sortable: true },
-        { id: 'turnovers_per_game', label: 'TO', sortable: true },
-    ];
+        // Add Z-scores
+        baseColumns.push(
+            { id: 'points_z', label: 'PTS Z', sortable: false },
+            { id: 'rebounds_z', label: 'REB Z', sortable: false },
+            { id: 'assists_z', label: 'AST Z', sortable: false },
+            { id: 'steals_z', label: 'STL Z', sortable: false },
+            { id: 'blocks_z', label: 'BLK Z', sortable: false },
+            { id: 'three_pointers_z', label: '3PM Z', sortable: false },
+            { id: 'fg_percentage_z', label: 'FG% Z', sortable: false },
+            { id: 'ft_percentage_z', label: 'FT% Z', sortable: false },
+            { id: 'turnovers_z', label: 'TO Z', sortable: false }
+        );
+
+        // Add raw stats
+        baseColumns.push(
+            { id: 'points_per_game', label: 'PTS', sortable: false },
+            { id: 'rebounds_per_game', label: 'REB', sortable: false },
+            { id: 'assists_per_game', label: 'AST', sortable: false },
+            { id: 'steals_per_game', label: 'STL', sortable: false },
+            { id: 'blocks_per_game', label: 'BLK', sortable: false },
+            { id: 'three_pointers_per_game', label: '3PM', sortable: false },
+            { id: 'field_goal_percentage', label: 'FG%', sortable: false },
+            { id: 'free_throw_percentage', label: 'FT%', sortable: false },
+            { id: 'turnovers_per_game', label: 'TO', sortable: false }
+        );
+
+        return baseColumns;
+    }, [puntedCategories.length]);
 
     if (loading) {
         return (
@@ -311,7 +425,232 @@ const Rankings = () => {
                 </FormControl>
             </Box>
 
-            {players.length === 0 && !loading ? (
+            {/* Punt Categories Section */}
+            <Box
+                sx={{
+                    mb: 3,
+                    p: 2,
+                    bgcolor: '#ffffff',
+                    borderRadius: 2,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                }}
+            >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontFamily: '"Roboto Mono", monospace',
+                            color: '#1976d2',
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        Punt Categories
+                    </Typography>
+                    {puntedCategories.length > 0 && (
+                        <Chip
+                            label={puntedCategories.length}
+                            size="small"
+                            sx={{
+                                bgcolor: '#2e7d32',
+                                color: '#ffffff',
+                                fontFamily: '"Roboto Mono", monospace',
+                                fontWeight: 'bold',
+                            }}
+                        />
+                    )}
+                </Box>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 1,
+                    }}
+                >
+                    {PUNT_CATEGORIES.map((cat) => (
+                        <FormControlLabel
+                            key={cat.key}
+                            control={
+                                <Checkbox
+                                    checked={puntedCategories.includes(cat.key)}
+                                    onChange={() => handlePuntToggle(cat.key)}
+                                    sx={{
+                                        color: '#1976d2',
+                                        '&.Mui-checked': {
+                                            color: '#2e7d32',
+                                        },
+                                    }}
+                                />
+                            }
+                            label={
+                                <Typography
+                                    sx={{
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        fontSize: '0.9rem',
+                                        color: puntedCategories.includes(cat.key) ? '#2e7d32' : '#212121',
+                                        fontWeight: puntedCategories.includes(cat.key) ? 'bold' : 'normal',
+                                    }}
+                                >
+                                    {cat.label}
+                                </Typography>
+                            }
+                            sx={{
+                                bgcolor: puntedCategories.includes(cat.key) 
+                                    ? 'rgba(46, 125, 50, 0.08)' 
+                                    : 'transparent',
+                                borderRadius: 1,
+                                px: 1,
+                                m: 0,
+                                transition: 'background-color 0.2s',
+                            }}
+                        />
+                    ))}
+                </Box>
+                {puntedCategories.length > 0 && (
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            display: 'block',
+                            mt: 2,
+                            color: '#666',
+                            fontFamily: '"Roboto Mono", monospace',
+                        }}
+                    >
+                        Rankings adjusted to exclude: {PUNT_CATEGORIES.filter(c => puntedCategories.includes(c.key)).map(c => c.label).join(', ')}
+                    </Typography>
+                )}
+                
+                {/* Team Impact Display */}
+                {teamImpact && (
+                    <Box
+                        sx={{
+                            mt: 3,
+                            p: 2,
+                            bgcolor: teamImpact.totalValueChange >= 0 
+                                ? 'rgba(46, 125, 50, 0.08)' 
+                                : 'rgba(198, 40, 40, 0.08)',
+                            borderRadius: 2,
+                            border: `2px solid ${teamImpact.totalValueChange >= 0 ? '#2e7d32' : '#c62828'}`,
+                            transition: 'all 0.3s ease',
+                            animation: 'slideIn 0.4s ease-out',
+                            '@keyframes slideIn': {
+                                '0%': {
+                                    opacity: 0,
+                                    transform: 'translateY(-10px)',
+                                },
+                                '100%': {
+                                    opacity: 1,
+                                    transform: 'translateY(0)',
+                                },
+                            },
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                    fontFamily: '"Roboto Mono", monospace',
+                                    color: teamImpact.totalValueChange >= 0 ? '#2e7d32' : '#c62828',
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                ⭐ Your Team Impact
+                            </Typography>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    sx={{
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        color: '#666',
+                                        display: 'block',
+                                    }}
+                                >
+                                    Total Value Change
+                                </Typography>
+                                <Typography
+                                    variant="h5"
+                                    sx={{
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        fontWeight: 'bold',
+                                        color: teamImpact.totalValueChange >= 0 ? '#2e7d32' : '#c62828',
+                                    }}
+                                >
+                                    {teamImpact.totalValueChange >= 0 ? '+' : ''}{teamImpact.totalValueChange}
+                                </Typography>
+                            </Box>
+                            
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    sx={{
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        color: '#666',
+                                        display: 'block',
+                                    }}
+                                >
+                                    Avg per Player
+                                </Typography>
+                                <Typography
+                                    variant="h6"
+                                    sx={{
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        fontWeight: 'bold',
+                                        color: teamImpact.avgValueChange >= 0 ? '#2e7d32' : '#c62828',
+                                    }}
+                                >
+                                    {teamImpact.avgValueChange >= 0 ? '+' : ''}{teamImpact.avgValueChange}
+                                </Typography>
+                            </Box>
+                            
+                            <Box>
+                                <Typography
+                                    variant="caption"
+                                    sx={{
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        color: '#666',
+                                        display: 'block',
+                                    }}
+                                >
+                                    Players
+                                </Typography>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        fontWeight: 'bold',
+                                        color: '#212121',
+                                    }}
+                                >
+                                    <span style={{ color: '#2e7d32' }}>↑{teamImpact.playersImproved}</span>
+                                    {' / '}
+                                    <span style={{ color: '#c62828' }}>↓{teamImpact.playersDeclined}</span>
+                                    {' / '}
+                                    {teamImpact.totalPlayers}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                display: 'block',
+                                mt: 1.5,
+                                color: '#666',
+                                fontFamily: '"Roboto Mono", monospace',
+                                fontStyle: 'italic',
+                            }}
+                        >
+                            {teamImpact.totalValueChange >= 0 
+                                ? '✓ This punt strategy benefits your team!' 
+                                : '✗ This punt strategy hurts your team.'}
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
+
+            {adjustedPlayers.length === 0 && !loading ? (
                 <Box
                     sx={{
                         p: 4,
@@ -348,6 +687,18 @@ const Rankings = () => {
                         borderRadius: 2,
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
                         bgcolor: '#ffffff',
+                        transition: 'all 0.3s ease',
+                        opacity: isAdjusting ? 0.85 : 1,
+                        transform: isAdjusting ? 'scale(0.995)' : 'scale(1)',
+                        animation: puntedCategories.length > 0 && !isAdjusting ? 'fadeIn 0.4s ease-in-out' : 'none',
+                        '@keyframes fadeIn': {
+                            '0%': {
+                                opacity: 0.7,
+                            },
+                            '100%': {
+                                opacity: 1,
+                            },
+                        },
                     }}
                 >
                     <TableContainer
@@ -416,8 +767,12 @@ const Rankings = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {players.map((player, index) => {
+                            {adjustedPlayers.map((player, index) => {
                                 const isMyPlayer = isUserTeamPlayer(player);
+                                const displayRank = puntedCategories.length > 0 ? player.adjustedRank : (index + 1);
+                                const hasMovedUp = player.rankChange > 0;
+                                const hasMovedDown = player.rankChange < 0;
+                                
                                 return (
                                 <TableRow
                                     key={player.id}
@@ -447,9 +802,27 @@ const Rankings = () => {
                                     }}
                                 >
                                     {columns.map((column) => {
-                                        const value = column.id === 'rank' ? index + 1 : player[column.id];
-                                        const bgColor = getColorForValue(value, column.id);
-                                        const textColor = getTextColor(bgColor);
+                                        let value = column.id === 'rank' ? displayRank : player[column.id];
+                                        let bgColor = getColorForValue(value, column.id);
+                                        let textColor = getTextColor(bgColor);
+                                        
+                                        // Override colors for punt-specific columns
+                                        if (column.id === 'adjustedTotalValue') {
+                                            value = player.adjustedTotalValue;
+                                            bgColor = getColorForValue(value, 'total_value');
+                                        } else if (column.id === 'valueChange') {
+                                            value = player.valueChange;
+                                            bgColor = value > 0 ? 'rgba(165, 214, 167, 0.5)' : value < 0 ? 'rgba(198, 40, 40, 0.3)' : 'transparent';
+                                        } else if (column.id === 'rankChange') {
+                                            value = player.rankChange;
+                                            bgColor = hasMovedUp ? 'rgba(165, 214, 167, 0.5)' : hasMovedDown ? 'rgba(198, 40, 40, 0.3)' : 'transparent';
+                                        }
+                                        
+                                        // Gray out punted categories
+                                        if (puntedCategories.includes(column.id)) {
+                                            bgColor = 'rgba(0, 0, 0, 0.05)';
+                                            textColor = '#999';
+                                        }
 
                                         return (
                                             <TableCell
@@ -461,17 +834,27 @@ const Rankings = () => {
                                                     fontFamily: '"Roboto Mono", monospace',
                                                     fontSize: '0.8rem',
                                                     fontWeight: column.id === 'player_name' ? 'bold' : column.id === 'rank' ? 'bold' : 'medium',
-                                                    transition: 'background-color 0.4s ease',
+                                                    transition: 'all 0.3s ease',
                                                     borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
                                                 }}
                                             >
                                                 {column.id === 'rank' ? (
-                                                    <Typography sx={{ 
-                                                        fontWeight: 'bold', 
-                                                        color: '#1976d2',
-                                                    }}>
-                                                        {value}
-                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                                                        <Typography sx={{ 
+                                                            fontWeight: 'bold', 
+                                                            color: '#1976d2',
+                                                        }}>
+                                                            {value}
+                                                        </Typography>
+                                                        {puntedCategories.length > 0 && player.originalRank !== displayRank && (
+                                                            <Typography sx={{ 
+                                                                fontSize: '0.7rem',
+                                                                color: '#999',
+                                                            }}>
+                                                                ({player.originalRank})
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
                                                 ) : column.id === 'player_name' ? (
                                                     <Typography sx={{ 
                                                         fontWeight: 'bold', 
@@ -480,6 +863,30 @@ const Rankings = () => {
                                                     }}>
                                                         {isMyPlayer && '⭐ '}
                                                         {value}
+                                                    </Typography>
+                                                ) : column.id === 'rankChange' ? (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                                                        {value > 0 && <span style={{ color: '#2e7d32' }}>↑</span>}
+                                                        {value < 0 && <span style={{ color: '#c62828' }}>↓</span>}
+                                                        <Typography sx={{ 
+                                                            fontWeight: 'bold',
+                                                            color: value > 0 ? '#2e7d32' : value < 0 ? '#c62828' : '#666',
+                                                        }}>
+                                                            {value > 0 ? `+${value}` : value}
+                                                        </Typography>
+                                                    </Box>
+                                                ) : column.id === 'valueChange' ? (
+                                                    <Typography sx={{ 
+                                                        fontWeight: 'bold',
+                                                        color: value > 0 ? '#2e7d32' : value < 0 ? '#c62828' : '#666',
+                                                    }}>
+                                                        {value > 0 ? `+${value.toFixed(2)}` : value.toFixed(2)}
+                                                    </Typography>
+                                                ) : column.id === 'adjustedTotalValue' ? (
+                                                    <Typography sx={{ 
+                                                        fontWeight: 'bold',
+                                                    }}>
+                                                        {value.toFixed(2)}
                                                     </Typography>
                                                 ) : (
                                                     formatValue(value, column.id)
@@ -507,7 +914,7 @@ const Rankings = () => {
                     opacity: 0.7,
                 }}
             >
-                {players.length > 0 ? 'Scroll horizontally to view all stats ↔' : ''}
+                {adjustedPlayers.length > 0 ? 'Scroll horizontally to view all stats ↔' : ''}
             </Typography>
         </Box>
     );
