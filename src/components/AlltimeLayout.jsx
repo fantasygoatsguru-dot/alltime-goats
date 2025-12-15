@@ -275,7 +275,7 @@ const AlltimeLayout = () => {
       label: 'Matchup Projection', 
       icon: <MatchupIcon />, 
       requiresAuth: true, 
-      requiresPremium: true,
+      requiresPremium: false,
       tooltip: 'Connect to Yahoo to view your matchups',
       premiumTooltip: 'Upgrade to premium to access matchup projections'
     },

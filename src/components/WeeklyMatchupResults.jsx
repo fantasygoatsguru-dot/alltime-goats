@@ -79,9 +79,9 @@ const WeeklyMatchupResults = ({
                     <Typography
                         variant="h5"
                         sx={{
-                            fontWeight: "bold",
-                            color: "#4a90e2",
-                            fontFamily: '"Roboto Mono", monospace',
+                            fontWeight: 600,
+                            color: '#003366',
+                            fontSize: '1.25rem',
                         }}
                     >
                         Previous Weeks Matchup Results
@@ -92,7 +92,7 @@ const WeeklyMatchupResults = ({
                     >
                         <Box 
                             sx={{ 
-                                bgcolor: '#333', 
+                                bgcolor: '#003366', 
                                 borderRadius: '50%', 
                                 width: 20, 
                                 height: 20, 
@@ -101,9 +101,8 @@ const WeeklyMatchupResults = ({
                                 justifyContent: 'center',
                                 cursor: 'help',
                                 fontSize: '0.75rem',
-                                color: '#4a90e2',
+                                color: '#fff',
                                 fontWeight: 'bold',
-                                border: '1px solid #4a90e2'
                             }}
                         >
                             i
@@ -130,9 +129,8 @@ const WeeklyMatchupResults = ({
                                     <Typography
                                         variant="subtitle2"
                                         sx={{
-                                            color: "#4a90e2",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
+                                            color: "#003366",
+                                            fontWeight: 600
                                         }}
                                     >
                                         W{result.week}
@@ -140,8 +138,7 @@ const WeeklyMatchupResults = ({
                                     <Typography
                                         variant="caption"
                                         sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace'
+                                            color: "#666"
                                         }}
                                     >
                                         {result.weekStart ? result.weekStart.split('-')[1] + '/' + result.weekStart.split('-')[2] : ''}
@@ -151,8 +148,7 @@ const WeeklyMatchupResults = ({
                                     variant="h6"
                                     sx={{
                                         color: "#212121",
-                                        fontFamily: '"Roboto Mono", monospace',
-                                        fontWeight: 'bold',
+                                        fontWeight: 600,
                                         textAlign: 'center',
                                         mb: 0.5
                                     }}
@@ -165,8 +161,7 @@ const WeeklyMatchupResults = ({
                                         display: 'block',
                                         textAlign: 'center',
                                         color: getTextColor(result),
-                                        fontFamily: '"Roboto Mono", monospace',
-                                        fontWeight: 'bold'
+                                        fontWeight: 600
                                     }}
                                 >
                                     {result.winner === "Tie" ? "TIE" : `${result.winner.split(' ')[0]} W`}
@@ -192,9 +187,8 @@ const WeeklyMatchupResults = ({
             >
                 <DialogTitle
                     sx={{
-                        color: "#4a90e2",
-                        fontFamily: '"Roboto Mono", monospace',
-                        fontWeight: 'bold',
+                        color: "#003366",
+                        fontWeight: 600,
                         pb: 1
                     }}
                 >
@@ -207,24 +201,20 @@ const WeeklyMatchupResults = ({
                                 <TableHead>
                                     <TableRow>
                                         <TableCell sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
+                                            color: "#666",
+                                            fontWeight: 600
                                         }}>Category</TableCell>
                                         <TableCell align="right" sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
+                                            color: "#666",
+                                            fontWeight: 600
                                         }}>{team1Name}</TableCell>
                                         <TableCell align="right" sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
+                                            color: "#666",
+                                            fontWeight: 600
                                         }}>{team2Name}</TableCell>
                                         <TableCell sx={{
-                                            color: "#b0bec5",
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            fontWeight: 'bold'
+                                            color: "#666",
+                                            fontWeight: 600
                                         }}>Winner</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -240,22 +230,18 @@ const WeeklyMatchupResults = ({
                                                 sx={{ bgcolor: color }}
                                             >
                                                 <TableCell sx={{
-                                                    fontFamily: '"Roboto Mono", monospace',
                                                     color: "#212121"
                                                 }}>{row.category}</TableCell>
                                                 <TableCell align="right" sx={{
-                                                    fontFamily: '"Roboto Mono", monospace',
                                                     color: "#212121"
                                                 }}>{row.t1Value}</TableCell>
                                                 <TableCell align="right" sx={{
-                                                    fontFamily: '"Roboto Mono", monospace',
                                                     color: "#212121"
                                                 }}>{row.t2Value}</TableCell>
                                                 <TableCell>
                                                     <Typography
                                                         sx={{
-                                                            fontFamily: '"Roboto Mono", monospace',
-                                                            fontWeight: 'bold'
+                                                            fontWeight: 600
                                                         }}
                                                         color={textColor}
                                                     >
@@ -275,8 +261,7 @@ const WeeklyMatchupResults = ({
                         onClick={handleCloseWeekDialog}
                         size="small"
                         sx={{
-                            fontFamily: '"Roboto Mono", monospace',
-                            color: "#4a90e2"
+                            color: "#003366"
                         }}
                     >
                         Close

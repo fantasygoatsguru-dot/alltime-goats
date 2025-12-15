@@ -19,9 +19,11 @@ import {
     FormControlLabel,
     Chip,
     Button,
+    Tooltip,
 } from '@mui/material';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
 import { useLeague } from '../contexts/LeagueContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const PUNT_CATEGORIES = [
     { key: 'points_z', label: 'PTS', fullName: 'Points' },
@@ -47,6 +49,7 @@ const Rankings = () => {
     const [orderBy, setOrderBy] = useState('total_value');
     const [order, setOrder] = useState('desc');
     const { userTeamPlayers } = useLeague();
+    const { isAuthenticated } = useAuth();
 
     // Create a Set of user's team player IDs for quick lookup
     const userTeamPlayerIds = useMemo(() => {
@@ -429,7 +432,7 @@ const Rankings = () => {
                         fontSize: '1.25rem',
                     }}
                 >
-                    Player Rankings {CURRENT_SEASON}
+                    Player Rankings 
                 </Typography>
                 
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -475,23 +478,35 @@ const Rankings = () => {
                         </Select>
                     </FormControl>
                     
-                    <Button
-                        variant={showMyTeamOnly ? 'contained' : 'outlined'}
-                        size="small"
-                        onClick={() => setShowMyTeamOnly(!showMyTeamOnly)}
-                        sx={{
-                            textTransform: 'none',
-                            fontSize: '0.875rem',
-                            bgcolor: showMyTeamOnly ? '#0066cc' : 'transparent',
-                            color: showMyTeamOnly ? '#fff' : '#0066cc',
-                            borderColor: '#0066cc',
-                            '&:hover': {
-                                bgcolor: showMyTeamOnly ? '#0052a3' : 'rgba(0, 102, 204, 0.08)',
-                            },
-                        }}
+                    <Tooltip 
+                        title={!isAuthenticated ? "Login to yahoo to load your team" : ""}
+                        arrow
                     >
-                        My Team
-                    </Button>
+                        <span>
+                            <Button
+                                variant={showMyTeamOnly ? 'contained' : 'outlined'}
+                                size="small"
+                                onClick={() => setShowMyTeamOnly(!showMyTeamOnly)}
+                                disabled={!isAuthenticated}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: '0.875rem',
+                                    bgcolor: showMyTeamOnly ? '#0066cc' : 'transparent',
+                                    color: showMyTeamOnly ? '#fff' : '#0066cc',
+                                    borderColor: '#0066cc',
+                                    '&:hover': {
+                                        bgcolor: showMyTeamOnly ? '#0052a3' : 'rgba(0, 102, 204, 0.08)',
+                                    },
+                                    '&.Mui-disabled': {
+                                        borderColor: '#ccc',
+                                        color: '#ccc',
+                                    },
+                                }}
+                            >
+                                My Team
+                            </Button>
+                        </span>
+                    </Tooltip>
                     
                     <Typography variant="body2" sx={{ color: '#666', fontSize: '0.875rem' }}>
                         {selectedPlayers.size} selected

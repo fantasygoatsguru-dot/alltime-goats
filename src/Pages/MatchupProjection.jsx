@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, Alert } from "@mui/material";
+import { Box, Typography, Alert, FormControl, Select, MenuItem, CircularProgress, Tooltip } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
@@ -18,11 +18,13 @@ const MatchupProjection = () => {
     
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
+    const [periodLoading, setPeriodLoading] = useState(false);
     const [error, setError] = useState(null);
     
     const [currentMatchup, setCurrentMatchup] = useState(null);
     const [matchupProjection, setMatchupProjection] = useState(null);
     const [scheduleData, setScheduleData] = useState(null);
+    const [periodType, setPeriodType] = useState('season');
     const [disabledPlayers, setDisabledPlayers] = useState(() => {
         const saved = localStorage.getItem('disabledPlayers');
         return saved ? JSON.parse(saved) : {};
@@ -87,7 +89,6 @@ const MatchupProjection = () => {
     const handlePlayerStatusChange = (playerId, newStatus, dateStr = null) => {
         
         const updatedDisabledPlayers = { ...disabledPlayers };
-        const currentStatus = updatedDisabledPlayers[playerId];
         
         if (newStatus === 'enabled') {
             updatedDisabledPlayers[playerId] = 'enabled';
@@ -321,6 +322,7 @@ const MatchupProjection = () => {
         };
 
         fetchMatchup();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isConnected, selectedLeague, userId, contextMatchup, setContextMatchup]);
 
     // Calculate matchup projection
@@ -420,7 +422,7 @@ const MatchupProjection = () => {
                     .from('player_period_averages')
                     .select('*')
                     .eq('season', CURRENT_SEASON)
-                    .eq('period_type', 'season')
+                    .eq('period_type', periodType)
                     .in('player_id', playerIds);
 
                 if (error) throw error;
@@ -768,20 +770,26 @@ const MatchupProjection = () => {
             
             setMatchupProjection(projectionData);
             setInitialLoading(false);
+            setPeriodLoading(false);
     
         } catch (error) {
             console.error('Error calculating matchup projection:', error);
             setMatchupProjection(null);
             setInitialLoading(false);
+            setPeriodLoading(false);
         }
     };
 
-    // Calculate projection when we have both matchup and schedule
+    // Calculate projection when we have both matchup and schedule, or when period type changes
     useEffect(() => {
-        if (scheduleData && currentMatchup && !matchupProjection) {
-            calculateMatchupProjection(currentMatchup);
+        if (scheduleData && currentMatchup) {
+            setPeriodLoading(true);
+            calculateMatchupProjection(currentMatchup).finally(() => {
+                setPeriodLoading(false);
+            });
         }
-    }, [scheduleData, currentMatchup, matchupProjection]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scheduleData, currentMatchup, periodType]);
 
     if (initialLoading) {
         return (
@@ -818,13 +826,106 @@ const MatchupProjection = () => {
                 showTeamSelectors={false}
             />
 
+            {/* Header with Title, Tooltip, and Period Selector */}
+            {isConnected && currentMatchup && (
+                <Box 
+                    sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between',
+                        mb: 3, 
+                        mt: 2,
+                        pb: 2,
+                        borderBottom: '1px solid #e0e0e0'
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography
+                            variant="h5"
+                            sx={{
+                                fontWeight: 600,
+                                color: '#003366',
+                                fontSize: '1.25rem',
+                            }}
+                        >
+                            Matchup Projection
+                        </Typography>
+                        <Tooltip
+                            title="If players give their average stats for the rest of the week, how will the week end?"
+                            arrow
+                        >
+                            <Box 
+                                sx={{ 
+                                    bgcolor: '#003366', 
+                                    borderRadius: '50%', 
+                                    width: 20, 
+                                    height: 20, 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    cursor: 'help',
+                                    fontSize: '0.75rem',
+                                    color: '#fff',
+                                    fontWeight: 600,
+                                }}
+                            >
+                                i
+                            </Box>
+                        </Tooltip>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
+                            <Select
+                                value={periodType}
+                                onChange={(e) => setPeriodType(e.target.value)}
+                                disabled={periodLoading}
+                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
+                            >
+                                <MenuItem value="season">Full Season</MenuItem>
+                                <MenuItem value="60_days">Last 60 Days</MenuItem>
+                                <MenuItem value="30_days">Last 30 Days</MenuItem>
+                                <MenuItem value="7_days">Last 7 Days</MenuItem>
+                            </Select>
+                        </FormControl>
+                        {periodLoading && (
+                            <CircularProgress size={20} sx={{ color: '#003366' }} />
+                        )}
+                    </Box>
+                </Box>
+            )}
+
             {/* Matchup Projection Tracker */}
-            <MatchupProjectionTracker
-                matchupProjection={matchupProjection}
-                currentMatchup={currentMatchup}
-                onPlayerStatusChange={handlePlayerStatusChange}
-                isConnected={isConnected}
-            />
+            <Box sx={{ position: 'relative' }}>
+                {periodLoading && (
+                    <Box 
+                        sx={{ 
+                            position: 'absolute', 
+                            top: 0, 
+                            left: 0, 
+                            right: 0, 
+                            bottom: 0, 
+                            zIndex: 10,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minHeight: '400px'
+                        }}
+                    >
+                        <Box sx={{ textAlign: 'center' }}>
+                            <CircularProgress size={40} sx={{ color: '#003366', mb: 2 }} />
+                            <Typography sx={{ color: '#003366', fontWeight: 600 }}>
+                                Updating projections...
+                            </Typography>
+                        </Box>
+                    </Box>
+                )}
+                <MatchupProjectionTracker
+                    matchupProjection={matchupProjection}
+                    currentMatchup={currentMatchup}
+                    onPlayerStatusChange={handlePlayerStatusChange}
+                    isConnected={isConnected}
+                />
+            </Box>
         </Box>
     );
 };

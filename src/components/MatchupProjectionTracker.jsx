@@ -11,7 +11,6 @@ import {
     Grid,
     Menu,
     MenuItem,
-    Tooltip,
 } from "@mui/material";
 
 const MatchupProjectionTracker = ({ 
@@ -171,8 +170,8 @@ const MatchupProjectionTracker = ({
                 <Typography
                     variant="h6"
                     sx={{
-                        color: "#424242",
-                        fontFamily: '"Roboto Mono", monospace',
+                        color: "#003366",
+                        fontWeight: 600,
                         mb: 2
                     }}
                 >
@@ -182,7 +181,6 @@ const MatchupProjectionTracker = ({
                     variant="body2"
                     sx={{
                         color: "#666",
-                        fontFamily: '"Roboto Mono", monospace',
                         fontStyle: 'italic'
                     }}
                 >
@@ -196,62 +194,16 @@ const MatchupProjectionTracker = ({
 
     return (
         <>
-            <Box sx={{ mt: 4, p: 2, bgcolor: "#f8f9fa", borderRadius: 1, border: "1px solid rgba(0, 0, 0, 0.12)" }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            fontWeight: "bold",
-                            color: "#4a90e2",
-                            fontFamily: '"Roboto Mono", monospace',
-                        }}
-                    >
-                        Weekly Matchup Projection
-                    </Typography>
-                    <Tooltip
-                        title="If players give their average stats for the rest of the week, how will the week end?"
-                        arrow
-                    >
-                        <Box 
-                            sx={{ 
-                                bgcolor: '#333', 
-                                borderRadius: '50%', 
-                                width: 20, 
-                                height: 20, 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                cursor: 'help',
-                                fontSize: '0.75rem',
-                                color: '#4a90e2',
-                                fontWeight: 'bold',
-                                border: '1px solid #4a90e2'
-                            }}
-                        >
-                            i
-                        </Box>
-                    </Tooltip>
-                </Box>
-                <Typography
-                    variant="body2"
-                    sx={{
-                        mb: 3,
-                        textAlign: "center",
-                        color: "#424242",
-                        fontFamily: '"Roboto Mono", monospace',
-                    }}
-                >
-                    {matchupProjection.weekStart} - {matchupProjection.weekEnd} (Today: {matchupProjection.currentDate})
-                </Typography>
+            <Box sx={{ p: 2, }}>
                 
                 {/* Projected Score Display */}
                 <Box sx={{ textAlign: 'center', mb: 3 }}>
                     <Typography
                         variant="body2"
                         sx={{
-                            color: "#424242",
-                            fontFamily: '"Roboto Mono", monospace',
-                            mb: 1
+                            color: "#666",
+                            mb: 1,
+                            fontWeight: 600
                         }}
                     >
                         PROJECTED FINAL SCORE
@@ -260,8 +212,7 @@ const MatchupProjectionTracker = ({
                         variant="h2"
                         sx={{
                             color: "#212121",
-                            fontFamily: '"Roboto Mono", monospace',
-                            fontWeight: 'bold',
+                            fontWeight: 600,
                             mb: 1
                         }}
                     >
@@ -272,8 +223,7 @@ const MatchupProjectionTracker = ({
                             variant="h6"
                             sx={{
                                 color: "#4CAF50",
-                                fontFamily: '"Roboto Mono", monospace',
-                                fontWeight: 'bold'
+                                fontWeight: 600
                             }}
                         >
                             {matchupProjection.team1.name}
@@ -281,8 +231,7 @@ const MatchupProjectionTracker = ({
                         <Typography
                             variant="h6"
                             sx={{
-                                color: "#424242",
-                                fontFamily: '"Roboto Mono", monospace',
+                                color: "#666",
                             }}
                         >
                             vs
@@ -290,9 +239,8 @@ const MatchupProjectionTracker = ({
                         <Typography
                             variant="h6"
                             sx={{
-                                color: accurateScore.team2Score > accurateScore.team1Score ? "#ff6f61" : accurateScore.team2Score < accurateScore.team1Score ? "#666" : "#b0bec5",
-                                fontFamily: '"Roboto Mono", monospace',
-                                fontWeight: 'bold'
+                                color: accurateScore.team2Score > accurateScore.team1Score ? "#ff6f61" : accurateScore.team2Score < accurateScore.team1Score ? "#666" : "#999",
+                                fontWeight: 600
                             }}
                         >
                             {matchupProjection.team2.name}
@@ -305,13 +253,12 @@ const MatchupProjectionTracker = ({
                     <Table size="small">
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Category</TableCell>
+                                <TableCell sx={{ color: "#666", fontWeight: 600 }}>Category</TableCell>
                                 <TableCell 
                                     align="center" 
                                     sx={{ 
                                         color: "#9c27b0", 
-                                        fontFamily: '"Roboto Mono", monospace', 
-                                        fontWeight: 'bold', 
+                                        fontWeight: 600, 
                                         fontSize: '0.7rem',
                                         bgcolor: 'rgba(156, 39, 176, 0.1)'
                                     }}
@@ -326,22 +273,21 @@ const MatchupProjectionTracker = ({
                                         key={idx} 
                                         align="center" 
                                         sx={{ 
-                                            color: day.isToday ? "#4a90e2" : "#b0bec5", 
-                                            fontFamily: '"Roboto Mono", monospace', 
-                                            fontWeight: 'bold', 
+                                            color: day.isToday ? "#003366" : "#666", 
+                                            fontWeight: 600, 
                                             fontSize: '0.7rem',
-                                            bgcolor: day.isToday ? 'rgba(74, 144, 226, 0.1)' : 'transparent'
+                                            bgcolor: day.isToday ? 'rgba(0, 51, 102, 0.1)' : 'transparent'
                                         }}
                                     >
                                         <Box>{day.dayOfWeek}</Box>
-                                        <Box sx={{ fontSize: '0.65rem', color: day.isToday ? '#4a90e2' : '#888' }}>
+                                        <Box sx={{ fontSize: '0.65rem', color: day.isToday ? '#003366' : '#888' }}>
                                             {day.monthDay}
                                             {day.isToday && ' (Today)'}
                                         </Box>
                                     </TableCell>
                                 ))}
-                                <TableCell align="center" sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Total</TableCell>
-                                <TableCell sx={{ color: "#b0bec5", fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold' }}>Winner</TableCell>
+                                <TableCell align="center" sx={{ color: "#666", fontWeight: 600 }}>Total</TableCell>
+                                <TableCell sx={{ color: "#666", fontWeight: 600 }}>Winner</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -628,7 +574,7 @@ const MatchupProjectionTracker = ({
                                             }}
                                             onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                                         >
-                                            <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: "#212121", fontWeight: 'bold' }}>
+                                            <TableCell sx={{ color: "#212121", fontWeight: 600 }}>
                                                 {catLabels[catKey]} {isExpanded ? '▼' : '▶'}
                                             </TableCell>
                                             <TableCell 
@@ -653,7 +599,7 @@ const MatchupProjectionTracker = ({
                                                     sx={{ 
                                                         fontSize: '0.65rem', 
                                                         py: 0.5,
-                                                        bgcolor: day.isToday ? 'rgba(74, 144, 226, 0.05)' : 'transparent'
+                                                        bgcolor: day.isToday ? 'rgba(0, 51, 102, 0.05)' : 'transparent'
                                                     }}
                                                 >
                                                     {day.isPast ? (
@@ -677,15 +623,15 @@ const MatchupProjectionTracker = ({
                                                 </TableCell>
                                             ))}
                                             <TableCell align="center">
-                                                <Box sx={{ color: "#4CAF50", fontWeight: 'bold' }}>
+                                                <Box sx={{ color: "#4CAF50", fontWeight: 600 }}>
                                                     {team1TotalDisplay}
                                                 </Box>
-                                                <Box sx={{ color: "#ff6f61", fontWeight: 'bold' }}>
+                                                <Box sx={{ color: "#ff6f61", fontWeight: 600 }}>
                                                     {team2TotalDisplay}
                                                 </Box>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 'bold', fontSize: '0.75rem' }} style={{ color: textColor }}>
+                                                <Typography sx={{ fontWeight: 600, fontSize: '0.75rem' }} style={{ color: textColor }}>
                                                     {isWin ? matchupProjection.team1.name.split(' ')[0] : isLoss ? matchupProjection.team2.name.split(' ')[0] : 'TIE'}
                                                 </Typography>
                                             </TableCell>
@@ -700,12 +646,12 @@ const MatchupProjectionTracker = ({
                                                             
                                                             return (
                                                                 <Grid item xs={12} sm={6} md={4} key={idx}>
-                                                                    <Box sx={{ bgcolor: '#ffffff', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #4a90e2' : '1px solid rgba(0, 0, 0, 0.12)' }}>
-                                                                        <Typography variant="caption" sx={{ color: day.isToday ? '#4a90e2' : '#888', fontWeight: 'bold', display: 'block', mb: 1, textAlign: 'center' }}>
+                                                                    <Box sx={{ bgcolor: '#ffffff', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #003366' : '1px solid rgba(0, 0, 0, 0.12)' }}>
+                                                                        <Typography variant="caption" sx={{ color: day.isToday ? '#003366' : '#666', fontWeight: 600, display: 'block', mb: 1, textAlign: 'center' }}>
                                                                             {day.dayOfWeek} {day.monthDay} {day.isToday ? '(Today)' : ''}
                                                                         </Typography>
                                                                         <Box sx={{ mb: 1.5 }}>
-                                                                            <Typography variant="caption" sx={{ color: '#4CAF50', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                                                                            <Typography variant="caption" sx={{ color: '#4CAF50', fontWeight: 600, display: 'block', mb: 0.5 }}>
                                                                                 {matchupProjection.team1.name}
                                                                             </Typography>
                                                                             {day.players.length > 0 ? day.players.map((player, pidx) => {
@@ -752,7 +698,7 @@ const MatchupProjectionTracker = ({
                                                                             )}
                                                                         </Box>
                                                                         <Box>
-                                                                            <Typography variant="caption" sx={{ color: '#ff6f61', fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                                                                            <Typography variant="caption" sx={{ color: '#ff6f61', fontWeight: 600, display: 'block', mb: 0.5 }}>
                                                                                 {matchupProjection.team2.name}
                                                                             </Typography>
                                                                             {team2Day && team2Day.players.length > 0 ? team2Day.players.map((player, pidx) => {
