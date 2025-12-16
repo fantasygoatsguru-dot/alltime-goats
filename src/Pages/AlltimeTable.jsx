@@ -21,8 +21,22 @@ import {
   Grid,
   Avatar,
   CircularProgress,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { fetchFilteredPlayerAverages } from "../api";
+
+const PUNT_CATEGORIES = [
+  { key: 'points_z', label: 'PTS', fullName: 'Points' },
+  { key: 'rebounds_z', label: 'REB', fullName: 'Rebounds' },
+  { key: 'assists_z', label: 'AST', fullName: 'Assists' },
+  { key: 'steals_z', label: 'STL', fullName: 'Steals' },
+  { key: 'blocks_z', label: 'BLK', fullName: 'Blocks' },
+  { key: 'three_pointers_z', label: '3PM', fullName: 'Three Pointers' },
+  { key: 'field_goal_percentage_z', label: 'FG%', fullName: 'Field Goal %' },
+  { key: 'free_throw_percentage_z', label: 'FT%', fullName: 'Free Throw %' },
+  { key: 'turnovers_z', label: 'TO', fullName: 'Turnovers' },
+];
 
 const AlltimeTable = () => {
   const [loading, setLoading] = useState(false);
@@ -32,8 +46,10 @@ const AlltimeTable = () => {
   const [filterOperator, setFilterOperator] = useState("=");
   const [filterNumericValue, setFilterNumericValue] = useState("");
   const [filters, setFilters] = useState([]);
-  const [sortColumn, setSortColumn] = useState("");
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortColumn, setSortColumn] = useState("total_value");
+  const [sortDirection, setSortDirection] = useState("desc");
+  const [puntedCategories, setPuntedCategories] = useState([]);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Generate seasons from 1960-61 to 2023-24
   const seasons = Array.from({ length: 2024 - 1960 }, (_, i) => {
@@ -194,16 +210,78 @@ const AlltimeTable = () => {
     }
   }, [sortColumn, sortDirection]);
 
+  // Calculate adjusted players based on punted categories
+  const adjustedPlayers = useMemo(() => {
+    if (playerStats.length === 0) return [];
+
+    if (puntedCategories.length === 0) {
+      return playerStats.map((p, idx) => ({
+        ...p,
+        originalRank: idx + 1,
+        adjustedTotalValue: p.stats?.total_value || 0,
+        adjustedRank: idx + 1,
+        rankChange: 0,
+        valueChange: 0,
+      }));
+    }
+
+    // Recalculate total_value excluding punted categories
+    const allCategories = PUNT_CATEGORIES.map(c => c.key);
+    const includedCategories = allCategories.filter(c => !puntedCategories.includes(c));
+    const n = includedCategories.length;
+    const sqrtN = Math.sqrt(n);
+
+    const playersWithAdjusted = playerStats.map((player, idx) => {
+      const sum = includedCategories.reduce((acc, cat) => acc + (player.stats?.[cat] || 0), 0);
+      const adjustedTotalValue = sum / sqrtN;
+
+      return {
+        ...player,
+        originalRank: idx + 1,
+        adjustedTotalValue: Number(adjustedTotalValue.toFixed(2)),
+        valueChange: Number((adjustedTotalValue - (player.stats?.total_value || 0)).toFixed(2)),
+      };
+    });
+
+    // Sort by adjusted total value
+    const sorted = [...playersWithAdjusted].sort((a, b) => b.adjustedTotalValue - a.adjustedTotalValue);
+
+    // Calculate adjusted rank and rank change
+    return sorted.map((player, idx) => ({
+      ...player,
+      adjustedRank: idx + 1,
+      rankChange: player.originalRank - (idx + 1),
+    }));
+  }, [playerStats, puntedCategories]);
+
   // Memoize sorted stats
   const sortedPlayerStats = useMemo(() => {
-    if (playerStats.length === 0) return [];
+    if (adjustedPlayers.length === 0) return [];
     
-    let sortedStats = [...playerStats];
+    let sortedStats = [...adjustedPlayers];
     
     if (sortColumn && sortDirection) {
       sortedStats.sort((a, b) => {
         let valueA, valueB;
-        if (
+        
+        // Handle special columns for punting
+        if (sortColumn === 'total_value' && puntedCategories.length > 0) {
+          valueA = a.adjustedTotalValue || 0;
+          valueB = b.adjustedTotalValue || 0;
+          return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+        } else if (sortColumn === 'adjustedTotalValue') {
+          valueA = a.adjustedTotalValue || 0;
+          valueB = b.adjustedTotalValue || 0;
+          return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+        } else if (sortColumn === 'valueChange') {
+          valueA = a.valueChange || 0;
+          valueB = b.valueChange || 0;
+          return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+        } else if (sortColumn === 'rankChange') {
+          valueA = a.rankChange || 0;
+          valueB = b.rankChange || 0;
+          return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+        } else if (
           ["playerName", "season", "teamName", "nationality", "height"].includes(sortColumn)
         ) {
           valueA = a[sortColumn] || "";
@@ -216,15 +294,15 @@ const AlltimeTable = () => {
           valueB = b[sortColumn] || 0;
           return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
         } else {
-          valueA = a.stats[sortColumn] || 0;
-          valueB = b.stats[sortColumn] || 0;
+          valueA = a.stats?.[sortColumn] || 0;
+          valueB = b.stats?.[sortColumn] || 0;
           return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
         }
       });
     }
     
     return sortedStats;
-  }, [playerStats, sortColumn, sortDirection]);
+  }, [adjustedPlayers, sortColumn, sortDirection, puntedCategories.length]);
 
   // Translate numeric season comparison to season list
   // Input year represents the END year of the season (e.g., 2020 means 2019-20 season)
@@ -382,26 +460,112 @@ const AlltimeTable = () => {
     setFilterNumericValue("");
   };
 
-  return (
-    <Box sx={{ p: 3, background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)", minHeight: "100vh" }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={9}>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography
-              variant="h5"
-              sx={{
-                mb: 3,
-                color: "#212121",
-                fontWeight: 500,
-                letterSpacing: 1,
-                textTransform: "uppercase",
-              }}
-            >
-              Player Statistics
-            </Typography>
+  // Handle punt toggle
+  const handlePuntToggle = (categoryKey) => {
+    setPuntedCategories(prev => {
+      if (prev.includes(categoryKey)) {
+        return prev.filter(c => c !== categoryKey);
+      } else {
+        return [...prev, categoryKey];
+      }
+    });
+  };
 
-            {/* Filter Builder */}
-            <Box sx={{ display: "flex", gap: 2, mb: 3, alignItems: "center", flexWrap: "wrap" }}>
+  return (
+    <Box
+      sx={{
+        p: 2,
+        minHeight: '100vh',
+        bgcolor: '#f5f5f5',
+      }}
+    >
+      {/* Header Bar */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 2,
+        pb: 2,
+        borderBottom: '2px solid #ddd',
+        flexWrap: 'wrap',
+        gap: 2,
+      }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            color: '#003366',
+            fontSize: '1.25rem',
+          }}
+        >
+          All-Time Player Statistics
+        </Typography>
+      </Box>
+
+      {/* Punt Categories and Advanced Filters */}
+      <Box
+        sx={{
+          mb: 2,
+          p: 1.5,
+          bgcolor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: 1,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap', mb: puntedCategories.length > 0 ? 1 : 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flex: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', minWidth: '100px' }}>
+              Punt Categories:
+            </Typography>
+            {PUNT_CATEGORIES.map((cat) => (
+              <FormControlLabel
+                key={cat.key}
+                control={
+                  <Checkbox
+                    checked={puntedCategories.includes(cat.key)}
+                    onChange={() => handlePuntToggle(cat.key)}
+                    size="small"
+                    sx={{
+                      '&.Mui-checked': {
+                        color: '#0066cc',
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                    {cat.label}
+                  </Typography>
+                }
+                sx={{ m: 0 }}
+              />
+            ))}
+          </Box>
+          
+          <Button
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 600,
+              color: '#003366',
+              fontSize: '0.875rem',
+              minWidth: 'fit-content',
+            }}
+          >
+            {showAdvancedFilters ? '▼' : '►'} Advanced Filters
+          </Button>
+        </Box>
+        
+        {puntedCategories.length > 0 && (
+          <Typography variant="caption" sx={{ display: 'block', mb: showAdvancedFilters ? 1 : 0, color: '#666', fontSize: '0.75rem' }}>
+            Excluding: {PUNT_CATEGORIES.filter(c => puntedCategories.includes(c.key)).map(c => c.label).join(', ')}
+          </Typography>
+        )}
+
+        {showAdvancedFilters && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap", marginTop: 2 }}>
               <Autocomplete
                 options={filterTypes}
                 getOptionLabel={(option) => option?.label || "Select filter type"}
@@ -413,14 +577,15 @@ const AlltimeTable = () => {
                     label="Filter Type"
                     placeholder="Select filter type"
                     variant="outlined"
+                    size="small"
                     sx={{
                       width: 200,
-                      backgroundColor: "#ffffff",
-                    "& .MuiInputBase-input": { color: "#212121" },
-                    "& .MuiInputLabel-root": { color: "#424242" },
+                      backgroundColor: "#fff",
+                      "& .MuiInputBase-input": { color: "#000", fontSize: '0.875rem' },
+                      "& .MuiInputLabel-root": { color: '#666', fontSize: '0.875rem' },
                       "& .MuiOutlinedInput-root": {
-                        "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#1976d2" },
+                        "& fieldset": { borderColor: "#ddd" },
+                        "&:hover fieldset": { borderColor: "#0066cc" },
                       },
                     }}
                   />
@@ -430,21 +595,22 @@ const AlltimeTable = () => {
 
               {(filterType?.isNumeric || filterType?.isHeight) ? (
                 <>
-                  <FormControl sx={{ width: 100 }}>
-                    <InputLabel sx={{ color: "#424242" }}>Operator</InputLabel>
+                  <FormControl size="small" sx={{ width: 100 }}>
+                    <InputLabel sx={{ color: '#666', fontSize: '0.875rem' }}>Operator</InputLabel>
                     <Select
                       value={filterOperator}
                       onChange={(e) => setFilterOperator(e.target.value)}
                       sx={{
-                        backgroundColor: "#ffffff",
-                        color: "#212121",
-                        "& .MuiSvgIcon-root": { color: "#424242" },
-                        "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#1976d2" },
+                        backgroundColor: "#fff",
+                        color: "#000",
+                        fontSize: '0.875rem',
+                        "& .MuiSvgIcon-root": { color: '#666' },
+                        "& fieldset": { borderColor: "#ddd" },
+                        "&:hover fieldset": { borderColor: "#0066cc" },
                       }}
                     >
                       {operators.map((op) => (
-                        <MenuItem key={op.value} value={op.value}>
+                        <MenuItem key={op.value} value={op.value} sx={{ fontSize: '0.875rem' }}>
                           {op.label}
                         </MenuItem>
                       ))}
@@ -457,6 +623,7 @@ const AlltimeTable = () => {
                     onChange={(e) => setFilterNumericValue(e.target.value)}
                     type={filterType.isHeight ? "text" : "number"}
                     variant="outlined"
+                    size="small"
                     inputProps={
                       filterType.key === "season"
                         ? { min: 1960, max: 2023 }
@@ -466,12 +633,12 @@ const AlltimeTable = () => {
                     }
                     sx={{
                       width: 150,
-                      backgroundColor: "#ffffff",
-                    "& .MuiInputBase-input": { color: "#212121" },
-                    "& .MuiInputLabel-root": { color: "#424242" },
+                      backgroundColor: "#fff",
+                      "& .MuiInputBase-input": { color: "#000", fontSize: '0.875rem' },
+                      "& .MuiInputLabel-root": { color: '#666', fontSize: '0.875rem' },
                       "& .MuiOutlinedInput-root": {
-                        "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#1976d2" },
+                        "& fieldset": { borderColor: "#ddd" },
+                        "&:hover fieldset": { borderColor: "#0066cc" },
                       },
                     }}
                   />
@@ -490,14 +657,15 @@ const AlltimeTable = () => {
                       label="Filter Value"
                       placeholder={filterType ? "Select value" : "Select filter type first"}
                       variant="outlined"
+                      size="small"
                       sx={{
                         width: 250,
-                        backgroundColor: "#ffffff",
-                    "& .MuiInputBase-input": { color: "#212121" },
-                    "& .MuiInputLabel-root": { color: "#424242" },
+                        backgroundColor: "#fff",
+                        "& .MuiInputBase-input": { color: "#000", fontSize: '0.875rem' },
+                        "& .MuiInputLabel-root": { color: '#666', fontSize: '0.875rem' },
                         "& .MuiOutlinedInput-root": {
-                          "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                          "&:hover fieldset": { borderColor: "#1976d2" },
+                          "& fieldset": { borderColor: "#ddd" },
+                          "&:hover fieldset": { borderColor: "#0066cc" },
                         },
                       }}
                     />
@@ -508,14 +676,16 @@ const AlltimeTable = () => {
 
               <Button
                 variant="contained"
+                size="small"
                 onClick={handleAddFilter}
                 disabled={!filterType || (!filterValue?.length && !filterNumericValue)}
                 sx={{
-                backgroundColor: "#1976d2",
-                color: "#ffffff",
-                "&:hover": { backgroundColor: "#1565c0" },
+                  backgroundColor: "#0066cc",
+                  color: "#fff",
+                  "&:hover": { backgroundColor: "#0052a3" },
                   textTransform: "none",
                   fontWeight: 500,
+                  fontSize: '0.875rem',
                 }}
               >
                 Add Filter
@@ -523,393 +693,326 @@ const AlltimeTable = () => {
 
               <Button
                 variant="outlined"
+                size="small"
                 onClick={handleClearFilters}
                 sx={{
-                color: "#424242",
-                borderColor: "rgba(0, 0, 0, 0.12)",
-                "&:hover": { borderColor: "#1976d2", backgroundColor: "rgba(25, 118, 210, 0.04)" },
+                  color: '#666',
+                  borderColor: "#ddd",
+                  "&:hover": { borderColor: "#0066cc", backgroundColor: "rgba(0, 102, 204, 0.04)" },
                   textTransform: "none",
                   fontWeight: 500,
+                  fontSize: '0.875rem',
                 }}
               >
                 Clear Filters
               </Button>
             </Box>
-          </Box>
-        </Grid>
-        {/* <Grid item xs={12} md={3}>
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center',
-            gap: 1,
-            height: '100%'
-          }}>
-            <Typography
-              variant="h6"
-              sx={{
-                color: "#212121",
-                fontWeight: 500,
-                letterSpacing: 1,
-                textTransform: "uppercase",
-                mb: 2
-              }}
-            >
-              Top Players
-            </Typography>
-            <Box sx={{ 
-              position: 'relative',
-              height: '120px',
-              width: '300px',
-              margin: '0 auto'
-            }}>
-              {                             
-              topPlayers.map((player, index) => {
-                // Construct the player ID in basketball-reference format
-                const [firstName, lastName] = player.playerName.split(' ');
-                const normalizedLastName = normalizeName(lastName);
-                const normalizedFirstName = normalizeName(firstName);
-                const formattedId = `${normalizedLastName.substring(0, 5)}${normalizedFirstName.substring(0, 2)}01`;
-                const avatarUrl = `https://www.basketball-reference.com/req/202106291/images/headshots/${formattedId}.jpg`;
-                
-                // More detailed logging
-                console.log('Player:', {
-                  name: player.playerName,
-                  firstName,
-                  lastName,
-                  normalizedFirstName,
-                  normalizedLastName,
-                  formattedId,
-                  avatarUrl
-                });
-
-                return (
-                  <Box 
-                    key={`${player.playerId}-${index}`}
-                    sx={{ 
-                      position: 'absolute',
-                      left: `${index * 60}px`,
-                      zIndex: topPlayers.length - index,
-                      transition: 'transform 0.2s',
-                      '&:hover': {
-                        transform: 'translateY(-10px)',
-                        zIndex: topPlayers.length + 1
-                      }
-                    }}
-                  >
-                    <Box sx={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      alignItems: 'center',
-                      width: '80px'
-                    }}>
-                      <Avatar
-                        src={avatarUrl}
-                        onError={(e) => {
-                          console.log('Avatar load error:', {
-                            player: player.playerName,
-                            url: avatarUrl,
-                            error: e
-                          });
-                          // Try alternative URL format
-                          const altUrl = `https://www.basketball-reference.com/req/202106291/images/players/${formattedId}.jpg`;
-                          console.log('Trying alternative URL:', altUrl);
-                          e.target.src = altUrl;
-                        }}
-                        onLoad={() => {
-                          console.log('Avatar loaded successfully:', {
-                            player: player.playerName,
-                            url: avatarUrl
-                          });
-                        }}
-                        sx={{ 
-                          width: 80, 
-                          height: 80,
-                          border: '2px solid #424242',
-                          '&:hover': {
-                            border: '2px solid #616161',
-                          }
-                        }}
-                      />
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "#212121",
-                          mt: 0.5,
-                          textAlign: 'center',
-                          maxWidth: '100%',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                          padding: '2px 4px',
-                          borderRadius: '4px'
-                        }}
-                      >
-                        {player.playerName}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: "#B0B0B0",
-                          textAlign: 'center',
-                          maxWidth: '100%',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {player.teamName} | {player.position}
-                      </Typography>
-                    </Box>
-                  </Box>
-                );
-              })}
+            {/* Display Applied Filters */}
+            <Box sx={{ mt: 2 }}>
+              {filters.map((filter, index) => (
+                <Chip
+                  key={index}
+                  label={filter.label}
+                  onDelete={() => handleDeleteFilter(index)}
+                  size="small"
+                  sx={{
+                    mr: 1,
+                    mb: 1,
+                    backgroundColor: "#fff",
+                    color: "#000",
+                    border: "1px solid #ddd",
+                    fontSize: '0.75rem',
+                  }}
+                />
+              ))}
             </Box>
           </Box>
-        </Grid> */}
-      </Grid>
+        )}
+      </Box>
 
-              {/* Display Applied Filters */}
-              <Box sx={{ mb: 3 }}>
-                {filters.map((filter, index) => (
-                  <Chip
-                    key={index}
-                    label={filter.label}
-                    onDelete={() => handleDeleteFilter(index)}
-                    sx={{
-                      mr: 1,
-                      mb: 1,
-                      backgroundColor: "#ffffff",
-                      color: "#212121",
-                      border: "1px solid rgba(0, 0, 0, 0.12)",
-                    }}
-                  />
-                ))}
-              </Box>
-
-              {/* Table */}
-      <TableContainer
-        component={Paper}
-        sx={{ backgroundColor: "#f5f5f5", border: "1px solid rgba(0, 0, 0, 0.12)" }}
+      {/* Table */}
+      <Box
+        sx={{
+          bgcolor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: 1,
+          overflow: 'hidden',
+        }}
       >
-        <Table sx={{ minWidth: 650 }}>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#ffffff" }}>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                  width: "50px",
-                }}
-                align="center"
-              >
-                #
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "playerName"}
-                  direction={sortColumn === "playerName" ? sortDirection : "asc"}
-                  onClick={() => handleSort("playerName")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+        <TableContainer
+          sx={{
+            maxHeight: '75vh',
+          }}
+        >
+          <Table size="small" stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                    width: 50,
+                  }}
+                  align="center"
                 >
-                  Player
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "season"}
-                  direction={sortColumn === "season" ? sortDirection : "asc"}
-                  onClick={() => handleSort("season")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                  #
+                </TableCell>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
                 >
-                  Season
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "position"}
-                  direction={sortColumn === "position" ? sortDirection : "asc"}
-                  onClick={() => handleSort("position")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                  <TableSortLabel
+                    active={sortColumn === "playerName"}
+                    direction={sortColumn === "playerName" ? sortDirection : "asc"}
+                    onClick={() => handleSort("playerName")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': {
+                        color: '#fff !important',
+                      },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Player
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
                 >
-                  Position
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "teamName"}
-                  direction={sortColumn === "teamName" ? sortDirection : "asc"}
-                  onClick={() => handleSort("teamName")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                  <TableSortLabel
+                    active={sortColumn === "season"}
+                    direction={sortColumn === "season" ? sortDirection : "asc"}
+                    onClick={() => handleSort("season")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Season
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
                 >
-                  Team
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "nationality"}
-                  direction={sortColumn === "nationality" ? sortDirection : "asc"}
-                  onClick={() => handleSort("nationality")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                  <TableSortLabel
+                    active={sortColumn === "position"}
+                    direction={sortColumn === "position" ? sortDirection : "asc"}
+                    onClick={() => handleSort("position")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Position
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
                 >
-                  Nationality
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "height"}
-                  direction={sortColumn === "height" ? sortDirection : "asc"}
-                  onClick={() => handleSort("height")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                  <TableSortLabel
+                    active={sortColumn === "teamName"}
+                    direction={sortColumn === "teamName" ? sortDirection : "asc"}
+                    onClick={() => handleSort("teamName")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Team
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
                 >
-                  Height
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "seasonExperience"}
-                  direction={sortColumn === "seasonExperience" ? sortDirection : "asc"}
-                  onClick={() => handleSort("seasonExperience")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                  <TableSortLabel
+                    active={sortColumn === "nationality"}
+                    direction={sortColumn === "nationality" ? sortDirection : "asc"}
+                    onClick={() => handleSort("nationality")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Nationality
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
                 >
-                  Exp
-                </TableSortLabel>
-              </TableCell>
+                  <TableSortLabel
+                    active={sortColumn === "height"}
+                    direction={sortColumn === "height" ? sortDirection : "asc"}
+                    onClick={() => handleSort("height")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Height
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
+                >
+                  <TableSortLabel
+                    active={sortColumn === "seasonExperience"}
+                    direction={sortColumn === "seasonExperience" ? sortDirection : "asc"}
+                    onClick={() => handleSort("seasonExperience")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Exp
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
+                >
+                  <TableSortLabel
+                    active={sortColumn === "points"}
+                    direction={sortColumn === "points" ? sortDirection : "asc"}
+                    onClick={() => handleSort("points")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Points
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
+                  }}
+                >
+                  <TableSortLabel
+                    active={sortColumn === "rebounds"}
+                    direction={sortColumn === "rebounds" ? sortDirection : "asc"}
+                    onClick={() => handleSort("rebounds")}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
+                  >
+                    Rebounds
+                  </TableSortLabel>
+                </TableCell>
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "points"}
-                  direction={sortColumn === "points" ? sortDirection : "asc"}
-                  onClick={() => handleSort("points")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
-                >
-                  Points
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
-                }}
-              >
-                <TableSortLabel
-                  active={sortColumn === "rebounds"}
-                  direction={sortColumn === "rebounds" ? sortDirection : "asc"}
-                  onClick={() => handleSort("rebounds")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
-                >
-                  Rebounds
-                </TableSortLabel>
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "assists"}
                   direction={sortColumn === "assists" ? sortDirection : "asc"}
                   onClick={() => handleSort("assists")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Assists
                 </TableSortLabel>
@@ -917,20 +1020,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "steals"}
                   direction={sortColumn === "steals" ? sortDirection : "asc"}
                   onClick={() => handleSort("steals")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Steals
                 </TableSortLabel>
@@ -938,20 +1046,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "blocks"}
                   direction={sortColumn === "blocks" ? sortDirection : "asc"}
                   onClick={() => handleSort("blocks")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Blocks
                 </TableSortLabel>
@@ -959,20 +1072,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "field_goal_percentage"}
                   direction={sortColumn === "field_goal_percentage" ? sortDirection : "asc"}
                   onClick={() => handleSort("field_goal_percentage")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   FG%
                 </TableSortLabel>
@@ -980,20 +1098,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "free_throw_percentage"}
                   direction={sortColumn === "free_throw_percentage" ? sortDirection : "asc"}
                   onClick={() => handleSort("free_throw_percentage")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   FT%
                 </TableSortLabel>
@@ -1001,20 +1124,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "three_pointers"}
                   direction={sortColumn === "three_pointers" ? sortDirection : "asc"}
                   onClick={() => handleSort("three_pointers")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   3PT
                 </TableSortLabel>
@@ -1022,20 +1150,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "points_z"}
                   direction={sortColumn === "points_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("points_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Points Z
                 </TableSortLabel>
@@ -1043,20 +1176,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "rebounds_z"}
                   direction={sortColumn === "rebounds_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("rebounds_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Reb Z
                 </TableSortLabel>
@@ -1064,20 +1202,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "assists_z"}
                   direction={sortColumn === "assists_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("assists_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Ast Z
                 </TableSortLabel>
@@ -1085,20 +1228,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "steals_z"}
                   direction={sortColumn === "steals_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("steals_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Stl Z
                 </TableSortLabel>
@@ -1106,20 +1254,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "blocks_z"}
                   direction={sortColumn === "blocks_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("blocks_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Blk Z
                 </TableSortLabel>
@@ -1127,20 +1280,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "field_goal_percentage_z"}
                   direction={sortColumn === "field_goal_percentage_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("field_goal_percentage_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   FG% Z
                 </TableSortLabel>
@@ -1148,20 +1306,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "free_throw_percentage_z"}
                   direction={sortColumn === "free_throw_percentage_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("free_throw_percentage_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   FT% Z
                 </TableSortLabel>
@@ -1169,20 +1332,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "turnovers"}
                   direction={sortColumn === "turnovers" ? sortDirection : "asc"}
                   onClick={() => handleSort("turnovers")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   TOV
                 </TableSortLabel>
@@ -1190,20 +1358,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "turnovers_z"}
                   direction={sortColumn === "turnovers_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("turnovers_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   TOV Z
                 </TableSortLabel>
@@ -1211,20 +1384,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "three_pointers_z"}
                   direction={sortColumn === "three_pointers_z" ? sortDirection : "asc"}
                   onClick={() => handleSort("three_pointers_z")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   3PT Z
                 </TableSortLabel>
@@ -1232,20 +1410,25 @@ const AlltimeTable = () => {
               <TableCell
                 align="right"
                 sx={{
-                  color: "#212121",
-                  borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  fontSize: "0.9rem",
-                  p: 1,
+                    bgcolor: '#003366',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    py: 1,
+                    px: 0.5,
+                    borderBottom: '1px solid #ddd',
                 }}
               >
                 <TableSortLabel
                   active={sortColumn === "total_value"}
                   direction={sortColumn === "total_value" ? sortDirection : "asc"}
                   onClick={() => handleSort("total_value")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                    sx={{
+                      color: '#fff !important',
+                      '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                      '&:hover': { color: '#fff' },
+                      '&.Mui-active': { color: '#fff' },
+                    }}
                 >
                   Total Val
                 </TableSortLabel>
@@ -1256,45 +1439,54 @@ const AlltimeTable = () => {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={27} align="center" sx={{ py: 4 }}>
-                      <CircularProgress sx={{ color: "#1976d2" }} />
-                      <Typography sx={{ mt: 2, color: "#424242" }}>
+                  <CircularProgress sx={{ color: '#0066cc' }} />
+                  <Typography sx={{ mt: 2, color: '#666', fontSize: '0.875rem' }}>
                     Loading player statistics...
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : sortedPlayerStats.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={27} align="center" sx={{ py: 4, color: "#424242" }}>
+                <TableCell colSpan={27} align="center" sx={{ py: 4, color: '#666', fontSize: '0.875rem' }}>
                   No players found. Try adjusting your filters.
                 </TableCell>
               </TableRow>
             ) : (
-              sortedPlayerStats.map((stat, index) => (
-              <TableRow
-                key={index}
-                sx={{
-                  "&:hover": { backgroundColor: "#f5f5f5" },
-                  borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                }}
-              >
-                <TableCell
-                  align="center"
+              sortedPlayerStats.map((stat, index) => {
+                const isPunted = puntedCategories.length > 0;
+                const displayRank = isPunted ? stat.adjustedRank : (index + 1);
+                const displayValue = isPunted ? stat.adjustedTotalValue : (stat.stats?.total_value || 0);
+                
+                return (
+                <TableRow
+                  key={index}
                   sx={{
-                    color: "#1976d2",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
-                    fontWeight: 700,
+                    bgcolor: index % 2 === 0 ? '#fff' : '#f9f9f9',
+                    '&:hover': {
+                      bgcolor: 'rgba(0, 0, 0, 0.03)',
+                    },
                   }}
                 >
-                  {index + 1}
-                </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: '#0066cc',
+                      py: 0.75,
+                      px: 0.5,
+                      fontSize: '0.75rem',
+                      borderBottom: '1px solid #eee',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {displayRank}
+                  </TableCell>
                 <TableCell
                   sx={{
-                    color: "#212121",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
+                    color: '#000',
+                    py: 0.75,
+                    px: 0.5,
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1322,60 +1514,66 @@ const AlltimeTable = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#212121",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
+                    color: '#000',
+                    py: 0.75,
+                    px: 0.5,
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {stat.season}
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#212121",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
+                    color: '#000',
+                    py: 0.75,
+                    px: 0.5,
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {stat.position}
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#212121",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
+                    color: '#000',
+                    py: 0.75,
+                    px: 0.5,
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {stat.teamName}
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#212121",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
+                    color: '#000',
+                    py: 0.75,
+                    px: 0.5,
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {stat.nationality}
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#212121",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
+                    color: '#000',
+                    py: 0.75,
+                    px: 0.5,
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {stat.height}
                 </TableCell>
                 <TableCell
                   sx={{
-                    color: "#212121",
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
-                    fontSize: "0.85rem",
+                    color: '#000',
+                    py: 0.75,
+                    px: 0.5,
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {stat.seasonExperience}
@@ -1383,12 +1581,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.points_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.points_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('points_z') ? '#f5f5f5' : getColorForValue(stat.stats?.points_z || 0),
+                    color: puntedCategories.includes('points_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.points_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.points)}
@@ -1396,12 +1595,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.rebounds_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.rebounds_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('rebounds_z') ? '#f5f5f5' : getColorForValue(stat.stats?.rebounds_z || 0),
+                    color: puntedCategories.includes('rebounds_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.rebounds_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.rebounds)}
@@ -1409,12 +1609,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.assists_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.assists_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('assists_z') ? '#f5f5f5' : getColorForValue(stat.stats?.assists_z || 0),
+                    color: puntedCategories.includes('assists_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.assists_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.assists)}
@@ -1422,12 +1623,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.steals_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.steals_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('steals_z') ? '#f5f5f5' : getColorForValue(stat.stats?.steals_z || 0),
+                    color: puntedCategories.includes('steals_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.steals_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.steals)}
@@ -1435,12 +1637,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.blocks_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.blocks_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('blocks_z') ? '#f5f5f5' : getColorForValue(stat.stats?.blocks_z || 0),
+                    color: puntedCategories.includes('blocks_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.blocks_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.blocks)}
@@ -1448,12 +1651,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.field_goal_percentage_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('field_goal_percentage_z') ? '#f5f5f5' : getColorForValue(stat.stats?.field_goal_percentage_z || 0),
+                    color: puntedCategories.includes('field_goal_percentage_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.field_goal_percentage_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatPercentage(stat.stats?.field_goal_percentage)}
@@ -1461,12 +1665,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.free_throw_percentage_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('free_throw_percentage_z') ? '#f5f5f5' : getColorForValue(stat.stats?.free_throw_percentage_z || 0),
+                    color: puntedCategories.includes('free_throw_percentage_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.free_throw_percentage_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatPercentage(stat.stats?.free_throw_percentage)}
@@ -1474,12 +1679,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.three_pointers_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.three_pointers_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('three_pointers_z') ? '#f5f5f5' : getColorForValue(stat.stats?.three_pointers_z || 0),
+                    color: puntedCategories.includes('three_pointers_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.three_pointers_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.three_pointers)}
@@ -1487,12 +1693,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.points_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.points_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('points_z') ? '#f5f5f5' : getColorForValue(stat.stats?.points_z || 0),
+                    color: puntedCategories.includes('points_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.points_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.points_z, 2)}
@@ -1500,12 +1707,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.rebounds_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.rebounds_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('rebounds_z') ? '#f5f5f5' : getColorForValue(stat.stats?.rebounds_z || 0),
+                    color: puntedCategories.includes('rebounds_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.rebounds_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.rebounds_z, 2)}
@@ -1513,12 +1721,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.assists_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.assists_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('assists_z') ? '#f5f5f5' : getColorForValue(stat.stats?.assists_z || 0),
+                    color: puntedCategories.includes('assists_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.assists_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.assists_z, 2)}
@@ -1526,12 +1735,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.steals_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.steals_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('steals_z') ? '#f5f5f5' : getColorForValue(stat.stats?.steals_z || 0),
+                    color: puntedCategories.includes('steals_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.steals_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.steals_z, 2)}
@@ -1539,12 +1749,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.blocks_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.blocks_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('blocks_z') ? '#f5f5f5' : getColorForValue(stat.stats?.blocks_z || 0),
+                    color: puntedCategories.includes('blocks_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.blocks_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.blocks_z, 2)}
@@ -1552,12 +1763,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.field_goal_percentage_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.field_goal_percentage_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('field_goal_percentage_z') ? '#f5f5f5' : getColorForValue(stat.stats?.field_goal_percentage_z || 0),
+                    color: puntedCategories.includes('field_goal_percentage_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.field_goal_percentage_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.field_goal_percentage_z, 2)}
@@ -1565,12 +1777,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.free_throw_percentage_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.free_throw_percentage_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('free_throw_percentage_z') ? '#f5f5f5' : getColorForValue(stat.stats?.free_throw_percentage_z || 0),
+                    color: puntedCategories.includes('free_throw_percentage_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.free_throw_percentage_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.free_throw_percentage_z, 2)}
@@ -1578,12 +1791,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.turnovers_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.turnovers_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('turnovers_z') ? '#f5f5f5' : getColorForValue(stat.stats?.turnovers_z || 0),
+                    color: puntedCategories.includes('turnovers_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.turnovers_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.turnovers)}
@@ -1591,12 +1805,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.turnovers_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.turnovers_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('turnovers_z') ? '#f5f5f5' : getColorForValue(stat.stats?.turnovers_z || 0),
+                    color: puntedCategories.includes('turnovers_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.turnovers_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.turnovers_z, 2)}
@@ -1604,12 +1819,13 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.three_pointers_z || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.three_pointers_z || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: puntedCategories.includes('three_pointers_z') ? '#f5f5f5' : getColorForValue(stat.stats?.three_pointers_z || 0),
+                    color: puntedCategories.includes('three_pointers_z') ? '#999' : getTextColor(getColorForValue(stat.stats?.three_pointers_z || 0)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
                   {formatNumber(stat.stats?.three_pointers_z, 2)}
@@ -1617,23 +1833,26 @@ const AlltimeTable = () => {
                 <TableCell
                   align="right"
                   sx={{
-                    bgcolor: getColorForValue(stat.stats?.total_value || 0),
-                    color: getTextColor(getColorForValue(stat.stats?.total_value || 0)),
-                    borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                    p: 1,
+                    bgcolor: getColorForValue(displayValue),
+                    color: getTextColor(getColorForValue(displayValue)),
+                    py: 0.75,
+                    px: 0.5,
                     fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: '0.75rem',
+                    borderBottom: '1px solid #eee',
                   }}
                 >
-                  {formatNumber(stat.stats?.total_value, 2)}
+                  {formatNumber(displayValue, 2)}
                 </TableCell>
               </TableRow>
-              ))
+              );
+              })
             )}
           </TableBody>
         </Table>
       </TableContainer>
     </Box>
+  </Box>
   );
 };
 
