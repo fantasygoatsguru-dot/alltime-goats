@@ -319,9 +319,10 @@ const AlltimeLayout = () => {
   ];
 
   const alltimeSubmenu = [
-    { path: '/teams', label: 'Alltime Teams', icon: <TeamsIcon />, requiresAuth: false },
-    { path: '/seasons', label: 'Alltime Seasons', icon: <SeasonsIcon />, requiresAuth: false },
     { path: '/games', label: 'Alltime Games', icon: <GamesIcon />, requiresAuth: false },
+    { path: '/seasons', label: 'Alltime Seasons', icon: <SeasonsIcon />, requiresAuth: false },
+    { path: '/teams', label: 'Alltime Teams', icon: <TeamsIcon />, requiresAuth: false },
+
   ];
 
   
@@ -653,7 +654,7 @@ const AlltimeLayout = () => {
                   '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/my-team' },
                   '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/rankings' },
                   '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/nba-regular-season' },
-                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: handleAlltimeClose, defaultPath: '/teams' },
+                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: handleAlltimeClose, defaultPath: '/games' },
                 };
 
                 const config = submenuMap[item.path];
