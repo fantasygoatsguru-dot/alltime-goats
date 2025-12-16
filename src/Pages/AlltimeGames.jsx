@@ -22,10 +22,25 @@ import {
   Avatar,
   CircularProgress,
   TablePagination,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { fetchAllPlayers, fetchFilteredPlayerGameStats } from "../api";
 
+const PUNT_CATEGORIES = [
+  { key: 'points', label: 'PTS', fullName: 'Points' },
+  { key: 'rebounds', label: 'REB', fullName: 'Rebounds' },
+  { key: 'assists', label: 'AST', fullName: 'Assists' },
+  { key: 'steals', label: 'STL', fullName: 'Steals' },
+  { key: 'blocks', label: 'BLK', fullName: 'Blocks' },
+  { key: 'three_pointers', label: '3PM', fullName: 'Three Pointers' },
+  { key: 'field_goals', label: 'FG', fullName: 'Field Goals', includesCategories: ['field_goals_made', 'field_goals_attempted'] },
+  { key: 'free_throws', label: 'FT', fullName: 'Free Throws', includesCategories: ['free_throws_made', 'free_throws_attempted'] },
+  { key: 'turnovers', label: 'TO', fullName: 'Turnovers' },
+];
+
 const AlltimeGames = () => {
+  // eslint-disable-next-line no-unused-vars
   const [players, setPlayers] = useState([]);
   const [gameStats, setGameStats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +53,8 @@ const AlltimeGames = () => {
   const [sortDirection, setSortDirection] = useState("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [puntedCategories, setPuntedCategories] = useState([]);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // Generate seasons from 1960-61 to 2023-24
   const seasons = Array.from({ length: 2024 - 1960 }, (_, i) => {
@@ -125,6 +142,61 @@ const AlltimeGames = () => {
     return `${(value * 100).toFixed(decimals)}%`;
   };
 
+  // Calculate fantasy points with new formula
+  // Formula: PTS=1, REB=1.2, AST=1.5, STL=3, BLK=3, 3PM=0.5, FGM=1, FGA=-0.5, FTM=1, FTA=-0.5, TO=-1
+  const calculateFantasyPoints = (stats, excludeCategories = []) => {
+    if (!stats) return 0;
+    
+    const statValues = {
+      points: stats.points || 0,
+      rebounds: stats.rebounds || 0,
+      assists: stats.assists || 0,
+      steals: stats.steals || 0,
+      blocks: stats.blocks || 0,
+      three_pointers: stats.three_pointers || 0,
+      field_goals_made: stats.field_goals_made || 0,
+      field_goals_attempted: stats.field_goals_attempted || 0,
+      free_throws_made: stats.free_throws_made || 0,
+      free_throws_attempted: stats.free_throws_attempted || 0,
+      turnovers: stats.turnovers || 0,
+    };
+
+    // Expand grouped categories
+    const expandedExcludeCategories = [...excludeCategories];
+    if (excludeCategories.includes('field_goals')) {
+      expandedExcludeCategories.push('field_goals_made', 'field_goals_attempted');
+    }
+    if (excludeCategories.includes('free_throws')) {
+      expandedExcludeCategories.push('free_throws_made', 'free_throws_attempted');
+    }
+
+    let total = 0;
+    if (!expandedExcludeCategories.includes('points')) total += statValues.points * 1;
+    if (!expandedExcludeCategories.includes('rebounds')) total += statValues.rebounds * 1.2;
+    if (!expandedExcludeCategories.includes('assists')) total += statValues.assists * 1.5;
+    if (!expandedExcludeCategories.includes('steals')) total += statValues.steals * 3;
+    if (!expandedExcludeCategories.includes('blocks')) total += statValues.blocks * 3;
+    if (!expandedExcludeCategories.includes('three_pointers')) total += statValues.three_pointers * 0.5;
+    if (!expandedExcludeCategories.includes('field_goals_made')) total += statValues.field_goals_made * 1;
+    if (!expandedExcludeCategories.includes('field_goals_attempted')) total += statValues.field_goals_attempted * -0.5;
+    if (!expandedExcludeCategories.includes('free_throws_made')) total += statValues.free_throws_made * 1;
+    if (!expandedExcludeCategories.includes('free_throws_attempted')) total += statValues.free_throws_attempted * -0.5;
+    if (!expandedExcludeCategories.includes('turnovers')) total += statValues.turnovers * -1;
+
+    return total;
+  };
+
+  // Handle punt toggle
+  const handlePuntToggle = (categoryKey) => {
+    setPuntedCategories(prev => {
+      if (prev.includes(categoryKey)) {
+        return prev.filter(c => c !== categoryKey);
+      } else {
+        return [...prev, categoryKey];
+      }
+    });
+  };
+
   // Fetch players for avatar data
   useEffect(() => {
     const loadPlayers = async () => {
@@ -159,7 +231,14 @@ const AlltimeGames = () => {
             }, {})
           : {};
         const stats = await fetchFilteredPlayerGameStats(filterParams);
-        setGameStats(stats);
+        
+        // Add adjusted fantasy points to each stat
+        const statsWithAdjusted = stats.map(stat => ({
+          ...stat,
+          adjustedFantasyPoints: calculateFantasyPoints(stat.stats, puntedCategories)
+        }));
+        
+        setGameStats(statsWithAdjusted);
       } catch (error) {
         console.error("Error loading game stats:", error);
       } finally {
@@ -167,7 +246,7 @@ const AlltimeGames = () => {
       }
     };
     loadGameStats();
-  }, [filters]);
+  }, [filters, puntedCategories]);
 
   // Handle column sorting
   const handleSort = (column) => {
@@ -205,6 +284,11 @@ const AlltimeGames = () => {
     } else if (sortColumn === "seasonExperience") {
       valueA = a[sortColumn] || 0;
       valueB = b[sortColumn] || 0;
+      return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+    } else if (sortColumn === "fantasy_points" && puntedCategories.length > 0) {
+      // Use adjusted fantasy points when punting
+      valueA = a.adjustedFantasyPoints || 0;
+      valueB = b.adjustedFantasyPoints || 0;
       return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
     } else {
       valueA = a.stats[sortColumn] || 0;
@@ -377,25 +461,110 @@ const AlltimeGames = () => {
   };
 
   return (
-    <Box sx={{ p: 3, background: "linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%)", minHeight: "100vh" }}>
+    <Box sx={{ p: 2, minHeight: "100vh", bgcolor: '#f5f5f5' }}>
+      {/* Header Bar */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 2,
+        pb: 2,
+        borderBottom: '2px solid #ddd',
+        flexWrap: 'wrap',
+        gap: 2,
+      }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            color: '#003366',
+            fontSize: '1.25rem',
+          }}
+        >
+          All Time Game Stats (1960-2024)
+        </Typography>
+      </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Typography
-            variant="h5"
+      {/* Punt Categories and Advanced Filters */}
+      <Box
+        sx={{
+          mb: 2,
+          p: 1.5,
+          bgcolor: '#fff',
+          border: '1px solid #ddd',
+          borderRadius: 1,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
+          {/* Punt Categories */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flex: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', minWidth: '100px' }}>
+              Punt Categories:
+            </Typography>
+            {PUNT_CATEGORIES.map((cat) => (
+              <FormControlLabel
+                key={cat.key}
+                control={
+                  <Checkbox
+                    checked={puntedCategories.includes(cat.key)}
+                    onChange={() => handlePuntToggle(cat.key)}
+                    size="small"
+                    sx={{
+                      '&.Mui-checked': {
+                        color: '#0066cc',
+                      },
+                    }}
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                    {cat.label}
+                  </Typography>
+                }
+                sx={{ m: 0 }}
+              />
+            ))}
+          </Box>
+
+          {/* Advanced Filters Toggle */}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
             sx={{
-              mb: 3,
-              color: "#212121",
-              fontWeight: 500,
-              letterSpacing: 1,
-              textTransform: "uppercase",
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              color: '#0066cc',
+              borderColor: '#0066cc',
+              '&:hover': {
+                borderColor: '#0052a3',
+                backgroundColor: 'rgba(0, 102, 204, 0.04)',
+              },
             }}
           >
-            All Time Game Stats
-          </Typography>
+            {showAdvancedFilters ? 'Hide' : 'Show'} Advanced Filters
+          </Button>
+        </Box>
 
+        {puntedCategories.length > 0 && (
+          <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#666', fontSize: '0.75rem' }}>
+            Excluding: {PUNT_CATEGORIES.filter(c => puntedCategories.includes(c.key)).map(c => {
+              if (c.includesCategories) {
+                return `${c.label} (${c.includesCategories.map(cat => cat.replace('_', ' ').toUpperCase()).join(', ')})`;
+              }
+              return c.label;
+            }).join(', ')}
+          </Typography>
+        )}
+
+        {/* Advanced Filter Builder - Collapsible */}
+        {showAdvancedFilters && (
+          <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #ddd' }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', mb: 1 }}>
+              Advanced Filters:
+            </Typography>
           {/* Filter Builder */}
-          <Box sx={{ display: "flex", gap: 2, mb: 3, alignItems: "center", flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2, alignItems: "center", flexWrap: "wrap" }}>
             <Autocomplete
               options={filterTypes}
               getOptionLabel={(option) => option?.label || "Select filter type"}
@@ -407,34 +576,27 @@ const AlltimeGames = () => {
                   label="Filter Type"
                   placeholder="Select filter type"
                   variant="outlined"
+                  size="small"
                   sx={{
-                    width: 200,
+                    width: 180,
                     backgroundColor: "#ffffff",
-                    "& .MuiInputBase-input": { color: "#212121" },
-                    "& .MuiInputLabel-root": { color: "#424242" },
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                      "&:hover fieldset": { borderColor: "#1976d2" },
-                    },
+                    "& .MuiInputBase-input": { fontSize: '0.875rem' },
                   }}
                 />
               )}
-              sx={{ width: 200 }}
+              sx={{ width: 180 }}
             />
 
             {(filterType?.isNumeric || filterType?.isHeight) ? (
               <>
-                <FormControl sx={{ width: 100 }}>
-                  <InputLabel sx={{ color: "#424242" }}>Operator</InputLabel>
+                <FormControl size="small" sx={{ width: 90 }}>
+                  <InputLabel>Operator</InputLabel>
                   <Select
                     value={filterOperator}
                     onChange={(e) => setFilterOperator(e.target.value)}
                     sx={{
                       backgroundColor: "#ffffff",
-                      color: "#212121",
-                      "& .MuiSvgIcon-root": { color: "#424242" },
-                      "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                      "&:hover fieldset": { borderColor: "#1976d2" },
+                      fontSize: '0.875rem',
                     }}
                   >
                     {operators.map((op) => (
@@ -451,6 +613,7 @@ const AlltimeGames = () => {
                   onChange={(e) => setFilterNumericValue(e.target.value)}
                   type={filterType.isHeight ? "text" : "number"}
                   variant="outlined"
+                  size="small"
                   inputProps={
                     filterType.key === "season"
                       ? { min: 1960, max: 2023 }
@@ -461,12 +624,7 @@ const AlltimeGames = () => {
                   sx={{
                     width: 150,
                     backgroundColor: "#ffffff",
-                    "& .MuiInputBase-input": { color: "#212121" },
-                    "& .MuiInputLabel-root": { color: "#424242" },
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                      "&:hover fieldset": { borderColor: "#1976d2" },
-                    },
+                    "& .MuiInputBase-input": { fontSize: '0.875rem' },
                   }}
                 />
               </>
@@ -484,19 +642,15 @@ const AlltimeGames = () => {
                     label="Filter Value"
                     placeholder={filterType ? "Select value" : "Select filter type first"}
                     variant="outlined"
+                    size="small"
                     sx={{
-                      width: 250,
+                      width: 220,
                       backgroundColor: "#ffffff",
-                      "& .MuiInputBase-input": { color: "#E0E0E0" },
-                      "& .MuiInputLabel-root": { color: "#B0B0B0" },
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": { borderColor: "rgba(0, 0, 0, 0.12)" },
-                        "&:hover fieldset": { borderColor: "#1976d2" },
-                      },
+                      "& .MuiInputBase-input": { fontSize: '0.875rem' },
                     }}
                   />
                 )}
-                sx={{ width: 250 }}
+                sx={{ width: 220 }}
               />
             )}
 
@@ -504,12 +658,14 @@ const AlltimeGames = () => {
               variant="contained"
               onClick={handleAddFilter}
               disabled={!filterType || (!filterValue?.length && !filterNumericValue)}
+              size="small"
               sx={{
-                backgroundColor: "#1976d2",
+                backgroundColor: "#0066cc",
                 color: "#ffffff",
-                "&:hover": { backgroundColor: "#1565c0" },
+                "&:hover": { backgroundColor: "#0052a3" },
                 textTransform: "none",
                 fontWeight: 500,
+                fontSize: '0.875rem',
               }}
             >
               Add Filter
@@ -518,53 +674,69 @@ const AlltimeGames = () => {
             <Button
               variant="outlined"
               onClick={handleClearFilters}
+              size="small"
               sx={{
-                color: "#424242",
-                borderColor: "rgba(0, 0, 0, 0.12)",
-                "&:hover": { borderColor: "#1976d2", backgroundColor: "rgba(25, 118, 210, 0.04)" },
+                color: "#0066cc",
+                borderColor: "#0066cc",
+                "&:hover": { borderColor: "#0052a3", backgroundColor: "rgba(0, 102, 204, 0.04)" },
                 textTransform: "none",
                 fontWeight: 500,
+                fontSize: '0.875rem',
               }}
             >
-              Clear Filters
+              Clear All
             </Button>
           </Box>
 
           {/* Display Applied Filters */}
-          <Box sx={{ mb: 3 }}>
-            {filters.map((filter, index) => (
-              <Chip
-                key={index}
-                label={filter.label}
-                onDelete={() => handleDeleteFilter(index)}
-                sx={{
-                  mr: 1,
-                  mb: 1,
-                      backgroundColor: "#ffffff",
-                  color: "#212121",
-                  border: "1px solid #333333",
-                }}
-              />
-            ))}
+          {filters.length > 0 && (
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {filters.map((filter, index) => (
+                <Chip
+                  key={index}
+                  label={filter.label}
+                  onDelete={() => handleDeleteFilter(index)}
+                  size="small"
+                  sx={{
+                    backgroundColor: "#e3f2fd",
+                    color: "#0066cc",
+                    border: "1px solid #0066cc",
+                    fontSize: '0.75rem',
+                  }}
+                />
+              ))}
+            </Box>
+          )}
           </Box>
+        )}
+      </Box>
 
-          {/* Table */}
-          <TableContainer
-            component={Paper}
-            sx={{ backgroundColor: "#f5f5f5", border: "1px solid rgba(0, 0, 0, 0.12)" }}
-          >
-            <Table sx={{ minWidth: 650 }}>
+      {/* Table */}
+      {loading ? (
+        <Box sx={{ p: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            bgcolor: '#fff',
+            border: '1px solid #ddd',
+            borderRadius: 1,
+            overflow: 'hidden',
+          }}
+        >
+          <TableContainer sx={{ maxHeight: '65vh' }}>
+            <Table size="small" stickyHeader>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#ffffff" }}>
+                <TableRow>
                   <TableCell
                     sx={{
-                      color: "#212121",
-                      borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                      borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      fontSize: "0.9rem",
-                      p: 1,
+                      bgcolor: '#003366',
+                      color: '#fff',
+                      fontWeight: 600,
+                      fontSize: "0.75rem",
+                      py: 1,
+                      px: 0.5,
                       width: "50px",
                     }}
                     align="center"
@@ -573,20 +745,24 @@ const AlltimeGames = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      color: "#212121",
-                      borderRight: "1px solid rgba(0, 0, 0, 0.12)",
-                      borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      fontSize: "0.9rem",
-                      p: 1,
+                      bgcolor: '#003366',
+                      color: '#fff',
+                      fontWeight: 600,
+                      fontSize: "0.75rem",
+                      py: 1,
+                      px: 0.5,
                     }}
                   >
                     <TableSortLabel
                       active={sortColumn === "playerName"}
                       direction={sortColumn === "playerName" ? sortDirection : "asc"}
                       onClick={() => handleSort("playerName")}
-                      sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
+                      sx={{
+                        color: '#fff !important',
+                        '& .MuiTableSortLabel-icon': {
+                          color: '#fff !important',
+                        },
+                      }}
                     >
                       Player
                     </TableSortLabel>
@@ -918,7 +1094,7 @@ const AlltimeGames = () => {
                       onClick={() => handleSort("fantasy_points")}
                       sx={{ color: "#424242", "&:hover": { color: "#1976d2" } }}
                     >
-                      Fantasy Pts
+                      {puntedCategories.length > 0 ? 'Adj Fant Pts' : 'Fantasy Pts'}
                     </TableSortLabel>
                   </TableCell>
                 </TableRow>
@@ -937,7 +1113,12 @@ const AlltimeGames = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedStats.map((stat, index) => (
+                  paginatedStats.map((stat, index) => {
+                    const displayFantasyPoints = puntedCategories.length > 0 
+                      ? stat.adjustedFantasyPoints 
+                      : stat.stats?.fantasy_points;
+                    
+                    return (
                     <TableRow
                       key={`${stat.playerId}-${stat.season}-${index}`}
                       sx={{
@@ -1162,12 +1343,20 @@ const AlltimeGames = () => {
                           p: 1,
                           fontFamily: "'Roboto Mono', monospace",
                           fontSize: "0.85rem",
+                          fontWeight: 600,
+                          bgcolor: puntedCategories.length > 0 ? '#e3f2fd' : 'transparent',
                         }}
                       >
-                        {formatNumber(stat.stats?.fantasy_points, 1)}
+                        {formatNumber(displayFantasyPoints, 1)}
+                        {puntedCategories.length > 0 && (
+                          <Typography component="span" sx={{ fontSize: '0.65rem', color: '#666', ml: 0.5 }}>
+                            ({formatNumber(stat.stats?.fantasy_points, 1)})
+                          </Typography>
+                        )}
                       </TableCell>
                     </TableRow>
-                  ))
+                  );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -1188,10 +1377,10 @@ const AlltimeGames = () => {
               "& .MuiTablePagination-displayedRows": { color: "#E0E0E0" },
             }}
           />
-        </Grid>
-      </Grid>
+        </Box>
+    )};
     </Box>
-  );
+  );  
 };
 
 export default AlltimeGames;
