@@ -20,7 +20,10 @@ import {
     Chip,
     Button,
     Tooltip,
+    Menu,
+    IconButton,
 } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
 import { useLeague } from '../contexts/LeagueContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -43,12 +46,14 @@ const Rankings = () => {
     const [periodType, setPeriodType] = useState('season');
     const [puntedCategories, setPuntedCategories] = useState([]);
     const [selectedPlayers, setSelectedPlayers] = useState(new Set());
-    const [showMyTeamOnly, setShowMyTeamOnly] = useState(false);
+    const [selectedOpponentTeam, setSelectedOpponentTeam] = useState('');
+    const [showHighlightedOnly, setShowHighlightedOnly] = useState(false);
+    const [teamMenuAnchor, setTeamMenuAnchor] = useState(null);
     const [teamFilter, setTeamFilter] = useState('all');
     const [positionFilter, setPositionFilter] = useState('all');
     const [orderBy, setOrderBy] = useState('total_value');
     const [order, setOrder] = useState('desc');
-    const { userTeamPlayers } = useLeague();
+    const { userTeamPlayers, leagueTeams } = useLeague();
     const { isAuthenticated } = useAuth();
 
     // Create a Set of user's team player IDs for quick lookup
@@ -64,10 +69,31 @@ const Rankings = () => {
         return ids;
     }, [userTeamPlayers]);
 
+    // Create a Set of opponent team player IDs for quick lookup
+    const opponentTeamPlayerIds = useMemo(() => {
+        const ids = new Set();
+        if (selectedOpponentTeam && leagueTeams && leagueTeams.length > 0) {
+            const opponentTeam = leagueTeams.find(team => team.name === selectedOpponentTeam);
+            if (opponentTeam && opponentTeam.players) {
+                opponentTeam.players.forEach(player => {
+                    if (player.nbaPlayerId) {
+                        ids.add(player.nbaPlayerId);
+                    }
+                });
+            }
+        }
+        return ids;
+    }, [selectedOpponentTeam, leagueTeams]);
+
     // Check if a player belongs to user's team
     const isUserTeamPlayer = useCallback((player) => {
         return userTeamPlayerIds.has(player.player_id);
     }, [userTeamPlayerIds]);
+
+    // Check if a player belongs to opponent team
+    const isOpponentTeamPlayer = useCallback((player) => {
+        return opponentTeamPlayerIds.has(player.player_id);
+    }, [opponentTeamPlayerIds]);
 
     // Get unique teams and positions from players
     const { uniqueTeams, uniquePositions } = useMemo(() => {
@@ -91,9 +117,15 @@ const Rankings = () => {
     const adjustedPlayers = useMemo(() => {
         let filtered = players;
 
-        // Apply my team filter
-        if (showMyTeamOnly) {
-            filtered = filtered.filter(p => isUserTeamPlayer(p));
+        // Apply highlighted players filter
+        if (showHighlightedOnly) {
+            if (selectedOpponentTeam) {
+                // Show both my team and opponent team only
+                filtered = filtered.filter(p => isUserTeamPlayer(p) || isOpponentTeamPlayer(p));
+            } else {
+                // Show only my team
+                filtered = filtered.filter(p => isUserTeamPlayer(p));
+            }
         }
 
         // Apply team filter
@@ -144,7 +176,7 @@ const Rankings = () => {
             adjustedRank: idx + 1,
             rankChange: player.originalRank - (idx + 1),
         }));
-    }, [players, puntedCategories, showMyTeamOnly, teamFilter, positionFilter, isUserTeamPlayer]);
+    }, [players, puntedCategories, showHighlightedOnly, selectedOpponentTeam, teamFilter, positionFilter, isUserTeamPlayer, isOpponentTeamPlayer]);
 
     // Apply sorting to the adjusted players
     const sortedPlayers = useMemo(() => {
@@ -479,23 +511,56 @@ const Rankings = () => {
                     </FormControl>
                     
                     <Tooltip 
-                        title={!isAuthenticated ? "Login to yahoo to load your team" : ""}
+                        title={!isAuthenticated ? "Login to yahoo to load your team" : "Your team players are always highlighted"}
                         arrow
                     >
                         <span>
                             <Button
-                                variant={showMyTeamOnly ? 'contained' : 'outlined'}
+                                variant="contained"
                                 size="small"
-                                onClick={() => setShowMyTeamOnly(!showMyTeamOnly)}
                                 disabled={!isAuthenticated}
                                 sx={{
                                     textTransform: 'none',
                                     fontSize: '0.875rem',
-                                    bgcolor: showMyTeamOnly ? '#0066cc' : 'transparent',
-                                    color: showMyTeamOnly ? '#fff' : '#0066cc',
+                                    bgcolor: '#0066cc',
+                                    color: '#fff',
                                     borderColor: '#0066cc',
+                                    border: '2px solid #0066cc',
                                     '&:hover': {
-                                        bgcolor: showMyTeamOnly ? '#0052a3' : 'rgba(0, 102, 204, 0.08)',
+                                        bgcolor: '#0052a3',
+                                        borderColor: '#0052a3',
+                                    },
+                                    '&.Mui-disabled': {
+                                        bgcolor: '#ccc',
+                                        borderColor: '#ccc',
+                                        color: '#fff',
+                                    },
+                                }}
+                            >
+                                My Team
+                            </Button>
+                        </span>
+                    </Tooltip>
+
+                    <Tooltip 
+                        title={!isAuthenticated ? "Login to yahoo to load league teams" : selectedOpponentTeam ? `Highlighting: ${selectedOpponentTeam}` : "Click to select an opponent team"}
+                        arrow
+                    >
+                        <span>
+                            <Button
+                                variant={selectedOpponentTeam ? 'contained' : 'outlined'}
+                                size="small"
+                                onClick={(e) => setTeamMenuAnchor(e.currentTarget)}
+                                disabled={!isAuthenticated || !leagueTeams || leagueTeams.length === 0}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontSize: '0.875rem',
+                                    bgcolor: selectedOpponentTeam ? '#ff6b35' : 'transparent',
+                                    color: selectedOpponentTeam ? '#fff' : '#ff6b35',
+                                    borderColor: '#ff6b35',
+                                    border: '2px solid #ff6b35',
+                                    '&:hover': {
+                                        bgcolor: selectedOpponentTeam ? '#e55a2b' : 'rgba(255, 107, 53, 0.1)',
                                     },
                                     '&.Mui-disabled': {
                                         borderColor: '#ccc',
@@ -503,8 +568,69 @@ const Rankings = () => {
                                     },
                                 }}
                             >
-                                My Team
+                                {selectedOpponentTeam || 'Opponent Team'}
                             </Button>
+                        </span>
+                    </Tooltip>
+
+                    <Menu
+                        anchorEl={teamMenuAnchor}
+                        open={Boolean(teamMenuAnchor)}
+                        onClose={() => setTeamMenuAnchor(null)}
+                    >
+                        <MenuItem 
+                            onClick={() => {
+                                setSelectedOpponentTeam('');
+                                setTeamMenuAnchor(null);
+                            }}
+                            sx={{ 
+                                fontSize: '0.875rem',
+                                fontStyle: selectedOpponentTeam ? 'normal' : 'italic',
+                                color: selectedOpponentTeam ? '#000' : '#999',
+                            }}
+                        >
+                            {selectedOpponentTeam ? 'Clear Selection' : 'No team selected'}
+                        </MenuItem>
+                        {leagueTeams && leagueTeams.filter(team => !team.is_owned_by_current_login).map(team => (
+                            <MenuItem 
+                                key={team.key || team.name} 
+                                onClick={() => {
+                                    setSelectedOpponentTeam(team.name);
+                                    setTeamMenuAnchor(null);
+                                }}
+                                selected={selectedOpponentTeam === team.name}
+                                sx={{ fontSize: '0.875rem' }}
+                            >
+                                {team.name}
+                            </MenuItem>
+                        ))}
+                    </Menu>
+
+                    <Tooltip 
+                        title={showHighlightedOnly ? "Showing only highlighted players" : "Filter to show only highlighted players"}
+                        arrow
+                    >
+                        <span>
+                            <IconButton
+                                size="small"
+                                onClick={() => setShowHighlightedOnly(!showHighlightedOnly)}
+                                disabled={!isAuthenticated}
+                                sx={{
+                                    bgcolor: showHighlightedOnly ? '#4caf50' : 'transparent',
+                                    color: showHighlightedOnly ? '#fff' : '#4caf50',
+                                    border: '2px solid',
+                                    borderColor: showHighlightedOnly ? '#4caf50' : '#4caf50',
+                                    '&:hover': {
+                                        bgcolor: showHighlightedOnly ? '#45a049' : 'rgba(76, 175, 80, 0.08)',
+                                    },
+                                    '&.Mui-disabled': {
+                                        borderColor: '#ccc',
+                                        color: '#ccc',
+                                    },
+                                }}
+                            >
+                                <FilterListIcon sx={{ fontSize: '1.2rem' }} />
+                            </IconButton>
                         </span>
                     </Tooltip>
                     
@@ -613,7 +739,7 @@ const Rankings = () => {
                 >
                     <TableContainer
                         sx={{
-                            maxHeight: '75vh',
+                            maxHeight: '100vh',
                         }}
                     >
                     <Table size="small" stickyHeader>
@@ -677,26 +803,42 @@ const Rankings = () => {
                         <TableBody>
                             {sortedPlayers.map((player, index) => {
                                 const isMyPlayer = isUserTeamPlayer(player);
+                                const isOpponentPlayer = isOpponentTeamPlayer(player);
                                 const isSelected = selectedPlayers.has(player.player_id);
                                 const displayRank = puntedCategories.length > 0 ? player.adjustedRank : (index + 1);
                                 const hasMovedUp = player.rankChange > 0;
                                 const hasMovedDown = player.rankChange < 0;
+                                
+                                let borderLeft = 'none';
+                                let bgColor = index % 2 === 0 ? '#fff' : '#f9f9f9';
+                                let hoverColor = 'rgba(0, 0, 0, 0.03)';
+                                
+                                if (isMyPlayer) {
+                                    borderLeft = '3px solid #0066cc';
+                                    bgColor = 'rgba(0, 102, 204, 0.2)';
+                                    hoverColor = 'rgba(0, 102, 204, 0.12)';
+                                } else if (isOpponentPlayer) {
+                                    borderLeft = '3px solid #ff6b35';
+                                    bgColor = 'rgba(236, 94, 0, 0.2)';
+                                    hoverColor = 'rgba(255, 107, 53, 0.12)';
+                                }
+                                
+                                if (isSelected && !isMyPlayer && !isOpponentPlayer) {
+                                    bgColor = 'rgba(0, 102, 204, 0.08)';
+                                    hoverColor = 'rgba(0, 102, 204, 0.12)';
+                                }
                                 
                                 return (
                                 <TableRow
                                     key={player.id}
                                     onClick={() => handlePlayerToggle(player.player_id)}
                                     sx={{
-                                        bgcolor: isSelected 
-                                            ? 'rgba(0, 102, 204, 0.08)' 
-                                            : index % 2 === 0 ? '#fff' : '#f9f9f9',
+                                        bgcolor: bgColor,
                                         '&:hover': {
-                                            bgcolor: isSelected 
-                                                ? 'rgba(0, 102, 204, 0.12)'
-                                                : 'rgba(0, 0, 0, 0.03)',
+                                            bgcolor: hoverColor,
                                             cursor: 'pointer',
                                         },
-                                        borderLeft: isMyPlayer ? '3px solid #0066cc' : 'none',
+                                        borderLeft: borderLeft,
                                     }}
                                 >
                                     {columns.map((column) => {
