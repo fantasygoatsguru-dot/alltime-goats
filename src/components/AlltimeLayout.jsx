@@ -46,6 +46,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
 import ReassuringLoader from './ReassuringLoader';
+import SEOContent from './SEOContent';
 
 // === ICON WRAPPER FOR RESPONSIVE SIZING ===
 const IconWrapper = ({ children }) => {
@@ -1122,6 +1123,7 @@ const AlltimeLayout = () => {
             setCurrentMatchup={setCurrentMatchup}
           >
             {renderContent()}
+            <SEOContent />
           </LeagueProvider>
         )}
       </Container>
