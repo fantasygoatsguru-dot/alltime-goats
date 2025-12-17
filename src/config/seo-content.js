@@ -4,11 +4,11 @@ export const SEO_CONTENT = {
     content: `
       <p>Fantasy Goats Guru is the ultimate fantasy basketball analytics platform designed to help you dominate your league. Whether you're competing in Yahoo Fantasy Basketball, ESPN, or any other platform, our comprehensive tools provide the insights you need to make winning decisions.</p>
       
-      <p>Our platform offers advanced fantasy basketball rankings, player analysis, and matchup projections that go beyond basic statistics. We calculate Z-scores across all major categories including points, rebounds, assists, steals, blocks, three-pointers, field goal percentage, free throw percentage, and turnovers. This comprehensive approach helps you understand true player value in category-based leagues.</p>
+      <p>Our platform offers advanced <a href="/rankings">fantasy basketball player rankings</a>, player analysis, and <a href="/matchup-projection">matchup projections</a> that go beyond basic statistics. We calculate Z-scores across all major categories including points, rebounds, assists, steals, blocks, three-pointers, field goal percentage, free throw percentage, and turnovers. This comprehensive approach helps you understand true player value in category-based leagues.</p>
       
-      <p>Fantasy basketball success requires more than just picking big names. You need to understand punt strategies, schedule analysis, and weekly matchup dynamics. Our tools help you identify undervalued players, optimize your roster construction, and make strategic waiver wire pickups that align with your team's strengths.</p>
+      <p>Fantasy basketball success requires more than just picking big names. You need to understand punt strategies, <a href="/nba-regular-season">schedule analysis</a>, and weekly matchup dynamics. Our tools help you identify undervalued players, optimize your roster construction, and make strategic waiver wire pickups that align with your team's strengths.</p>
       
-      <p>Whether you're preparing for your fantasy basketball draft, managing your roster during the season, or planning for the fantasy playoffs, Fantasy Goats Guru provides the data-driven insights that separate champions from also-rans. Join thousands of fantasy managers who trust our platform to gain a competitive edge.</p>
+      <p>Whether you're preparing for your fantasy basketball draft, managing your roster during the season, or planning for <a href="/nba-playoffs">fantasy playoffs</a>, Fantasy Goats Guru provides the data-driven insights that separate champions from also-rans. Join thousands of fantasy managers who trust our platform to gain a competitive edge.</p>
     `,
     keywords: ['fantasy basketball', 'fantasy basketball rankings', 'NBA fantasy', 'fantasy basketball tools', 'fantasy basketball strategy']
   },
@@ -22,9 +22,9 @@ export const SEO_CONTENT = {
       
       <p>Use our punt strategy analyzer to see how player rankings change when you punt specific categories. Punting turnovers and field goal percentage, for example, dramatically increases the value of high-usage guards. Punting assists and threes elevates big men who dominate rebounds, blocks, and percentages. Understanding these dynamics is crucial for winning fantasy basketball leagues.</p>
       
-      <p>Our rankings update regularly throughout the season, with options to view season-long stats or recent performance over 7, 30, or 60 days. This helps you identify trending players, spot buy-low opportunities, and avoid selling high on players experiencing hot streaks. Filter by position and team to find the perfect waiver wire additions for your roster construction.</p>
+      <p>Our rankings update regularly throughout the season, with options to view season-long stats or recent performance over 7, 30, or 60 days. This helps you identify trending players, spot buy-low opportunities, and avoid selling high on players experiencing hot streaks. Filter by position and team to find the perfect waiver wire additions for your roster construction. Check <a href="/season-games">top season performances</a> to see which players are on fire.</p>
       
-      <p>Whether you're in a head-to-head categories league, roto league, or points league, understanding player rankings and true fantasy value is essential. Use our tools to draft better, trade smarter, and dominate your fantasy basketball competition all season long.</p>
+      <p>Whether you're in a head-to-head categories league, roto league, or points league, understanding player rankings and true fantasy value is essential. Use our <a href="/matchup">matchup analyzer</a> to compare players, check the <a href="/nba-regular-season">NBA schedule</a> for favorable weeks, and dominate your fantasy basketball competition all season long.</p>
     `,
     keywords: ['fantasy basketball rankings', 'player rankings', 'fantasy basketball values', 'Z-score rankings', 'punt strategy', 'fantasy basketball draft']
   },
@@ -76,11 +76,11 @@ export const SEO_CONTENT = {
     content: `
       <p>Master NBA schedule analysis to dominate your fantasy basketball league. Understanding team schedules, game density by week, and playoff schedules is crucial for season-long fantasy success. Our NBA schedule tools help you plan acquisitions, drops, and trades based on upcoming schedule strength.</p>
       
-      <p>Not all fantasy playoff schedules are created equal. Some NBA teams play 12 games during fantasy playoffs while others play only 9. Owning players from schedule-advantaged teams during your fantasy playoffs can be the difference between winning your league and going home empty-handed. Plan ahead with our schedule analysis tools.</p>
+      <p>Not all fantasy playoff schedules are created equal. Some NBA teams play 12 games during fantasy playoffs while others play only 9. Owning players from schedule-advantaged teams during your <a href="/nba-playoffs">fantasy playoffs</a> can be the difference between winning your league and going home empty-handed. Plan ahead with our schedule analysis tools.</p>
       
       <p>Back-to-back games, travel schedules, and rest patterns all impact player performance and playing time. Teams often rest veterans on the second night of back-to-backs, creating streaming opportunities. Our schedule data helps you identify these situations in advance so you can capitalize on increased opportunities for role players.</p>
       
-      <p>Use our NBA schedule analysis for trade evaluation too. A player on a team with a favorable upcoming schedule is worth more than their season-long stats suggest. Similarly, you might sell high on players facing tough schedule stretches. Smart fantasy managers use schedule data as a competitive advantage.</p>
+      <p>Use our NBA schedule analysis for trade evaluation too. A player on a team with a favorable upcoming schedule is worth more than their season-long stats suggest. Similarly, you might sell high on players facing tough schedule stretches. Combine schedule analysis with our <a href="/rankings">player rankings</a> and <a href="/matchup-projection">matchup projections</a> to gain a complete competitive advantage.</p>
     `,
     keywords: ['NBA schedule', 'NBA regular season', 'fantasy basketball schedule', 'schedule analysis', 'NBA games', 'playoff schedule']
   },
@@ -90,11 +90,11 @@ export const SEO_CONTENT = {
     content: `
       <p>Navigate fantasy basketball playoffs with our comprehensive NBA playoff schedule analysis. The NBA playoffs overlap with many fantasy basketball league playoffs, making schedule awareness critical for lineup decisions and understanding which NBA teams continue playing.</p>
       
-      <p>Fantasy playoff success requires different strategy than the regular season. Consistency matters more than upside since a single bad game can cost you a matchup. Our NBA playoff schedule tools help you identify reliable performers on teams likely to continue playing deep into the postseason.</p>
+      <p>Fantasy playoff success requires different strategy than <a href="/nba-regular-season">the regular season</a>. Consistency matters more than upside since a single bad game can cost you a matchup. Our NBA playoff schedule tools help you identify reliable performers on teams likely to continue playing deep into the postseason.</p>
       
-      <p>Understanding NBA playoff schedules also helps with dynasty and keeper league decisions. Players on young, improving teams that make deep playoff runs gain valuable experience and often break out the following season. Use our historical playoff data to identify these future breakout candidates.</p>
+      <p>Understanding NBA playoff schedules also helps with dynasty and keeper league decisions. Players on young, improving teams that make deep playoff runs gain valuable experience and often break out the following season. Check our <a href="/rankings">player rankings</a> and <a href="/seasons">historical season data</a> to identify these future breakout candidates.</p>
       
-      <p>For daily fantasy basketball players, NBA playoff scheduling creates unique opportunities. Reduced player rotation, increased minutes for stars, and intense defensive effort create a different fantasy landscape than the regular season. Our tools help you navigate these dynamics for DFS success.</p>
+      <p>For daily fantasy basketball players, NBA playoff scheduling creates unique opportunities. Reduced player rotation, increased minutes for stars, and intense defensive effort create a different fantasy landscape than the regular season. Use our <a href="/matchup">matchup analyzer</a> to navigate these dynamics for DFS success.</p>
     `,
     keywords: ['NBA playoffs', 'fantasy playoffs', 'playoff schedule', 'fantasy basketball playoffs', 'NBA postseason', 'playoff fantasy strategy']
   },

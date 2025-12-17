@@ -171,8 +171,15 @@ const NBAPlayoffs = () => {
             textAlign: { xs: "center", md: "left" },
           }}
         >
-          NBA Playoff Schedule
+          NBA Fantasy Basketball Playoff Schedule
         </Typography>
+        
+        {/* SEO Content Section */}
+        <Box sx={{ mt: 2, mb: 3, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #e0e0e0' }}>
+          <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.7 }}>
+            Fantasy basketball playoff schedules vary by league format, but most leagues align with the NBA playoffs beginning in mid-April. Understanding NBA team playoff schedules is critical for fantasy success during your league's championship weeks.
+          </Typography>
+        </Box>
       </Box>
 
       {/* Controls */}

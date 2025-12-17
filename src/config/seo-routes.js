@@ -4,8 +4,8 @@
 export const seoRoutes = [
   {
     path: '/',
-    title: 'Fantasy Goats Guru | Fantasy League History & Legends',
-    description: 'Explore the legendary history of your fantasy league. Track stats, player stories, and epic rivalries on Fantasy Goats Guru.',
+    title: 'Fantasy Basketball Tools & Player Rankings | Fantasy Goats Guru',
+    description: 'Advanced fantasy basketball tools including player rankings, matchup analysis, schedule tools, and punt strategy calculator. Dominate your league with data-driven insights.',
     changefreq: 'daily',
     priority: 1.0,
   },
@@ -25,8 +25,8 @@ export const seoRoutes = [
   },
   {
     path: '/matchup',
-    title: 'Fantasy Matchup Analyzer | Compare Teams & Players | Fantasy Goats Guru',
-    description: 'Compare fantasy basketball teams and players side-by-side. Analyze matchups, track weekly results, and project future performance with advanced statistics.',
+    title: 'Fantasy Basketball Matchup Analyzer & Team Comparison | Fantasy Goats Guru',
+    description: 'Compare fantasy basketball teams and players head-to-head. Analyze weekly matchups, evaluate trades, and predict category winners with advanced statistics.',
     changefreq: 'daily',
     priority: 0.9,
     requiresAuth: true, // Not in sitemap
@@ -40,10 +40,10 @@ export const seoRoutes = [
   },
   {
     path: '/rankings',
-    title: 'Fantasy Basketball Rankings | Player Rankings & Stats | Fantasy Goats Guru',
-    description: 'View fantasy basketball player rankings and statistics. Compare players across categories and find the best fantasy performers.',
-    changefreq: 'weekly',
-    priority: 0.8,
+    title: 'Fantasy Basketball Player Rankings 2025-26 | Z-Score Rankings & Punt Strategy | Fantasy Goats Guru',
+    description: 'Advanced fantasy basketball rankings with Z-scores across 9 categories. Analyze punt strategies, filter by position/team, and find undervalued players.',
+    changefreq: 'daily',
+    priority: 0.9,
   },
   {
     path: '/chat',
@@ -55,15 +55,15 @@ export const seoRoutes = [
   },
   {
     path: '/nba-regular-season',
-    title: 'NBA Regular Season Schedule | Games by Week | Fantasy Goats Guru',
-    description: 'View the complete NBA regular season schedule week by week. Track game counts for all 30 NBA teams and plan your fantasy lineup.',
+    title: 'NBA Regular Season Schedule (82 Games) | How Many Games by Week | Fantasy Goats Guru',
+    description: 'NBA regular season schedule: 82 games per team across 24 weeks. View weekly game counts for all 30 NBA teams and optimize your fantasy basketball lineup.',
     changefreq: 'weekly',
     priority: 0.8,
   },
   {
     path: '/nba-playoffs',
-    title: 'NBA Playoff Schedule | Playoff Games Analysis | Fantasy Goats Guru',
-    description: 'Analyze NBA playoff schedules. View game counts by week and optimize your fantasy playoff roster based on team schedules.',
+    title: 'NBA Fantasy Basketball Playoff Schedule (Updated 2025) | Fantasy Goats Guru',
+    description: 'Fantasy basketball playoff schedule analyzer. See which NBA teams have the most games during fantasy playoffs. Optimize your roster for championship weeks.',
     changefreq: 'weekly',
     priority: 0.8,
   },
