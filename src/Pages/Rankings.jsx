@@ -670,7 +670,7 @@ const Rankings = () => {
                                 />
                             }
                             label={
-                                <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+                                <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#000' }}>
                                     {cat.label}
                                 </Typography>
                             }
@@ -696,18 +696,18 @@ const Rankings = () => {
                         }}
                     >
                         <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#000' }}>
                                 Your Team:
                             </Typography>
-                            <Typography variant="body2">
+                            <Typography variant="body2" sx={{ color: '#000' }}>
                                 Total Change: <strong style={{ color: teamImpact.totalValueChange >= 0 ? '#2e7d32' : '#c62828' }}>
                                     {teamImpact.totalValueChange >= 0 ? '+' : ''}{teamImpact.totalValueChange}
                                 </strong>
                             </Typography>
-                            <Typography variant="body2">
-                                Avg: <strong>{teamImpact.avgValueChange >= 0 ? '+' : ''}{teamImpact.avgValueChange}</strong>
+                            <Typography variant="body2" sx={{ color: '#000' }}>
+                                Avg: <strong style={{ color: '#000' }}>{teamImpact.avgValueChange >= 0 ? '+' : ''}{teamImpact.avgValueChange}</strong>
                             </Typography>
-                            <Typography variant="body2">
+                            <Typography variant="body2" sx={{ color: '#000' }}>
                                 <span style={{ color: '#4caf50' }}>↑{teamImpact.playersImproved}</span>
                                 {' / '}
                                 <span style={{ color: '#f44336' }}>↓{teamImpact.playersDeclined}</span>
