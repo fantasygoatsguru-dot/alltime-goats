@@ -78,8 +78,8 @@ serve(async (req) => {
       .select('email, manager_nickname')
       .eq('avoid_promotions', false)
       .eq('promotion_sent', false)
-      .order('email', { ascending: true })
-      .limit(30);
+      .order('email', { descending: true })
+      .limit(50);
 
     if (selectError) {
       console.error('[DB] Error selecting users:', selectError);
