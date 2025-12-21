@@ -9,15 +9,12 @@ import {
     TableHead,
     TableRow,
     TableSortLabel,
-    Paper,
     CircularProgress,
     Select,
     MenuItem,
     FormControl,
-    InputLabel,
     Checkbox,
     FormControlLabel,
-    Chip,
     Button,
     Tooltip,
     Menu,
@@ -85,12 +82,10 @@ const Rankings = () => {
         return ids;
     }, [selectedOpponentTeam, leagueTeams]);
 
-    // Check if a player belongs to user's team
     const isUserTeamPlayer = useCallback((player) => {
         return userTeamPlayerIds.has(player.player_id);
     }, [userTeamPlayerIds]);
 
-    // Check if a player belongs to opponent team
     const isOpponentTeamPlayer = useCallback((player) => {
         return opponentTeamPlayerIds.has(player.player_id);
     }, [opponentTeamPlayerIds]);
@@ -106,24 +101,60 @@ const Rankings = () => {
                 posArray.forEach(pos => positions.add(pos.trim()));
             }
         });
-        console.log('Unique positions found:', Array.from(positions));
         return {
             uniqueTeams: Array.from(teams).sort(),
             uniquePositions: Array.from(positions).sort(),
         };
     }, [players]);
 
-    // Calculate adjusted rankings based on punted categories
-    const adjustedPlayers = useMemo(() => {
-        let filtered = players;
+    // Calculate adjusted rankings based on punted categories (on full list)
+    const adjustedPlayersFull = useMemo(() => {
+        if (puntedCategories.length === 0) {
+            return players.map((p, idx) => ({
+                ...p,
+                originalRank: idx + 1,
+                adjustedTotalValue: p.total_value,
+                adjustedRank: idx + 1,
+                rankChange: 0,
+                valueChange: 0,
+            }));
+        }
 
-        // Apply highlighted players filter
+        const allCategories = PUNT_CATEGORIES.map(c => c.key);
+        const includedCategories = allCategories.filter(c => !puntedCategories.includes(c));
+        const n = includedCategories.length;
+        const sqrtN = Math.sqrt(n);
+
+        const playersWithAdjusted = players.map((player) => {
+            const sum = includedCategories.reduce((acc, cat) => acc + (player[cat] || 0), 0);
+            const adjustedTotalValue = sum / sqrtN;
+
+            return {
+                ...player,
+                originalRank: players.indexOf(player) + 1,
+                adjustedTotalValue: Number(adjustedTotalValue.toFixed(2)),
+                valueChange: Number((adjustedTotalValue - player.total_value).toFixed(2)),
+            };
+        });
+
+        const sorted = [...playersWithAdjusted].sort((a, b) => b.adjustedTotalValue - a.adjustedTotalValue);
+
+        return sorted.map((player, idx) => ({
+            ...player,
+            adjustedRank: idx + 1,
+            rankChange: player.originalRank - (idx + 1),
+        }));
+    }, [players, puntedCategories]);
+
+    // Apply filters (team, position, highlighted only) but keep full ranks
+    const displayedPlayers = useMemo(() => {
+        let filtered = adjustedPlayersFull;
+
+        // Apply highlighted only filter
         if (showHighlightedOnly) {
             if (selectedOpponentTeam) {
-                // Show both my team and opponent team only
                 filtered = filtered.filter(p => isUserTeamPlayer(p) || isOpponentTeamPlayer(p));
             } else {
-                // Show only my team
                 filtered = filtered.filter(p => isUserTeamPlayer(p));
             }
         }
@@ -138,73 +169,44 @@ const Rankings = () => {
             filtered = filtered.filter(p => p.position && p.position.includes(positionFilter));
         }
 
-        if (!filtered.length || puntedCategories.length === 0) {
-            return filtered.map((p) => ({
-                ...p,
-                originalRank: players.indexOf(p) + 1,
-                adjustedTotalValue: p.total_value,
-                adjustedRank: filtered.indexOf(p) + 1,
-                rankChange: 0,
-                valueChange: 0,
-            }));
-        }
+        return filtered;
+    }, [adjustedPlayersFull, showHighlightedOnly, selectedOpponentTeam, teamFilter, positionFilter, isUserTeamPlayer, isOpponentTeamPlayer]);
 
-        // Recalculate total_value excluding punted categories
-        const allCategories = PUNT_CATEGORIES.map(c => c.key);
-        const includedCategories = allCategories.filter(c => !puntedCategories.includes(c));
-        const n = includedCategories.length;
-        const sqrtN = Math.sqrt(n);
-
-        const playersWithAdjusted = filtered.map((player) => {
-            const sum = includedCategories.reduce((acc, cat) => acc + (player[cat] || 0), 0);
-            const adjustedTotalValue = sum / sqrtN;
-
-            return {
-                ...player,
-                originalRank: players.indexOf(player) + 1,
-                adjustedTotalValue: Number(adjustedTotalValue.toFixed(2)),
-                valueChange: Number((adjustedTotalValue - player.total_value).toFixed(2)),
-            };
-        });
-
-        // Sort by adjusted total value (only when punting, otherwise apply user sorting)
-        const sorted = [...playersWithAdjusted].sort((a, b) => b.adjustedTotalValue - a.adjustedTotalValue);
-
-        // Calculate adjusted rank and rank change
-        return sorted.map((player, idx) => ({
-            ...player,
-            adjustedRank: idx + 1,
-            rankChange: player.originalRank - (idx + 1),
-        }));
-    }, [players, puntedCategories, showHighlightedOnly, selectedOpponentTeam, teamFilter, positionFilter, isUserTeamPlayer, isOpponentTeamPlayer]);
-
-    // Apply sorting to the adjusted players
+    // Apply user sorting to displayed players
     const sortedPlayers = useMemo(() => {
-        if (!adjustedPlayers.length) return [];
+        if (!displayedPlayers.length) return [];
 
-        const sorted = [...adjustedPlayers].sort((a, b) => {
+        const sorted = [...displayedPlayers].sort((a, b) => {
             let aVal = a[orderBy];
             let bVal = b[orderBy];
 
-            // Handle null/undefined values
             if (aVal === null || aVal === undefined) aVal = order === 'asc' ? Infinity : -Infinity;
             if (bVal === null || bVal === undefined) bVal = order === 'asc' ? Infinity : -Infinity;
 
-            // Handle string vs number comparison
             if (typeof aVal === 'string' && typeof bVal === 'string') {
                 return order === 'asc' 
                     ? aVal.localeCompare(bVal)
                     : bVal.localeCompare(aVal);
             }
 
-            // Numeric comparison
             return order === 'asc' ? aVal - bVal : bVal - aVal;
         });
 
         return sorted;
-    }, [adjustedPlayers, orderBy, order]);
+    }, [displayedPlayers, orderBy, order]);
 
-    // Calculate team impact when punting
+    // Auto-switch sorting when punting
+    useEffect(() => {
+        if (puntedCategories.length > 0) {
+            setOrderBy('adjustedTotalValue');
+            setOrder('desc');
+        } else {
+            setOrderBy('total_value');
+            setOrder('desc');
+        }
+    }, [puntedCategories.length]);
+
+    // Team impact calculation
     const teamImpact = useMemo(() => {
         if (!userTeamPlayers || userTeamPlayers.length === 0 || puntedCategories.length === 0) {
             return null;
@@ -238,7 +240,7 @@ const Rankings = () => {
         });
     };
 
-    // Auto-select user's team players when data loads
+    // Auto-select user's team players
     useEffect(() => {
         if (players.length > 0 && userTeamPlayerIds.size > 0) {
             const teamPlayerIds = new Set();
@@ -272,10 +274,7 @@ const Rankings = () => {
     };
 
     const handleSort = (columnId) => {
-        // Don't allow sorting on these columns
-        if (columnId === 'select' || columnId === 'rank') {
-            return;
-        }
+        if (columnId === 'select' || columnId === 'rank') return;
 
         const isDesc = orderBy === columnId && order === 'desc';
         setOrder(isDesc ? 'asc' : 'desc');
@@ -311,9 +310,6 @@ const Rankings = () => {
                     position: positionMap.get(player.player_id) || '-',
                 }));
 
-                console.log('Sample player with position:', playersWithPosition[0]);
-                console.log('Position map size:', positionMap.size);
-                
                 setPlayers(playersWithPosition || []);
             } catch (error) {
                 console.error('Error fetching player rankings:', error);
@@ -328,7 +324,6 @@ const Rankings = () => {
     const formatValue = (value, column, player) => {
         if (value === null || value === undefined || value === 0) return '-';
 
-        // Format raw percentages as % with made/attempted ratio
         if (column === 'field_goal_percentage') {
             const fgm = player?.field_goals_per_game || 0;
             const fga = player?.field_goals_attempted_per_game || 0;
@@ -340,12 +335,10 @@ const Rankings = () => {
             return `${(value * 100).toFixed(1)}% (${ftm.toFixed(1)}/${fta.toFixed(1)})`;
         }
 
-        // Format z-scores and total value with 2 decimals
         if (column.endsWith('_z') || column === 'total_value' || column === 'adjustedTotalValue') {
             return typeof value === 'number' ? value.toFixed(2) : value;
         }
 
-        // Format other numbers with 1 decimal
         if (typeof value === 'number') {
             return value.toFixed(1);
         }
@@ -360,19 +353,12 @@ const Rankings = () => {
         const minValue = -maxValue;
     
         const clamped = Math.max(minValue, Math.min(maxValue, value));
-        const normalized = (clamped - minValue) / (maxValue - minValue); // 0 → 1
+        const normalized = (clamped - minValue) / (maxValue - minValue);
     
-        // Hue: red (0°) → green (120°)
         const hue = normalized * 120;
-    
-        // Strength of the value (0 at center, 1 at extremes)
         const strength = Math.abs(clamped) / maxValue;
-    
-        // Saturation increases with strength
-        const saturation = 30 + strength * 50; // 30% → 80%
-    
-        // Lightness decreases with strength (darker at extremes)
-        const lightness = 85 - strength * 35; // 85% → 50%
+        const saturation = 30 + strength * 50;
+        const lightness = 85 - strength * 35;
     
         return `hsla(${hue}, ${saturation}%, ${lightness}%, 0.45)`;
     };
@@ -387,7 +373,6 @@ const Rankings = () => {
             { id: 'total_value', label: 'Value', sortable: true, width: 60 },
         ];
 
-        // Add punt-related columns if punting is active
         if (puntedCategories.length > 0) {
             baseColumns.push(
                 { id: 'adjustedTotalValue', label: 'Adj Val', sortable: true, width: 60 },
@@ -396,7 +381,6 @@ const Rankings = () => {
             );
         }
 
-        // Add stat columns (actual values + Z-scores)
         const statColumns = [
             { statKey: 'points_per_game', zKey: 'points_z', label: 'PTS', width: 50 },
             { statKey: 'three_pointers_per_game', zKey: 'three_pointers_z', label: '3PM', width: 50 },
@@ -438,13 +422,7 @@ const Rankings = () => {
     };
 
     return (
-        <Box
-            sx={{
-                p: 2,
-                minHeight: '100vh',
-                bgcolor: '#f5f5f5',
-            }}
-        >
+        <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#f5f5f5' }}>
             {/* Header Bar */}
             <Box sx={{ 
                 display: 'flex', 
@@ -456,14 +434,7 @@ const Rankings = () => {
                 flexWrap: 'wrap',
                 gap: 2,
             }}>
-                <Typography
-                    variant="h5"
-                    sx={{
-                        fontWeight: 600,
-                        color: '#003366',
-                        fontSize: '1.25rem',
-                    }}
-                >
+                <Typography variant="h5" sx={{ fontWeight: 600, color: '#003366', fontSize: '1.25rem' }}>
                     Player Rankings 
                 </Typography>
                 
@@ -485,62 +456,18 @@ const Rankings = () => {
                     </FormControl>
                     
                     <FormControl size="small" sx={{ minWidth: 120 }}>
-                        <Select
-                            value={teamFilter}
-                            onChange={(e) => setTeamFilter(e.target.value)}
-                            sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
-                        >
+                        <Select value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)} sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}>
                             <MenuItem value="all">All Teams</MenuItem>
-                            {uniqueTeams.map(team => (
-                                <MenuItem key={team} value={team}>{team}</MenuItem>
-                            ))}
+                            {uniqueTeams.map(team => <MenuItem key={team} value={team}>{team}</MenuItem>)}
                         </Select>
                     </FormControl>
                     
                     <FormControl size="small" sx={{ minWidth: 100 }}>
-                        <Select
-                            value={positionFilter}
-                            onChange={(e) => setPositionFilter(e.target.value)}
-                            sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
-                        >
+                        <Select value={positionFilter} onChange={(e) => setPositionFilter(e.target.value)} sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}>
                             <MenuItem value="all">All Pos</MenuItem>
-                            {uniquePositions.map(pos => (
-                                <MenuItem key={pos} value={pos}>{pos}</MenuItem>
-                            ))}
+                            {uniquePositions.map(pos => <MenuItem key={pos} value={pos}>{pos}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    
-                    <Tooltip 
-                        title={!isAuthenticated ? "Login to yahoo to load your team" : "Your team players are always highlighted"}
-                        arrow
-                    >
-                        <span>
-                            <Button
-                                variant="contained"
-                                size="small"
-                                disabled={!isAuthenticated}
-                                sx={{
-                                    textTransform: 'none',
-                                    fontSize: '0.875rem',
-                                    bgcolor: '#0066cc',
-                                    color: '#fff',
-                                    borderColor: '#0066cc',
-                                    border: '2px solid #0066cc',
-                                    '&:hover': {
-                                        bgcolor: '#0052a3',
-                                        borderColor: '#0052a3',
-                                    },
-                                    '&.Mui-disabled': {
-                                        bgcolor: '#ccc',
-                                        borderColor: '#ccc',
-                                        color: '#fff',
-                                    },
-                                }}
-                            >
-                                My Team
-                            </Button>
-                        </span>
-                    </Tooltip>
 
                     <Tooltip 
                         title={!isAuthenticated ? "Login to yahoo to load league teams" : selectedOpponentTeam ? `Highlighting: ${selectedOpponentTeam}` : "Click to select an opponent team"}
@@ -573,31 +500,17 @@ const Rankings = () => {
                         </span>
                     </Tooltip>
 
-                    <Menu
-                        anchorEl={teamMenuAnchor}
-                        open={Boolean(teamMenuAnchor)}
-                        onClose={() => setTeamMenuAnchor(null)}
-                    >
+                    <Menu anchorEl={teamMenuAnchor} open={Boolean(teamMenuAnchor)} onClose={() => setTeamMenuAnchor(null)}>
                         <MenuItem 
-                            onClick={() => {
-                                setSelectedOpponentTeam('');
-                                setTeamMenuAnchor(null);
-                            }}
-                            sx={{ 
-                                fontSize: '0.875rem',
-                                fontStyle: selectedOpponentTeam ? 'normal' : 'italic',
-                                color: selectedOpponentTeam ? '#000' : '#999',
-                            }}
+                            onClick={() => { setSelectedOpponentTeam(''); setTeamMenuAnchor(null); }}
+                            sx={{ fontSize: '0.875rem', fontStyle: selectedOpponentTeam ? 'normal' : 'italic', color: selectedOpponentTeam ? '#000' : '#999' }}
                         >
                             {selectedOpponentTeam ? 'Clear Selection' : 'No team selected'}
                         </MenuItem>
                         {leagueTeams && leagueTeams.filter(team => !team.is_owned_by_current_login).map(team => (
                             <MenuItem 
                                 key={team.key || team.name} 
-                                onClick={() => {
-                                    setSelectedOpponentTeam(team.name);
-                                    setTeamMenuAnchor(null);
-                                }}
+                                onClick={() => { setSelectedOpponentTeam(team.name); setTeamMenuAnchor(null); }}
                                 selected={selectedOpponentTeam === team.name}
                                 sx={{ fontSize: '0.875rem' }}
                             >
@@ -640,16 +553,8 @@ const Rankings = () => {
                 </Box>
             </Box>
 
-            {/* Punt Categories - Compact Filter Bar */}
-            <Box
-                sx={{
-                    mb: 2,
-                    p: 1.5,
-                    bgcolor: '#fff',
-                    border: '1px solid #ddd',
-                    borderRadius: 1,
-                }}
-            >
+            {/* Punt Categories */}
+            <Box sx={{ mb: 2, p: 1.5, bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                     <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', minWidth: '100px' }}>
                         Punt Categories:
@@ -662,18 +567,10 @@ const Rankings = () => {
                                     checked={puntedCategories.includes(cat.key)}
                                     onChange={() => handlePuntToggle(cat.key)}
                                     size="small"
-                                    sx={{
-                                        '&.Mui-checked': {
-                                            color: '#0066cc',
-                                        },
-                                    }}
+                                    sx={{ '&.Mui-checked': { color: '#0066cc' } }}
                                 />
                             }
-                            label={
-                                <Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#000' }}>
-                                    {cat.label}
-                                </Typography>
-                            }
+                            label={<Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#000' }}>{cat.label}</Typography>}
                             sx={{ m: 0 }}
                         />
                     ))}
@@ -684,28 +581,17 @@ const Rankings = () => {
                     </Typography>
                 )}
                 
-                {/* Team Impact - Compact Display */}
                 {teamImpact && (
-                    <Box
-                        sx={{
-                            mb: 1,
-                            p: 1,
-                            bgcolor: teamImpact.totalValueChange >= 0 ? '#e8f5e9' : '#ffebee',
-                            border: `1px solid ${teamImpact.totalValueChange >= 0 ? '#4caf50' : '#f44336'}`,
-                            borderRadius: 1,
-                        }}
-                    >
+                    <Box sx={{ mb: 1, p: 1, bgcolor: teamImpact.totalValueChange >= 0 ? '#e8f5e9' : '#ffebee', border: `1px solid ${teamImpact.totalValueChange >= 0 ? '#4caf50' : '#f44336'}`, borderRadius: 1 }}>
                         <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#000' }}>
-                                Your Team:
-                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#000' }}>Your Team:</Typography>
                             <Typography variant="body2" sx={{ color: '#000' }}>
                                 Total Change: <strong style={{ color: teamImpact.totalValueChange >= 0 ? '#2e7d32' : '#c62828' }}>
                                     {teamImpact.totalValueChange >= 0 ? '+' : ''}{teamImpact.totalValueChange}
                                 </strong>
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#000' }}>
-                                Avg: <strong style={{ color: '#000' }}>{teamImpact.avgValueChange >= 0 ? '+' : ''}{teamImpact.avgValueChange}</strong>
+                                Avg: <strong>{teamImpact.avgValueChange >= 0 ? '+' : ''}{teamImpact.avgValueChange}</strong>
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#000' }}>
                                 <span style={{ color: '#4caf50' }}>↑{teamImpact.playersImproved}</span>
@@ -719,7 +605,7 @@ const Rankings = () => {
                 )}
             </Box>
 
-            {adjustedPlayers.length === 0 && !loading ? (
+            {displayedPlayers.length === 0 && !loading ? (
                 <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1 }}>
                     <Typography variant="body1" sx={{ mb: 1, fontWeight: 600 }}>
                         No data available for {getPeriodLabel(periodType)}
@@ -729,217 +615,177 @@ const Rankings = () => {
                     </Typography>
                 </Box>
             ) : (
-                <Box
-                    sx={{
-                        bgcolor: '#fff',
-                        border: '1px solid #ddd',
-                        borderRadius: 1,
-                        overflow: 'hidden',
-                    }}
-                >
-                    <TableContainer
-                        sx={{
-                            maxHeight: '100vh',
-                        }}
-                    >
-                    <Table size="small" stickyHeader>
-                        <TableHead>
-                            <TableRow>
-                                {columns.map((column) => (
-                                    <TableCell
-                                        key={column.id}
-                                        align={column.align || 'center'}
-                                        sx={{
-                                            bgcolor: '#003366',
-                                            color: '#fff',
-                                            fontWeight: 600,
-                                            fontSize: '0.75rem',
-                                            py: 1,
-                                            px: 0.5,
-                                            borderBottom: '1px solid #ddd',
-                                            width: column.width || 'auto',
-                                        }}
-                                    >
-                                        {column.id === 'select' ? (
-                                            <Checkbox
-                                                size="small"
-                                                checked={selectedPlayers.size === sortedPlayers.length}
-                                                indeterminate={selectedPlayers.size > 0 && selectedPlayers.size < sortedPlayers.length}
-                                                onChange={handleSelectAll}
-                                                sx={{
-                                                    color: '#fff',
-                                                    '&.Mui-checked': { color: '#fff' },
-                                                    '&.MuiCheckbox-indeterminate': { color: '#fff' },
-                                                    p: 0,
-                                                }}
-                                            />
-                                        ) : column.sortable ? (
-                                            <TableSortLabel
-                                                active={orderBy === column.id}
-                                                direction={orderBy === column.id ? order : 'asc'}
-                                                onClick={() => handleSort(column.id)}
-                                                sx={{
-                                                    color: '#fff !important',
-                                                    '& .MuiTableSortLabel-icon': {
-                                                        color: '#fff !important',
-                                                    },
-                                                    '&:hover': {
-                                                        color: '#fff',
-                                                    },
-                                                    '&.Mui-active': {
-                                                        color: '#fff',
-                                                    },
-                                                }}
-                                            >
-                                                {column.label}
-                                            </TableSortLabel>
-                                        ) : (
-                                            column.label
-                                        )}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {sortedPlayers.map((player, index) => {
-                                const isMyPlayer = isUserTeamPlayer(player);
-                                const isOpponentPlayer = isOpponentTeamPlayer(player);
-                                const isSelected = selectedPlayers.has(player.player_id);
-                                const displayRank = puntedCategories.length > 0 ? player.adjustedRank : (index + 1);
-                                const hasMovedUp = player.rankChange > 0;
-                                const hasMovedDown = player.rankChange < 0;
-                                
-                                let borderLeft = 'none';
-                                let bgColor = index % 2 === 0 ? '#fff' : '#f9f9f9';
-                                let hoverColor = 'rgba(0, 0, 0, 0.03)';
-                                
-                                if (isMyPlayer) {
-                                    borderLeft = '3px solid #0066cc';
-                                    bgColor = 'rgba(0, 102, 204, 0.2)';
-                                    hoverColor = 'rgba(0, 102, 204, 0.12)';
-                                } else if (isOpponentPlayer) {
-                                    borderLeft = '3px solid #ff6b35';
-                                    bgColor = 'rgba(236, 94, 0, 0.2)';
-                                    hoverColor = 'rgba(255, 107, 53, 0.12)';
-                                }
-                                
-                                if (isSelected && !isMyPlayer && !isOpponentPlayer) {
-                                    bgColor = 'rgba(0, 102, 204, 0.08)';
-                                    hoverColor = 'rgba(0, 102, 204, 0.12)';
-                                }
-                                
-                                return (
-                                <TableRow
-                                    key={player.id}
-                                    onClick={() => handlePlayerToggle(player.player_id)}
-                                    sx={{
-                                        bgcolor: bgColor,
-                                        '&:hover': {
-                                            bgcolor: hoverColor,
-                                            cursor: 'pointer',
-                                        },
-                                        borderLeft: borderLeft,
-                                    }}
-                                >
-                                    {columns.map((column) => {
-                                        let value = column.id === 'rank' ? displayRank : player[column.id];
-                                        let cellColor = '#000';
-                                        let cellBg = 'transparent';
-                                        
-                                        // Determine cell styling
-                                        if (puntedCategories.includes(column.id)) {
-                                            cellColor = '#999';
-                                            cellBg = '#f5f5f5';
-                                        } else if (column.id === 'total_value') {
-                                            cellBg = getValueBackground(value, false);
-                                            cellColor = '#000';
-                                        } else if (column.id === 'adjustedTotalValue') {
-                                            value = player.adjustedTotalValue;
-                                            cellBg = getValueBackground(value, false);
-                                            cellColor = '#000';
-                                        } else if (column.id === 'valueChange') {
-                                            value = player.valueChange;
-                                            cellColor = value > 0 ? '#4caf50' : value < 0 ? '#f44336' : '#000';
-                                        } else if (column.id === 'rankChange') {
-                                            value = player.rankChange;
-                                            cellColor = hasMovedUp ? '#4caf50' : hasMovedDown ? '#f44336' : '#000';
-                                        } else if (column.isZScore || column.id.endsWith('_z')) {
-                                            const zValue = value || 0;
-                                            cellBg = getValueBackground(zValue, true);
-                                            cellColor = '#000';
-                                        } else if (column.id === 'position') {
-                                            cellColor = '#666';
-                                        }
-
-                                        return (
+                <Box sx={{ bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1, overflow: 'hidden' }}>
+                    <Box sx={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}>
+                        <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)', minWidth: 1200 }}>
+                            <Table size="small" stickyHeader>
+                                <TableHead>
+                                    <TableRow>
+                                        {columns.map((column) => (
                                             <TableCell
                                                 key={column.id}
                                                 align={column.align || 'center'}
                                                 sx={{
-                                                    py: 0.75,
-                                                    px: 0.5,
+                                                    bgcolor: '#003366',
+                                                    color: '#fff',
+                                                    fontWeight: 600,
                                                     fontSize: '0.75rem',
-                                                    borderBottom: '1px solid #eee',
-                                                    color: cellColor,
-                                                    bgcolor: cellBg,
-                                                    fontWeight: column.id === 'player_name' ? 600 : 400,
+                                                    py: 1,
+                                                    px: 0.5,
+                                                    borderBottom: '1px solid #ddd',
                                                     width: column.width || 'auto',
                                                 }}
                                             >
                                                 {column.id === 'select' ? (
                                                     <Checkbox
                                                         size="small"
-                                                        checked={isSelected}
-                                                        onClick={(e) => e.stopPropagation()}
-                                                        onChange={() => handlePlayerToggle(player.player_id)}
-                                                        sx={{ p: 0 }}
+                                                        checked={selectedPlayers.size === sortedPlayers.length}
+                                                        indeterminate={selectedPlayers.size > 0 && selectedPlayers.size < sortedPlayers.length}
+                                                        onChange={handleSelectAll}
+                                                        sx={{ color: '#fff', '&.Mui-checked': { color: '#fff' }, '&.MuiCheckbox-indeterminate': { color: '#fff' }, p: 0 }}
                                                     />
-                                                ) : column.id === 'rank' ? (
-                                                    <Box>
-                                                        {value}
-                                                        {puntedCategories.length > 0 && player.originalRank !== displayRank && (
-                                                            <Typography component="span" sx={{ fontSize: '0.65rem', color: '#999', ml: 0.5 }}>
-                                                                ({player.originalRank})
-                                                            </Typography>
-                                                        )}
-                                                    </Box>
-                                                ) : column.id === 'player_name' ? (
-                                                    <Box sx={{ textAlign: 'left' }}>
-                                                        {value}
-                                                    </Box>
-                                                ) : column.id === 'position' ? (
-                                                    <Box sx={{ fontSize: '0.7rem', fontWeight: 600 }}>
-                                                        {value || '-'}
-                                                    </Box>
-                                                ) : column.id === 'rankChange' ? (
-                                                    <Box>
-                                                        {value > 0 && '↑'}
-                                                        {value < 0 && '↓'}
-                                                        {value > 0 ? `+${value}` : value || '–'}
-                                                    </Box>
-                                                ) : column.id === 'valueChange' ? (
-                                                    <Box>
-                                                        {value > 0 ? `+${value.toFixed(2)}` : value.toFixed(2)}
-                                                    </Box>
-                                                ) : column.id === 'adjustedTotalValue' ? (
-                                                    <Box>
-                                                        {value.toFixed(2)}
-                                                    </Box>
+                                                ) : column.sortable ? (
+                                                    <TableSortLabel
+                                                        active={orderBy === column.id}
+                                                        direction={orderBy === column.id ? order : 'asc'}
+                                                        onClick={() => handleSort(column.id)}
+                                                        sx={{
+                                                            color: '#fff !important',
+                                                            '& .MuiTableSortLabel-icon': { color: '#fff !important' },
+                                                        }}
+                                                    >
+                                                        {column.label}
+                                                    </TableSortLabel>
                                                 ) : (
-                                                    formatValue(value, column.id, player)
+                                                    column.label
                                                 )}
                                             </TableCell>
+                                        ))}
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {sortedPlayers.map((player) => {
+                                        const isMyPlayer = isUserTeamPlayer(player);
+                                        const isOpponentPlayer = isOpponentTeamPlayer(player);
+                                        const isSelected = selectedPlayers.has(player.player_id);
+                                        const displayRank = puntedCategories.length > 0 ? player.adjustedRank : player.originalRank;
+
+                                        let borderLeft = 'none';
+                                        let bgColor = '#fff';
+                                        let hoverColor = 'rgba(0, 0, 0, 0.03)';
+                                        
+                                        if (isMyPlayer) {
+                                            borderLeft = '3px solid #0066cc';
+                                            bgColor = 'rgba(0, 102, 204, 0.2)';
+                                            hoverColor = 'rgba(0, 102, 204, 0.12)';
+                                        } else if (isOpponentPlayer) {
+                                            borderLeft = '3px solid #ff6b35';
+                                            bgColor = 'rgba(236, 94, 0, 0.2)';
+                                            hoverColor = 'rgba(255, 107, 53, 0.12)';
+                                        }
+                                        
+                                        if (isSelected && !isMyPlayer && !isOpponentPlayer) {
+                                            bgColor = 'rgba(0, 102, 204, 0.08)';
+                                            hoverColor = 'rgba(0, 102, 204, 0.12)';
+                                        }
+
+                                        return (
+                                            <TableRow
+                                                key={player.id}
+                                                onClick={() => handlePlayerToggle(player.player_id)}
+                                                sx={{
+                                                    bgcolor: bgColor,
+                                                    '&:hover': { bgcolor: hoverColor, cursor: 'pointer' },
+                                                    borderLeft: borderLeft,
+                                                }}
+                                            >
+                                                {columns.map((column) => {
+                                                    let value = column.id === 'rank' ? displayRank : player[column.id];
+                                                    let cellColor = '#000';
+                                                    let cellBg = 'transparent';
+
+                                                    if (puntedCategories.includes(column.id)) {
+                                                        cellColor = '#999';
+                                                        cellBg = '#f5f5f5';
+                                                    } else if (column.id === 'total_value') {
+                                                        cellBg = getValueBackground(value, false);
+                                                    } else if (column.id === 'adjustedTotalValue') {
+                                                        value = player.adjustedTotalValue;
+                                                        cellBg = getValueBackground(value, false);
+                                                    } else if (column.id === 'valueChange') {
+                                                        value = player.valueChange;
+                                                        cellColor = value > 0 ? '#4caf50' : value < 0 ? '#f44336' : '#000';
+                                                    } else if (column.id === 'rankChange') {
+                                                        value = player.rankChange;
+                                                        cellColor = value > 0 ? '#4caf50' : value < 0 ? '#f44336' : '#000';
+                                                    } else if (column.isZScore || column.id.endsWith('_z')) {
+                                                        const zValue = value || 0;
+                                                        cellBg = getValueBackground(zValue, true);
+                                                    } else if (column.id === 'position') {
+                                                        cellColor = '#666';
+                                                    }
+
+                                                    return (
+                                                        <TableCell
+                                                            key={column.id}
+                                                            align={column.align || 'center'}
+                                                            sx={{
+                                                                py: 0.75,
+                                                                px: 0.5,
+                                                                fontSize: '0.75rem',
+                                                                borderBottom: '1px solid #eee',
+                                                                color: cellColor,
+                                                                bgcolor: cellBg,
+                                                                fontWeight: column.id === 'player_name' ? 600 : 400,
+                                                                width: column.width || 'auto',
+                                                            }}
+                                                        >
+                                                            {column.id === 'select' ? (
+                                                                <Checkbox
+                                                                    size="small"
+                                                                    checked={isSelected}
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                    onChange={() => handlePlayerToggle(player.player_id)}
+                                                                    sx={{ p: 0 }}
+                                                                />
+                                                            ) : column.id === 'rank' ? (
+                                                                <Box>
+                                                                    {value}
+                                                                    {puntedCategories.length > 0 && player.originalRank !== player.adjustedRank && (
+                                                                        <Typography component="span" sx={{ fontSize: '0.65rem', color: '#999', ml: 0.5 }}>
+                                                                            ({player.originalRank})
+                                                                        </Typography>
+                                                                    )}
+                                                                </Box>
+                                                            ) : column.id === 'player_name' ? (
+                                                                <Box sx={{ textAlign: 'left' }}>{value}</Box>
+                                                            ) : column.id === 'position' ? (
+                                                                <Box sx={{ fontSize: '0.7rem', fontWeight: 600 }}>{value || '-'}</Box>
+                                                            ) : column.id === 'rankChange' ? (
+                                                                <Box>
+                                                                    {value > 0 && '↑'}
+                                                                    {value < 0 && '↓'}
+                                                                    {value > 0 ? `+${value}` : value || '–'}
+                                                                </Box>
+                                                            ) : column.id === 'valueChange' ? (
+                                                                <Box>{value > 0 ? `+${value.toFixed(2)}` : value.toFixed(2)}</Box>
+                                                            ) : column.id === 'adjustedTotalValue' ? (
+                                                                <Box>{value.toFixed(2)}</Box>
+                                                            ) : (
+                                                                formatValue(value, column.id, player)
+                                                            )}
+                                                        </TableCell>
+                                                    );
+                                                })}
+                                            </TableRow>
                                         );
                                     })}
-                                </TableRow>
-                            );
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
+                </Box>
             )}
-
         </Box>
     );
 };
