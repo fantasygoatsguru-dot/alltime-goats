@@ -8,10 +8,15 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Paper,
     Grid,
     Menu,
     MenuItem,
+    Chip,
+    Collapse,
+    IconButton,
 } from "@mui/material";
+import { KeyboardArrowDown, KeyboardArrowRight } from "@mui/icons-material";
 
 const MatchupProjectionTracker = ({ 
     matchupProjection, 
@@ -23,7 +28,13 @@ const MatchupProjectionTracker = ({
     const [playerStatusMenu, setPlayerStatusMenu] = useState(null);
     const [selectedPlayerForMenu, setSelectedPlayerForMenu] = useState(null);
 
+    const team1Color = "#32a852"; // Green
+    const team2Color = "#ba3030"; // Red
+    const winColor = "#10b981";   // Emerald green
+    const lossColor = "#ef4444";  // Red
+
     const handlePlayerClick = (event, player, dateStr) => {
+        event.stopPropagation();
         setPlayerStatusMenu(event.currentTarget);
         setSelectedPlayerForMenu({ ...player, dateStr });
     };
@@ -40,7 +51,20 @@ const MatchupProjectionTracker = ({
         handleClosePlayerMenu();
     };
 
-    // Recalculate accurate score based on Yahoo stats + projected stats
+    // Format percentages to 3 decimals
+    const formatPct = (value) => value.toFixed(3);
+
+    // Format made/attempted as integers
+    const formatMadeAtt = (value) => Math.round(value).toString();
+
+    // Calculate percentage from made/attempted
+    const calculatePct = (made, attempted) => {
+        return attempted > 0 ? (made / attempted) * 100 : 0;
+    };
+
+    // Format non-percentage stats (points, etc.) to 1 decimal
+    const formatStat = (value) => value.toFixed(1);
+
     const accurateScore = useMemo(() => {
         if (!matchupProjection || !currentMatchup) {
             return { team1Score: 0, team2Score: 0 };
@@ -69,7 +93,6 @@ const MatchupProjectionTracker = ({
             const yahooCategoryName = yahooCategoryMap[catKey];
             const yahooStats = currentMatchup?.stats?.categories?.[yahooCategoryName];
 
-            // Calculate projected stats for remaining days
             let team1Projected = 0, team2Projected = 0;
             let team1ProjectedMade = 0, team1ProjectedAttempted = 0;
             let team2ProjectedMade = 0, team2ProjectedAttempted = 0;
@@ -85,7 +108,7 @@ const MatchupProjectionTracker = ({
                             team1ProjectedAttempted += day.totals.freeThrowsAttempted || 0;
                         }
                         const team2Day = matchupProjection.team2.dailyProjections[idx];
-                        if (team2Day && team2Day.totals) {
+                        if (team2Day?.totals) {
                             if (catKey === 'fieldGoalPercentage') {
                                 team2ProjectedMade += team2Day.totals.fieldGoalsMade || 0;
                                 team2ProjectedAttempted += team2Day.totals.fieldGoalsAttempted || 0;
@@ -97,14 +120,11 @@ const MatchupProjectionTracker = ({
                     } else {
                         team1Projected += day.totals[catKey] || 0;
                         const team2Day = matchupProjection.team2.dailyProjections[idx];
-                        if (team2Day && team2Day.totals) {
-                            team2Projected += team2Day.totals[catKey] || 0;
-                        }
+                        if (team2Day?.totals) team2Projected += team2Day.totals[catKey] || 0;
                     }
                 }
             });
 
-            // Calculate total values (Yahoo current + projected future)
             let team1TotalNumeric, team2TotalNumeric;
 
             if (yahooStats) {
@@ -120,7 +140,6 @@ const MatchupProjectionTracker = ({
                     team1TotalNumeric = (parseFloat(yahooStats.team1) || 0) + team1Projected;
                     team2TotalNumeric = (parseFloat(yahooStats.team2) || 0) + team2Projected;
                 } else {
-                    // Fallback for percentages
                     const made1 = catData.team1Made || 0;
                     const attempted1 = catData.team1Attempted || 0;
                     const made2 = catData.team2Made || 0;
@@ -129,7 +148,6 @@ const MatchupProjectionTracker = ({
                     team2TotalNumeric = attempted2 > 0 ? (made2 / attempted2) * 100 : 0;
                 }
             } else {
-                // Fallback to calculated if Yahoo stats not available
                 if (isPct) {
                     const made1 = catData.team1Made || 0;
                     const attempted1 = catData.team1Attempted || 0;
@@ -143,21 +161,12 @@ const MatchupProjectionTracker = ({
                 }
             }
 
-            // Determine winner based on actual calculated totals
             if (catKey === 'turnovers') {
-                // Lower is better for turnovers
-                if (team1TotalNumeric < team2TotalNumeric) {
-                    team1Score++;
-                } else if (team2TotalNumeric < team1TotalNumeric) {
-                    team2Score++;
-                }
+                if (team1TotalNumeric < team2TotalNumeric) team1Score++;
+                else if (team2TotalNumeric < team1TotalNumeric) team2Score++;
             } else {
-                // Higher is better for everything else
-                if (team1TotalNumeric > team2TotalNumeric) {
-                    team1Score++;
-                } else if (team2TotalNumeric > team1TotalNumeric) {
-                    team2Score++;
-                }
+                if (team1TotalNumeric > team2TotalNumeric) team1Score++;
+                else if (team2TotalNumeric > team1TotalNumeric) team2Score++;
             }
         });
 
@@ -166,667 +175,371 @@ const MatchupProjectionTracker = ({
 
     if (!isConnected) {
         return (
-            <Box sx={{ mt: 4, p: 4, bgcolor: "#f8f9fa", borderRadius: 1, textAlign: 'center', border: "1px solid rgba(0, 0, 0, 0.12)" }}>
-                <Typography
-                    variant="h6"
-                    sx={{
-                        color: "#003366",
-                        fontWeight: 600,
-                        mb: 2
-                    }}
-                >
-                    Matchup Projection Tracker (Week {currentMatchup?.week || 'N/A'})
+            <Paper elevation={3} sx={{ p: 4, textAlign: 'center', borderRadius: 3, bgcolor: 'grey.50' }}>
+                <Typography variant="h5" fontWeight="bold" color="text.secondary" gutterBottom>
+                    Matchup Projection Tracker
                 </Typography>
-                <Typography
-                    variant="body2"
-                    sx={{
-                        color: "#666",
-                        fontStyle: 'italic'
-                    }}
-                >
-                    Connect to Yahoo account to see projected matchup results
+                <Typography variant="body1" color="text.secondary">
+                    Connect to your Yahoo account to view live projections
                 </Typography>
-            </Box>
+            </Paper>
         );
     }
 
     if (!matchupProjection) return null;
 
-    return (
-        <>
-            <Box sx={{ p: 2, }}>
-                
-                {/* Projected Score Display */}
-                <Box sx={{ textAlign: 'center', mb: 3 }}>
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            color: "#666",
-                            mb: 1,
-                            fontWeight: 600
-                        }}
-                    >
-                        PROJECTED FINAL SCORE
-                    </Typography>
-                    <Typography
-                        variant="h2"
-                        sx={{
-                            color: "#212121",
-                            fontWeight: 600,
-                            mb: 1
-                        }}
-                    >
-                        {accurateScore.team1Score} - {accurateScore.team2Score}
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                color: "#4CAF50",
-                                fontWeight: 600
-                            }}
-                        >
-                            {matchupProjection.team1.name}
-                        </Typography>
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                color: "#666",
-                            }}
-                        >
-                            vs
-                        </Typography>
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                color: accurateScore.team2Score > accurateScore.team1Score ? "#ff6f61" : accurateScore.team2Score < accurateScore.team1Score ? "#666" : "#999",
-                                fontWeight: 600
-                            }}
-                        >
-                            {matchupProjection.team2.name}
-                        </Typography>
-                    </Box>
-                </Box>
+    const categories = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers', 'turnovers', 'fieldGoalPercentage', 'freeThrowPercentage'];
+    const catLabels = {
+        points: 'PTS', rebounds: 'REB', assists: 'AST', steals: 'STL',
+        blocks: 'BLK', threePointers: '3PT', turnovers: 'TO',
+        fieldGoalPercentage: 'FG%', freeThrowPercentage: 'FT%'
+    };
 
-                {/* Day-by-Day Stats Breakdown */}
-                <TableContainer>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell sx={{ color: "#666", fontWeight: 600 }}>Category</TableCell>
+    return (
+        <Box sx={{ p: { xs: 1, md: 3 } }}>
+            {/* Header Score Card */}
+            <Paper 
+                elevation={6} 
+                sx={{ 
+                    p: 4, 
+                    mb: 4, 
+                    borderRadius: 4,
+                    bgcolor: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                    textAlign: 'center'
+                }}
+            >
+                <Typography variant="subtitle2" color="text.secondary" fontWeight={600} gutterBottom>
+                    PROJECTED FINAL SCORE 
+                </Typography>
+                <Typography 
+                    variant="h1" 
+                    fontWeight="bold" 
+                    sx={{ my: 2, fontSize: { xs: '3rem', md: '4.5rem' } }}
+                >
+                    {accurateScore.team1Score} – {accurateScore.team2Score}
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 3 }}>
+                    <Typography variant="h5" fontWeight="bold" color={team1Color}>
+                        {matchupProjection.team1.name}
+                    </Typography>
+                    <Typography variant="h6" color="text.secondary">vs</Typography>
+                    <Typography variant="h5" fontWeight="bold" color={team2Color}>
+                        {matchupProjection.team2.name}
+                    </Typography>
+                </Box>
+            </Paper>
+
+            {/* Main Table */}
+            <TableContainer component={Paper} elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                <Table size="medium">
+                    <TableHead>
+                        <TableRow sx={{ bgcolor: 'grey.100' }}>
+                            <TableCell sx={{ fontWeight: 'bold', color: 'text.primary' }}>Category</TableCell>
+                            <TableCell align="center" sx={{ fontWeight: 'bold', fontSize: '0.8rem', color: 'grey.700' }}>
+                                Current
+                            </TableCell>
+                            {matchupProjection.team1.dailyProjections.map((day, idx) => (
                                 <TableCell 
-                                    align="center" 
+                                    key={idx}
+                                    align="center"
                                     sx={{ 
-                                        color: "#9c27b0", 
-                                        fontWeight: 600, 
-                                        fontSize: '0.7rem',
-                                        bgcolor: 'rgba(156, 39, 176, 0.1)'
+                                        fontWeight: 'bold',
+                                        fontSize: '0.8rem',
+                                        bgcolor: day.isToday ? 'primary.50' : 'transparent',
+                                        color: day.isToday ? 'primary.main' : 'text.secondary'
                                     }}
                                 >
-                                    <Box>Current</Box>
-                                    <Box sx={{ fontSize: '0.65rem', color: '#9c27b0' }}>
-                                        So Far
+                                    {day.dayOfWeek}<br/>
+                                    <Box component="span" sx={{ fontWeight: 'normal', fontSize: '0.7rem' }}>
+                                        {day.monthDay}{day.isToday && ' (Today)'}
                                     </Box>
                                 </TableCell>
-                                {matchupProjection.team1.dailyProjections && matchupProjection.team1.dailyProjections.map((day, idx) => (
-                                    <TableCell 
-                                        key={idx} 
-                                        align="center" 
+                            ))}
+                            <TableCell align="center" sx={{ fontWeight: 'bold' }}>Projected</TableCell>
+                            <TableCell align="center" sx={{ fontWeight: 'bold' }}>Winner</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {categories.map((catKey) => {
+                            const catData = matchupProjection.categoryResults[catKey];
+                            if (!catData) return null;
+
+                            const isPct = catKey.includes('Percentage');
+                            const isExpanded = expandedCategory === catKey;
+
+                            const yahooCategoryName = {
+                                points: 'Points', rebounds: 'Rebounds', assists: 'Assists',
+                                steals: 'Steals', blocks: 'Blocks', threePointers: 'Three Pointers Made',
+                                turnovers: 'Turnovers', fieldGoalPercentage: 'Field Goal Percentage',
+                                freeThrowPercentage: 'Free Throw Percentage'
+                            }[catKey];
+
+                            const yahooStats = currentMatchup?.stats?.categories?.[yahooCategoryName];
+
+                            let team1Proj = 0, team2Proj = 0, team1Made = 0, team1Att = 0, team2Made = 0, team2Att = 0;
+                            matchupProjection.team1.dailyProjections.forEach((day, i) => {
+                                if (!day.isPast && day.totals) {
+                                    if (isPct) {
+                                        const keyMade = catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade';
+                                        const keyAtt = catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted';
+                                        team1Made += day.totals[keyMade] || 0;
+                                        team1Att += day.totals[keyAtt] || 0;
+                                        const t2 = matchupProjection.team2.dailyProjections[i];
+                                        if (t2?.totals) {
+                                            team2Made += t2.totals[keyMade] || 0;
+                                            team2Att += t2.totals[keyAtt] || 0;
+                                        }
+                                    } else {
+                                        team1Proj += day.totals[catKey] || 0;
+                                        const t2 = matchupProjection.team2.dailyProjections[i];
+                                        if (t2?.totals) team2Proj += t2.totals[catKey] || 0;
+                                    }
+                                }
+                            });
+
+                            let team1Total = 0, team2Total = 0;
+                            if (yahooStats && isPct && yahooStats.team1?.nominator !== undefined) {
+                                team1Total = (yahooStats.team1.nominator + team1Made) / (yahooStats.team1.denominator + team1Att || 1) * 100;
+                                team2Total = ((yahooStats.team2?.nominator || 0) + team2Made) / ((yahooStats.team2?.denominator || 0) + team2Att || 1) * 100;
+                            } else if (yahooStats && !isPct) {
+                                team1Total = (parseFloat(yahooStats.team1) || 0) + team1Proj;
+                                team2Total = (parseFloat(yahooStats.team2) || 0) + team2Proj;
+                            } else {
+                                team1Total = isPct ? (catData.team1Made / (catData.team1Attempted || 1)) * 100 : catData.team1;
+                                team2Total = isPct ? (catData.team2Made / (catData.team2Attempted || 1)) * 100 : catData.team2;
+                            }
+
+                            const isWin = catKey === 'turnovers' ? team1Total < team2Total : team1Total > team2Total;
+                            const isTie = team1Total === team2Total;
+
+                            const rowBg = isWin 
+                                ? 'rgba(16, 185, 129, 0.12)' 
+                                : isTie 
+                                ? 'rgba(156, 163, 175, 0.08)' 
+                                : 'rgba(239, 68, 68, 0.12)';
+
+                            const hoverBg = isWin 
+                                ? 'rgba(16, 185, 129, 0.2)' 
+                                : isTie 
+                                ? 'rgba(156, 163, 175, 0.15)' 
+                                : 'rgba(239, 68, 68, 0.2)';
+
+                            return (
+                                <React.Fragment key={catKey}>
+                                    <TableRow 
                                         sx={{ 
-                                            color: day.isToday ? "#003366" : "#666", 
-                                            fontWeight: 600, 
-                                            fontSize: '0.7rem',
-                                            bgcolor: day.isToday ? 'rgba(0, 51, 102, 0.1)' : 'transparent'
+                                            bgcolor: rowBg,
+                                            cursor: 'pointer',
+                                            '&:hover': { bgcolor: hoverBg }
                                         }}
+                                        onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                                     >
-                                        <Box>{day.dayOfWeek}</Box>
-                                        <Box sx={{ fontSize: '0.65rem', color: day.isToday ? '#003366' : '#888' }}>
-                                            {day.monthDay}
-                                            {day.isToday && ' (Today)'}
-                                        </Box>
-                                    </TableCell>
-                                ))}
-                                <TableCell align="center" sx={{ color: "#666", fontWeight: 600 }}>Total</TableCell>
-                                <TableCell sx={{ color: "#666", fontWeight: 600 }}>Winner</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers', 'turnovers', 'fieldGoalPercentage', 'freeThrowPercentage'].map((catKey) => {
-                                const catLabels = {
-                                    points: 'Points',
-                                    rebounds: 'Rebounds',
-                                    assists: 'Assists',
-                                    steals: 'Steals',
-                                    blocks: 'Blocks',
-                                    threePointers: '3PT',
-                                    turnovers: 'TO',
-                                    fieldGoalPercentage: 'FG%',
-                                    freeThrowPercentage: 'FT%'
-                                };
-                                
-                                const catData = matchupProjection.categoryResults[catKey];
-                                if (!catData) return null;
-                                
-                                const isExpanded = expandedCategory === catKey;
-                                const isPct = catKey === 'fieldGoalPercentage' || catKey === 'freeThrowPercentage';
-                                
-                                // Map internal category keys to Yahoo category names
-                                const yahooCategoryMap = {
-                                    points: 'Points',
-                                    rebounds: 'Rebounds',
-                                    assists: 'Assists',
-                                    steals: 'Steals',
-                                    blocks: 'Blocks',
-                                    threePointers: 'Three Pointers Made',
-                                    turnovers: 'Turnovers',
-                                    fieldGoalPercentage: 'Field Goal Percentage',
-                                    freeThrowPercentage: 'Free Throw Percentage'
-                                };
-                                
-                                // Get actual stats from Yahoo (currentMatchup.stats.categories)
-                                const yahooCategoryName = yahooCategoryMap[catKey];
-                                const yahooStats = currentMatchup?.stats?.categories?.[yahooCategoryName];
-                                
-                                // Calculate projected stats for remaining days
-                                let team1Projected = 0, team2Projected = 0;
-                                let team1ProjectedMade = 0, team1ProjectedAttempted = 0;
-                                let team2ProjectedMade = 0, team2ProjectedAttempted = 0;
-                                
-                                matchupProjection.team1.dailyProjections.forEach((day, idx) => {
-                                    if (!day.isPast && day.totals) {
-                                        if (isPct) {
-                                            if (catKey === 'fieldGoalPercentage') {
-                                                team1ProjectedMade += day.totals.fieldGoalsMade || 0;
-                                                team1ProjectedAttempted += day.totals.fieldGoalsAttempted || 0;
-                                            } else if (catKey === 'freeThrowPercentage') {
-                                                team1ProjectedMade += day.totals.freeThrowsMade || 0;
-                                                team1ProjectedAttempted += day.totals.freeThrowsAttempted || 0;
-                                            }
-                                            const team2Day = matchupProjection.team2.dailyProjections[idx];
-                                            if (team2Day && team2Day.totals) {
-                                                if (catKey === 'fieldGoalPercentage') {
-                                                    team2ProjectedMade += team2Day.totals.fieldGoalsMade || 0;
-                                                    team2ProjectedAttempted += team2Day.totals.fieldGoalsAttempted || 0;
-                                                } else if (catKey === 'freeThrowPercentage') {
-                                                    team2ProjectedMade += team2Day.totals.freeThrowsMade || 0;
-                                                    team2ProjectedAttempted += team2Day.totals.freeThrowsAttempted || 0;
+                                        <TableCell sx={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            {isExpanded ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+                                            {catLabels[catKey]}
+                                        </TableCell>
+                                        <TableCell align="center" sx={{ fontSize: '0.85rem', color: 'grey.700' }}>
+                                            <Box sx={{ color: team1Color, fontWeight: 600 }}>
+                                                {yahooStats && isPct 
+                                                    ? `${formatMadeAtt(yahooStats.team1.nominator)}/${formatMadeAtt(yahooStats.team1.denominator)}`
+                                                    : yahooStats?.team1 || '0'
                                                 }
-                                            }
-                                        } else {
-                                            team1Projected += day.totals[catKey] || 0;
-                                            const team2Day = matchupProjection.team2.dailyProjections[idx];
-                                            if (team2Day && team2Day.totals) {
-                                                team2Projected += team2Day.totals[catKey] || 0;
-                                            }
-                                        }
-                                    }
-                                });
-                                
-                                // Calculate total values (Yahoo current + projected future)
-                                let team1TotalNumeric, team2TotalNumeric;
-                                
-                                if (yahooStats) {
-                                    if (isPct && yahooStats.team1?.nominator !== undefined) {
-                                        const totalMade1 = yahooStats.team1.nominator + team1ProjectedMade;
-                                        const totalAttempted1 = yahooStats.team1.denominator + team1ProjectedAttempted;
-                                        const totalMade2 = (yahooStats.team2?.nominator || 0) + team2ProjectedMade;
-                                        const totalAttempted2 = (yahooStats.team2?.denominator || 0) + team2ProjectedAttempted;
-                                        
-                                        team1TotalNumeric = totalAttempted1 > 0 ? (totalMade1 / totalAttempted1) * 100 : 0;
-                                        team2TotalNumeric = totalAttempted2 > 0 ? (totalMade2 / totalAttempted2) * 100 : 0;
-                                    } else if (!isPct) {
-                                        team1TotalNumeric = (parseFloat(yahooStats.team1) || 0) + team1Projected;
-                                        team2TotalNumeric = (parseFloat(yahooStats.team2) || 0) + team2Projected;
-                                    } else {
-                                        // Fallback for percentages
-                                        const made1 = catData.team1Made || 0;
-                                        const attempted1 = catData.team1Attempted || 0;
-                                        const made2 = catData.team2Made || 0;
-                                        const attempted2 = catData.team2Attempted || 0;
-                                        team1TotalNumeric = attempted1 > 0 ? (made1 / attempted1) * 100 : 0;
-                                        team2TotalNumeric = attempted2 > 0 ? (made2 / attempted2) * 100 : 0;
-                                    }
-                                } else {
-                                    // Fallback to calculated if Yahoo stats not available
-                                    if (isPct) {
-                                        const made1 = catData.team1Made || 0;
-                                        const attempted1 = catData.team1Attempted || 0;
-                                        const made2 = catData.team2Made || 0;
-                                        const attempted2 = catData.team2Attempted || 0;
-                                        team1TotalNumeric = attempted1 > 0 ? (made1 / attempted1) * 100 : 0;
-                                        team2TotalNumeric = attempted2 > 0 ? (made2 / attempted2) * 100 : 0;
-                                    } else {
-                                        team1TotalNumeric = catData.team1 || 0;
-                                        team2TotalNumeric = catData.team2 || 0;
-                                    }
-                                }
-                                
-                                // Determine winner based on actual calculated totals
-                                let isWin, isLoss;
-                                if (catKey === 'turnovers') {
-                                    // Lower is better for turnovers
-                                    isWin = team1TotalNumeric < team2TotalNumeric;
-                                    isLoss = team2TotalNumeric < team1TotalNumeric;
-                                } else {
-                                    // Higher is better for everything else
-                                    isWin = team1TotalNumeric > team2TotalNumeric;
-                                    isLoss = team2TotalNumeric > team1TotalNumeric;
-                                }
-                                
-                                // Calculate margin intensity (0-1) based on how close the category is
-                                let marginIntensity = 0;
-                                if (isWin || isLoss) {
-                                    const diff = Math.abs(team1TotalNumeric - team2TotalNumeric);
-                                    const average = (team1TotalNumeric + team2TotalNumeric) / 2;
-                                    
-                                    if (average > 0) {
-                                        // For percentages and large numbers, use percentage difference
-                                        if (isPct || average > 10) {
-                                            // Calculate percentage difference
-                                            marginIntensity = Math.min(diff / Math.max(average, 0.1), 1);
-                                        } else {
-                                            // For small numbers, use absolute difference normalized
-                                            // Scale based on typical ranges for each category
-                                            const typicalRange = {
-                                                points: 100,
-                                                rebounds: 50,
-                                                assists: 30,
-                                                steals: 10,
-                                                blocks: 10,
-                                                threePointers: 20,
-                                                turnovers: 10
-                                            };
-                                            const range = typicalRange[catKey] || 50;
-                                            marginIntensity = Math.min(diff / range, 1);
-                                        }
-                                    }
-                                    
-                                    // Normalize intensity: map to 0.3-1.0 range for better visual distinction
-                                    // Close categories (0-20% diff) -> 0.3 intensity
-                                    // Moderate categories (20-50% diff) -> 0.5-0.7 intensity  
-                                    // Blowouts (50%+ diff) -> 0.8-1.0 intensity
-                                    if (marginIntensity < 0.2) {
-                                        marginIntensity = 0.3; // Close categories
-                                    } else if (marginIntensity < 0.5) {
-                                        marginIntensity = 0.3 + (marginIntensity - 0.2) / 0.3 * 0.3; // 0.3 to 0.6
-                                    } else {
-                                        marginIntensity = 0.6 + (marginIntensity - 0.5) / 0.5 * 0.4; // 0.6 to 1.0
-                                    }
-                                }
-                                
-                                // Calculate color intensity: use different shades based on margin
-                                // Close categories: lighter colors, Blowouts: darker/more saturated colors
-                                let bgColor, textColor;
-                                
-                                if (isWin) {
-                                    // Green shades: light green for close, dark green for blowouts
-                                    if (marginIntensity < 0.4) {
-                                        // Close win: light green
-                                        bgColor = 'rgba(200, 230, 201, 0.3)';
-                                        textColor = 'rgba(76, 175, 80, 0.8)';
-                                    } else if (marginIntensity < 0.7) {
-                                        // Moderate win: medium green
-                                        bgColor = 'rgba(129, 199, 132, 0.4)';
-                                        textColor = 'rgba(56, 142, 60, 1)';
-                                    } else {
-                                        // Blowout: dark green
-                                        bgColor = 'rgba(76, 175, 80, 0.5)';
-                                        textColor = 'rgba(27, 94, 32, 1)';
-                                    }
-                                } else if (isLoss) {
-                                    // Red shades: light red for close, dark red for blowouts
-                                    if (marginIntensity < 0.4) {
-                                        // Close loss: light red
-                                        bgColor = 'rgba(255, 205, 210, 0.3)';
-                                        textColor = 'rgba(244, 67, 54, 0.8)';
-                                    } else if (marginIntensity < 0.7) {
-                                        // Moderate loss: medium red
-                                        bgColor = 'rgba(239, 154, 154, 0.4)';
-                                        textColor = 'rgba(211, 47, 47, 1)';
-                                    } else {
-                                        // Blowout: dark red
-                                        bgColor = 'rgba(244, 67, 54, 0.5)';
-                                        textColor = 'rgba(183, 28, 28, 1)';
-                                    }
-                                } else {
-                                    // Tie: gray
-                                    bgColor = 'rgba(158, 158, 158, 0.05)';
-                                    textColor = 'rgba(158, 158, 158, 0.8)';
-                                }
-                                
-                                // Use Yahoo stats if available, otherwise fall back to calculated
-                                let team1CurrentValue, team2CurrentValue;
-                                if (yahooStats) {
-                                    if (isPct && yahooStats.team1?.nominator !== undefined) {
-                                        // For percentages, use nominator/denominator from Yahoo
-                                        team1CurrentValue = `${yahooStats.team1.nominator}/${yahooStats.team1.denominator}`;
-                                        team2CurrentValue = `${yahooStats.team2?.nominator || 0}/${yahooStats.team2?.denominator || 0}`;
-                                    } else if (!isPct) {
-                                        // For other stats, use the numeric value
-                                        team1CurrentValue = yahooStats.team1?.toFixed(1) || '0.0';
-                                        team2CurrentValue = yahooStats.team2?.toFixed(1) || '0.0';
-                                    } else {
-                                        // Fallback for percentages
-                                        team1CurrentValue = `${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
-                                        team2CurrentValue = `${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
-                                    }
-                                } else {
-                                    // Fallback to calculated values if Yahoo stats not available
-                                    if (isPct) {
-                                        team1CurrentValue = `${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team1.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
-                                        team2CurrentValue = `${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.actual?.[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`;
-                                    } else {
-                                        team1CurrentValue = (matchupProjection.team1.actual?.[catKey] || 0).toFixed(1);
-                                        team2CurrentValue = (matchupProjection.team2.actual?.[catKey] || 0).toFixed(1);
-                                    }
-                                }
-                                
-                                // Format total values for display
-                                let team1TotalDisplay, team2TotalDisplay;
-                                if (isPct && yahooStats?.team1?.nominator !== undefined) {
-                                    const totalMade1 = yahooStats.team1.nominator + team1ProjectedMade;
-                                    const totalAttempted1 = yahooStats.team1.denominator + team1ProjectedAttempted;
-                                    const totalMade2 = (yahooStats.team2?.nominator || 0) + team2ProjectedMade;
-                                    const totalAttempted2 = (yahooStats.team2?.denominator || 0) + team2ProjectedAttempted;
-                                    team1TotalDisplay = `${totalMade1.toFixed(0)}/${totalAttempted1.toFixed(0)} (${team1TotalNumeric.toFixed(1)}%)`;
-                                    team2TotalDisplay = `${totalMade2.toFixed(0)}/${totalAttempted2.toFixed(0)} (${team2TotalNumeric.toFixed(1)}%)`;
-                                } else if (isPct) {
-                                    const made1 = catData.team1Made || 0;
-                                    const attempted1 = catData.team1Attempted || 0;
-                                    const made2 = catData.team2Made || 0;
-                                    const attempted2 = catData.team2Attempted || 0;
-                                    team1TotalDisplay = `${made1.toFixed(0)}/${attempted1.toFixed(0)} (${team1TotalNumeric.toFixed(1)}%)`;
-                                    team2TotalDisplay = `${made2.toFixed(0)}/${attempted2.toFixed(0)} (${team2TotalNumeric.toFixed(1)}%)`;
-                                } else {
-                                    team1TotalDisplay = team1TotalNumeric.toFixed(1);
-                                    team2TotalDisplay = team2TotalNumeric.toFixed(1);
-                                }
-                                
-                                // Calculate hover color with slightly increased intensity
-                                let hoverBgColor;
-                                if (isWin) {
-                                    if (marginIntensity < 0.4) {
-                                        hoverBgColor = 'rgba(129, 199, 132, 0.4)';
-                                    } else if (marginIntensity < 0.7) {
-                                        hoverBgColor = 'rgba(76, 175, 80, 0.5)';
-                                    } else {
-                                        hoverBgColor = 'rgba(56, 142, 60, 0.6)';
-                                    }
-                                } else if (isLoss) {
-                                    if (marginIntensity < 0.4) {
-                                        hoverBgColor = 'rgba(239, 154, 154, 0.4)';
-                                    } else if (marginIntensity < 0.7) {
-                                        hoverBgColor = 'rgba(244, 67, 54, 0.5)';
-                                    } else {
-                                        hoverBgColor = 'rgba(211, 47, 47, 0.6)';
-                                    }
-                                } else {
-                                    hoverBgColor = 'rgba(158, 158, 158, 0.1)';
-                                }
-                                
-                                return (
-                                    <React.Fragment key={catKey}>
-                                        <TableRow 
-                                            sx={{ 
-                                                bgcolor: bgColor,
-                                                cursor: 'pointer',
-                                                '&:hover': { bgcolor: hoverBgColor }
-                                            }}
-                                            onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
-                                        >
-                                            <TableCell sx={{ color: "#212121", fontWeight: 600 }}>
-                                                {catLabels[catKey]} {isExpanded ? '▼' : '▶'}
-                                            </TableCell>
-                                            <TableCell 
-                                                align="center" 
-                                                sx={{ 
-                                                    fontSize: '0.65rem', 
-                                                    py: 0.5,
-                                                    bgcolor: 'rgba(156, 39, 176, 0.05)'
-                                                }}
-                                            >
-                                                <Box sx={{ color: "#4CAF50" }}>
-                                                    {team1CurrentValue}
-                                                </Box>
-                                                <Box sx={{ color: "#ff6f61" }}>
-                                                    {team2CurrentValue}
-                                                </Box>
-                                            </TableCell>
-                                            {matchupProjection.team1.dailyProjections.map((day, idx) => (
-                                                <TableCell 
-                                                    key={idx} 
-                                                    align="center" 
-                                                    sx={{ 
-                                                        fontSize: '0.65rem', 
-                                                        py: 0.5,
-                                                        bgcolor: day.isToday ? 'rgba(0, 51, 102, 0.05)' : 'transparent'
-                                                    }}
-                                                >
-                                                    {day.isPast ? (
-                                                        <Box sx={{ color: '#666' }}>-</Box>
-                                                    ) : (
+                                            </Box>
+                                            <Box sx={{ color: team2Color, fontWeight: 600 }}>
+                                                {yahooStats && isPct 
+                                                    ? `${formatMadeAtt(yahooStats.team2?.nominator || 0)}/${formatMadeAtt(yahooStats.team2?.denominator || 0)}`
+                                                    : yahooStats?.team2 || '0'
+                                                }
+                                            </Box>
+                                        </TableCell>
+
+                                        {/* Daily Projections */}
+                                        {matchupProjection.team1.dailyProjections.map((day, idx) => {
+                                            const t2Day = matchupProjection.team2.dailyProjections[idx];
+                                            const madeKey = catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade';
+                                            const attKey = catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted';
+
+                                            const t1Made = day.totals?.[madeKey] || 0;
+                                            const t1Att = day.totals?.[attKey] || 0;
+                                            const t2Made = t2Day?.totals?.[madeKey] || 0;
+                                            const t2Att = t2Day?.totals?.[attKey] || 0;
+
+                                            const t1Pct = calculatePct(t1Made, t1Att);
+                                            const t2Pct = calculatePct(t2Made, t2Att);
+
+                                            return (
+                                                <TableCell key={idx} align="center" sx={{ fontSize: '0.8rem' }}>
+                                                    {!day.isPast ? (
                                                         <>
-                                                            <Box sx={{ color: "#4CAF50" }}>
+                                                            <Box sx={{ color: team1Color }}>
                                                                 {isPct 
-                                                                    ? `${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                                    : (day.totals[catKey] || 0).toFixed(1)
+                                                                    ? `${formatMadeAtt(t1Made)}/${formatMadeAtt(t1Att)}`
+                                                                    : formatStat(day.totals?.[catKey] || 0)
                                                                 }
+                                                                {isPct && (
+                                                                    <Box component="span" sx={{ fontSize: '0.7rem', opacity: 0.8, ml: 0.5 }}>
+                                                                        ({formatPct(t1Pct)}%)
+                                                                    </Box>
+                                                                )}
                                                             </Box>
-                                                            <Box sx={{ color: "#ff6f61" }}>
+                                                            <Box sx={{ color: team2Color }}>
                                                                 {isPct 
-                                                                    ? `${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                                    : (matchupProjection.team2.dailyProjections[idx]?.totals[catKey] || 0).toFixed(1)
+                                                                    ? `${formatMadeAtt(t2Made)}/${formatMadeAtt(t2Att)}`
+                                                                    : formatStat(t2Day?.totals?.[catKey] || 0)
                                                                 }
+                                                                {isPct && (
+                                                                    <Box component="span" sx={{ fontSize: '0.7rem', opacity: 0.8, ml: 0.5 }}>
+                                                                        ({formatPct(t2Pct)}%)
+                                                                    </Box>
+                                                                )}
                                                             </Box>
                                                         </>
-                                                    )}
+                                                    ) : <Box sx={{ color: 'grey.400' }}>-</Box>}
                                                 </TableCell>
-                                            ))}
-                                            <TableCell align="center">
-                                                <Box sx={{ color: "#4CAF50", fontWeight: 600 }}>
-                                                    {team1TotalDisplay}
-                                                </Box>
-                                                <Box sx={{ color: "#ff6f61", fontWeight: 600 }}>
-                                                    {team2TotalDisplay}
-                                                </Box>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography sx={{ fontWeight: 600, fontSize: '0.75rem' }} style={{ color: textColor }}>
-                                                    {isWin ? matchupProjection.team1.name.split(' ')[0] : isLoss ? matchupProjection.team2.name.split(' ')[0] : 'TIE'}
-                                                </Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                        {isExpanded && (
-                                            <TableRow>
-                                                <TableCell colSpan={10} sx={{ bgcolor: 'rgb(206, 195, 208)', p: 2 }}>
-                                                    <Grid container spacing={2}>
+                                            );
+                                        })}
+
+                                        {/* Projected Total */}
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>
+                                            <Box sx={{ color: team1Color }}>
+                                                {formatPct(team1Total)}%
+                                            </Box>
+                                            <Box sx={{ color: team2Color }}>
+                                                {formatPct(team2Total)}%
+                                            </Box>
+                                        </TableCell>
+
+                                        {/* Winner */}
+                                        <TableCell align="center">
+                                            <Chip 
+                                                label={isWin ? matchupProjection.team1.name.split(' ')[0] : isTie ? 'TIE' : matchupProjection.team2.name.split(' ')[0]}
+                                                size="small"
+                                                sx={{ 
+                                                    fontWeight: 'bold',
+                                                    bgcolor: isWin ? winColor : isTie ? 'grey.400' : lossColor,
+                                                    color: 'white'
+                                                }}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+
+                                    {/* Expanded Player Breakdown */}
+                                    <TableRow>
+                                        <TableCell style={{ padding: 0 }} colSpan={matchupProjection.team1.dailyProjections.length + 4}>
+                                            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                                                <Box sx={{ p: 3, bgcolor: 'grey.50' }}>
+                                                    <Grid container spacing={3}>
                                                         {matchupProjection.team1.dailyProjections.map((day, idx) => {
-                                                            if (day.isPast || (day.players.length === 0 && matchupProjection.team2.dailyProjections[idx]?.players.length === 0)) return null;
                                                             const team2Day = matchupProjection.team2.dailyProjections[idx];
-                                                            
+                                                            if (day.isPast || (!day.players.length && !team2Day?.players.length)) return null;
+
                                                             return (
-                                                                <Grid item xs={12} sm={6} md={4} key={idx}>
-                                                                    <Box sx={{ bgcolor: '#ffffff', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #003366' : '1px solid rgba(0, 0, 0, 0.12)' }}>
-                                                                        <Typography variant="caption" sx={{ color: day.isToday ? '#003366' : '#666', fontWeight: 600, display: 'block', mb: 1, textAlign: 'center' }}>
-                                                                            {day.dayOfWeek} {day.monthDay} {day.isToday ? '(Today)' : ''}
+                                                                <Grid item xs={12} md={6} lg={4} key={idx}>
+                                                                    <Paper 
+                                                                        elevation={day.isToday ? 8 : 2}
+                                                                        sx={{ 
+                                                                            p: 2, 
+                                                                            borderRadius: 2,
+                                                                            border: day.isToday ? `2px solid ${team1Color}` : 'none',
+                                                                            bgcolor: 'white'
+                                                                        }}
+                                                                    >
+                                                                        <Typography 
+                                                                            variant="subtitle2" 
+                                                                            fontWeight="bold" 
+                                                                            textAlign="center"
+                                                                            color={day.isToday ? team1Color : 'text.primary'}
+                                                                            gutterBottom
+                                                                        >
+                                                                            {day.dayOfWeek} {day.monthDay} {day.isToday && '(Today)'}
                                                                         </Typography>
-                                                                        <Box sx={{ mb: 1.5 }}>
-                                                                            <Typography variant="caption" sx={{ color: '#4CAF50', fontWeight: 600, display: 'block', mb: 0.5 }}>
+
+                                                                        <Box sx={{ mb: 2 }}>
+                                                                            <Typography variant="body2" fontWeight="bold" color={team1Color} gutterBottom>
                                                                                 {matchupProjection.team1.name}
                                                                             </Typography>
-                                                                            {day.players.length > 0 ? day.players.map((player, pidx) => {
-                                                                                const statValue = isPct 
-                                                                                    ? `${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(1)}/${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(1)}`
-                                                                                    : (player.stats[catKey] || 0).toFixed(1);
-                                                                                
-                                                                                const isDisabled = player.disabled;
-                                                                                const statusText = player.status ? ` [${player.status}]` : '';
-                                                                                const posText = player.selectedPosition && (player.selectedPosition === 'IL' || player.selectedPosition === 'IL+') ? ` [${player.selectedPosition}]` : '';
-                                                                                
-                                                                                return (
-                                                                                    <Typography 
-                                                                                        key={pidx} 
-                                                                                        variant="caption" 
-                                                                                        onMouseDown={(e) => {
-                                                                                            e.stopPropagation();
-                                                                                            handlePlayerClick(e, player, day.date);
-                                                                                        }}
-                                                                                        sx={{ 
-                                                                                            color: isDisabled ? '#666' : '#4CAF50', 
-                                                                                            display: 'block', 
-                                                                                            fontSize: '0.7rem', 
-                                                                                            ml: 1,
-                                                                                            cursor: 'pointer',
-                                                                                            textDecoration: isDisabled ? 'line-through' : 'none',
-                                                                                            opacity: isDisabled ? 0.6 : 1,
-                                                                                            userSelect: 'none',
-                                                                                            WebkitUserSelect: 'none',
-                                                                                            '&:hover': {
-                                                                                                bgcolor: 'rgba(76, 175, 80, 0.1)',
-                                                                                                borderRadius: '4px',
-                                                                                                px: 0.5
-                                                                                            }
-                                                                                        }}
-                                                                                    >
-                                                                                        • {player.name}{statusText}{posText}: {statValue}
-                                                                                    </Typography>
-                                                                                );
-                                                                            }) : (
-                                                                                <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
-                                                                                    No games
+                                                                            {day.players.length ? day.players.map((p, i) => (
+                                                                                <Typography 
+                                                                                    key={i}
+                                                                                    variant="body2"
+                                                                                    sx={{ 
+                                                                                        ml: 1, 
+                                                                                        cursor: 'pointer',
+                                                                                        color: p.disabled ? 'grey.500' : team1Color,
+                                                                                        textDecoration: p.disabled ? 'line-through' : 'none',
+                                                                                        '&:hover': { bgcolor: 'action.hover', borderRadius: 1 }
+                                                                                    }}
+                                                                                    onMouseDown={(e) => handlePlayerClick(e, p, day.date)}
+                                                                                >
+                                                                                    • {p.name} {p.status && `[${p.status}]`} {p.selectedPosition && ['IL', 'IL+'].includes(p.selectedPosition) && `[${p.selectedPosition}]`}: {' '}
+                                                                                    {isPct 
+                                                                                        ? `${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0)}/${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0)}`
+                                                                                        : formatStat(p.stats[catKey] || 0)
+                                                                                    }
                                                                                 </Typography>
-                                                                            )}
+                                                                            )) : <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>No games</Typography>}
                                                                         </Box>
+
                                                                         <Box>
-                                                                            <Typography variant="caption" sx={{ color: '#ff6f61', fontWeight: 600, display: 'block', mb: 0.5 }}>
+                                                                            <Typography variant="body2" fontWeight="bold" color={team2Color} gutterBottom>
                                                                                 {matchupProjection.team2.name}
                                                                             </Typography>
-                                                                            {team2Day && team2Day.players.length > 0 ? team2Day.players.map((player, pidx) => {
-                                                                                const statValue = isPct 
-                                                                                    ? `${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(1)}/${(player.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(1)}`
-                                                                                    : (player.stats[catKey] || 0).toFixed(1);
-                                                                                
-                                                                                const isDisabled = player.disabled;
-                                                                                const statusText = player.status ? ` [${player.status}]` : '';
-                                                                                const posText = player.selectedPosition && (player.selectedPosition === 'IL' || player.selectedPosition === 'IL+') ? ` [${player.selectedPosition}]` : '';
-                                                                                
-                                                                                return (
-                                                                                    <Typography 
-                                                                                        key={pidx} 
-                                                                                        variant="caption" 
-                                                                                        onMouseDown={(e) => {
-                                                                                            e.stopPropagation();
-                                                                                            handlePlayerClick(e, player, day.date);
-                                                                                        }}
-                                                                                        sx={{ 
-                                                                                            color: isDisabled ? '#666' : '#ff6f61', 
-                                                                                            display: 'block', 
-                                                                                            fontSize: '0.7rem', 
-                                                                                            ml: 1,
-                                                                                            userSelect: 'none',
-                                                                                            WebkitUserSelect: 'none',
-                                                                                            cursor: 'pointer',
-                                                                                            textDecoration: isDisabled ? 'line-through' : 'none',
-                                                                                            opacity: isDisabled ? 0.6 : 1,
-                                                                                            '&:hover': {
-                                                                                                bgcolor: 'rgba(255, 111, 97, 0.1)',
-                                                                                                borderRadius: '4px',
-                                                                                                px: 0.5
-                                                                                            }
-                                                                                        }}
-                                                                                    >
-                                                                                        • {player.name}{statusText}{posText}: {statValue}
-                                                                                    </Typography>
-                                                                                );
-                                                                            }) : (
-                                                                                <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
-                                                                                    No games
+                                                                            {team2Day?.players.length ? team2Day.players.map((p, i) => (
+                                                                                <Typography 
+                                                                                    key={i}
+                                                                                    variant="body2"
+                                                                                    sx={{ 
+                                                                                        ml: 1, 
+                                                                                        cursor: 'pointer',
+                                                                                        color: p.disabled ? 'grey.500' : team2Color,
+                                                                                        textDecoration: p.disabled ? 'line-through' : 'none',
+                                                                                        '&:hover': { bgcolor: 'action.hover', borderRadius: 1 }
+                                                                                    }}
+                                                                                    onMouseDown={(e) => handlePlayerClick(e, p, day.date)}
+                                                                                >
+                                                                                    • {p.name} {p.status && `[${p.status}]`} {p.selectedPosition && ['IL', 'IL+'].includes(p.selectedPosition) && `[${p.selectedPosition}]`}: {' '}
+                                                                                    {isPct 
+                                                                                        ? `${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0)}/${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0)}`
+                                                                                        : formatStat(p.stats[catKey] || 0)
+                                                                                    }
                                                                                 </Typography>
-                                                                            )}
+                                                                            )) : <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>No games</Typography>}
                                                                         </Box>
-                                                                    </Box>
+                                                                    </Paper>
                                                                 </Grid>
                                                             );
                                                         })}
                                                     </Grid>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </React.Fragment>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
+                                                </Box>
+                                            </Collapse>
+                                        </TableCell>
+                                    </TableRow>
+                                </React.Fragment>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
             {/* Player Status Menu */}
             <Menu
                 anchorEl={playerStatusMenu}
                 open={Boolean(playerStatusMenu)}
                 onClose={handleClosePlayerMenu}
-                onClick={(e) => e.stopPropagation()}
-                PaperProps={{
-                    sx: {
-                        bgcolor: '#ffffff',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        minWidth: 200,
-                        zIndex: 9999
-                    }
-                }}
-                MenuListProps={{
-                    onClick: (e) => e.stopPropagation()
-                }}
+                PaperProps={{ sx: { mt: 1, boxShadow: 3 } }}
             >
-                <MenuItem 
-                    onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handlePlayerStatusChange('enabled');
-                    }}
-                    sx={{ 
-                        color: '#212121',
-                        py: 1.5,
-                        '&:hover': { bgcolor: 'rgba(76, 175, 80, 0.2)' },
-                        '&:active': { bgcolor: 'rgba(76, 175, 80, 0.3)' }
-                    }}
-                >
-                    ✓ Enable Player
+                <MenuItem onClick={() => handlePlayerStatusChange('enabled')}>
+                    <Typography color="success.main" fontWeight="medium">Enable Player</Typography>
                 </MenuItem>
-                <MenuItem 
-                    onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handlePlayerStatusChange('disabledForDay');
-                    }}
-                    sx={{ 
-                        color: '#212121',
-                        py: 1.5,
-                        '&:hover': { bgcolor: 'rgba(255, 152, 0, 0.2)' },
-                        '&:active': { bgcolor: 'rgba(255, 152, 0, 0.3)' }
-                    }}
-                >
-                    ⊗ Disable for Day
+                <MenuItem onClick={() => handlePlayerStatusChange('disabledForDay')}>
+                    <Typography color="warning.main" fontWeight="medium">Disable for Day</Typography>
                 </MenuItem>
-                <MenuItem 
-                    onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handlePlayerStatusChange('disabledForWeek');
-                    }}
-                    sx={{ 
-                        color: '#212121',
-                        py: 1.5,
-                        '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' },
-                        '&:active': { bgcolor: 'rgba(244, 67, 54, 0.3)' }
-                    }}
-                >
-                    ✗ Disable for Week
+                <MenuItem onClick={() => handlePlayerStatusChange('disabledForWeek')}>
+                    <Typography color="error.main" fontWeight="medium">Disable for Week</Typography>
                 </MenuItem>
             </Menu>
-        </>
+        </Box>
     );
 };
 
 export default MatchupProjectionTracker;
-
