@@ -19,6 +19,7 @@ import {
     Tooltip,
     Menu,
     IconButton,
+    useMediaQuery,
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
@@ -52,6 +53,9 @@ const Rankings = () => {
     const [order, setOrder] = useState('desc');
     const { userTeamPlayers, leagueTeams } = useLeague();
     const { isAuthenticated } = useAuth();
+
+    // Detect mobile for minor adjustments
+    const isMobile = useMediaQuery('(max-width:600px)');
 
     // Create a Set of user's team player IDs for quick lookup
     const userTeamPlayerIds = useMemo(() => {
@@ -150,7 +154,6 @@ const Rankings = () => {
     const displayedPlayers = useMemo(() => {
         let filtered = adjustedPlayersFull;
 
-        // Apply highlighted only filter
         if (showHighlightedOnly) {
             if (selectedOpponentTeam) {
                 filtered = filtered.filter(p => isUserTeamPlayer(p) || isOpponentTeamPlayer(p));
@@ -159,12 +162,10 @@ const Rankings = () => {
             }
         }
 
-        // Apply team filter
         if (teamFilter !== 'all') {
             filtered = filtered.filter(p => p.team_abbreviation === teamFilter);
         }
 
-        // Apply position filter
         if (positionFilter !== 'all') {
             filtered = filtered.filter(p => p.position && p.position.includes(positionFilter));
         }
@@ -616,8 +617,36 @@ const Rankings = () => {
                 </Box>
             ) : (
                 <Box sx={{ bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1, overflow: 'hidden' }}>
-                    <Box sx={{ overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch' }}>
-                        <TableContainer sx={{ maxHeight: 'calc(100vh - 300px)', minWidth: 1200 }}>
+                    {/* FIXED: Smooth horizontal scrolling container */}
+                    <Box
+                        sx={{
+                            overflowX: 'auto',
+                            overflowY: 'hidden',
+                            WebkitOverflowScrolling: 'touch', // Helps older iOS
+                            overscrollBehaviorX: 'contain',   // Prevents body bounce/pull-to-refresh
+                            touchAction: 'pan-x pinch-zoom',  // Critical: allows horizontal scroll, blocks vertical interference
+                            '&::-webkit-scrollbar': {
+                                height: '8px',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                background: '#f1f1f1',
+                                borderRadius: '4px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                background: '#c1c1c1',
+                                borderRadius: '4px',
+                                '&:hover': {
+                                    background: '#a8a8a8',
+                                },
+                            },
+                        }}
+                    >
+                        <TableContainer 
+                            sx={{ 
+                                maxHeight: { xs: 'calc(100vh - 280px)', sm: 'calc(100vh - 300px)' },
+                                minWidth: { xs: 1000, md: 1200 }, // Slightly narrower on mobile
+                            }}
+                        >
                             <Table size="small" stickyHeader>
                                 <TableHead>
                                     <TableRow>
@@ -784,6 +813,22 @@ const Rankings = () => {
                             </Table>
                         </TableContainer>
                     </Box>
+
+                    {/* Optional: Scroll hint for mobile users */}
+                    {isMobile && (
+                        <Box
+                            sx={{
+                                textAlign: 'center',
+                                py: 1,
+                                bgcolor: 'rgba(255, 255, 255, 0.95)',
+                                color: '#666',
+                                fontSize: '0.8rem',
+                                borderTop: '1px solid #eee',
+                            }}
+                        >
+                            ← Scroll horizontally to view all stats →
+                        </Box>
+                    )}
                 </Box>
             )}
         </Box>
