@@ -51,25 +51,21 @@ const MatchupProjectionTracker = ({
         handleClosePlayerMenu();
     };
 
-    // Format percentages to exactly 3 decimals
+    // Format percentages to 3 decimals
     const formatPct = (value) => value.toFixed(3);
 
-    // Format regular stats (points, etc.) to 1 decimal
-    const formatStat = (value) => value.toFixed(1);
+    // Format made/attempted as integers
+    const formatMadeAtt = (value) => Math.round(value).toString();
 
-    // Format made/attempted:
-    // - Current (Yahoo live): integers only
-    // - Projected daily & player averages: 1 decimal (since they are averages)
-    const formatMade = (value, isCurrent = false) => isCurrent ? Math.round(value) : value.toFixed(1);
-    const formatAtt = (value, isCurrent = false) => isCurrent ? Math.round(value) : value.toFixed(1);
-
-    // Calculate percentage
+    // Calculate percentage from made/attempted
     const calculatePct = (made, attempted) => {
         return attempted > 0 ? (made / attempted) * 100 : 0;
     };
 
+    // Format non-percentage stats (points, etc.) to 1 decimal
+    const formatStat = (value) => value.toFixed(1);
+
     const accurateScore = useMemo(() => {
-        // ... (unchanged – same as before)
         if (!matchupProjection || !currentMatchup) {
             return { team1Score: 0, team2Score: 0 };
         }
@@ -342,24 +338,22 @@ const MatchupProjectionTracker = ({
                                             {isExpanded ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
                                             {catLabels[catKey]}
                                         </TableCell>
-
-                                        {/* Current (Yahoo live stats – integers only) */}
                                         <TableCell align="center" sx={{ fontSize: '0.85rem', color: 'grey.700' }}>
                                             <Box sx={{ color: team1Color, fontWeight: 600 }}>
                                                 {yahooStats && isPct 
-                                                    ? `${formatMade(yahooStats.team1?.nominator || 0, true)}/${formatAtt(yahooStats.team1?.denominator || 0, true)}`
+                                                    ? `${formatMadeAtt(yahooStats.team1.nominator)}/${formatMadeAtt(yahooStats.team1.denominator)}`
                                                     : yahooStats?.team1 || '0'
                                                 }
                                             </Box>
                                             <Box sx={{ color: team2Color, fontWeight: 600 }}>
                                                 {yahooStats && isPct 
-                                                    ? `${formatMade(yahooStats.team2?.nominator || 0, true)}/${formatAtt(yahooStats.team2?.denominator || 0, true)}`
+                                                    ? `${formatMadeAtt(yahooStats.team2?.nominator || 0)}/${formatMadeAtt(yahooStats.team2?.denominator || 0)}`
                                                     : yahooStats?.team2 || '0'
                                                 }
                                             </Box>
                                         </TableCell>
 
-                                        {/* Daily Projections – averages, so decimals allowed */}
+                                        {/* Daily Projections */}
                                         {matchupProjection.team1.dailyProjections.map((day, idx) => {
                                             const t2Day = matchupProjection.team2.dailyProjections[idx];
                                             const madeKey = catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade';
@@ -379,7 +373,7 @@ const MatchupProjectionTracker = ({
                                                         <>
                                                             <Box sx={{ color: team1Color }}>
                                                                 {isPct 
-                                                                    ? `${formatMade(t1Made)}/${formatAtt(t1Att)}`
+                                                                    ? `${formatMadeAtt(t1Made)}/${formatMadeAtt(t1Att)}`
                                                                     : formatStat(day.totals?.[catKey] || 0)
                                                                 }
                                                                 {isPct && (
@@ -390,7 +384,7 @@ const MatchupProjectionTracker = ({
                                                             </Box>
                                                             <Box sx={{ color: team2Color }}>
                                                                 {isPct 
-                                                                    ? `${formatMade(t2Made)}/${formatAtt(t2Att)}`
+                                                                    ? `${formatMadeAtt(t2Made)}/${formatMadeAtt(t2Att)}`
                                                                     : formatStat(t2Day?.totals?.[catKey] || 0)
                                                                 }
                                                                 {isPct && (
@@ -405,7 +399,7 @@ const MatchupProjectionTracker = ({
                                             );
                                         })}
 
-                                        {/* Projected Total – 3 decimals */}
+                                        {/* Projected Total */}
                                         <TableCell align="center" sx={{ fontWeight: 'bold' }}>
                                             <Box sx={{ color: team1Color }}>
                                                 {formatPct(team1Total)}%
@@ -429,7 +423,7 @@ const MatchupProjectionTracker = ({
                                         </TableCell>
                                     </TableRow>
 
-                                    {/* Expanded Player Breakdown – player averages have decimals */}
+                                    {/* Expanded Player Breakdown */}
                                     <TableRow>
                                         <TableCell style={{ padding: 0 }} colSpan={matchupProjection.team1.dailyProjections.length + 4}>
                                             <Collapse in={isExpanded} timeout="auto" unmountOnExit>
@@ -479,7 +473,7 @@ const MatchupProjectionTracker = ({
                                                                                 >
                                                                                     • {p.name} {p.status && `[${p.status}]`} {p.selectedPosition && ['IL', 'IL+'].includes(p.selectedPosition) && `[${p.selectedPosition}]`}: {' '}
                                                                                     {isPct 
-                                                                                        ? `${formatMade(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0)}/${formatAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0)}`
+                                                                                        ? `${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0)}/${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0)}`
                                                                                         : formatStat(p.stats[catKey] || 0)
                                                                                     }
                                                                                 </Typography>
@@ -505,7 +499,7 @@ const MatchupProjectionTracker = ({
                                                                                 >
                                                                                     • {p.name} {p.status && `[${p.status}]`} {p.selectedPosition && ['IL', 'IL+'].includes(p.selectedPosition) && `[${p.selectedPosition}]`}: {' '}
                                                                                     {isPct 
-                                                                                        ? `${formatMade(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0)}/${formatAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0)}`
+                                                                                        ? `${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0)}/${formatMadeAtt(p.stats[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0)}`
                                                                                         : formatStat(p.stats[catKey] || 0)
                                                                                     }
                                                                                 </Typography>
