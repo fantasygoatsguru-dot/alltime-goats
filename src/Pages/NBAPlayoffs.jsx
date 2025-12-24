@@ -351,12 +351,12 @@ const NBAPlayoffs = () => {
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: 3,
+          gap: { xs: 2, sm: 3 },
           mb: 4,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <FormControl sx={{ minWidth: 220 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 }, flexWrap: "wrap" }}>
+        <FormControl sx={{ minWidth: { xs: 180, sm: 220 } }}>
           <InputLabel>Championship Start Week</InputLabel>
           <Select
             value={playoffStartWeek}
@@ -423,11 +423,13 @@ const NBAPlayoffs = () => {
                 disabled={!isAuthenticated || !leagueTeams || leagueTeams.length === 0}
                 sx={{
                   textTransform: "none",
-                  fontSize: "0.875rem",
+                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
                   bgcolor: selectedOpponentTeam ? "#ff6b35" : "transparent",
                   color: selectedOpponentTeam ? "#fff" : "#ff6b35",
                   borderColor: "#ff6b35",
                   border: "2px solid #ff6b35",
+                  px: { xs: 1.5, sm: 2 },
+                  whiteSpace: "nowrap",
                   "&:hover": {
                     bgcolor: selectedOpponentTeam
                       ? "#e55a2b"
@@ -444,13 +446,17 @@ const NBAPlayoffs = () => {
             </span>
           </Tooltip>
         </Box>
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+        <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 1 }, flexWrap: "wrap", justifyContent: { xs: "flex-start", sm: "flex-end" } }}>
           {playoffWeeks.map((w) => (
             <Chip
               key={w.number}
               label={`W${w.number}: ${w.label}`}
               variant="outlined"
               color="primary"
+              sx={{
+                fontSize: { xs: "0.7rem", sm: "0.8125rem" },
+                height: { xs: 28, sm: 32 },
+              }}
             />
           ))}
         </Box>
@@ -497,11 +503,24 @@ const NBAPlayoffs = () => {
       </Menu>
 
       {/* Table */}
-      <TableContainer component={Paper} sx={{ borderRadius: 2, overflow: "auto" }}>
-        <Table size="small" sx={{ minWidth: 650 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 2, overflow: "auto", maxWidth: "100%" }}>
+        <Table size="small" sx={{ minWidth: 650, tableLayout: "fixed", width: "100%" }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700, fontSize: "0.95rem", minWidth: 160, position: "sticky", left: 0, backgroundColor: "#fff", zIndex: 3 }}>
+              <TableCell 
+                sx={{ 
+                  fontWeight: 700, 
+                  fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                  minWidth: { xs: 100, sm: 160 },
+                  width: { xs: 100, sm: 160 },
+                  position: "sticky", 
+                  left: 0, 
+                  backgroundColor: "#fff", 
+                  zIndex: 10,
+                  px: { xs: 1, sm: 2 },
+                  boxShadow: "2px 0 4px -2px rgba(0,0,0,0.1)",
+                }}
+              >
                 TEAM
               </TableCell>
               {playoffWeeks.map((w) => (
@@ -512,8 +531,10 @@ const NBAPlayoffs = () => {
                   sx={{
                     cursor: "pointer",
                     fontWeight: 700,
-                    fontSize: "0.95rem",
-                    minWidth: 80,
+                    fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                    minWidth: { xs: 70, sm: 90 },
+                    width: { xs: 70, sm: 90 },
+                    px: { xs: 1, sm: 2 },
                     "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
                   }}
                 >
@@ -526,13 +547,15 @@ const NBAPlayoffs = () => {
                 sx={{
                   cursor: "pointer",
                   fontWeight: 700,
-                  fontSize: "1rem",
-                  minWidth: 100,
-                  position: "sticky",
-                  right: 0,
+                  fontSize: { xs: "0.9rem", sm: "1rem" },
+                  minWidth: { xs: 80, sm: 100 },
+                  width: { xs: 80, sm: 100 },
+                  position: { xs: "relative", sm: "sticky" },
+                  right: { xs: "auto", sm: 0 },
                   backgroundColor: "#fff",
-                  zIndex: 3,
-                  boxShadow: "-4px 0 8px -4px rgba(0,0,0,0.1)",
+                  zIndex: { xs: 1, sm: 3 },
+                  boxShadow: { xs: "none", sm: "-4px 0 8px -4px rgba(0,0,0,0.1)" },
+                  px: { xs: 1, sm: 2 },
                 }}
               >
                 TOTAL <SortIcon columnKey="total" />
@@ -568,16 +591,30 @@ const NBAPlayoffs = () => {
                         : {},
                     }}
                   >
-                    <TableCell sx={{ fontWeight: hasAnyPlayers ? 700 : 500, position: "sticky", left: 0, backgroundColor: "inherit", zIndex: 2 }}>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: hasAnyPlayers ? 700 : 500, 
+                        position: "sticky", 
+                        left: 0, 
+                        backgroundColor: hasAnyPlayers ? "#e3f2fd" : "#fff",
+                        zIndex: 10,
+                        fontSize: { xs: "0.8rem", sm: "0.95rem" },
+                        px: { xs: 1, sm: 2 },
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        boxShadow: "2px 0 4px -2px rgba(0,0,0,0.1)",
+                      }}
+                    >
                       {t.team}
                       {hasUserPlayers && (
                         <Chip
                           label={nbaTeamPlayersMap.userPlayers[t.team].length}
                           size="small"
                           sx={{
-                            ml: 1.5,
-                            height: 20,
-                            fontSize: "0.7rem",
+                            ml: { xs: 0.5, sm: 1.5 },
+                            height: { xs: 18, sm: 20 },
+                            fontSize: { xs: "0.65rem", sm: "0.7rem" },
                             backgroundColor: YAHOO_BLUE,
                             color: "#fff",
                           }}
@@ -589,8 +626,8 @@ const NBAPlayoffs = () => {
                           size="small"
                           sx={{
                             ml: 0.5,
-                            height: 20,
-                            fontSize: "0.7rem",
+                            height: { xs: 18, sm: 20 },
+                            fontSize: { xs: "0.65rem", sm: "0.7rem" },
                             backgroundColor: "#ff6b35",
                             color: "#fff",
                           }}
@@ -604,7 +641,11 @@ const NBAPlayoffs = () => {
                         <TableCell
                           key={w.number}
                           align="center"
-                          sx={getGameCountStyle(count)}
+                          sx={{
+                            ...getGameCountStyle(count),
+                            fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                            px: { xs: 1, sm: 2 },
+                          }}
                         >
                           {count}
                   </TableCell>
@@ -615,11 +656,12 @@ const NBAPlayoffs = () => {
                       align="center"
                       sx={{
                         ...getGameCountStyle(t.total, true),
-                        position: "sticky",
-                        right: 0,
-                        backgroundColor: "inherit",
-                        zIndex: 2,
-                        boxShadow: "-3px 0 6px -2px rgba(0,0,0,0.06)",
+                        position: { xs: "relative", sm: "sticky" },
+                        right: { xs: "auto", sm: 0 },
+                        zIndex: { xs: 1, sm: 2 },
+                        boxShadow: { xs: "none", sm: "-3px 0 6px -2px rgba(0,0,0,0.06)" },
+                        fontSize: { xs: "0.9rem", sm: "1rem" },
+                        px: { xs: 1, sm: 2 },
                       }}
                     >
                   {t.total}
