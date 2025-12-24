@@ -15,52 +15,87 @@ import {
   InputLabel,
   Chip,
   CircularProgress,
+  Button,
+  Collapse,
+  IconButton,
+  Tooltip,
+  Menu,
 } from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import { useAuth } from "../contexts/AuthContext";
+import { useLeague } from "../contexts/LeagueContext";
+import { supabase } from "../utils/supabase";
+
+const YAHOO_BLUE = "#4a90e2";
+const YAHOO_BLUE_LIGHT = "#80deea";
+const YAHOO_BLUE_BG = "rgba(74, 144, 226, 0.1)";
+const getGameCountStyle = (count, isTotal = false) => {
+  // TOTAL column (stronger contrast)
+  if (isTotal) {
+    if (count >= 14) return { backgroundColor: "#ffffff", color: "#000000", fontWeight: 800 };
+    if (count >= 12) return { backgroundColor: "#ffffff", color: "#000000", fontWeight: 750 };
+    if (count >= 10) return { backgroundColor: "#ffffff", color: "#000000", fontWeight: 700 };
+    if (count >= 8)  return { backgroundColor: "#ffffff", color: "#000000", fontWeight: 650 };
+    return { backgroundColor: "#ffffff", color: "#000000", fontWeight: 700 };
+  }
+
+  // Weekly columns
+  if (count >= 5) return { backgroundColor: "#2E7D32", color: "#000", fontWeight: 700 };
+  if (count === 4) return { backgroundColor: "#66BB6A", color: "#000", fontWeight: 600 };
+  if (count === 3) return { backgroundColor: "#decacc", color: "#000", fontWeight: 500 };
+  if (count === 2) return { backgroundColor: "#d15454", color: "#000", fontWeight: 500 };
+  if (count === 1) return { backgroundColor: "#EF9A9A", color: "#000", fontWeight: 500 };
+
+  return { backgroundColor: "#EEEEEE", color: "#ffffff", fontWeight: 400 };
+};
 
 const NBAPlayoffs = () => {
+  const { isAuthenticated } = useAuth();
+  const { leagueTeams } = useLeague();
+
   const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
   const [playoffsData, setPlayoffsData] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+    key: "total",
+    direction: "desc",
+  });
+  const [expandedTeams, setExpandedTeams] = useState({});
+  const [isLoadingLeagueData, setIsLoadingLeagueData] = useState(false);
+  const [showMyTeamsOnly, setShowMyTeamsOnly] = useState(false);
+  const [selectedOpponentTeam, setSelectedOpponentTeam] = useState(null);
+  const [teamMenuAnchor, setTeamMenuAnchor] = useState(null);
 
   // ── SEO Structured Data ───────────────────────────────────────────
   useEffect(() => {
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "NBA Playoff Schedule Analyzer",
-      "description": "Analyze NBA team playoff schedules. View game counts by week and plan your fantasy basketball strategy.",
-      "url": "https://fantasygoats.guru/nba-playoffs",
-      "applicationCategory": "SportsApplication",
-      "operatingSystem": "Web",
-      "offers": {
+      name: "NBA Playoff Schedule Analyzer",
+      description:
+        "Analyze NBA team playoff schedules. View game counts by week and plan your fantasy basketball strategy.",
+      url: "https://fantasygoats.guru/nba-playoffs",
+      applicationCategory: "SportsApplication",
+      operatingSystem: "Web",
+      offers: {
         "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
+        price: "0",
+        priceCurrency: "USD",
       },
-      "featureList": [
-        "NBA team playoff schedule analysis",
-        "Weekly game count tracking",
-        "Playoff schedule comparison"
-      ],
-      "keywords": "NBA playoff schedule, NBA playoffs, basketball playoff schedule"
     };
 
-    let scriptTag = document.getElementById('nba-playoffs-structured-data');
-    if (!scriptTag) {
-      scriptTag = document.createElement('script');
-      scriptTag.id = 'nba-playoffs-structured-data';
-      scriptTag.type = 'application/ld+json';
-      document.head.appendChild(scriptTag);
-    }
-    scriptTag.textContent = JSON.stringify(structuredData);
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(structuredData);
+    document.head.appendChild(script);
 
-    return () => {
-      const tag = document.getElementById('nba-playoffs-structured-data');
-      if (tag) tag.remove();
-    };
+    return () => document.head.removeChild(script);
   }, []);
 
-  // ── Load static data ───────────────────────────────────────────
+  // ── Load data ────────────────────────────────────────────────────
   useEffect(() => {
     const loadScheduleData = async () => {
       try {
@@ -68,11 +103,8 @@ const NBAPlayoffs = () => {
           fetch("/data/schedule.json"),
           fetch("/data/playoffs.json"),
         ]);
-        const schedule = await scheduleRes.json();
-        const playoffs = await playoffsRes.json();
-
-        setNbaTeamSchedule(schedule);
-        setPlayoffsData(playoffs);
+        setNbaTeamSchedule(await scheduleRes.json());
+        setPlayoffsData(await playoffsRes.json());
       } catch (e) {
         console.error("Error loading schedule data:", e);
       }
@@ -80,184 +112,578 @@ const NBAPlayoffs = () => {
     loadScheduleData();
   }, []);
 
-  // ── Playoff weeks ───────────────────────────────────────────────
-  const playoffWeeks = useMemo(() => {
-    if (!playoffsData || typeof playoffStartWeek !== "number") return [];
-
-    const weeks = [];
-    for (let i = 0; i < 3; i++) {
-      const weekNum = playoffStartWeek + i;
-      const weekData = playoffsData.weeks?.[weekNum];
-
-      if (
-        weekData &&
-        typeof weekData === "object" &&
-        weekData.start &&
-        weekData.end &&
-        weekData.label
-      ) {
-        weeks.push({
-          number: weekNum,
-          ...weekData,
-        });
+  // ── Track league data loading ────────────────────────────────────
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsLoadingLeagueData(true);
+      if (leagueTeams && leagueTeams.length > 0) {
+        setIsLoadingLeagueData(false);
       }
+    } else {
+      setIsLoadingLeagueData(false);
     }
-    return weeks;
+  }, [isAuthenticated, leagueTeams]);
+
+  // ── Playoff weeks ────────────────────────────────────────────────
+  const playoffWeeks = useMemo(() => {
+    if (!playoffsData) return [];
+    return [playoffStartWeek, playoffStartWeek + 1, playoffStartWeek + 2]
+      .map((num) => {
+        const week = playoffsData.weeks?.[num];
+        return week ? { number: num, ...week } : null;
+      })
+      .filter(Boolean);
   }, [playoffsData, playoffStartWeek]);
 
-  // ── Helper: Parse date in US Eastern Time ────────────────────────
-  const parseEasternDate = (dateStr) => {
-    // Parse date string and treat as US Eastern time
-    const date = new Date(dateStr + 'T00:00:00-05:00'); // EST offset
-    return date;
-  };
+  const parseEasternDate = (dateStr) =>
+    new Date(dateStr + "T00:00:00-05:00");
 
-  // ── NBA team games ─────────────────────────────────────────────
-  const nbaTeamGames = useMemo(() => {
-    if (!nbaTeamSchedule || !playoffWeeks.length) return [];
+  // ── Calculate games ──────────────────────────────────────────────
+  const nbaTeamGamesRaw = useMemo(() => {
+    if (!Object.keys(nbaTeamSchedule).length || !playoffWeeks.length) return [];
 
     const map = {};
     Object.entries(nbaTeamSchedule).forEach(([dateStr, teams]) => {
       const gameDate = parseEasternDate(dateStr);
+
       teams.forEach((abbr) => {
         if (!map[abbr]) map[abbr] = { team: abbr, weeks: {}, total: 0 };
+
         playoffWeeks.forEach((week) => {
           const s = parseEasternDate(week.start);
           const e = parseEasternDate(week.end);
-          // Set to start of Monday and end of Sunday (inclusive)
-          s.setHours(0, 0, 0, 0);
           e.setHours(23, 59, 59, 999);
-          
+
           if (gameDate >= s && gameDate <= e) {
-            map[abbr].weeks[week.number] = (map[abbr].weeks[week.number] || 0) + 1;
+            map[abbr].weeks[week.number] =
+              (map[abbr].weeks[week.number] || 0) + 1;
           }
         });
       });
     });
-    Object.values(map).forEach((t) => {
-      t.total = Object.values(t.weeks).reduce((a, b) => a + b, 0);
-    });
-    return Object.values(map).sort((a, b) => b.total - a.total);
+
+    return Object.values(map).map((t) => ({
+      ...t,
+      total: Object.values(t.weeks).reduce((a, b) => a + b, 0),
+    }));
   }, [nbaTeamSchedule, playoffWeeks]);
 
-  const handleWeekSelect = (e) => setPlayoffStartWeek(+e.target.value);
+  // ── Map NBA teams to user's and opponent's players ──────────────
+  const nbaTeamPlayersMap = useMemo(() => {
+    if (!isAuthenticated || !Array.isArray(leagueTeams) || leagueTeams.length === 0) {
+      return { userPlayers: {}, opponentPlayers: {}, hasAnyPlayers: {} };
+    }
 
-  // ── Loading guard ─────────────────────────────────────────────
-  if (
-    !playoffsData ||
-    !nbaTeamSchedule ||
-    !Array.isArray(playoffWeeks) ||
-    playoffWeeks.length === 0
-  ) {
+    const userPlayersMap = {};
+    const opponentPlayersMap = {};
+    const hasAnyPlayersMap = {};
+
+    // Get user's team players
+    const userTeam = leagueTeams.find((team) => team.is_owned_by_current_login);
+    if (userTeam) {
+      const players = Array.isArray(userTeam.players) ? userTeam.players : [];
+      players.forEach((player) => {
+        const nbaTeam = player.team;
+        if (!nbaTeam) return;
+
+        if (!userPlayersMap[nbaTeam]) {
+          userPlayersMap[nbaTeam] = [];
+        }
+
+        userPlayersMap[nbaTeam].push({
+          name: player.name,
+          position: player.position,
+          fantasyTeam: userTeam.name,
+          isUserTeam: true,
+        });
+
+        hasAnyPlayersMap[nbaTeam] = true;
+      });
+    }
+
+    // Get opponent team players if selected
+    if (selectedOpponentTeam) {
+      const opponentTeam = leagueTeams.find(
+        (team) => team.name === selectedOpponentTeam
+      );
+      if (opponentTeam) {
+        const players = Array.isArray(opponentTeam.players)
+          ? opponentTeam.players
+          : [];
+        players.forEach((player) => {
+          const nbaTeam = player.team;
+          if (!nbaTeam) return;
+
+          if (!opponentPlayersMap[nbaTeam]) {
+            opponentPlayersMap[nbaTeam] = [];
+          }
+
+          opponentPlayersMap[nbaTeam].push({
+            name: player.name,
+            position: player.position,
+            fantasyTeam: opponentTeam.name,
+            isUserTeam: false,
+          });
+
+          hasAnyPlayersMap[nbaTeam] = true;
+        });
+      }
+    }
+
+    return {
+      userPlayers: userPlayersMap,
+      opponentPlayers: opponentPlayersMap,
+      hasAnyPlayers: hasAnyPlayersMap,
+    };
+  }, [isAuthenticated, leagueTeams, selectedOpponentTeam]);
+
+  // ── Sorting & Filtering ──────────────────────────────────────────
+  const sortedTeams = useMemo(() => {
+    let data = [...nbaTeamGamesRaw];
+    
+    // Filter to show only teams with user/opponent players if filter is active
+    if (showMyTeamsOnly && isAuthenticated) {
+      data = data.filter((team) => nbaTeamPlayersMap.hasAnyPlayers[team.team]);
+    }
+    
+    const { key, direction } = sortConfig;
+
+    return data.sort((a, b) => {
+      const aVal = key === "total" ? a.total : (a.weeks[key] ?? 0);
+      const bVal = key === "total" ? b.total : (b.weeks[key] ?? 0);
+      return direction === "desc" ? bVal - aVal : aVal - bVal;
+    });
+  }, [nbaTeamGamesRaw, sortConfig, showMyTeamsOnly, isAuthenticated, nbaTeamPlayersMap]);
+
+  const requestSort = (key) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
+    }));
+  };
+
+  const SortIcon = ({ columnKey }) =>
+    sortConfig.key === columnKey ? (
+      sortConfig.direction === "desc" ? (
+        <ArrowDownwardIcon fontSize="small" />
+      ) : (
+        <ArrowUpwardIcon fontSize="small" />
+      )
+    ) : null;
+
+  const handleMyLeagueClick = async () => {
+    if (!isAuthenticated) {
+      try {
+        sessionStorage.setItem("oauth_return_path", "/nba-playoffs");
+        const isDev = window.location.hostname === "localhost";
+        const { data } = await supabase.functions.invoke("yahoo-oauth", {
+          body: { action: "authorize", isDev },
+        });
+        if (data?.authUrl) {
+          window.location.href = data.authUrl;
+        }
+      } catch (err) {
+        console.error("Failed to connect to Yahoo:", err);
+      }
+      return;
+    }
+  };
+
+  // ── Loading ──────────────────────────────────────────────────────
+  if (!playoffsData || !Object.keys(nbaTeamSchedule).length || isLoadingLeagueData) {
     return (
-      <Box sx={{ p: 3, textAlign: "center" }}>
-        <CircularProgress sx={{ mb: 2 }} />
-        <Typography>Loading playoff data…</Typography>
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <CircularProgress size={60} />
+        {isLoadingLeagueData && (
+          <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
+            Loading your players...
+          </Typography>
+        )}
       </Box>
     );
   }
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, mx: "auto" }}>
       {/* Header */}
-      <Box sx={{ mb: 3 }}>
-        <Typography
-          variant="h4"
-          component="h1"
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
+        <Typography variant="h4" fontWeight={700} color="primary.main">
+          NBA Fantasy Playoff Schedule
+        </Typography>
+
+        {!isAuthenticated ? (
+        <Button
+          variant="outlined"
+          onClick={handleMyLeagueClick}
+            startIcon={<SportsBasketballIcon />}
           sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            mb: 1,
-            textAlign: { xs: "center", md: "left" },
+            color: YAHOO_BLUE,
+            borderColor: YAHOO_BLUE,
+            borderRadius: 2,
+            fontFamily: '"Roboto Mono", monospace',
+            textTransform: "none",
+            px: 4,
+            py: 1.2,
+            "&:hover": {
+              borderColor: YAHOO_BLUE_LIGHT,
+              backgroundColor: YAHOO_BLUE_BG,
+            },
           }}
         >
-          NBA Fantasy Basketball Playoff Schedule
-        </Typography>
-        
-        {/* SEO Content Section */}
-        <Box sx={{ mt: 2, mb: 3, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #e0e0e0' }}>
-          <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.7 }}>
-            Fantasy basketball playoff schedules vary by league format, but most leagues align with the NBA playoffs beginning in mid-April. Understanding NBA team playoff schedules is critical for fantasy success during your league's championship weeks.
-          </Typography>
-        </Box>
+            Load your players from Yahoo
+        </Button>
+        ) : null}
       </Box>
 
       {/* Controls */}
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap",
-          gap: 2,
-          mb: 3,
           alignItems: "center",
-          justifyContent: { xs: "center", md: "flex-start" },
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 3,
+          mb: 4,
         }}
       >
-        <FormControl sx={{ minWidth: 210 }}>
-          <InputLabel>Playoff Start Week</InputLabel>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <FormControl sx={{ minWidth: 220 }}>
+          <InputLabel>Championship Start Week</InputLabel>
           <Select
             value={playoffStartWeek}
-            label="Playoff Start Week"
-            onChange={handleWeekSelect}
+            label="Championship Start Week"
+            onChange={(e) => setPlayoffStartWeek(+e.target.value)}
           >
             {[19, 20, 21].map((n) => (
               <MenuItem key={n} value={n}>
-                W{n} ({playoffsData.weeks?.[n]?.label ?? ""})
+                Week {n}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
+          <Tooltip
+            title={
+              !isAuthenticated
+                ? "Connect to Yahoo to filter your teams"
+                : showMyTeamsOnly
+                ? "Showing only teams with your players"
+                : "Filter to show only teams with your players"
+            }
+            arrow
+          >
+            <span>
+              <IconButton
+                size="small"
+                onClick={() => setShowMyTeamsOnly(!showMyTeamsOnly)}
+                disabled={!isAuthenticated}
+                sx={{
+                  bgcolor: showMyTeamsOnly ? YAHOO_BLUE : "transparent",
+                  color: showMyTeamsOnly ? "#fff" : YAHOO_BLUE,
+                  border: "2px solid",
+                  borderColor: showMyTeamsOnly ? YAHOO_BLUE : YAHOO_BLUE,
+                  "&:hover": {
+                    bgcolor: showMyTeamsOnly ? "#357abd" : YAHOO_BLUE_BG,
+                  },
+                  "&.Mui-disabled": {
+                    borderColor: "#ccc",
+                    color: "#ccc",
+                  },
+                }}
+              >
+                <FilterListIcon sx={{ fontSize: "1.2rem" }} />
+              </IconButton>
+            </span>
+          </Tooltip>
+
+          <Tooltip
+            title={
+              !isAuthenticated
+                ? "Login to yahoo to load league teams"
+                : selectedOpponentTeam
+                ? `Highlighting: ${selectedOpponentTeam}`
+                : "Click to select an opponent team"
+            }
+            arrow
+          >
+            <span>
+              <Button
+                variant={selectedOpponentTeam ? "contained" : "outlined"}
+                size="small"
+                onClick={(e) => setTeamMenuAnchor(e.currentTarget)}
+                disabled={!isAuthenticated || !leagueTeams || leagueTeams.length === 0}
+                sx={{
+                  textTransform: "none",
+                  fontSize: "0.875rem",
+                  bgcolor: selectedOpponentTeam ? "#ff6b35" : "transparent",
+                  color: selectedOpponentTeam ? "#fff" : "#ff6b35",
+                  borderColor: "#ff6b35",
+                  border: "2px solid #ff6b35",
+                  "&:hover": {
+                    bgcolor: selectedOpponentTeam
+                      ? "#e55a2b"
+                      : "rgba(255, 107, 53, 0.1)",
+                  },
+                  "&.Mui-disabled": {
+                    borderColor: "#ccc",
+                    color: "#ccc",
+                  },
+                }}
+              >
+                {selectedOpponentTeam || "Opponent Team"}
+              </Button>
+            </span>
+          </Tooltip>
+        </Box>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           {playoffWeeks.map((w) => (
             <Chip
               key={w.number}
               label={`W${w.number}: ${w.label}`}
-              color="default"
               variant="outlined"
+              color="primary"
             />
           ))}
         </Box>
       </Box>
 
-      {/* NBA Teams Table */}
-      <TableContainer component={Paper} elevation={3}>
-        <Table size="small">
+      {/* Opponent Team Selector Menu */}
+      <Menu
+        anchorEl={teamMenuAnchor}
+        open={Boolean(teamMenuAnchor)}
+        onClose={() => setTeamMenuAnchor(null)}
+        PaperProps={{
+          style: { maxHeight: 400 },
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            setSelectedOpponentTeam(null);
+            setTeamMenuAnchor(null);
+          }}
+          sx={{
+            fontWeight: !selectedOpponentTeam ? 700 : 400,
+            color: !selectedOpponentTeam ? "#ff6b35" : "inherit",
+          }}
+        >
+          None
+        </MenuItem>
+        {leagueTeams
+          ?.filter((team) => !team.is_owned_by_current_login)
+          .map((team) => (
+            <MenuItem
+              key={team.key}
+              onClick={() => {
+                setSelectedOpponentTeam(team.name);
+                setTeamMenuAnchor(null);
+              }}
+              sx={{
+                fontWeight: selectedOpponentTeam === team.name ? 700 : 400,
+                color: selectedOpponentTeam === team.name ? "#ff6b35" : "inherit",
+              }}
+            >
+              {team.name}
+            </MenuItem>
+          ))}
+      </Menu>
+
+      {/* Table */}
+      <TableContainer component={Paper} sx={{ borderRadius: 2, overflow: "auto" }}>
+        <Table size="small" sx={{ minWidth: 650 }}>
           <TableHead>
-            <TableRow sx={{ bgcolor: "grey.100" }}>
-              <TableCell sx={{ fontWeight: 700 }}>Team</TableCell>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700, fontSize: "0.95rem", minWidth: 160, position: "sticky", left: 0, backgroundColor: "#fff", zIndex: 3 }}>
+                TEAM
+              </TableCell>
               {playoffWeeks.map((w) => (
-                <TableCell key={w.number} align="center" sx={{ fontWeight: 700 }}>
-                  Week {w.number}
+                <TableCell
+                  key={w.number}
+                  align="center"
+                  onClick={() => requestSort(w.number)}
+                  sx={{
+                    cursor: "pointer",
+                    fontWeight: 700,
+                    fontSize: "0.95rem",
+                    minWidth: 80,
+                    "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                  }}
+                >
+                  W{w.number} <SortIcon columnKey={w.number} />
                 </TableCell>
               ))}
               <TableCell
                 align="center"
-                sx={{ fontWeight: 700, bgcolor: "info.light", color: "white" }}
+                onClick={() => requestSort("total")}
+                sx={{
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                  minWidth: 100,
+                  position: "sticky",
+                  right: 0,
+                  backgroundColor: "#fff",
+                  zIndex: 3,
+                  boxShadow: "-4px 0 8px -4px rgba(0,0,0,0.1)",
+                }}
               >
-                TOTAL
+                TOTAL <SortIcon columnKey="total" />
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {nbaTeamGames.map((t) => (
-              <TableRow key={t.team} hover>
-                <TableCell>
-                  <Chip label={t.team} size="small" />
-                </TableCell>
-                {playoffWeeks.map((w) => (
-                  <TableCell key={w.number} align="center">
-                    {t.weeks[w.number] ?? 0}
+            {sortedTeams.map((t) => {
+              const hasUserPlayers = nbaTeamPlayersMap.userPlayers[t.team]?.length > 0;
+              const hasOpponentPlayers = nbaTeamPlayersMap.opponentPlayers[t.team]?.length > 0;
+              const hasAnyPlayers = hasUserPlayers || hasOpponentPlayers;
+              const isExpanded = expandedTeams[t.team];
+
+              return (
+                <React.Fragment key={t.team}>
+                  <TableRow
+                    hover
+                    onClick={
+                      hasAnyPlayers
+                        ? () =>
+                            setExpandedTeams((prev) => ({
+                              ...prev,
+                              [t.team]: !prev[t.team],
+                            }))
+                        : undefined
+                    }
+                    sx={{
+                      backgroundColor: hasAnyPlayers ? "rgba(74, 144, 226, 0.06)" : "inherit",
+                      borderLeft: hasAnyPlayers ? `4px solid ${YAHOO_BLUE}` : "none",
+                      cursor: hasAnyPlayers ? "pointer" : "default",
+                      "&:hover": hasAnyPlayers
+                        ? { backgroundColor: "rgba(74, 144, 226, 0.12)" }
+                        : {},
+                    }}
+                  >
+                    <TableCell sx={{ fontWeight: hasAnyPlayers ? 700 : 500, position: "sticky", left: 0, backgroundColor: "inherit", zIndex: 2 }}>
+                      {t.team}
+                      {hasUserPlayers && (
+                        <Chip
+                          label={nbaTeamPlayersMap.userPlayers[t.team].length}
+                          size="small"
+                          sx={{
+                            ml: 1.5,
+                            height: 20,
+                            fontSize: "0.7rem",
+                            backgroundColor: YAHOO_BLUE,
+                            color: "#fff",
+                          }}
+                        />
+                      )}
+                      {hasOpponentPlayers && (
+                        <Chip
+                          label={nbaTeamPlayersMap.opponentPlayers[t.team].length}
+                          size="small"
+                          sx={{
+                            ml: 0.5,
+                            height: 20,
+                            fontSize: "0.7rem",
+                            backgroundColor: "#ff6b35",
+                            color: "#fff",
+                          }}
+                        />
+                      )}
+                    </TableCell>
+
+                    {playoffWeeks.map((w) => {
+                      const count = t.weeks[w.number] ?? 0;
+                      return (
+                        <TableCell
+                          key={w.number}
+                          align="center"
+                          sx={getGameCountStyle(count)}
+                        >
+                          {count}
                   </TableCell>
-                ))}
-                <TableCell
-                  align="center"
-                  sx={{ bgcolor: "info.light", color: "white", fontWeight: 700 }}
-                >
+                      );
+                    })}
+
+                    <TableCell
+                      align="center"
+                      sx={{
+                        ...getGameCountStyle(t.total, true),
+                        position: "sticky",
+                        right: 0,
+                        backgroundColor: "inherit",
+                        zIndex: 2,
+                        boxShadow: "-3px 0 6px -2px rgba(0,0,0,0.06)",
+                      }}
+                    >
                   {t.total}
                 </TableCell>
               </TableRow>
-            ))}
+
+                  {hasAnyPlayers && (
+                    <TableRow>
+                      <TableCell
+                        style={{ paddingBottom: 0, paddingTop: 0 }}
+                        colSpan={playoffWeeks.length + 2}
+                      >
+                        <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                          <Box sx={{ py: 2, pl: 5 }}>
+                            {hasUserPlayers && (
+                              <Box sx={{ mb: hasOpponentPlayers ? 2 : 0 }}>
+                                <Typography variant="subtitle2" fontWeight={700} gutterBottom color={YAHOO_BLUE}>
+                                  Your Players on {t.team}:
+                                </Typography>
+                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                  {nbaTeamPlayersMap.userPlayers[t.team].map((player, idx) => (
+                                    <Chip
+                                      key={idx}
+                                      label={`${player.name} (${player.position})`}
+                                      size="small"
+                                      sx={{ 
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        backgroundColor: YAHOO_BLUE,
+                                        color: "#fff",
+                                      }}
+                                    />
+                                  ))}
+                                </Box>
+                              </Box>
+                            )}
+                            {hasOpponentPlayers && (
+                              <Box>
+                                <Typography variant="subtitle2" fontWeight={700} gutterBottom color="#ff6b35">
+                                  {selectedOpponentTeam} Players on {t.team}:
+                                </Typography>
+                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                  {nbaTeamPlayersMap.opponentPlayers[t.team].map((player, idx) => (
+                                    <Chip
+                                      key={idx}
+                                      label={`${player.name} (${player.position})`}
+                                      size="small"
+                                      sx={{ 
+                                        fontFamily: '"Roboto Mono", monospace',
+                                        backgroundColor: "#ff6b35",
+                                        color: "#fff",
+                                      }}
+                                    />
+                                  ))}
+                                </Box>
+                              </Box>
+                            )}
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -266,4 +692,3 @@ const NBAPlayoffs = () => {
 };
 
 export default NBAPlayoffs;
-

@@ -179,16 +179,6 @@ const NBARegularSeason = () => {
           NBA Regular Season Schedule - Fantasy Basketball
         </Typography>
         
-        {/* SEO Content Section */}
-        <Box sx={{ mt: 2, mb: 3, p: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #e0e0e0' }}>
-          <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.7 }}>
-            The NBA regular season consists of 82 games per team, running from late October through mid-April. Each week brings different schedule densities for NBA teams, with some teams playing 4 games while others play only 2. Understanding weekly NBA schedules is essential for fantasy basketball success.
-          </Typography>
-        
-          <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
-            Use this tool to view NBA team schedules week by week. Select any week to see which teams have the most games, helping you optimize your fantasy basketball lineup for maximum production.
-          </Typography>
-        </Box>
       </Box>
 
       {/* Controls */}

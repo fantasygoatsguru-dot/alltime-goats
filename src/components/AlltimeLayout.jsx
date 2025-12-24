@@ -297,26 +297,26 @@ const AlltimeLayout = () => {
   ];
 
   const scheduleSubmenu = [
-    { 
-      path: '/my-league-regular-season', 
-      label: 'My Season', 
-      icon: <MyTeamIcon />, 
-      requiresAuth: true, 
-      requiresPremium: true,
-      tooltip: 'Connect to Yahoo to view your league schedule',
-      premiumTooltip: 'Upgrade to premium to access your league schedule'
-    },
-    { path: '/nba-regular-season', label: 'NBA Season', icon: <ScheduleIcon />, requiresAuth: false },
+    { path: '/nba-playoffs', label: 'Fantasy Playoffs', icon: <PlayoffIcon />, requiresAuth: false },
+    { path: '/nba-regular-season', label: 'Fantasy Season', icon: <ScheduleIcon />, requiresAuth: false },
     { 
       path: '/my-league-playoffs', 
-      label: 'My Playoffs', 
+      label: 'Team Playoff Strength', 
       icon: <MyTeamIcon />, 
       requiresAuth: true, 
       requiresPremium: true,
       tooltip: 'Connect to Yahoo to view your playoff schedule',
       premiumTooltip: 'Upgrade to premium to access your playoff schedule'
     },
-    { path: '/nba-playoffs', label: 'NBA Playoffs', icon: <PlayoffIcon />, requiresAuth: false },
+    { 
+      path: '/my-league-regular-season', 
+      label: 'Team Season Strength', 
+      icon: <MyTeamIcon />, 
+      requiresAuth: true, 
+      requiresPremium: true,
+      tooltip: 'Connect to Yahoo to view your league schedule',
+      premiumTooltip: 'Upgrade to premium to access your league schedule'
+    },
   ];
 
   const alltimeSubmenu = [
@@ -654,7 +654,7 @@ const AlltimeLayout = () => {
                 const submenuMap = { 
                   '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/matchup' },
                   '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/rankings' },
-                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/my-league-regular-season' },
+                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/nba-playoffs' },
                   '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: handleAlltimeClose, defaultPath: '/games' },
                 };
 
@@ -878,8 +878,7 @@ const AlltimeLayout = () => {
                 >
                   {userLeagues.map((l) => {
                     const leagueIdStr = String(l.leagueId);
-                    const selectedLeagueStr = String(selectedLeague || '');
-                    const isDisabled = !isPremium && leagueIdStr !== selectedLeagueStr;
+                    const isDisabled = false; // TODO: Remove this once we have premium features
                     const menuItem = (
                       <MenuItem 
                         key={l.leagueId}

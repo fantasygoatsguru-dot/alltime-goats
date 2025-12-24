@@ -62,7 +62,7 @@ export const seoRoutes = [
   },
   {
     path: '/nba-playoffs',
-    title: 'NBA Fantasy Basketball Playoff Schedule (Updated 2025) | Fantasy Goats Guru',
+    title: 'NBA Fantasy Basketball Playoff Schedule (2025-26) | Fantasy Goats Guru',
     description: 'Fantasy basketball playoff schedule analyzer. See which NBA teams have the most games during fantasy playoffs. Optimize your roster for championship weeks.',
     changefreq: 'weekly',
     priority: 0.8,
