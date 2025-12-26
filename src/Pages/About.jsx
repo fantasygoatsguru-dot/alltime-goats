@@ -8,7 +8,6 @@ const About = () => {
   const [copySuccess, setCopySuccess] = useState('');
   const navigate = useNavigate();
 
-  // Function to handle copying the link
   const handleCopyLink = () => {
     navigator.clipboard
       .writeText('http://fantasygoats.guru/')
@@ -34,12 +33,12 @@ const About = () => {
       }}
     >
       {/* Header */}
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
+      <Box sx={{ textAlign: 'center', mb: 5 }}>
         <Typography
           variant="h3"
           component="h1"
-          sx={{ 
-            fontWeight: 700, 
+          sx={{
+            fontWeight: 700,
             color: 'white',
             mb: 2,
             fontSize: { xs: '2rem', md: '2.5rem' }
@@ -47,12 +46,12 @@ const About = () => {
         >
           About Fantasy Goats Guru 🐐
         </Typography>
-        
+
         <Typography
           variant="body1"
-          sx={{ 
-            color: 'grey.400', 
-            maxWidth: '800px', 
+          sx={{
+            color: 'grey.400',
+            maxWidth: '800px',
             mx: 'auto',
             fontSize: { xs: '1rem', md: '1.1rem' },
             lineHeight: 1.8,
@@ -61,11 +60,12 @@ const About = () => {
         >
           Welcome to Fantasy Goats Guru – We're a passion project to help people win and research fantasy basketball.
         </Typography>
+
       </Box>
 
       {/* Support Section */}
-      <Box 
-        sx={{ 
+      <Box
+        sx={{
           textAlign: 'center',
           bgcolor: 'rgba(255, 255, 255, 0.1)',
           borderRadius: 4,
@@ -77,8 +77,8 @@ const About = () => {
         <Typography
           variant="h4"
           component="h2"
-          sx={{ 
-            fontWeight: 600, 
+          sx={{
+            fontWeight: 600,
             color: 'white',
             mb: 2,
             fontSize: { xs: '1.5rem', md: '2rem' }
@@ -86,7 +86,7 @@ const About = () => {
         >
           Keep us going! ✨
         </Typography>
-        
+
         <Typography
           variant="h6"
           sx={{ color: 'grey.300', maxWidth: '600px', mx: 'auto', mb: 4, fontWeight: 400 }}
@@ -95,7 +95,7 @@ const About = () => {
         </Typography>
 
         <Grid container spacing={3} justifyContent="center">
-          {/* Card 1: Send us a review (Blue) */}
+          {/* Card 1: Send us a review */}
           <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{
@@ -137,7 +137,7 @@ const About = () => {
             </Card>
           </Grid>
 
-          {/* Card 2: Share with a friend (Green) */}
+          {/* Card 2: Share with a friend */}
           <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{
@@ -182,7 +182,7 @@ const About = () => {
             </Card>
           </Grid>
 
-          {/* Card 3: Buy me a coffee (Yellow) */}
+          {/* Card 3: Buy me a coffee */}
           <Grid item xs={12} sm={6} md={4}>
             <Card
               sx={{
@@ -225,6 +225,67 @@ const About = () => {
           </Grid>
         </Grid>
       </Box>
+
+
+        {/* Partnered with section */}
+        <Box
+          sx={{
+            mt: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 1.5
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: 'grey.400',
+              fontWeight: 500,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              fontSize: '0.9rem'
+            }}
+          >
+            Partnered with
+          </Typography>
+
+          <Button
+            href="https://yahoo-fantasytoys.up.railway.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              color: 'white',
+              textTransform: 'none',
+              fontSize: '1.3rem',
+              fontWeight: 600,
+              py: 1.2,
+              px: 4,
+              borderRadius: 50,
+              bgcolor: 'rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255,255,255,0.18)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                bgcolor: 'rgba(255,255,255,0.15)',
+                transform: 'translateY(-3px)',
+                boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+              }
+            }}
+          >
+            {YahooIcon && (
+              <img
+                src={YahooIcon}
+                alt="Yahoo"
+                style={{ height: '36px', width: 'auto' }}
+              />
+            )}
+            Yahoo Fantasy Toys
+          </Button>
+        </Box>
     </Container>
   );
 };
