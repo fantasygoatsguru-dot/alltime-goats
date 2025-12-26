@@ -223,6 +223,7 @@ const SeasonGames = () => {
         let query = supabase
           .from('player_game_logs')
           .select('*')
+          .order('fantasy_points', { ascending: false }) // highest first
           .eq('season', CURRENT_SEASON);
 
         // Apply date filter based on period
