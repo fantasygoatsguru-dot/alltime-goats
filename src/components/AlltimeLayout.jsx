@@ -839,28 +839,14 @@ const AlltimeLayout = () => {
                   value={selectedLeague || ''}
                   onChange={(e) => {
                     const newLeagueId = e.target.value;
-                    console.log('League change attempted:', { 
-                      newLeagueId, 
-                      isPremium, 
-                      currentLeague: selectedLeague,
-                      userProfile: userProfile,
-                      is_premium_value: userProfile?.is_premium,
-                      eventValue: e.target.value,
-                      eventType: typeof e.target.value
-                    });
                     
                     if (!newLeagueId) {
                       console.warn('⚠️ No league ID received in onChange');
                       return;
                     }
                     
-                    if (isPremium) {
-                      const leagueIdStr = String(newLeagueId);
-                      console.log('✅ Premium user - allowing league switch to:', leagueIdStr);
-                      setSelectedLeague(leagueIdStr);
-                    } else {
-                      console.warn('❌ Non-premium user - league switch blocked. isPremium:', isPremium);
-                    }
+                    const leagueIdStr = String(newLeagueId);
+                    setSelectedLeague(leagueIdStr);
                   }}
                   displayEmpty
                   renderValue={(value) => {
