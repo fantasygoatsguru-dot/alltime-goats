@@ -389,7 +389,7 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
     const { data: playerInfo, error: playerInfoError } = await supabase
       .from('alltime_player_info')
       .select('player_id, position, nationality, height, season_experience')
-      .in('player_id', playerIds.slice(0, 200));
+      .in('player_id', playerIds.slice(0, 500));
     
     if (playerInfoError) {
       console.warn('Error fetching player info, using defaults:', playerInfoError);
@@ -447,7 +447,7 @@ export const fetchAllTimePlayerStats = async (players) => {
     const team2Players = players.filter(p => p.team === 'team2');
     
     // Limit to 200 players max for safety
-    const limitedPlayers = players.slice(0, 200);
+    const limitedPlayers = players.slice(0, 500);
     
     // Fetch all player stats from Supabase
     // We need to query each player-season combination
