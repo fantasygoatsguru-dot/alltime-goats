@@ -71,6 +71,7 @@ const App = () => {
             <Route path="/matchup" element={<AlltimeLayout />} />
             <Route path="/my-team" element={<AlltimeLayout />} />
             <Route path="/matchup-projection" element={<AlltimeLayout />} />
+            <Route path="/category-breakdown" element={<AlltimeLayout />} />
             <Route path="/rankings" element={<AlltimeLayout />} />
             <Route path="/season-games" element={<AlltimeLayout />} />
             <Route path="/chat" element={<AlltimeLayout />} />
