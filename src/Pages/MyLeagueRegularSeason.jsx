@@ -32,19 +32,17 @@ import { supabase } from "../utils/supabase";
 
 const MyLeagueRegularSeason = () => {
   const { isAuthenticated } = useAuth();
-  const { selectedLeague, leagueTeams } = useLeague();
+  const { leagueTeams, leagueSettings } = useLeague();
 
   // ── State ───────────────────────────────────────────────────────
   const [selectedWeek, setSelectedWeek] = useState(1);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
   const [allWeeks, setAllWeeks] = useState([]);
-  const [leagueSettings, setLeagueSettings] = useState(null);
   const [playerStats, setPlayerStats] = useState({});
   const [expandedTeams, setExpandedTeams] = useState({});
   const [disabledPlayers, setDisabledPlayers] = useState({});
   const [sortBy, setSortBy] = useState({ column: 'total', type: 'games', direction: 'desc' });
   const [isLoadingLoggedInData, setIsLoadingLoggedInData] = useState(false);
-  const [leagueSettingsLoaded, setLeagueSettingsLoaded] = useState(false);
   const [playerStatsLoaded, setPlayerStatsLoaded] = useState(false);
 
   // ── SEO Structured Data ───────────────────────────────────────────
@@ -88,15 +86,14 @@ const MyLeagueRegularSeason = () => {
 
   // Track loading state for logged-in data
   useEffect(() => {
-    if (isAuthenticated && selectedLeague) {
+    if (isAuthenticated) {
       const hasLeagueTeams = Array.isArray(leagueTeams) && leagueTeams.length > 0;
-      setIsLoadingLoggedInData(!hasLeagueTeams || !leagueSettingsLoaded || !playerStatsLoaded);
+      setIsLoadingLoggedInData(!hasLeagueTeams || !playerStatsLoaded);
     } else {
       setIsLoadingLoggedInData(false);
-      setLeagueSettingsLoaded(false);
       setPlayerStatsLoaded(false);
     }
-  }, [isAuthenticated, selectedLeague, leagueTeams, leagueSettingsLoaded, playerStatsLoaded]);
+  }, [isAuthenticated, leagueTeams, playerStatsLoaded]);
 
   // ── Load static data ───────────────────────────────────────────
   useEffect(() => {
@@ -137,60 +134,64 @@ const MyLeagueRegularSeason = () => {
     loadScheduleData();
   }, []);
 
-  // ── League settings (logged-in) ───────────────────────────────
-  useEffect(() => {
-    const loadLeagueSettings = async () => {
-      if (!isAuthenticated || !selectedLeague) {
-        setLeagueSettingsLoaded(false);
-        return;
-      }
-      setLeagueSettingsLoaded(false);
-      try {
-        const { data, error } = await supabase
-          .from("league_settings")
-          .select("*")
-          .eq("league_id", selectedLeague)
-          .single();
-        if (error) throw error;
-        setLeagueSettings(data);
-      } catch (e) {
-        console.error("Error loading league settings:", e);
-      } finally {
-        setLeagueSettingsLoaded(true);
-      }
-    };
-    loadLeagueSettings();
-  }, [isAuthenticated, selectedLeague]);
 
-  // ── Initialize disabled players (IL, IL+, INJ) ──────────────────
+  // ── Initialize disabled players (lowest z-score if over roster limit) ──────────────────
   useEffect(() => {
-    if (!isAuthenticated || !Array.isArray(leagueTeams) || leagueTeams.length === 0) {
+    if (!isAuthenticated || !Array.isArray(leagueTeams) || leagueTeams.length === 0 || Object.keys(playerStats).length === 0) {
       setDisabledPlayers({});
       return;
     }
 
     const initialDisabled = {};
+    
     leagueTeams.forEach((team) => {
       if (!team || !Array.isArray(team.players)) return;
-      team.players.forEach((p) => {
-        const playerId = p.id || p.yahooPlayerId || p.nbaPlayerId;
-        if (!playerId) return;
-        
+      
+      const players = team.players;
+      const totalRosterSize = players.length;
+      
+      // Count IL spots (players in IL or IL+ positions)
+      const ilSpots = players.filter(p => {
         const selectedPosition = p.selectedPosition || p.selected_position;
-        const status = p.status;
-        
-        const shouldDisable = 
-          (selectedPosition && (selectedPosition === 'IL' || selectedPosition === 'IL+')) || 
-          (status && status === 'INJ');
-        
-        if (shouldDisable) {
-          initialDisabled[`${team.key}_${playerId}`] = true;
-        }
+        return selectedPosition === 'IL' || selectedPosition === 'IL+';
+      }).length;
+      
+      // Calculate max active roster
+      const maxActiveRoster = totalRosterSize - ilSpots;
+      
+      // Get active players (not in IL/IL+ positions and not INJ status)
+      const activePlayers = players.filter(p => {
+        const selectedPosition = p.selectedPosition || p.selected_position;
+        const isInIL = selectedPosition === 'IL' || selectedPosition === 'IL+';
+        return !isInIL;
       });
+      
+      // If we have more active players than allowed, disable the lowest z-score players
+      if (activePlayers.length > maxActiveRoster) {
+        const playersToDisable = activePlayers.length - maxActiveRoster;
+        
+        // Sort active players by z-score (ascending, so lowest first)
+        const sortedByZScore = [...activePlayers].sort((a, b) => {
+          const statA = playerStats[a.nbaPlayerId] || playerStats[a.yahooPlayerId];
+          const statB = playerStats[b.nbaPlayerId] || playerStats[b.yahooPlayerId];
+          const zScoreA = statA?.total_value ?? -999;
+          const zScoreB = statB?.total_value ?? -999;
+          return zScoreA - zScoreB;
+        });
+        
+        // Disable the lowest z-score players
+        for (let i = 0; i < playersToDisable; i++) {
+          const player = sortedByZScore[i];
+          const playerId = player.id || player.yahooPlayerId || player.nbaPlayerId;
+          if (playerId) {
+            initialDisabled[`${team.key}_${playerId}`] = true;
+          }
+        }
+      }
     });
 
     setDisabledPlayers(initialDisabled);
-  }, [isAuthenticated, leagueTeams]);
+  }, [isAuthenticated, leagueTeams, playerStats]);
 
   // ── Player stats (logged-in) ───────────────────────────────────
   useEffect(() => {

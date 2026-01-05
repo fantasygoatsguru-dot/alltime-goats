@@ -576,11 +576,6 @@ serve(async (req) => {
       if (!league) throw new Error("League settings not found");
       
       const settings = league.settings;
-      if(settings?.uses_playoff === "1") {
-        const playoffsStartWeek = settings.playoff_start_week;
-        const playoffsEndWeek = settings.end_week;
-        const playoffsTeams = settings.playoff_teams;
-      }
       
       // Extract enabled stat categories
       const enabledStats = (settings?.stat_categories?.stats || [])
@@ -596,6 +591,9 @@ serve(async (req) => {
         JSON.stringify({
           scoringType: league.scoring_type,
           usesPlayoff: settings?.uses_playoff === "1",
+          playoffStartWeek: settings?.playoff_start_week ? parseInt(settings.playoff_start_week) : null,
+          endWeek: settings?.end_week ? parseInt(settings.end_week) : null,
+          playoffTeams: settings?.playoff_teams ? parseInt(settings.playoff_teams) : null,
           leagueName: league.name,
           numTeams: parseInt(league.num_teams) || 0,
           maxWeeklyAdds: parseInt(settings?.max_weekly_adds) || 0,

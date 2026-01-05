@@ -54,7 +54,7 @@ const getGameCountStyle = (count, isTotal = false) => {
 
 const NBAPlayoffs = () => {
   const { isAuthenticated } = useAuth();
-  const { leagueTeams } = useLeague();
+  const { leagueTeams, leagueSettings } = useLeague();
 
   const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
@@ -111,6 +111,13 @@ const NBAPlayoffs = () => {
     };
     loadScheduleData();
   }, []);
+
+  // ── Update playoff start week from league settings ──────────────
+  useEffect(() => {
+    if (leagueSettings?.playoffStartWeek) {
+      setPlayoffStartWeek(parseInt(leagueSettings.playoffStartWeek, 10));
+    }
+  }, [leagueSettings]);
 
   // ── Track league data loading ────────────────────────────────────
   useEffect(() => {
@@ -363,11 +370,27 @@ const NBAPlayoffs = () => {
             label="Championship Start Week"
             onChange={(e) => setPlayoffStartWeek(+e.target.value)}
           >
-            {[19, 20, 21].map((n) => (
-              <MenuItem key={n} value={n}>
-                Week {n}
-              </MenuItem>
-            ))}
+            {[19, 20, 21].map((n) => {
+              const isLeagueDefault = leagueSettings?.playoffStartWeek === n;
+              return (
+                <MenuItem key={n} value={n}>
+                  Week {n}
+                  {isLeagueDefault && (
+                    <Chip
+                      label="League Setting"
+                      size="small"
+                      sx={{
+                        ml: 1,
+                        height: 20,
+                        fontSize: "0.65rem",
+                        backgroundColor: YAHOO_BLUE,
+                        color: "#fff",
+                      }}
+                    />
+                  )}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
 

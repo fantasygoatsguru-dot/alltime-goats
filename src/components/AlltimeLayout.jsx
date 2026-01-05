@@ -205,6 +205,7 @@ const AlltimeLayout = () => {
   const [currentMatchup, setCurrentMatchup] = useState(null);
   const [yahooConnecting, setYahooConnecting] = useState(false);
   const [loadingLeagues, setLoadingLeagues] = useState(false);
+  const [leagueSettings, setLeagueSettings] = useState(null);
 
   // === MAIN NAV ITEMS WITH NEW SVGs ===
   const navItems = [
@@ -304,7 +305,7 @@ const AlltimeLayout = () => {
       label: 'Team Playoff Strength', 
       icon: <MyTeamIcon />, 
       requiresAuth: true, 
-      requiresPremium: true,
+      requiresPremium: false,
       tooltip: 'Connect to Yahoo to view your playoff schedule',
       premiumTooltip: 'Upgrade to premium to access your playoff schedule'
     },
@@ -313,7 +314,7 @@ const AlltimeLayout = () => {
       label: 'Team Season Strength', 
       icon: <MyTeamIcon />, 
       requiresAuth: true, 
-      requiresPremium: true,
+      requiresPremium: false,
       tooltip: 'Connect to Yahoo to view your league schedule',
       premiumTooltip: 'Upgrade to premium to access your league schedule'
     },
@@ -398,6 +399,29 @@ const AlltimeLayout = () => {
       }
     };
     fetchLeagueTeams();
+  }, [selectedLeague, user?.userId, isAuthenticated]);
+
+  useEffect(() => {
+    const fetchLeagueSettings = async () => {
+      if (!selectedLeague || !isAuthenticated || !user?.userId) {
+        setLeagueSettings(null);
+        return;
+      }
+      
+      try {
+        const { data } = await supabase.functions.invoke('yahoo-fantasy-api', {
+          body: { action: 'getLeagueSettings', userId: user.userId, leagueId: selectedLeague },
+        });
+
+        if (data) {
+          setLeagueSettings(data);
+        }
+      } catch (err) {
+        console.error('Error fetching league settings:', err);
+        setLeagueSettings(null);
+      }
+    };
+    fetchLeagueSettings();
   }, [selectedLeague, user?.userId, isAuthenticated]);
 
   useEffect(() => {
@@ -1106,6 +1130,7 @@ const AlltimeLayout = () => {
             setLeagueTeams={setLeagueTeams}
             currentMatchup={currentMatchup}
             setCurrentMatchup={setCurrentMatchup}
+            leagueSettings={leagueSettings}
           >
             {renderContent()}
             <SEOContent />

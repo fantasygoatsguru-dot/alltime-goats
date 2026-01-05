@@ -34,20 +34,18 @@ import { supabase } from "../utils/supabase";
 
 const LeaguePlayoffs = () => {
   const { isAuthenticated } = useAuth();
-  const { selectedLeague, leagueTeams } = useLeague();
+  const { leagueTeams, leagueSettings } = useLeague();
 
   // ── State ───────────────────────────────────────────────────────
   const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
   const [playoffsData, setPlayoffsData] = useState(null);
-  const [leagueSettings, setLeagueSettings] = useState(null);
   const [playerStats, setPlayerStats] = useState({});
   const [expandedTeams, setExpandedTeams] = useState({});
   const [disabledPlayers, setDisabledPlayers] = useState({});
   const [sortBy, setSortBy] = useState({ column: 'total', type: 'games', direction: 'desc' }); // Default sort
   const [viewMode, setViewMode] = useState("nba");
   const [isLoadingLoggedInData, setIsLoadingLoggedInData] = useState(false);
-  const [leagueSettingsLoaded, setLeagueSettingsLoaded] = useState(false);
   const [playerStatsLoaded, setPlayerStatsLoaded] = useState(false);
 
   // ── SEO Structured Data ───────────────────────────────────────────
@@ -101,15 +99,14 @@ const LeaguePlayoffs = () => {
 
   // Track loading state for logged-in data
   useEffect(() => {
-    if (isAuthenticated && selectedLeague) {
+    if (isAuthenticated) {
       const hasLeagueTeams = Array.isArray(leagueTeams) && leagueTeams.length > 0;
-      setIsLoadingLoggedInData(!hasLeagueTeams || !leagueSettingsLoaded || !playerStatsLoaded);
+      setIsLoadingLoggedInData(!hasLeagueTeams || !playerStatsLoaded);
     } else {
       setIsLoadingLoggedInData(false);
-      setLeagueSettingsLoaded(false);
       setPlayerStatsLoaded(false);
     }
-  }, [isAuthenticated, selectedLeague, leagueTeams, leagueSettingsLoaded, playerStatsLoaded]);
+  }, [isAuthenticated, leagueTeams, playerStatsLoaded]);
 
   // ── Load static data ───────────────────────────────────────────
   useEffect(() => {
@@ -131,65 +128,70 @@ const LeaguePlayoffs = () => {
     loadScheduleData();
   }, []);
 
-  // ── League settings (logged-in) ───────────────────────────────
+  // ── Update playoff start week from league settings ──────────────
   useEffect(() => {
-    const loadLeagueSettings = async () => {
-      if (!isAuthenticated || !selectedLeague) {
-        setLeagueSettingsLoaded(false);
-        return;
-      }
-      setLeagueSettingsLoaded(false);
-      try {
-        const { data, error } = await supabase
-          .from("league_settings")
-          .select("*")
-          .eq("league_id", selectedLeague)
-          .single();
-        if (error) throw error;
-        setLeagueSettings(data);
-        if (data?.playoff_start_week) {
-          setPlayoffStartWeek(parseInt(data.playoff_start_week, 10));
-        }
-      } catch (e) {
-        console.error("Error loading league settings:", e);
-      } finally {
-        setLeagueSettingsLoaded(true);
-      }
-    };
-    loadLeagueSettings();
-  }, [isAuthenticated, selectedLeague]);
+    if (leagueSettings?.playoffStartWeek) {
+      setPlayoffStartWeek(parseInt(leagueSettings.playoffStartWeek, 10));
+    }
+  }, [leagueSettings]);
 
-  // ── Initialize disabled players (IL, IL+, INJ) ──────────────────
+  // ── Initialize disabled players (lowest z-score if over roster limit) ──────────────────
   useEffect(() => {
-    if (!isAuthenticated || !Array.isArray(leagueTeams) || leagueTeams.length === 0) {
+    if (!isAuthenticated || !Array.isArray(leagueTeams) || leagueTeams.length === 0 || Object.keys(playerStats).length === 0) {
       setDisabledPlayers({});
       return;
     }
 
     const initialDisabled = {};
+    
     leagueTeams.forEach((team) => {
       if (!team || !Array.isArray(team.players)) return;
-      team.players.forEach((p) => {
-        // Use the same ID format as elsewhere: id, yahooPlayerId, or nbaPlayerId
-        const playerId = p.id || p.yahooPlayerId || p.nbaPlayerId;
-        if (!playerId) return;
-        
+      
+      const players = team.players;
+      const totalRosterSize = players.length;
+      
+      // Count IL spots (players in IL or IL+ positions)
+      const ilSpots = players.filter(p => {
         const selectedPosition = p.selectedPosition || p.selected_position;
-        const status = p.status;
-        
-        // Only disable if explicitly IL, IL+, or INJ (case-sensitive check)
-        const shouldDisable = 
-          (selectedPosition && (selectedPosition === 'IL' || selectedPosition === 'IL+')) || 
-          (status && status === 'INJ');
-        
-        if (shouldDisable) {
-          initialDisabled[`${team.key}_${playerId}`] = true;
-        }
+        return selectedPosition === 'IL' || selectedPosition === 'IL+';
+      }).length;
+      
+      // Calculate max active roster
+      const maxActiveRoster = totalRosterSize - ilSpots;
+      
+      // Get active players (not in IL/IL+ positions and not INJ status)
+      const activePlayers = players.filter(p => {
+        const selectedPosition = p.selectedPosition || p.selected_position;
+        const isInIL = selectedPosition === 'IL' || selectedPosition === 'IL+';
+        return !isInIL;
       });
+      
+      // If we have more active players than allowed, disable the lowest z-score players
+      if (activePlayers.length > maxActiveRoster) {
+        const playersToDisable = activePlayers.length - maxActiveRoster;
+        
+        // Sort active players by z-score (ascending, so lowest first)
+        const sortedByZScore = [...activePlayers].sort((a, b) => {
+          const statA = playerStats[a.nbaPlayerId] || playerStats[a.yahooPlayerId];
+          const statB = playerStats[b.nbaPlayerId] || playerStats[b.yahooPlayerId];
+          const zScoreA = statA?.total_value ?? -999;
+          const zScoreB = statB?.total_value ?? -999;
+          return zScoreA - zScoreB;
+        });
+        
+        // Disable the lowest z-score players
+        for (let i = 0; i < playersToDisable; i++) {
+          const player = sortedByZScore[i];
+          const playerId = player.id || player.yahooPlayerId || player.nbaPlayerId;
+          if (playerId) {
+            initialDisabled[`${team.key}_${playerId}`] = true;
+          }
+        }
+      }
     });
 
     setDisabledPlayers(initialDisabled);
-  }, [isAuthenticated, leagueTeams]);
+  }, [isAuthenticated, leagueTeams, playerStats]);
 
   // ── Player stats (logged-in) ───────────────────────────────────
   useEffect(() => {
@@ -535,13 +537,28 @@ const LeaguePlayoffs = () => {
             value={playoffStartWeek}
             label="Playoff Start Week"
             onChange={handleWeekSelect}
-            disabled={isAuthenticated && !!leagueSettings}
           >
-            {[19, 20, 21].map((n) => (
-              <MenuItem key={n} value={n}>
-                W{n} ({playoffsData.weeks?.[n]?.label ?? ""})
-              </MenuItem>
-            ))}
+            {[19, 20, 21].map((n) => {
+              const isLeagueDefault = leagueSettings?.playoffStartWeek === n;
+              return (
+                <MenuItem key={n} value={n}>
+                  W{n} ({playoffsData.weeks?.[n]?.label ?? ""})
+                  {isLeagueDefault && (
+                    <Chip
+                      label="League Setting"
+                      size="small"
+                      sx={{
+                        ml: 1,
+                        height: 20,
+                        fontSize: "0.65rem",
+                        backgroundColor: "#4a90e2",
+                        color: "#fff",
+                      }}
+                    />
+                  )}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
 
