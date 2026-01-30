@@ -658,18 +658,10 @@ const SeasonGames = () => {
                     checked={puntedCategories.includes(cat.key)}
                     onChange={() => handlePuntToggle(cat.key)}
                     size="small"
-                    sx={{
-                      '&.Mui-checked': {
-                        color: '#0066cc',
-                      },
-                    }}
+                    sx={{ '&.Mui-checked': { color: '#0066cc' } }}
                   />
                 }
-                label={
-                  <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
-                    {cat.label}
-                  </Typography>
-                }
+                label={<Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#000' }}>{cat.label}</Typography>}
                 sx={{ m: 0 }}
               />
             ))}
