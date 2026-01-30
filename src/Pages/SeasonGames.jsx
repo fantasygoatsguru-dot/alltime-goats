@@ -644,36 +644,33 @@ const SeasonGames = () => {
           borderRadius: 1,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-          {/* Punt Categories */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flex: 1 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', minWidth: '100px' }}>
-              Punt Categories:
-            </Typography>
-            {PUNT_CATEGORIES.map((cat) => (
-              <FormControlLabel
-                key={cat.key}
-                control={
-                  <Checkbox
-                    checked={puntedCategories.includes(cat.key)}
-                    onChange={() => handlePuntToggle(cat.key)}
-                    size="small"
-                    sx={{ '&.Mui-checked': { color: '#0066cc' } }}
-                  />
-                }
-                label={<Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#000' }}>{cat.label}</Typography>}
-                sx={{ m: 0 }}
-              />
-            ))}
-          </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', minWidth: '100px' }}>
+            Punt Categories:
+          </Typography>
+          {PUNT_CATEGORIES.map((cat) => (
+            <FormControlLabel
+              key={cat.key}
+              control={
+                <Checkbox
+                  checked={puntedCategories.includes(cat.key)}
+                  onChange={() => handlePuntToggle(cat.key)}
+                  size="small"
+                  sx={{ '&.Mui-checked': { color: '#0066cc' } }}
+                />
+              }
+              label={<Typography variant="body2" sx={{ fontSize: '0.875rem', color: '#000' }}>{cat.label}</Typography>}
+              sx={{ m: 0 }}
+            />
+          ))}
 
-          {/* Advanced Filters Toggle */}
           <Button
             variant="outlined"
             size="small"
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
             sx={{
               textTransform: 'none',
+              marginLeft: 'auto',
               fontSize: '0.875rem',
               color: '#0066cc',
               borderColor: '#0066cc',
