@@ -1314,18 +1314,23 @@ const SeasonGames = () => {
                   </TableRow>
                 ) : (
                   paginatedStats.map((stat, index) => {
-                    const isMyPlayer = isUserTeamPlayer(stat.player_id);
+                    const isMyPlayer = isAuthenticated && isUserTeamPlayer(stat.player_id);
                     const displayFantasyPoints = puntedCategories.length > 0 
                       ? stat.adjusted_fantasy_points 
                       : stat.fantasy_points;
+                    
+                    const getRowBackground = () => {
+                      if (isMyPlayer) return 'rgba(0, 102, 204, 0.08)';
+                      return index % 2 === 0 ? '#fff' : '#f9f9f9';
+                    };
                     
                     return (
                     <TableRow
                       key={`${stat.player_id}-${stat.game_date}-${index}`}
                       sx={{
-                        bgcolor: index % 2 === 0 ? '#fff' : '#f9f9f9',
+                        bgcolor: getRowBackground(),
                         '&:hover': {
-                          bgcolor: 'rgba(0, 102, 204, 0.04)',
+                          bgcolor: isMyPlayer ? 'rgba(0, 102, 204, 0.12)' : 'rgba(0, 102, 204, 0.04)',
                         },
                         borderLeft: isMyPlayer ? '3px solid #0066cc' : 'none',
                       }}
@@ -1355,17 +1360,19 @@ const SeasonGames = () => {
                       >
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Avatar
-                                src={`https://cdn.nba.com/headshots/nba/latest/260x190/${stat.player_id}.png`}
-                                onError={(e) => {
-                                  e.target.src = "https://www.basketball-reference.com/req/202106291/images/headshots/default.jpg";
-                                }}
+                            src={`https://cdn.nba.com/headshots/nba/latest/260x190/${stat.player_id}.png`}
+                            onError={(e) => {
+                              e.target.src = "https://www.basketball-reference.com/req/202106291/images/headshots/default.jpg";
+                            }}
                             sx={{
                               width: 28,
                               height: 28,
-                              border: "1px solid #ddd",
+                              border: isMyPlayer ? "2px solid #0066cc" : "1px solid #ddd",
                             }}
                           />
-                          {stat.player_name}
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            {stat.player_name}
+                          </Box>
                         </Box>
                       </TableCell>
                       <TableCell
