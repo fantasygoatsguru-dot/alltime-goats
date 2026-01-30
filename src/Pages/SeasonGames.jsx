@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -26,9 +27,12 @@ import {
   FormControlLabel,
   Tooltip,
 } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
 import { useLeague } from "../contexts/LeagueContext";
 import { useAuth } from "../contexts/AuthContext";
+
+const VALID_PERIOD_TYPES = ['season', 'last_day', '7_days', '30_days', '60_days'];
 
 const PUNT_CATEGORIES = [
   { key: 'points', label: 'PTS', fullName: 'Points' },
@@ -43,6 +47,7 @@ const PUNT_CATEGORIES = [
 ];
 
 const SeasonGames = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [gameStats, setGameStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState(null);
@@ -55,15 +60,36 @@ const SeasonGames = () => {
   const [sortDirection, setSortDirection] = useState("desc");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [periodType, setPeriodType] = useState('season');
+  const [latestGameDate, setLatestGameDate] = useState(null);
   const [teamFilter, setTeamFilter] = useState('all');
   const [positionFilter, setPositionFilter] = useState('all');
   const [showMyTeamOnly, setShowMyTeamOnly] = useState(false);
   const [puntedCategories, setPuntedCategories] = useState([]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  const getInitialPeriodType = () => {
+    const urlPeriod = searchParams.get('period');
+    if (urlPeriod && VALID_PERIOD_TYPES.includes(urlPeriod)) {
+      return urlPeriod;
+    }
+    return 'season';
+  };
+
+  const [periodType, setPeriodType] = useState(getInitialPeriodType);
   
   const { userTeamPlayers } = useLeague();
   const { isAuthenticated } = useAuth();
+
+  const handlePeriodChange = (newPeriod) => {
+    setPeriodType(newPeriod);
+    setLoading(true);
+    if (newPeriod === 'season') {
+      searchParams.delete('period');
+    } else {
+      searchParams.set('period', newPeriod);
+    }
+    setSearchParams(searchParams, { replace: true });
+  };
 
   // Create a Set of user's team player IDs for quick lookup
   const userTeamPlayerIds = useMemo(() => {
@@ -204,8 +230,24 @@ const SeasonGames = () => {
 
         // Calculate date range based on period type
         let dateFilter = null;
+        let exactDateFilter = null;
         const today = new Date();
-        if (periodType === '7_days') {
+
+        if (periodType === 'last_day') {
+          const { data: latestDateData, error: latestDateError } = await supabase
+            .from('player_game_logs')
+            .select('game_date')
+            .eq('season', CURRENT_SEASON)
+            .order('game_date', { ascending: false })
+            .limit(1);
+
+          if (latestDateError) throw latestDateError;
+
+          if (latestDateData && latestDateData.length > 0) {
+            exactDateFilter = latestDateData[0].game_date;
+            setLatestGameDate(exactDateFilter);
+          }
+        } else if (periodType === '7_days') {
           const sevenDaysAgo = new Date(today);
           sevenDaysAgo.setDate(today.getDate() - 7);
           dateFilter = sevenDaysAgo.toISOString().split('T')[0];
@@ -223,11 +265,13 @@ const SeasonGames = () => {
         let query = supabase
           .from('player_game_logs')
           .select('*')
-          .order('fantasy_points', { ascending: false }) // highest first
+          .order('fantasy_points', { ascending: false })
           .eq('season', CURRENT_SEASON);
 
         // Apply date filter based on period
-        if (dateFilter) {
+        if (exactDateFilter) {
+          query = query.eq('game_date', exactDateFilter);
+        } else if (dateFilter) {
           query = query.gte('game_date', dateFilter);
         }
 
@@ -468,31 +512,67 @@ const SeasonGames = () => {
         flexWrap: 'wrap',
         gap: 2,
       }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography
             variant="h5"
             sx={{
-            fontWeight: 600,
-            color: '#003366',
-            fontSize: '1.25rem',
-          }}
-        >
-          {CURRENT_SEASON} Season - Top Games
+              fontWeight: 600,
+              color: '#003366',
+              fontSize: '1.25rem',
+            }}
+          >
+            {CURRENT_SEASON} Season - Top Games
           </Typography>
+          <Tooltip
+            title={
+              <Box sx={{ p: 1, maxWidth: 280 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                  How Fantasy Points are Calculated
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 0.5, lineHeight: 1.5 }}>
+                  Each stat contributes to the total:
+                </Typography>
+                <Typography variant="body2" component="div" sx={{ lineHeight: 1.8, fontSize: '0.8rem' }}>
+                  <strong>Points:</strong> +1 per point scored<br />
+                  <strong>Rebounds:</strong> +1.2 per rebound<br />
+                  <strong>Assists:</strong> +1.5 per assist<br />
+                  <strong>Steals:</strong> +3 per steal<br />
+                  <strong>Blocks:</strong> +3 per block<br />
+                  <strong>3-Pointers:</strong> +0.5 per make<br />
+                  <strong>Field Goals:</strong> +1 made, -0.5 attempted<br />
+                  <strong>Free Throws:</strong> +1 made, -0.5 attempted<br />
+                  <strong>Turnovers:</strong> -1 per turnover
+                </Typography>
+              </Box>
+            }
+            arrow
+            placement="bottom-start"
+          >
+            <InfoOutlinedIcon 
+              sx={{ 
+                fontSize: '1rem', 
+                color: '#666', 
+                cursor: 'help',
+                '&:hover': { color: '#0066cc' },
+              }} 
+            />
+          </Tooltip>
+        </Box>
 
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <Select
               value={periodType}
-              onChange={(e) => {
-                setPeriodType(e.target.value);
-                setLoading(true);
-              }}
+              onChange={(e) => handlePeriodChange(e.target.value)}
               sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
             >
               <MenuItem value="season">Full Season</MenuItem>
               <MenuItem value="60_days">Last 60 Days</MenuItem>
               <MenuItem value="30_days">Last 30 Days</MenuItem>
               <MenuItem value="7_days">Last 7 Days</MenuItem>
+              <MenuItem value="last_day">
+                {latestGameDate ? `Last Day (${latestGameDate})` : 'Last Day'}
+              </MenuItem>
             </Select>
           </FormControl>
           

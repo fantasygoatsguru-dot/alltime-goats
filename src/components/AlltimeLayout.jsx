@@ -314,7 +314,8 @@ const AlltimeLayout = () => {
 
   const rankingsSubmenu = [
     { path: '/rankings', label: 'Players', icon: <GamesIcon />, requiresAuth: false },
-    { path: '/season-games', label: 'Games', icon: <SeasonGamesIcon />, requiresAuth: false },
+    { path: '/season-games', label: 'Top Games', icon: <SeasonGamesIcon />, requiresAuth: false },
+
   ];
 
   const scheduleSubmenu = [
