@@ -384,13 +384,12 @@ serve(async (req) => {
 
     const top3PlayerIds = new Set(top10Performers.slice(0, 3).map(p => p.playerId));
 
-    const { data: profiles, error } = await supabase
-      .from('user_profiles')
-      .select('user_id, name, email')
-      .eq('send_news', true)
-      .eq('is_premium', true)
-      .eq('user_id', 'GWASQZPEY3BTQW7JSFYBX2VUEQ')
-      .not('email', 'ilike', '%yahoo%');
+      const { data: profiles, error } = await supabase
+  .from('user_profiles')
+  .select('user_id, name, email')
+  .eq('send_news', true)
+  .order('created_at', { ascending: true });
+
 
     if (error) {
       console.error('Error fetching profiles:', error);
