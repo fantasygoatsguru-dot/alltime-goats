@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Player Dominated Last Night!</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f5f5; color: #333333;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e0e0e0;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="padding: 28px 40px; background-color: #003366; border-bottom: 3px solid #0066cc;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <img src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png" alt="Fantasy Goats Guru" width="50" height="50" style="display: block; margin: 0 auto 12px;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <h1 style="margin: 0; font-size: 22px; font-weight: 600; color: #ffffff;">
+                                            Top Performer Alert
+                                        </h1>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Greeting -->
+                    <tr>
+                        <td style="padding: 28px 40px 20px;">
+                            <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #333333;">
+                                Hi <strong style="color: #003366;">${user_name}</strong>,
+                            </p>
+                            <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #555555;">
+                                One of your players had an outstanding game on <strong style="color: #003366;">${game_date}</strong>.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- User Players Highlight -->
+                    <tr>
+                        <td style="padding: 0 40px 24px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f0f7ff; border-left: 4px solid #0066cc; border-radius: 4px;">
+                                <tr>
+                                    <td style="padding: 16px 20px;">
+                                        <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #333333;">
+                                            ${user_players_highlight}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Top 10 Performers -->
+                    <tr>
+                        <td style="padding: 0 40px 28px;">
+                            <h2 style="margin: 0 0 14px; font-size: 16px; font-weight: 600; color: #003366;">
+                                Top 10 Performers of the Night
+                            </h2>
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; font-size: 13px;">
+                                <thead>
+                                    <tr style="background-color: #003366;">
+                                        <th align="center" style="padding: 10px 6px; font-size: 11px; font-weight: 600; color: #ffffff; width: 28px;">#</th>
+                                        <th align="left" style="padding: 10px 8px; font-size: 11px; font-weight: 600; color: #ffffff;">Player</th>
+                                        <th align="center" style="padding: 10px 6px; font-size: 11px; font-weight: 600; color: #ffffff;">PTS</th>
+                                        <th align="center" style="padding: 10px 6px; font-size: 11px; font-weight: 600; color: #ffffff;">REB</th>
+                                        <th align="center" style="padding: 10px 6px; font-size: 11px; font-weight: 600; color: #ffffff;">AST</th>
+                                        <th align="center" style="padding: 10px 6px; font-size: 11px; font-weight: 600; color: #ffffff;">STL</th>
+                                        <th align="center" style="padding: 10px 6px; font-size: 11px; font-weight: 600; color: #ffffff;">BLK</th>
+                                        <th align="center" style="padding: 10px 6px; font-size: 11px; font-weight: 600; color: #ffffff;">FP</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${top_performers_table}
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Call to Action -->
+                    <tr>
+                        <td align="center" style="padding: 0 40px 28px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 5px; background-color: #0066cc;">
+                                        <a href="https://fantasygoats.guru/season-games?period=last_day&utm_source=email&utm_medium=scheduled_email&utm_campaign=yesterday_top_performers" target="_blank" style="display: inline-block; padding: 12px 28px; font-size: 14px; font-weight: 600; color: #ffffff; text-decoration: none;">
+                                            View All Top Games →
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 20px 40px; background-color: #f9f9f9; border-top: 1px solid #e0e0e0;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td align="center">
+                                        <p style="margin: 0 0 8px; font-size: 12px; color: #888888;">
+                                            © 2025 Fantasy Goats Guru. All rights reserved.
+                                        </p>
+                                        <p style="margin: 0; font-size: 12px; color: #888888;">
+                                            <a href="https://fantasygoats.guru/profile" style="color: #0066cc; text-decoration: none;">Update Preferences</a>
+                                            &nbsp;|&nbsp;
+                                            <a href="https://fantasygoats.guru/privacy-policy" style="color: #0066cc; text-decoration: none;">Privacy Policy</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
