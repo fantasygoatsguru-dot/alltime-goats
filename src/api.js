@@ -639,3 +639,11 @@ export const fetchAffiliateLinks = async () => {
     return [];
   }
 };
+
+export const recordAffiliateClick = async (affiliateLinkId) => {
+  try {
+    await supabase.from('affiliate_clicks').insert({ affiliate_link_id: affiliateLinkId });
+  } catch (error) {
+    console.error('Error recording affiliate click:', error);
+  }
+};

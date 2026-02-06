@@ -9,7 +9,7 @@ import {
   Tooltip
 } from '@mui/material';
 import SportsBasketball from '@mui/icons-material/SportsBasketball';
-import { fetchAffiliateLinks } from '../api';
+import { fetchAffiliateLinks, recordAffiliateClick } from '../api';
 
 const ANCHOR_OFFSET = 24;
 
@@ -106,7 +106,10 @@ const AffiliateOffersButton = () => {
               rel="noopener noreferrer"
               underline="none"
               color="inherit"
-              onClick={handleClose}
+              onClick={() => {
+                recordAffiliateClick(item.id);
+                handleClose();
+              }}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
