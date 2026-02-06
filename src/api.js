@@ -620,3 +620,22 @@ export const fetchAllTimePlayerStats = async (players) => {
     throw error;
   }
 };
+
+const AFFILIATE_LINKS_MAX = 3;
+
+export const fetchAffiliateLinks = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('affiliate_links')
+      .select('id, label, url, thumbnail_url')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .limit(AFFILIATE_LINKS_MAX);
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching affiliate links:', error);
+    return [];
+  }
+};

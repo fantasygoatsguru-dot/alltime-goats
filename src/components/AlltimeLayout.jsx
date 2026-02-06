@@ -48,6 +48,7 @@ import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
 import ReassuringLoader from './ReassuringLoader';
 import SEOContent from './SEOContent';
+import AffiliateOffersButton from './AffiliateOffersButton';
 
 // === ICON WRAPPER FOR RESPONSIVE SIZING ===
 const IconWrapper = ({ children }) => {
@@ -1158,14 +1159,18 @@ const AlltimeLayout = () => {
             <SEOContent />
           </LeagueProvider>
         )}
-      </Container>
+      </Container>  
 
+      <AffiliateOffersButton />
       <Box component="footer" sx={{ py: 3, textAlign: 'center', borderTop: '1px solid #e0e0e0', bgcolor: '#fff' }}>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="text.secondary" display="block">
           © {new Date().getFullYear()} Fantasy Goats Guru ·{' '}
           <Link component={RouterLink} to="/privacy-policy" color="primary" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
             Privacy Policy
           </Link>
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+          As an Amazon Associate I earn from qualifying purchases.
         </Typography>
       </Box>
     </Box>
