@@ -75,6 +75,24 @@ const PrivacyPolicy = () => {
         </Box>
       </Typography>
 
+        {/* Affiliate Disclosure */}
+        <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
+        Affiliate Disclosure
+      </Typography>
+
+      <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
+        Fantasy Goats participates in affiliate marketing programs, including the
+        Amazon Services LLC Associates Program. This means we may earn a
+        commission from qualifying purchases made through affiliate links on our
+        website, at no additional cost to you.
+      </Typography>
+
+      <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
+        As an Amazon Associate, we earn from qualifying purchases. Affiliate
+        links help support the operation and continued development of this site
+        while allowing us to provide free tools and content.
+      </Typography>
+
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
         4. Cookies and Your Choices
       </Typography>
