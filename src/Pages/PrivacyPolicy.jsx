@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
             <strong>Non-Personal Information</strong>: We use third-party services like Google Analytics and Google Tag Manager to collect anonymized data about your visit, such as pages viewed, time spent, and device type.
           </li>
           <li>
-            <strong>Cookies and Tracking Technologies</strong>: Our advertising partner, <strong>Google AdSense</strong>, uses cookies to serve ads based on your prior visits to our website or other websites on the Internet.
+            <strong>Cookies and Tracking Technologies</strong>: We use cookies for analytics and site functionality. Affiliate links on our site may set cookies when you visit partner sites.
           </li>
         </Box>
       </Typography>
@@ -49,7 +49,6 @@ const PrivacyPolicy = () => {
         We use the collected data to:
         <Box component="ul" sx={{ pl: 2 }}>
           <li>Analyze site usage to enhance content and user experience.</li>
-          <li>Deliver relevant advertisements through Google AdSense.</li>
           <li>Ensure the site functions properly and securely.</li>
         </Box>
       </Typography>
@@ -60,12 +59,6 @@ const PrivacyPolicy = () => {
       <Typography variant="body1" component="div" sx={{ color: "#ffffff" }}>
         We partner with:
         <Box component="ul" sx={{ pl: 2 }}>
-          <li>
-            <strong>Google AdSense</strong>: Google uses cookies to serve ads on our site. Google's use of advertising cookies enables it and its partners to serve ads to our users based on their visit to our sites and/or other sites on the Internet. Users may opt out of personalized advertising by visiting{" "}
-            <Link href="https://www.google.com/settings/ads" color="secondary" target="_blank">
-              Ads Settings
-            </Link>.
-          </li>
           <li>
             <strong>Google Analytics</strong>: For site analytics. See Google’s{" "}
             <Link href="https://policies.google.com/privacy" color="secondary" underline="hover">
