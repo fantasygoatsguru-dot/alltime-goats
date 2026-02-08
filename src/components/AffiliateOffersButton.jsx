@@ -18,10 +18,14 @@ const AffiliateOffersButton = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
+  // pulse-related state
+  const [pulse, setPulse] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     fetchAffiliateLinks().then((data) => {
-      if (!cancelled && data && data.length > 0) {
+      if (!cancelled && data?.length) {
         setLinks(data);
       }
       setLoaded(true);
@@ -31,16 +35,24 @@ const AffiliateOffersButton = () => {
     };
   }, []);
 
-  const handleOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // subtle pulse every ~75s until user interacts
+  useEffect(() => {
+    if (hasInteracted) return;
 
-  const handleClose = () => {
-    setAnchorEl(null);
+    const interval = setInterval(() => {
+      setPulse(true);
+      setTimeout(() => setPulse(false), 1200);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [hasInteracted]);
+
+  const handleOpen = (e) => {
+    setHasInteracted(true);
+    setAnchorEl(e.currentTarget);
   };
 
   const open = Boolean(anchorEl);
-
   if (!loaded || links.length === 0) return null;
 
   return (
@@ -54,19 +66,33 @@ const AffiliateOffersButton = () => {
           zIndex: 1200,
         }}
       >
-        <Tooltip title="Support Fantasy Goats ❤️" arrow placement="left">
+        <Tooltip title="Recommended basketball-related items" arrow placement="left">
           <IconButton
-            aria-label="Affiliate offers"
             onClick={handleOpen}
             sx={{
               bgcolor: 'primary.main',
               color: 'primary.contrastText',
-              boxShadow: 4,
-              width: 56,
-              height: 56,
+              boxShadow: 5,
+              width: 60,
+              height: 60,
+              animation: pulse ? 'softPulse 1.5s ease-out' : 'none',
+              '@keyframes softPulse': {
+                '0%': {
+                  transform: 'scale(1)',
+                  boxShadow: '0 0 0 0 rgba(255,255,255,0)',
+                },
+                '50%': {
+                  transform: 'scale(1.12)', // bigger scale
+                  boxShadow: '0 0 0 18px rgba(255,255,255,0.25)', // bigger, brighter glow
+                },
+                '100%': {
+                  transform: 'scale(1)',
+                  boxShadow: '0 0 0 0 rgba(255,255,255,0)',
+                },
+              },              
               '&:hover': {
                 bgcolor: 'primary.dark',
-                boxShadow: 6,
+                boxShadow: 7,
               },
             }}
           >
@@ -79,24 +105,32 @@ const AffiliateOffersButton = () => {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={handleClose}
+        onClose={() => setAnchorEl(null)}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         slotProps={{
           paper: {
             sx: {
-              width: 360,
-              p: 2,
-              borderRadius: 2,
+              width: 380,
+              p: 2.25,
+              borderRadius: 2.5,
             },
           },
         }}
       >
-        <Typography variant="h9" gutterBottom>
-          Support Fantasy Goats by checking out these picks
+        {/* Header */}
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Recommended Basketball Gear
         </Typography>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+          Fantasy Goats is a self-funded project. If you’re already shopping on Amazon,
+          starting from these links helps support us at no extra cost.
+        </Typography>
+
         <Divider sx={{ mb: 1.5 }} />
 
+        {/* Items */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           {links.map((item) => (
             <Link
@@ -108,7 +142,7 @@ const AffiliateOffersButton = () => {
               color="inherit"
               onClick={() => {
                 recordAffiliateClick(item.id);
-                handleClose();
+                setAnchorEl(null);
               }}
               sx={{
                 display: 'flex',
@@ -122,24 +156,22 @@ const AffiliateOffersButton = () => {
                 },
               }}
             >
-              {/* Thumbnail */}
               {item.thumbnail_url && (
                 <Box
                   component="img"
                   src={item.thumbnail_url}
                   alt={item.label}
                   sx={{
-                    width: 64,
-                    height: 64,
+                    width: 72,
+                    height: 72,
                     objectFit: 'contain',
-                    borderRadius: 1,
+                    borderRadius: 1.5,
                     bgcolor: '#fff',
                     flexShrink: 0,
                   }}
                 />
               )}
 
-              {/* Text */}
               <Box sx={{ flexGrow: 1 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                   {item.label}
@@ -152,6 +184,7 @@ const AffiliateOffersButton = () => {
           ))}
         </Box>
 
+        {/* Required disclosure */}
         <Typography
           variant="caption"
           color="text.secondary"
