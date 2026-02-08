@@ -12,6 +12,7 @@ import SportsBasketball from '@mui/icons-material/SportsBasketball';
 import { fetchAffiliateLinks, recordAffiliateClick } from '../api';
 
 const ANCHOR_OFFSET = 24;
+const SESSION_CLICK_KEY = 'affiliateClicked';
 
 const AffiliateOffersButton = () => {
   const [links, setLinks] = useState([]);
@@ -21,6 +22,14 @@ const AffiliateOffersButton = () => {
   // pulse-related state
   const [pulse, setPulse] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [hideButton, setHideButton] = useState(false);
+
+  // Check session storage on mount
+  useEffect(() => {
+    if (sessionStorage.getItem(SESSION_CLICK_KEY)) {
+      setHideButton(true);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,30 +39,35 @@ const AffiliateOffersButton = () => {
       }
       setLoaded(true);
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   // subtle pulse every ~75s until user interacts
   useEffect(() => {
-    if (hasInteracted) return;
+    if (hasInteracted || hideButton) return;
 
     const interval = setInterval(() => {
       setPulse(true);
-      setTimeout(() => setPulse(false), 1200);
-    }, 30000);
+      setTimeout(() => setPulse(false), 1500); // pulse duration
+    }, 20000);
 
     return () => clearInterval(interval);
-  }, [hasInteracted]);
+  }, [hasInteracted, hideButton]);
 
   const handleOpen = (e) => {
     setHasInteracted(true);
     setAnchorEl(e.currentTarget);
   };
 
+  const handleLinkClick = (id) => {
+    recordAffiliateClick(id);
+    setAnchorEl(null);
+    setHideButton(true);
+    sessionStorage.setItem(SESSION_CLICK_KEY, 'true');
+  };
+
   const open = Boolean(anchorEl);
-  if (!loaded || links.length === 0) return null;
+  if (!loaded || links.length === 0 || hideButton) return null;
 
   return (
     <>
@@ -80,16 +94,19 @@ const AffiliateOffersButton = () => {
                 '0%': {
                   transform: 'scale(1)',
                   boxShadow: '0 0 0 0 rgba(255,255,255,0)',
+                  bgcolor: 'primary.main',
                 },
                 '50%': {
-                  transform: 'scale(1.12)', // bigger scale
-                  boxShadow: '0 0 0 18px rgba(255,255,255,0.25)', // bigger, brighter glow
+                  transform: 'scale(1.12)',
+                  boxShadow: '0 0 0 18px rgba(255,255,255,0.25)',
+                  bgcolor: 'primary.light',
                 },
                 '100%': {
                   transform: 'scale(1)',
                   boxShadow: '0 0 0 0 rgba(255,255,255,0)',
+                  bgcolor: 'primary.main',
                 },
-              },              
+              },
               '&:hover': {
                 bgcolor: 'primary.dark',
                 boxShadow: 7,
@@ -140,10 +157,7 @@ const AffiliateOffersButton = () => {
               rel="noopener noreferrer"
               underline="none"
               color="inherit"
-              onClick={() => {
-                recordAffiliateClick(item.id);
-                setAnchorEl(null);
-              }}
+              onClick={() => handleLinkClick(item.id)}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
