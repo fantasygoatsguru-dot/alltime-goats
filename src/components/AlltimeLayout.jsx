@@ -1169,9 +1169,6 @@ const AlltimeLayout = () => {
             Privacy Policy
           </Link>
         </Typography>
-        <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-          As an Amazon Associate I earn from qualifying purchases.
-        </Typography>
       </Box>
     </Box>
   );

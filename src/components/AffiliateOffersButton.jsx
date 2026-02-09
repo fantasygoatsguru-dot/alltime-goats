@@ -42,14 +42,14 @@ const AffiliateOffersButton = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // subtle pulse every ~75s until user interacts
+  // double pulse every ~20s until user interacts
   useEffect(() => {
     if (hasInteracted || hideButton) return;
 
     const interval = setInterval(() => {
       setPulse(true);
-      setTimeout(() => setPulse(false), 1500); // pulse duration
-    }, 20000);
+      setTimeout(() => setPulse(false), 1500); // animation duration
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [hasInteracted, hideButton]);
@@ -89,24 +89,17 @@ const AffiliateOffersButton = () => {
               boxShadow: 5,
               width: 60,
               height: 60,
-              animation: pulse ? 'softPulse 1.5s ease-out' : 'none',
-              '@keyframes softPulse': {
-                '0%': {
-                  transform: 'scale(1)',
-                  boxShadow: '0 0 0 0 rgba(255,255,255,0)',
-                  bgcolor: 'primary.main',
-                },
-                '50%': {
-                  transform: 'scale(1.12)',
-                  boxShadow: '0 0 0 18px rgba(255,255,255,0.25)',
-                  bgcolor: 'primary.light',
-                },
-                '100%': {
-                  transform: 'scale(1)',
-                  boxShadow: '0 0 0 0 rgba(255,255,255,0)',
-                  bgcolor: 'primary.main',
-                },
+              animation: pulse ? 'doublePulse 1.5s ease-out' : 'none',
+
+              '@keyframes doublePulse': {
+                '0%': { transform: 'scale(1)' },
+                '20%': { transform: 'scale(1.25)' },
+                '40%': { transform: 'scale(1)' },
+                '60%': { transform: 'scale(1.22)' },
+                '80%': { transform: 'scale(1)' },
+                '100%': { transform: 'scale(1)' },
               },
+
               '&:hover': {
                 bgcolor: 'primary.dark',
                 boxShadow: 7,
@@ -137,7 +130,7 @@ const AffiliateOffersButton = () => {
       >
         {/* Header */}
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          Recommended Basketball Gear
+          Recommended Gear
         </Typography>
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
