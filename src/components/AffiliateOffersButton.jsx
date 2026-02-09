@@ -21,7 +21,7 @@ const AffiliateOffersButton = () => {
 
   // pulse-related state
   const [pulse, setPulse] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [clickedItem, setClickedItem] = useState(false); // stop pulse only when clicked
   const [hideButton, setHideButton] = useState(false);
 
   // Check session storage on mount
@@ -42,9 +42,9 @@ const AffiliateOffersButton = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // double pulse every ~20s until user interacts
+  // double pulse every 5s until user clicks an item
   useEffect(() => {
-    if (hasInteracted || hideButton) return;
+    if (clickedItem || hideButton) return;
 
     const interval = setInterval(() => {
       setPulse(true);
@@ -52,18 +52,33 @@ const AffiliateOffersButton = () => {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [hasInteracted, hideButton]);
+  }, [clickedItem, hideButton]);
 
   const handleOpen = (e) => {
-    setHasInteracted(true);
     setAnchorEl(e.currentTarget);
+
+    // GA event: menu opened
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "affiliate_menu_open",
+    });
   };
 
-  const handleLinkClick = (id) => {
-    recordAffiliateClick(id);
+  const handleLinkClick = (item) => {
+    recordAffiliateClick(item.id);
     setAnchorEl(null);
     setHideButton(true);
+    setClickedItem(true); // stop pulse now
     sessionStorage.setItem(SESSION_CLICK_KEY, 'true');
+
+    // GA event: affiliate link clicked
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "affiliate_link_click",
+      affiliate_id: item.id,
+      affiliate_url: item.url,
+      affiliate_label: item.label,
+    });
   };
 
   const open = Boolean(anchorEl);
@@ -128,7 +143,6 @@ const AffiliateOffersButton = () => {
           },
         }}
       >
-        {/* Header */}
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           Recommended Gear
         </Typography>
@@ -150,7 +164,7 @@ const AffiliateOffersButton = () => {
               rel="noopener noreferrer"
               underline="none"
               color="inherit"
-              onClick={() => handleLinkClick(item.id)}
+              onClick={() => handleLinkClick(item)}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -191,7 +205,6 @@ const AffiliateOffersButton = () => {
           ))}
         </Box>
 
-        {/* Required disclosure */}
         <Typography
           variant="caption"
           color="text.secondary"
