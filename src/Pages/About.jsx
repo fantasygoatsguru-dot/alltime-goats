@@ -226,66 +226,113 @@ const About = () => {
         </Grid>
       </Box>
 
+{/* Partnered with section */}
+<Box
+  sx={{
+    mt: 3,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 2
+  }}
+>
+  <Typography
+    variant="subtitle2"
+    sx={{
+      color: 'grey.400',
+      fontWeight: 500,
+      letterSpacing: '1px',
+      textTransform: 'uppercase',
+      fontSize: '0.9rem'
+    }}
+  >
+    Partnered with
+  </Typography>
 
-        {/* Partnered with section */}
-        <Box
-          sx={{
-            mt: 3,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 1.5
-          }}
-        >
-          <Typography
-            variant="subtitle2"
-            sx={{
-              color: 'grey.400',
-              fontWeight: 500,
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              fontSize: '0.9rem'
-            }}
-          >
-            Partnered with
-          </Typography>
+  {/* ROW of partners */}
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: { xs: 'column', sm: 'row' }, // mobile stacked, desktop side-by-side
+      gap: 2,
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
+  >
+    {/* BestHoop Partner */}
+    <Button
+      href="https://besthoop.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        color: 'white',
+        textTransform: 'none',
+        fontSize: '1.3rem',
+        fontWeight: 600,
+        py: 1.2,
+        px: 4,
+        borderRadius: 50,
+        bgcolor: 'rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255,255,255,0.18)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          bgcolor: 'rgba(255,255,255,0.15)',
+          transform: 'translateY(-3px)',
+          boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+        }
+      }}
+    >
+      <img
+        src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/besthoop.png"
+        alt="BestHoop"
+        style={{ height: '36px', width: 'auto', borderRadius: '6px' }}
+      />
+      BestHoop
+    </Button>
 
-          <Button
-            href="https://yahoo-fantasytoys.up.railway.app/"
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              color: 'white',
-              textTransform: 'none',
-              fontSize: '1.3rem',
-              fontWeight: 600,
-              py: 1.2,
-              px: 4,
-              borderRadius: 50,
-              bgcolor: 'rgba(255,255,255,0.08)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.15)',
-                transform: 'translateY(-3px)',
-                boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
-              }
-            }}
-          >
-            {YahooIcon && (
-              <img
-                src={YahooIcon}
-                alt="Yahoo"
-                style={{ height: '36px', width: 'auto' }}
-              />
-            )}
-            Yahoo Fantasy Toys
-          </Button>
-        </Box>
+    {/* Yahoo Partner */}
+    <Button
+      href="https://yahoo-fantasytoys.up.railway.app/"
+      target="_blank"
+      rel="noopener noreferrer"
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        color: 'white',
+        textTransform: 'none',
+        fontSize: '1.3rem',
+        fontWeight: 600,
+        py: 1.2,
+        px: 4,
+        borderRadius: 50,
+        bgcolor: 'rgba(255,255,255,0.08)',
+        backdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255,255,255,0.18)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          bgcolor: 'rgba(255,255,255,0.15)',
+          transform: 'translateY(-3px)',
+          boxShadow: '0 8px 25px rgba(0,0,0,0.3)',
+        }
+      }}
+    >
+      {YahooIcon && (
+        <img
+          src={YahooIcon}
+          alt="Yahoo"
+          style={{ height: '36px', width: 'auto' }}
+        />
+      )}
+      Fantasy Toys
+    </Button>
+  </Box>
+</Box>
+
     </Container>
   );
 };
