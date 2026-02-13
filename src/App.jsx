@@ -8,6 +8,8 @@ import TagManager from "react-gtm-module";
 import React from "react";
 import { Box } from "@mui/material";
 import PrivacyPolicy from "./Pages/PrivacyPolicy";
+import Posts from "./Pages/Posts";
+import Post from "./Pages/Post";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const theme = createTheme({
@@ -60,7 +62,9 @@ const App = () => {
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
             <Route path="/" element={<Navigate to="/rankings" replace />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/privacy-policy" element={<AlltimeLayout />} />
+            <Route path="/posts" element={<AlltimeLayout />} />
+            <Route path="/post/:slug" element={<AlltimeLayout />} />
             <Route path="/about" element={<AlltimeLayout />} />
             <Route path="/profile" element={<AlltimeLayout />} />
             <Route path="/teams" element={<AlltimeLayout />} />

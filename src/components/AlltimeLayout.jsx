@@ -43,6 +43,8 @@ import CategoryBreakdown from '../Pages/CategoryBreakdown';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
 import PrivacyPolicy from '../Pages/PrivacyPolicy';
+import Posts from '../Pages/Posts';
+import Post from '../Pages/Post';
 import { useAuth } from '../contexts/AuthContext';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
@@ -243,19 +245,17 @@ const AlltimeLayout = () => {
       ),
       hasSubmenu: true,
     },
-    {
-      path: '/chat',
-      label: 'AI Helper',
+      {
+      path: '/posts',
+      label: 'Blog',
       icon: (
         <img
-          src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/brain.svg"
-          alt="AI Helper"
+          src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/blog.svg"
+          alt="Blog"
         />
       ),
-      requiresAuth: true,
-      requiresPremium: true,
-      tooltip: 'Connect to Yahoo to access AI Assistant',
-      premiumTooltip: 'Consider supporting us for any amount to open premium features for the season.',
+      requiresAuth: false,
+      requiresPremium: false,
     },
     {
       path: '/schedule',
@@ -630,6 +630,7 @@ const AlltimeLayout = () => {
     if (p === '/season-games') return <SeasonGames />;
     if (p === '/rankings') return <Rankings />;
     if (p === '/chat') return <FantasyChat />;
+    if (p === '/posts') return <Posts />;
     if (p === '/playoffs') return <LeaguePlayoffs />;
     if (p === '/nba-playoffs') return <NBAPlayoffs />;
     if (p === '/my-league-playoffs') return <MyLeaguePlayoffs />;
@@ -638,6 +639,8 @@ const AlltimeLayout = () => {
     if (p === '/about') return <About />;
     if (p === '/profile') return <UserProfile />;
     if (p === '/privacy-policy') return <PrivacyPolicy />;
+    if (p === '/posts') return <Posts />;
+    if (p.startsWith('/post/')) return <Post />;
     return <Matchup />;
   };
 
