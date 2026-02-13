@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png",
+      "src": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png",
+      "src": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

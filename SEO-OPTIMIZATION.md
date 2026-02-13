@@ -169,7 +169,7 @@ Crawl-delay: 1
     <loc>https://fantasygoats.guru/</loc>
     <lastmod>2025-01-13</lastmod>
     <image:image>
-      <image:loc>https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.png</image:loc>
+      <image:loc>https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.png</image:loc>
       <image:title>Fantasy Goats Guru Logo</image:title>
     </image:image>
   </url>

@@ -665,7 +665,7 @@ const AlltimeLayout = () => {
           {/* LEFT: GOAT = MENU on mobile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0 : 2 }}>
             <Avatar
-              src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat.svg"
+              src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.svg"
               alt="GOAT"
               onClick={(e) => isMobile ? setMobileMenuAnchor(e.currentTarget) : navigate('/matchup')}
               sx={{
