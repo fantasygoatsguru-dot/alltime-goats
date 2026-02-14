@@ -1164,7 +1164,7 @@ const AlltimeLayout = () => {
         )}
       </Container>  
 
-      <AffiliateOffersButton />
+      {/* <AffiliateOffersButton /> */}
       <Box component="footer" sx={{ py: 3, textAlign: 'center', borderTop: '1px solid #e0e0e0', bgcolor: '#fff' }}>
         <Typography variant="caption" color="text.secondary" display="block">
           © {new Date().getFullYear()} Fantasy Goats Guru ·{' '}
