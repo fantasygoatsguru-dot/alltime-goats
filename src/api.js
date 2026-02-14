@@ -262,7 +262,7 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
       playerInfoQuery = playerInfoQuery.in('nationality', filterParams.nationalities);
       applyPlayerInfoFilter = true;
     }
-    
+
     // Apply team filter (use team_name from player_info, not team_abbreviation)
     if (filterParams.teamNames && filterParams.teamNames.length > 0) {
       playerInfoQuery = playerInfoQuery.in('team_name', filterParams.teamNames);
@@ -646,4 +646,71 @@ export const recordAffiliateClick = async (affiliateLinkId) => {
   } catch (error) {
     console.error('Error recording affiliate click:', error);
   }
+};
+
+const getBrowserId = () => {
+  let id = localStorage.getItem('site_browser_id');
+  if (!id) {
+    id = Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('site_browser_id', id);
+  }
+  return id;
+};
+
+// 1. Fetch Comments
+export const fetchCommentsForPost = async (sanityPostId) => {
+  const { data, error } = await supabase
+    .from('post_comments')
+    .select('*')
+    .eq('sanity_post_id', sanityPostId)
+    .eq('approved', true) // Only show approved
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return data || [];
+};
+
+// 2. Submit Comment
+export const submitComment = async ({ sanityPostId, authorName, authorEmail, body }) => {
+  const { data, error } = await supabase
+    .from('post_comments')
+    .insert([
+      {
+        sanity_post_id: sanityPostId,
+        author_name: authorName,
+        author_email: authorEmail,
+        body: body,
+      },
+    ]);
+
+  if (error) throw error;
+  return data;
+};
+
+// 3. Fetch Likes Count
+export const fetchLikesCount = async (sanityPostId) => {
+  const { count, error } = await supabase
+    .from('post_likes')
+    .select('*', { count: 'exact', head: true }) // 'head' means don't download data, just count
+    .eq('sanity_post_id', sanityPostId);
+
+  if (error) throw error;
+  return count || 0;
+};
+
+// 4. Add Like (with Deduplication)
+export const addLike = async ({ sanityPostId }) => {
+  const userId = getBrowserId();
+  
+  const { data, error } = await supabase
+    .from('post_likes')
+    .insert([
+      { sanity_post_id: sanityPostId, user_identifier: userId }
+    ]);
+
+  // If error code is 23505 (Unique Violation), the user already liked it. 
+  // We can ignore this error.
+  if (error && error.code !== '23505') throw error;
+  
+  return data;
 };
