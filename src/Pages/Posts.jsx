@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { client } from "../sanity/client";
+import { createClient } from "@supabase/supabase-js";
 import {
   Box,
   Typography,
@@ -15,8 +16,17 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Container,
-  Chip
+  Chip,
+  TextField,
+  Button,
+  Alert
 } from "@mui/material";
+
+// Initialize Supabase client
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 // GROQ Query - Fixed to match your specific schema field 'image'
 const POSTS_QUERY = `*[
@@ -44,6 +54,9 @@ export default function Posts() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [email, setEmail] = useState("");
+  const [subscriptionMessage, setSubscriptionMessage] = useState(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -70,6 +83,50 @@ export default function Posts() {
     }
   };
 
+const handleEmailSubscribe = async (e) => {
+    e.preventDefault();
+    
+    // 1. Sanitize input
+    const cleanEmail = email.trim().toLowerCase();
+    
+    // 2. Simple Regex Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!cleanEmail || !emailRegex.test(cleanEmail)) {
+      setSubscriptionMessage({ type: "error", text: "Please enter a valid email address." });
+      return;
+    }
+
+    setSubscriptionLoading(true);
+    try {
+      const { error } = await supabase
+        .from("blog_mailing_list")
+        .upsert(
+          {
+            email: cleanEmail, 
+            subscribed: true,
+            unsubscribed_at: null,
+            updated_at: new Date().toISOString() 
+          },
+          { onConflict: "email" }
+        );
+
+      if (error) {
+        throw error; // Throw to catch block
+      }
+
+      setSubscriptionMessage({ type: "success", text: "Successfully subscribed!" });
+      setEmail("");
+      // Optional: clear success message after a delay
+      setTimeout(() => setSubscriptionMessage(null), 5000);
+      
+    } catch (err) {
+      console.error("Subscription error:", err);
+      // Helpful tip: Check network tab to see if it's a 401 (RLS issue)
+      setSubscriptionMessage({ type: "error", text: "Failed to subscribe. Please try again." });
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  };
   const filteredPosts = selectedCategory === "All"
     ? posts
     : posts.filter(post => post.category === selectedCategory);
@@ -202,6 +259,75 @@ export default function Posts() {
           </Grid>
         ))}
       </Grid>
+
+      {/* Email Subscription Section */}
+      <Box sx={{ mt: 10, pt: 6, borderTop: '2px solid #eee', textAlign: 'center' }}>
+        <Typography 
+          variant="h5" 
+          sx={{ fontWeight: 800, mb: 2, color: '#111' }}
+        >
+          Stay Updated
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 500, mx: 'auto' }}>
+          Subscribe to our mailing list to get the latest fantasy football insights and stories delivered straight to your inbox.
+        </Typography>
+
+        <Box 
+          component="form" 
+          onSubmit={handleEmailSubscribe}
+          sx={{ 
+            display: 'flex', 
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: 2, 
+            justifyContent: 'center', 
+            alignItems: isMobile ? 'stretch' : 'center',
+            mb: 3
+          }}
+        >
+          <TextField
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={subscriptionLoading}
+            sx={{
+              width: isMobile ? '100%' : '300px',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '30px',
+                '&:hover fieldset': { borderColor: '#1976d2' },
+                '&.Mui-focused fieldset': { borderColor: '#1976d2' }
+              }
+            }}
+          />
+          <Button
+            type="submit"
+            disabled={subscriptionLoading}
+            sx={{
+              bgcolor: '#1976d2',
+              color: 'white',
+              fontWeight: 700,
+              borderRadius: '30px',
+              px: 4,
+              textTransform: 'none',
+              fontSize: '1rem',
+              '&:hover': { bgcolor: '#1565c0' },
+              '&:disabled': { opacity: 0.6 }
+            }}
+          >
+            {subscriptionLoading ? 'Subscribing...' : 'Subscribe'}
+          </Button>
+        </Box>
+
+        {subscriptionMessage && (
+          <Alert 
+            severity={subscriptionMessage.type} 
+            sx={{ maxWidth: 600, mx: 'auto', borderRadius: 2 }}
+            onClose={() => setSubscriptionMessage(null)}
+          >
+            {subscriptionMessage.text}
+          </Alert>
+        )}
+      </Box>
     </Container>
   );
 }
