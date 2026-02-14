@@ -87,7 +87,7 @@ export default function Posts() {
       {/* Centered Header */}
       <Box sx={{ textAlign: 'center', mb: 6 }}>
         <Typography 
-          variant={isMobile ? "h4" : "h2"} 
+          variant={isMobile ? "h4" : "h3"} 
           sx={{ fontWeight: 900, color: '#111', textTransform: 'uppercase', letterSpacing: -1 }}
         >
           Fantasy Goats Blog

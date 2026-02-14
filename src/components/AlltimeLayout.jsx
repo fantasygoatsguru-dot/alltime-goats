@@ -247,11 +247,11 @@ const AlltimeLayout = () => {
     },
       {
       path: '/posts',
-      label: 'Blog',
+      label: 'Posts',
       icon: (
         <img
           src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/blog.svg"
-          alt="Blog"
+          alt="Posts"
         />
       ),
       requiresAuth: false,
@@ -667,7 +667,7 @@ const AlltimeLayout = () => {
             <Avatar
               src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.svg"
               alt="GOAT"
-              onClick={(e) => isMobile ? setMobileMenuAnchor(e.currentTarget) : navigate('/matchup')}
+              onClick={(e) => isMobile ? setMobileMenuAnchor(e.currentTarget) : navigate('/posts')}
               sx={{
                 width: { xs: 50, sm: 56 },
                 height: { xs: 50, sm: 56 },
