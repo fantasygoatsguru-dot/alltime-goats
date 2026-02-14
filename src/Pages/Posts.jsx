@@ -264,12 +264,12 @@ const handleEmailSubscribe = async (e) => {
       <Box sx={{ mt: 10, pt: 6, borderTop: '2px solid #eee', textAlign: 'center' }}>
         <Typography 
           variant="h5" 
-          sx={{ fontWeight: 800, mb: 2, color: '#111' }}
+          sx={{ fontWeight: 800, mb: 1, color: '#111' }}
         >
           Stay Updated
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 500, mx: 'auto' }}>
-          Subscribe to our mailing list to get the latest fantasy football insights and stories delivered straight to your inbox.
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 2, maxWidth: 500, mx: 'auto' }}>
+          Subscribe to our mailing list to get notified on new posts.
         </Typography>
 
         <Box 
