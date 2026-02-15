@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -13,8 +14,10 @@ import GameFilterSection from "./GameFilterSection";
 import GameTableHeader from "./GameTableHeader";
 import GameRow from "./GameRow";
 import { GAME_PUNT_CATEGORIES, GAME_FILTER_TYPES, GAME_FILTER_VALUE_SUGGESTIONS, OPERATORS } from "../constants/categories";
+import { parseQueryFilters, filtersToQueryParams } from "../utils/queryParams";
 
 const AlltimeGames = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [players, setPlayers] = useState([]);
   const [gameStats, setGameStats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +25,7 @@ const AlltimeGames = () => {
   const [filterValue, setFilterValue] = useState([]);
   const [filterOperator, setFilterOperator] = useState("=");
   const [filterNumericValue, setFilterNumericValue] = useState("");
-  const [filters, setFilters] = useState([]);
+  const [filters, setFilters] = useState(() => parseQueryFilters(searchParams, GAME_FILTER_TYPES, GAME_FILTER_VALUE_SUGGESTIONS, OPERATORS));
   const [sortColumn, setSortColumn] = useState("fantasy_points");
   const [sortDirection, setSortDirection] = useState("desc");
   const [page, setPage] = useState(0);
@@ -111,6 +114,12 @@ const AlltimeGames = () => {
       }
     });
   };
+
+  // Sync filters with query parameters
+  useEffect(() => {
+    const newParams = filtersToQueryParams(filters);
+    setSearchParams(newParams);
+  }, [filters, setSearchParams]);
 
   // Fetch players for avatar data
   useEffect(() => {

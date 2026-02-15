@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -6,22 +7,23 @@ import {
   Table,
   TableBody,
   CircularProgress,
-  Paper,
 } from "@mui/material";
 import { fetchFilteredPlayerAverages } from "../api";
 import FilterSection from "./FilterSection";
 import TableHeader from "./TableHeader";
 import PlayerRow from "./PlayerRow";
 import { PUNT_CATEGORIES, FILTER_TYPES, FILTER_VALUE_SUGGESTIONS, OPERATORS } from "../constants/categories";
+import { parseQueryFilters, filtersToQueryParams } from "../utils/queryParams";
 
 const AlltimeTable = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [playerStats, setPlayerStats] = useState([]);
   const [filterType, setFilterType] = useState(null);
-  const [filterValue, setFilterValue] = useState([]); // For multiselect (e.g., position, teamNames, nationalities)
+  const [filterValue, setFilterValue] = useState([]);
   const [filterOperator, setFilterOperator] = useState("=");
   const [filterNumericValue, setFilterNumericValue] = useState("");
-  const [filters, setFilters] = useState([]);
+  const [filters, setFilters] = useState(() => parseQueryFilters(searchParams, FILTER_TYPES, FILTER_VALUE_SUGGESTIONS, OPERATORS));
   const [sortColumn, setSortColumn] = useState("total_value");
   const [sortDirection, setSortDirection] = useState("desc");
   const [puntedCategories, setPuntedCategories] = useState([]);
@@ -136,6 +138,12 @@ const AlltimeTable = () => {
     return `${(value * 100).toFixed(decimals)}%`;
   };
 
+
+  // Sync filters with query parameters
+  useEffect(() => {
+    const newParams = filtersToQueryParams(filters);
+    setSearchParams(newParams);
+  }, [filters, setSearchParams]);
 
   useEffect(() => {
     const loadPlayerStats = async () => {
