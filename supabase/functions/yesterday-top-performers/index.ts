@@ -39,7 +39,7 @@ function escapeHtml(s: string) {
 }
 
 function renderTemplate(tmpl: string, data: Record<string, any>) {
-  const safe = new Set(['top_performers_table', 'user_players_highlight']);
+  const safe = new Set(['top_performers_table', 'user_players_highlight', 'affiliate_links_section']);
   return Object.entries(data).reduce((r, [k, v]) => {
     const rep = safe.has(k) ? String(v) : escapeHtml(String(v));
     return r.replaceAll(`\${${k}}`, rep);
@@ -195,8 +195,6 @@ async function getUserRoster(userId: string): Promise<RosterPlayer[]> {
   }
   if (!leagueKey) throw new Error('No league found for user');
 
-  console.log(`[ROSTER] Found league: ${leagueKey}`);
-
   const teamsResp = await makeYahooRequest(token, `/league/${leagueKey}/teams`, userId);
   const teams = teamsResp.fantasy_content.league?.teams ?? {};
   let userTeamKey: string | null = null;
@@ -210,8 +208,6 @@ async function getUserRoster(userId: string): Promise<RosterPlayer[]> {
     }
   }
   if (!userTeamKey) throw new Error('User team not found in league');
-
-  console.log(`[ROSTER] User team key: ${userTeamKey}`);
 
   const rosterResp = await makeYahooRequest(token, `/team/${userTeamKey}/roster`, userId);
   return parseRoster(rosterResp);
@@ -237,21 +233,7 @@ interface TopPerformer {
   rank: number;
 }
 
-// Calculate fantasy points using the same formula as SeasonGames.jsx
-// Formula: PTS=1, REB=1.2, AST=1.5, STL=3, BLK=3, 3PM=0.5, FGM=1, FGA=-0.5, FTM=1, FTA=-0.5, TO=-1
-function calculateFantasyPoints(game: {
-  points: number;
-  rebounds: number;
-  assists: number;
-  steals: number;
-  blocks: number;
-  three_pointers_made: number;
-  field_goals_made: number;
-  field_goals_attempted: number;
-  free_throws_made: number;
-  free_throws_attempted: number;
-  turnovers: number;
-}): number {
+function calculateFantasyPoints(game: any): number {
   let total = 0;
   total += (game.points || 0) * 1;
   total += (game.rebounds || 0) * 1.2;
@@ -270,23 +252,20 @@ function calculateFantasyPoints(game: {
 async function getTopPerformers(gameDate: string, limit: number): Promise<TopPerformer[]> {
   const { data, error } = await supabase
     .from('player_game_logs')
-    .select('player_id, player_name, team_abbreviation, opponent, points, rebounds, assists, steals, blocks, three_pointers_made, field_goals_made, field_goals_attempted, free_throws_made, free_throws_attempted, turnovers')
+    .select('*')
     .eq('game_date', gameDate)
     .eq('season', CURRENT_SEASON);
 
   if (error) throw error;
   if (!data) return [];
 
-  // Calculate fantasy points and sort
   const withFantasyPoints = data.map(row => ({
     ...row,
     calculatedFantasyPoints: calculateFantasyPoints(row),
   }));
 
-  // Sort by calculated fantasy points descending
   withFantasyPoints.sort((a, b) => b.calculatedFantasyPoints - a.calculatedFantasyPoints);
 
-  // Take top N and add rank
   return withFantasyPoints.slice(0, limit).map((row, idx) => ({
     playerId: row.player_id,
     playerName: row.player_name,
@@ -323,174 +302,151 @@ async function getLatestGameDate(): Promise<string | null> {
 function buildTopPerformersTable(performers: TopPerformer[], userPlayerIds: Set<number>): string {
   return performers.map((p, idx) => {
     const isUserPlayer = userPlayerIds.has(p.playerId);
-    const isEvenRow = idx % 2 === 0;
-    const baseBackground = isEvenRow ? '#ffffff' : '#f9f9f9';
-    const rowBackground = isUserPlayer ? '#e8f4fd' : baseBackground;
-    const borderLeft = isUserPlayer ? 'border-left: 3px solid #0066cc;' : '';
+    const rowBackground = isUserPlayer ? '#e8f4fd' : (idx % 2 === 0 ? '#ffffff' : '#f9f9f9');
+    const borderLeft = isUserPlayer ? 'border-left: 3px solid #1976d2;' : '';
     const highlightBadge = isUserPlayer 
-      ? '<span style="background-color: #0066cc; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 9px; margin-left: 6px; font-weight: 600;">MY TEAM</span>'
+      ? '<span style="background-color: #1976d2; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 9px; margin-left: 6px; font-weight: 600;">MY TEAM</span>'
       : '';
     
     return `
     <tr style="background-color: ${rowBackground}; ${borderLeft}">
-      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #0066cc; font-weight: 600; font-size: 12px;">${p.rank}</td>
+      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #1976d2; font-weight: 600; font-size: 12px;">${p.rank}</td>
       <td style="padding: 9px 8px; border-bottom: 1px solid #e8e8e8; color: #333333;">
         <span style="font-weight: 500;">${escapeHtml(p.playerName)}</span>${highlightBadge}
         <div style="font-size: 11px; color: #777777; margin-top: 2px;">${escapeHtml(p.opponent)}</div>
       </td>
-      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: 'Roboto Mono', monospace; font-size: 12px;">${p.points}</td>
-      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: 'Roboto Mono', monospace; font-size: 12px;">${p.rebounds}</td>
-      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: 'Roboto Mono', monospace; font-size: 12px;">${p.assists}</td>
-      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: 'Roboto Mono', monospace; font-size: 12px;">${p.steals}</td>
-      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: 'Roboto Mono', monospace; font-size: 12px;">${p.blocks}</td>
-      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #003366; font-weight: 600; font-family: 'Roboto Mono', monospace; font-size: 12px;">${p.fantasyPoints.toFixed(1)}</td>
+      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: monospace; font-size: 12px;">${p.points}</td>
+      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: monospace; font-size: 12px;">${p.rebounds}</td>
+      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: monospace; font-size: 12px;">${p.assists}</td>
+      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: monospace; font-size: 12px;">${p.steals}</td>
+      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #333333; font-family: monospace; font-size: 12px;">${p.blocks}</td>
+      <td style="padding: 9px 6px; border-bottom: 1px solid #e8e8e8; text-align: center; color: #003366; font-weight: 600; font-family: monospace; font-size: 12px;">${p.fantasyPoints.toFixed(1)}</td>
     </tr>`;
   }).join('');
-}
-
-function getOrdinalSuffix(n: number): string {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return s[(v - 20) % 10] || s[v] || s[0];
 }
 
 function buildUserPlayersHighlight(performers: TopPerformer[], userPlayerIds: Set<number>): string {
   const userPerformers = performers.filter(p => userPlayerIds.has(p.playerId));
   if (userPerformers.length === 0) return '';
+  const getSuffix = (n: number) => {
+    const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+  };
 
   return userPerformers.map(p => {
-    const ordinal = `${p.rank}${getOrdinalSuffix(p.rank)}`;
-    return `<strong style="color: #003366;">${escapeHtml(p.playerName)}</strong> had the <strong>${ordinal}</strong> best line of the night with <strong style="color: #0066cc;">${p.fantasyPoints.toFixed(1)} fantasy points</strong>!`;
+    return `<strong style="color: #003366;">${escapeHtml(p.playerName)}</strong> had the <strong>${p.rank}${getSuffix(p.rank)}</strong> best line of the night with <strong style="color: #1976d2;">${p.fantasyPoints.toFixed(1)} fantasy points</strong>!`;
   }).join('<br>');
 }
 
+interface AffiliateLink {
+  id: string;
+  label: string;
+  url: string;
+  thumbnail_url: string | null;
+}
+
+async function getRandomAffiliateLinks(limit: number = 2): Promise<AffiliateLink[]> {
+  const { data, error } = await supabase
+    .from('affiliate_links')
+    .select('id, label, url, thumbnail_url')
+    .eq('is_active', true);
+
+  if (error) {
+    console.error('[AFFILIATE] Error fetching affiliate links:', error);
+    return [];
+  }
+  if (!data || data.length === 0) return [];
+
+  const shuffled = [...data];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled.slice(0, limit);
+}
+
+function buildAffiliateLinksSection(links: AffiliateLink[]): string {
+  if (links.length === 0) return '';
+
+  const columnsHtml = links.map(link => {
+    const imageUrl = link.thumbnail_url || 'https://via.placeholder.com/300x200?text=Guru+Pick';
+    return `
+    <div style="display:inline-block; margin: 8px; width: 100%; max-width: 240px; vertical-align: top;">
+      <a href="${escapeHtml(link.url)}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; text-align: center;">
+          <tr><td style="padding: 0;"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(link.label)}" style="width: 100%; height: auto; display: block; border-bottom: 1px solid #f0f0f0;"></td></tr>
+          <tr><td style="padding: 14px 10px;"><span style="font-size: 13px; font-weight: 700; color: #1976d2; text-decoration: none; font-family: sans-serif; letter-spacing: 0.5px;">${escapeHtml(link.label).toUpperCase()}</span></td></tr>
+        </table>
+      </a>
+    </div>
+    `;
+  }).join('');
+
+  return `
+  <tr>
+    <td style="padding: 30px 20px; background-color: #f9f9f9; text-align: center; border-top: 1px solid #eeeeee;">
+      <p style="margin: 0 0 5px; font-size: 12px; font-weight: 800; color: #999999; text-transform: uppercase; letter-spacing: 1.5px;">
+        Guru's Daily Essentials
+      </p>
+      <p style="margin: 0 0 15px; font-size: 10px; color: #aaaaaa; font-style: italic;">
+        As an Amazon Associate, I earn from qualifying purchases.
+      </p>
+      ${columnsHtml}
+    </td>
+  </tr>`;
+}
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {
-    console.log('=== Yesterday Top Performers ===');
-
     const latestDate = await getLatestGameDate();
-    if (!latestDate) {
-      return new Response(JSON.stringify({ message: 'No game data available' }), { headers: corsHeaders });
-    }
-    console.log(`[DATA] Latest game date: ${latestDate}`);
+    if (!latestDate) return new Response('No data', { headers: corsHeaders });
 
-    const top10Performers = await getTopPerformers(latestDate, 10);
-    if (top10Performers.length === 0) {
-      return new Response(JSON.stringify({ message: 'No performers found' }), { headers: corsHeaders });
-    }
-    console.log(`[DATA] Found ${top10Performers.length} top performers`);
+    const top10 = await getTopPerformers(latestDate, 10);
+    const top3Ids = new Set(top10.slice(0, 3).map(p => p.playerId));
 
-    const top3PlayerIds = new Set(top10Performers.slice(0, 3).map(p => p.playerId));
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('user_id, name, email')
+      .eq('send_news', true);
 
-      const { data: profiles, error } = await supabase
-  .from('user_profiles')
-  .select('user_id, name, email')
-  .eq('send_news', true)
-  .order('created_at', { ascending: true });
+    if (!profiles?.length) return new Response('No users', { headers: corsHeaders });
+    const affiliateLinks = await getRandomAffiliateLinks(2);
 
-
-    if (error) {
-      console.error('Error fetching profiles:', error);
-      return new Response(JSON.stringify({ error: error.message }), { headers: corsHeaders, status: 500 });
-    }
-
-    if (!profiles?.length) {
-      return new Response(JSON.stringify({ message: 'No users with send_news enabled' }), { headers: corsHeaders });
-    }
-
-    console.log(`[USERS] Found ${profiles.length} users with send_news=true`);
-
-    const results: { userId: string; email: string; sent: boolean; reason?: string }[] = [];
-    const emailTimestamps: number[] = [];
-    const RATE_LIMIT_EMAILS_PER_SECOND = 2;
-
-    const waitForRateLimit = async () => {
-      const now = Date.now();
-      const oneSecondAgo = now - 1000;
-      while (emailTimestamps.length > 0 && emailTimestamps[0] < oneSecondAgo) {
-        emailTimestamps.shift();
-      }
-      if (emailTimestamps.length >= RATE_LIMIT_EMAILS_PER_SECOND) {
-        const oldestTimestamp = emailTimestamps[0];
-        const waitTime = 1000 - (now - oldestTimestamp) + 50;
-        if (waitTime > 0) {
-          console.log(`[RATE LIMIT] Waiting ${waitTime}ms`);
-          await new Promise(resolve => setTimeout(resolve, waitTime));
-        }
-      }
-    };
-
+    const results = [];
     for (const profile of profiles) {
-      const { user_id: userId, name, email } = profile;
-      console.log(`[PROCESS] User ${userId} (${name})`);
-
       try {
-        const roster = await getUserRoster(userId);
-        const userNbaPlayerIds = new Set(roster.map(p => p.nbaPlayerId).filter((id): id is number => id !== null));
-
-        const hasTop3Player = [...top3PlayerIds].some(id => userNbaPlayerIds.has(id));
+        const roster = await getUserRoster(profile.user_id);
+        const userNbaIds = new Set(roster.map(p => p.nbaPlayerId).filter(id => id !== null));
         
-        if (!hasTop3Player) {
-          console.log(`[SKIP] User ${userId} has no top 3 players`);
-          results.push({ userId, email, sent: false, reason: 'No top 3 players on roster' });
-          continue;
-        }
+        // Find the specific performers who are on the user's team
+        const userPerformers = top10.filter(p => userNbaIds.has(p.playerId));
+        const hasTop3 = userPerformers.some(p => p.rank <= 3);
 
-        console.log(`[MATCH] User ${userId} has a top 3 player!`);
+        if (!hasTop3) continue;
 
-        const userPlayersHighlight = buildUserPlayersHighlight(top10Performers, userNbaPlayerIds);
-        const topPerformersTable = buildTopPerformersTable(top10Performers, userNbaPlayerIds);
-
-        const formattedDate = new Date(latestDate + 'T00:00:00').toLocaleDateString('en-US', {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
-        });
+        // Take the first (highest-ranking) user player for the subject line
+        const topUserPlayer = userPerformers[0];
+        const subject = `${topUserPlayer.playerName} had the #${topUserPlayer.rank} line of the night! 🔥`;
 
         const html = renderTemplate(EMAIL_TEMPLATE, {
-          user_name: name || 'Fantasy Manager',
-          game_date: formattedDate,
-          user_players_highlight: userPlayersHighlight,
-          top_performers_table: topPerformersTable,
+          user_name: profile.name || 'Manager',
+          game_date: new Date(latestDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+          user_players_highlight: buildUserPlayersHighlight(top10, userNbaIds),
+          top_performers_table: buildTopPerformersTable(top10, userNbaIds),
+          affiliate_links_section: buildAffiliateLinksSection(affiliateLinks),
         });
 
-        const topUserPerformer = top10Performers.find(p => userNbaPlayerIds.has(p.playerId));
-        const subject = topUserPerformer
-          ? `🔥 ${topUserPerformer.playerName} had the #${topUserPerformer.rank} line of the night!`
-          : `🏀 Your player made the top 3 last night!`;
-
-        await waitForRateLimit();
-        const sent = await sendEmail(email, subject, html);
-        emailTimestamps.push(Date.now());
-        
-        results.push({ userId, email, sent });
-
+        const sent = await sendEmail(profile.email, subject, html);
+        results.push({ email: profile.email, sent });
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        console.error(`[ERROR] User ${userId}: ${errorMessage}`);
-        results.push({ userId, email, sent: false, reason: errorMessage });
+        console.error(err);
       }
     }
 
-    const summary = {
-      date: latestDate,
-      top3: top10Performers.slice(0, 3).map(p => ({ name: p.playerName, fantasyPoints: p.fantasyPoints })),
-      usersProcessed: profiles.length,
-      emailsSent: results.filter(r => r.sent).length,
-      results,
-    };
-
-    console.log(`[DONE] Sent ${summary.emailsSent} emails out of ${summary.usersProcessed} users`);
-
-    return new Response(JSON.stringify(summary), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-
+    return new Response(JSON.stringify({ status: 'done', results }), { headers: corsHeaders });
   } catch (err) {
-    console.error('[FATAL]', err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'Unknown error' }), {
-      headers: corsHeaders,
-      status: 500,
-    });
+    return new Response(String(err), { status: 500, headers: corsHeaders });
   }
 });
