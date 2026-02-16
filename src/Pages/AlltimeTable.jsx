@@ -8,7 +8,7 @@ import {
   TableBody,
   CircularProgress,
 } from "@mui/material";
-import { fetchFilteredPlayerAverages } from "../api";
+import { searchPlayers, fetchFilteredPlayerAverages } from "../api";
 import FilterSection from "./FilterSection";
 import TableHeader from "./TableHeader";
 import PlayerRow from "./PlayerRow";
@@ -28,6 +28,8 @@ const AlltimeTable = () => {
   const [sortDirection, setSortDirection] = useState("desc");
   const [puntedCategories, setPuntedCategories] = useState([]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [playerSearchTerm, setPlayerSearchTerm] = useState("");
+  const [playerSearchResults, setPlayerSearchResults] = useState([]);
 
   // Generate seasons from 1960-61 to 2023-24
   const seasons = Array.from({ length: 2024 - 1960 }, (_, i) => {
@@ -35,57 +37,6 @@ const AlltimeTable = () => {
     const endYear = (startYear + 1) % 100;
     return `${startYear}-${endYear.toString().padStart(2, "0")}`;
   }).reverse(); // Latest seasons first
-
-  // Available filter types
-  const filterTypes = [
-    { key: "season", label: "Season", isNumeric: true },
-    { key: "teamNames", label: "Team", isMulti: true },
-    { key: "nationalities", label: "Nationality", isMulti: true },
-    { key: "seasonExperience", label: "Experience (Years)", isNumeric: true },
-    { key: "height", label: "Height (ft-in)", isHeight: true },
-    { key: "rebounds", label: "Rebounds", isNumeric: true },
-    { key: "points", label: "Points", isNumeric: true },
-    { key: "assists", label: "Assists", isNumeric: true },
-    { key: "steals", label: "Steals", isNumeric: true },
-    { key: "blocks", label: "Blocks", isNumeric: true },
-    { key: "fgPercentage", label: "FG%", isNumeric: true },
-    { key: "ftPercentage", label: "FT%", isNumeric: true },
-    { key: "three_pointers", label: "Three Pointers", isNumeric: true },
-    { key: "turnovers", label: "Turnovers", isNumeric: true },
-    { key: "total_value", label: "Total Value", isNumeric: true },
-  ];
-
-  // Suggestions for non-numeric filter values
-  const filterValueSuggestions = {
-    teamNames: [
-      { value: "Lakers", label: "Los Angeles Lakers" },
-      { value: "Celtics", label: "Boston Celtics" },
-      { value: "Warriors", label: "Golden State Warriors" },
-      { value: "Bulls", label: "Chicago Bulls" },
-      { value: "Spurs", label: "San Antonio Spurs" },
-    ],
-    nationalities: [
-      { value: "USA", label: "USA" },
-      { value: "Canada", label: "Canada" },
-      { value: "France", label: "France" },
-      { value: "Spain", label: "Spain" },
-      { value: "Serbia", label: "Serbia" },
-      { value: "Israel", label: "Israel" },
-      { value: "Argentina", label: "Argentina" },
-      { value: "Australia", label: "Australia" },
-      { value: "Brazil", label: "Brazil" },
-      { value: "China", label: "China" },
-    ],
-  };
-
-  // Operators for numerical filters
-  const operators = [
-    { value: ">", label: ">" },
-    { value: ">=", label: ">=" },
-    { value: "<", label: "<" },
-    { value: "<=", label: "<=" },
-    { value: "=", label: "=" },
-  ];
 
   // Color coding based on z-scores (light mode friendly)
   const getColorForValue = (value) => {
@@ -144,6 +95,31 @@ const AlltimeTable = () => {
     const newParams = filtersToQueryParams(filters);
     setSearchParams(newParams);
   }, [filters, setSearchParams]);
+
+  // Search players with debounce
+  useEffect(() => {
+    const loadPlayers = async () => {
+      try {
+        const data = await searchPlayers(playerSearchTerm);
+        const playerSuggestions = data.map((player) => ({
+          value: player.name,
+          label: player.name,
+        }));
+        setPlayerSearchResults(playerSuggestions);
+        // Update player name suggestions in constants dynamically
+        FILTER_VALUE_SUGGESTIONS.playerNames = playerSuggestions;
+      } catch (error) {
+        console.error("Error searching players:", error);
+      }
+    };
+
+    // Debounce the search
+    const timer = setTimeout(() => {
+      loadPlayers();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [playerSearchTerm]);
 
   useEffect(() => {
     const loadPlayerStats = async () => {
@@ -510,6 +486,7 @@ const AlltimeTable = () => {
         filterTypes={FILTER_TYPES}
         filterValueSuggestions={FILTER_VALUE_SUGGESTIONS}
         operators={OPERATORS}
+        onPlayerSearch={setPlayerSearchTerm}
       />
 
       {/* Table */}

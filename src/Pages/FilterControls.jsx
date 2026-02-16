@@ -24,6 +24,7 @@ const FilterControls = ({
   filterTypes,
   filterValueSuggestions,
   operators,
+  onPlayerSearch,
 }) => {
   return (
     <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap", marginTop: 2 }}>
@@ -108,6 +109,12 @@ const FilterControls = ({
           getOptionLabel={(option) => option?.label || "Select value"}
           value={filterValue}
           onChange={(event, newValue) => onFilterValueChange(newValue || [])}
+          onInputChange={(event, value) => {
+            // Call player search if this is the player filter
+            if (filterType?.key === "playerNames" && onPlayerSearch) {
+              onPlayerSearch(value);
+            }
+          }}
           disabled={!filterType}
           renderInput={(params) => (
             <TextField

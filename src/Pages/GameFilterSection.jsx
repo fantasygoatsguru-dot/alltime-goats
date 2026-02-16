@@ -30,6 +30,7 @@ const GameFilterSection = ({
   filterTypes,
   filterValueSuggestions,
   operators,
+  onPlayerSearch,
 }) => {
   return (
     <Box
@@ -128,6 +129,7 @@ const GameFilterSection = ({
             filterTypes={filterTypes}
             filterValueSuggestions={filterValueSuggestions}
             operators={operators}
+            onPlayerSearch={onPlayerSearch}
           />
 
           {filters.length > 0 && (

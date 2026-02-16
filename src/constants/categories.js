@@ -11,6 +11,7 @@ export const PUNT_CATEGORIES = [
 ];
 
 export const FILTER_TYPES = [
+  { key: "playerNames", label: "Player", isMulti: true },
   { key: "season", label: "Season", isNumeric: true },
   { key: "teamNames", label: "Team", isMulti: true },
   { key: "nationalities", label: "Nationality", isMulti: true },
@@ -29,6 +30,7 @@ export const FILTER_TYPES = [
 ];
 
 export const FILTER_VALUE_SUGGESTIONS = {
+  playerNames: [], // Populated dynamically from players data
   teamNames: [
     { value: "Lakers", label: "Los Angeles Lakers" },
     { value: "Celtics", label: "Boston Celtics" },
@@ -71,6 +73,7 @@ export const GAME_PUNT_CATEGORIES = [
 ];
 
 export const GAME_FILTER_TYPES = [
+  { key: "playerNames", label: "Player", isMulti: true },
   { key: "season", label: "Season", isNumeric: true },
   { key: "positions", label: "Position", isMulti: true },
   { key: "teamNames", label: "Team", isMulti: true },
@@ -90,6 +93,7 @@ export const GAME_FILTER_TYPES = [
 ];
 
 export const GAME_FILTER_VALUE_SUGGESTIONS = {
+  playerNames: [], // Populated dynamically from players data
   positions: [
     { value: "PG", label: "Point Guard" },
     { value: "SG", label: "Shooting Guard" },

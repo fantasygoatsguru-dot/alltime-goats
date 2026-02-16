@@ -31,6 +31,7 @@ const FilterSection = ({
   filterTypes,
   filterValueSuggestions,
   operators,
+  onPlayerSearch,
 }) => {
   return (
     <Box
@@ -129,6 +130,7 @@ const FilterSection = ({
             filterTypes={filterTypes}
             filterValueSuggestions={filterValueSuggestions}
             operators={operators}
+            onPlayerSearch={onPlayerSearch}
           />
 
           <Box sx={{ mt: 2 }}>

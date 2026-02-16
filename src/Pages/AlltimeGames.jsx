@@ -9,7 +9,7 @@ import {
   CircularProgress,
   TablePagination,
 } from "@mui/material";
-import { fetchAllPlayers, fetchFilteredPlayerGameStats } from "../api";
+import { searchPlayers, fetchFilteredPlayerGameStats } from "../api";
 import GameFilterSection from "./GameFilterSection";
 import GameTableHeader from "./GameTableHeader";
 import GameRow from "./GameRow";
@@ -32,6 +32,8 @@ const AlltimeGames = () => {
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [puntedCategories, setPuntedCategories] = useState([]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [playerSearchTerm, setPlayerSearchTerm] = useState("");
+  const [playerSearchResults, setPlayerSearchResults] = useState([]);
 
   // Generate seasons from 1960-61 to 2023-24
   const seasons = Array.from({ length: 2024 - 1960 }, (_, i) => {
@@ -125,14 +127,26 @@ const AlltimeGames = () => {
   useEffect(() => {
     const loadPlayers = async () => {
       try {
-        const data = await fetchAllPlayers();
-        setPlayers(data);
+        const data = await searchPlayers(playerSearchTerm);
+        const playerSuggestions = data.map((player) => ({
+          value: player.name,
+          label: player.name,
+        }));
+        setPlayerSearchResults(playerSuggestions);
+        // Update player name suggestions in constants dynamically
+        GAME_FILTER_VALUE_SUGGESTIONS.playerNames = playerSuggestions;
       } catch (error) {
-        console.error("Error loading players:", error);
+        console.error("Error searching players:", error);
       }
     };
-    loadPlayers();
-  }, []);
+
+    // Debounce the search
+    const timer = setTimeout(() => {
+      loadPlayers();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [playerSearchTerm]);
 
   // Fetch game stats based on filters
   useEffect(() => {
@@ -432,6 +446,7 @@ const AlltimeGames = () => {
         filterTypes={GAME_FILTER_TYPES}
         filterValueSuggestions={GAME_FILTER_VALUE_SUGGESTIONS}
         operators={OPERATORS}
+        onPlayerSearch={setPlayerSearchTerm}
       />
 
       {/* Table */}

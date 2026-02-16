@@ -22,8 +22,8 @@ export const parseQueryFilters = (searchParams, filterTypes, filterValueSuggesti
     }
   }
 
-  // Handle multi-select filters (teamNames, nationalities, positions)
-  ["teamNames", "nationalities", "positions"].forEach(filterKey => {
+  // Handle multi-select filters (teamNames, nationalities, positions, playerNames)
+  ["teamNames", "nationalities", "positions", "playerNames"].forEach(filterKey => {
     if (searchParams.has(filterKey)) {
       const values = searchParams.get(filterKey).split(",");
       const filterType = filterTypes.find(f => f.key === filterKey);

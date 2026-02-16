@@ -1,28 +1,60 @@
 import { supabase } from './utils/supabase';
 
-export const fetchAllPlayers = async () => {
+export const searchPlayers = async (searchTerm = '') => {
   try {
-    const { data, error } = await supabase
-      .from('alltime_player_season_averages')
-      .select('player_id, player_name, season')
-      .order('player_name', { ascending: true })
-      .limit(1000);
+    let query = supabase
+      .from('alltime_player_info')
+      .select('player_id, player_name')
+      .order('player_name', { ascending: true });
+    
+    // If search term provided, filter by it
+    if (searchTerm.trim()) {
+      query = query.ilike('player_name', `%${searchTerm}%`);
+    }
+    
+    const { data, error } = await query.limit(100); // Return top 100 matches
     
     if (error) throw error;
     
-    const playersMap = new Map();
-    data.forEach(row => {
-      if (!playersMap.has(row.player_id)) {
-        playersMap.set(row.player_id, {
+    return data.map(row => ({
+      id: row.player_id.toString(),
+      name: row.player_name,
+    }));
+  } catch (error) {
+    console.error('Error searching players:', error);
+    throw error;
+  }
+};
+
+export const fetchAllPlayers = async () => {
+  try {
+    // For backward compatibility, fetch all players using pagination
+    let allPlayers = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from('alltime_player_info')
+        .select('player_id, player_name')
+        .order('player_name', { ascending: true })
+        .range(page * pageSize, (page + 1) * pageSize - 1);
+      
+      if (error) throw error;
+      
+      if (data.length === 0) {
+        hasMore = false;
+      } else {
+        allPlayers = allPlayers.concat(data.map(row => ({
           id: row.player_id.toString(),
           name: row.player_name,
-          seasons: []
-        });
+        })));
+        page++;
       }
-      playersMap.get(row.player_id).seasons.push(row.season);
-    });
-    
-    return Array.from(playersMap.values());
+    }
+
+    return allPlayers;
   } catch (error) {
     console.error('Error fetching all players:', error);
     throw error;
@@ -41,6 +73,12 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
     // Apply nationality filter
     if (filterParams.nationalities && filterParams.nationalities.length > 0) {
       playerInfoQuery = playerInfoQuery.in('nationality', filterParams.nationalities);
+      applyPlayerInfoFilter = true;
+    }
+
+    // Apply player name filter
+    if (filterParams.playerNames && filterParams.playerNames.length > 0) {
+      playerInfoQuery = playerInfoQuery.in('player_name', filterParams.playerNames);
       applyPlayerInfoFilter = true;
     }
     
@@ -256,6 +294,12 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
       .select('player_id');
     
     let applyPlayerInfoFilter = false;
+    
+    // Apply player name filter
+    if (filterParams.playerNames && filterParams.playerNames.length > 0) {
+      playerInfoQuery = playerInfoQuery.in('player_name', filterParams.playerNames);
+      applyPlayerInfoFilter = true;
+    }
     
     // Apply nationality filter
     if (filterParams.nationalities && filterParams.nationalities.length > 0) {
