@@ -115,6 +115,8 @@ function AffiliateInlineCard({ item }) {
 }
 
 /* ---------------- PORTABLE TEXT ---------------- */
+import MarkdownBlockRenderer from "../components/MarkdownBlockRenderer";
+
 const ptComponents = {
   types: {
     image: ({ value }) => {
@@ -123,6 +125,7 @@ const ptComponents = {
         <Box component="img" src={urlFor(value).width(800).fit("max").auto("format").url()} alt={value.alt || "Post image"} sx={{ width: "100%", height: "auto", borderRadius: 2, my: 4, display: "block", boxShadow: 2 }} />
       );
     },
+    markdownBlock: MarkdownBlockRenderer,
   },
   block: {
     blockquote: ({ children }) => (
