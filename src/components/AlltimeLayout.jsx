@@ -64,86 +64,86 @@ const IconWrapper = ({ children }) => {
 };
 const MyTeamIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z"/>
+    <path d="M12 2L15.09 8.26L22 9L17 14L18.18 21L12 17.77L5.82 21L7 14L2 9L8.91 8.26L12 2Z" />
   </svg>
 );
 
 // === SUBMENU ICONS (unchanged - keep your favorites) ===
 const MatchupIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 
 const RankingsIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M3 3v18h18"/>
-    <path d="M18 17V9"/>
-    <path d="M13 17V5"/>
-    <path d="M8 17v-3"/>
+    <path d="M3 3v18h18" />
+    <path d="M18 17V9" />
+    <path d="M13 17V5" />
+    <path d="M8 17v-3" />
   </svg>
 );
 
 const AIIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-    <circle cx="9" cy="10" r="1"/>
-    <circle cx="15" cy="10" r="1"/>
-    <path d="M9 15c.5.8 1.5 1.5 3 1.5s2.5-.7 3-1.5"/>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <circle cx="9" cy="10" r="1" />
+    <circle cx="15" cy="10" r="1" />
+    <path d="M9 15c.5.8 1.5 1.5 3 1.5s2.5-.7 3-1.5" />
   </svg>
 );
 
 const PlayoffIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-    <line x1="3" y1="9" x2="21" y2="9"/>
-    <line x1="9" y1="21" x2="9" y2="9"/>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <line x1="3" y1="9" x2="21" y2="9" />
+    <line x1="9" y1="21" x2="9" y2="9" />
   </svg>
 );
 
 const HistoryIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/>
-    <polyline points="12 6 12 12 16 14"/>
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
   </svg>
 );
 
 const AboutIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"/>
-    <line x1="12" y1="16" x2="12" y2="12"/>
-    <line x1="12" y1="8" x2="12.01" y2="8"/>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="12" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
   </svg>
 );
 
 const TeamsIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 
 const SeasonsIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="4" width="18" height="16" rx="2"/>
-    <line x1="3" y1="10" x2="21" y2="10"/>
-    <line x1="8" y1="2" x2="8" y2="6"/>
-    <line x1="16" y1="2" x2="16" y2="6"/>
-    <path d="M12 14l-1 3h2l-1-3z"/>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <path d="M12 14l-1 3h2l-1-3z" />
   </svg>
 );
 
 const GamesIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M4 4h16v16H4z"/>
-    <path d="M8 12l4-4 4 4"/>
-    <circle cx="12" cy="15" r="2"/>
-    <path d="M4 8l8-4 8 4"/>
+    <path d="M4 4h16v16H4z" />
+    <path d="M8 12l4-4 4 4" />
+    <circle cx="12" cy="15" r="2" />
+    <path d="M4 8l8-4 8 4" />
   </svg>
 );
 
@@ -151,53 +151,53 @@ const GamesIcon = () => (
 
 const ProjectionIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M3 3v18h18"/>
-    <path d="M7 16l4-4 4 4 6-6"/>
-    <circle cx="7" cy="16" r="2"/>
-    <circle cx="11" cy="12" r="2"/>
-    <circle cx="15" cy="16" r="2"/>
-    <circle cx="21" cy="10" r="2"/>
+    <path d="M3 3v18h18" />
+    <path d="M7 16l4-4 4 4 6-6" />
+    <circle cx="7" cy="16" r="2" />
+    <circle cx="11" cy="12" r="2" />
+    <circle cx="15" cy="16" r="2" />
+    <circle cx="21" cy="10" r="2" />
   </svg>
 );
 
 const SeasonGamesIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-    <path d="M3 9h18"/>
-    <path d="M9 21V9"/>
-    <circle cx="15" cy="15" r="3"/>
-    <path d="M15 12v3l2 1"/>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <path d="M3 9h18" />
+    <path d="M9 21V9" />
+    <circle cx="15" cy="15" r="3" />
+    <path d="M15 12v3l2 1" />
   </svg>
 );
 
 const ScheduleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-    <line x1="16" y1="2" x2="16" y2="6"/>
-    <line x1="8" y1="2" x2="8" y2="6"/>
-    <line x1="3" y1="10" x2="21" y2="10"/>
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
   </svg>
 );
 
 const UltimateWinnerIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-    <line x1="3" y1="9" x2="21" y2="9"/>
-    <line x1="9" y1="21" x2="9" y2="9"/>
-    <path d="M12 5l1.5 3 3.5 0.5-2.5 2.5 0.5 3.5-3-1.5-3 1.5 0.5-3.5-2.5-2.5 3.5-0.5z"/>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <line x1="3" y1="9" x2="21" y2="9" />
+    <line x1="9" y1="21" x2="9" y2="9" />
+    <path d="M12 5l1.5 3 3.5 0.5-2.5 2.5 0.5 3.5-3-1.5-3 1.5 0.5-3.5-2.5-2.5 3.5-0.5z" />
   </svg>
 );
 
 const CategoryBreakdownIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-    <line x1="3" y1="9" x2="21" y2="9"/>
-    <line x1="3" y1="15" x2="21" y2="15"/>
-    <line x1="9" y1="9" x2="9" y2="21"/>
-    <line x1="15" y1="9" x2="15" y2="21"/>
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <line x1="3" y1="9" x2="21" y2="9" />
+    <line x1="3" y1="15" x2="21" y2="15" />
+    <line x1="9" y1="9" x2="9" y2="21" />
+    <line x1="15" y1="9" x2="15" y2="21" />
   </svg>
 );
-  
+
 const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -246,7 +246,7 @@ const AlltimeLayout = () => {
       ),
       hasSubmenu: true,
     },
-      {
+    {
       path: '/posts',
       label: 'Posts',
       icon: (
@@ -285,29 +285,29 @@ const AlltimeLayout = () => {
   const leagueSubmenu = [
     { path: '/matchup', label: 'Matchup', icon: <ProjectionIcon />, requiresAuth: false },
     { path: '/my-team', label: 'My Team', icon: <MyTeamIcon />, requiresAuth: false },
-    { 
-      path: '/matchup-projection', 
-      label: 'Matchup Projection', 
-      icon: <MatchupIcon />, 
-      requiresAuth: true, 
+    {
+      path: '/matchup-projection',
+      label: 'Matchup Projection',
+      icon: <MatchupIcon />,
+      requiresAuth: true,
       requiresPremium: false,
       tooltip: 'Connect to Yahoo to view your matchups',
       premiumTooltip: 'Upgrade to premium to access matchup projections'
     },
-    { 
-      path: '/ultimate-winner', 
-      label: 'Head-to-Head Matrix', 
-      icon: <UltimateWinnerIcon />, 
-      requiresAuth: true, 
+    {
+      path: '/ultimate-winner',
+      label: 'Head-to-Head Matrix',
+      icon: <UltimateWinnerIcon />,
+      requiresAuth: true,
       requiresPremium: false,
       tooltip: 'Connect to Yahoo to view head-to-head matrix',
       premiumTooltip: 'Upgrade to premium to access head-to-head matrix'
     },
-    { 
-      path: '/category-breakdown', 
-      label: 'Category Breakdown', 
-      icon: <CategoryBreakdownIcon />, 
-      requiresAuth: true, 
+    {
+      path: '/category-breakdown',
+      label: 'Category Breakdown',
+      icon: <CategoryBreakdownIcon />,
+      requiresAuth: true,
       requiresPremium: false,
       tooltip: 'Connect to Yahoo to view category breakdown',
       premiumTooltip: 'Upgrade to premium to access category breakdown'
@@ -323,20 +323,20 @@ const AlltimeLayout = () => {
   const scheduleSubmenu = [
     { path: '/nba-playoffs', label: 'Fantasy Playoffs', icon: <PlayoffIcon />, requiresAuth: false },
     { path: '/nba-regular-season', label: 'Fantasy Season', icon: <ScheduleIcon />, requiresAuth: false },
-    { 
-      path: '/my-league-playoffs', 
-      label: 'Team Playoff Strength', 
-      icon: <MyTeamIcon />, 
-      requiresAuth: true, 
+    {
+      path: '/my-league-playoffs',
+      label: 'Team Playoff Strength',
+      icon: <MyTeamIcon />,
+      requiresAuth: true,
       requiresPremium: false,
       tooltip: 'Connect to Yahoo to view your playoff schedule',
       premiumTooltip: 'Upgrade to premium to access your playoff schedule'
     },
-    { 
-      path: '/my-league-regular-season', 
-      label: 'Team Season Strength', 
-      icon: <MyTeamIcon />, 
-      requiresAuth: true, 
+    {
+      path: '/my-league-regular-season',
+      label: 'Team Season Strength',
+      icon: <MyTeamIcon />,
+      requiresAuth: true,
       requiresPremium: false,
       tooltip: 'Connect to Yahoo to view your league schedule',
       premiumTooltip: 'Upgrade to premium to access your league schedule'
@@ -350,7 +350,7 @@ const AlltimeLayout = () => {
 
   ];
 
-  
+
   // === DATA FETCHING ===
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -361,20 +361,20 @@ const AlltimeLayout = () => {
           .select('name, email, send_weekly_projections, send_news, is_premium')
           .eq('user_id', user.userId)
           .maybeSingle();
-        
+
         if (error) {
           console.error('Error fetching user profile:', error);
           return;
         }
-        
+
         if (data) {
           console.log('User profile fetched successfully:', data);
           setUserProfile(data);
         } else {
           console.log('No user profile found for userId:', user.userId);
         }
-      } catch (err) { 
-        console.error('Exception fetching user profile:', err); 
+      } catch (err) {
+        console.error('Exception fetching user profile:', err);
       }
     };
     fetchUserProfile();
@@ -383,7 +383,7 @@ const AlltimeLayout = () => {
   const displayName = userProfile?.name || user?.name || 'User';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
   const isPremium = userProfile?.is_premium ?? false;
-  
+
   useEffect(() => {
     const fetchUserLeagues = async () => {
       if (!isAuthenticated || !user?.userId) return;
@@ -399,8 +399,8 @@ const AlltimeLayout = () => {
             setSelectedLeague(firstLeagueId);
           }
         }
-      } catch (err) { 
-        console.error(err); 
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoadingLeagues(false);
       }
@@ -430,7 +430,7 @@ const AlltimeLayout = () => {
         setLeagueSettings(null);
         return;
       }
-      
+
       try {
         const { data } = await supabase.functions.invoke('yahoo-fantasy-api', {
           body: { action: 'getLeagueSettings', userId: user.userId, leagueId: selectedLeague },
@@ -452,10 +452,10 @@ const AlltimeLayout = () => {
       if (!selectedLeague || !isAuthenticated || !user?.userId) return;
       try {
         const { data, error } = await supabase.functions.invoke('yahoo-fantasy-api', {
-          body: { 
-            action: 'getCurrentMatchup', 
-            userId: user.userId, 
-            leagueId: selectedLeague 
+          body: {
+            action: 'getCurrentMatchup',
+            userId: user.userId,
+            leagueId: selectedLeague
           },
         });
         if (error) {
@@ -495,7 +495,7 @@ const AlltimeLayout = () => {
     try {
       const currentPath = location.pathname;
       sessionStorage.setItem('oauth_return_path', currentPath);
-      
+
       const isDev = window.location.hostname === 'localhost';
       const { data } = await supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } });
       if (data?.authUrl) {
@@ -514,13 +514,13 @@ const AlltimeLayout = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
-    
+
     if (code && !isAuthenticated) {
       const returnPath = sessionStorage.getItem('oauth_return_path') || '/matchup';
       sessionStorage.removeItem('oauth_return_path');
-      
+
       window.history.replaceState({}, document.title, returnPath);
-      
+
       const processCallback = async () => {
         setIsPageLoading(true);
         try {
@@ -528,7 +528,7 @@ const AlltimeLayout = () => {
           const { data } = await supabase.functions.invoke('yahoo-oauth', {
             body: { action: 'callback', code, isDev }
           });
-          
+
           if (data?.success) {
             login({
               userId: data.userId,
@@ -537,18 +537,18 @@ const AlltimeLayout = () => {
               profilePicture: data.profilePicture,
               expiresAt: data.expiresAt,
             });
-            
+
             try {
               const { data: existingProfile, error: profileError } = await supabase
                 .from('user_profiles')
                 .select('user_id, name, email')
                 .eq('user_id', data.userId)
                 .single();
-              
+
               if (profileError && profileError.code !== 'PGRST116') {
                 throw profileError;
               }
-              
+
               if (existingProfile && !profileError) {
                 const updateData = {};
                 if (!existingProfile.name && data.name) updateData.name = data.name;
@@ -568,7 +568,7 @@ const AlltimeLayout = () => {
             } catch (profileErr) {
               console.error('Error updating user profile:', profileErr);
             }
-            
+
             navigate(returnPath);
           } else {
             setIsPageLoading(false);
@@ -578,7 +578,7 @@ const AlltimeLayout = () => {
           setIsPageLoading(false);
         }
       };
-      
+
       processCallback();
     }
   }, [isAuthenticated, navigate, login]);
@@ -596,21 +596,21 @@ const AlltimeLayout = () => {
     setLeagueAnchorEl(e.currentTarget);
   };
   const handleLeagueClose = () => setLeagueAnchorEl(null);
-  
+
   const handleRankingsOpen = (e) => {
     if (isMobile) return;
     closeAllMenus();
     setRankingsAnchorEl(e.currentTarget);
   };
   const handleRankingsClose = () => setRankingsAnchorEl(null);
-  
+
   const handleScheduleOpen = (e) => {
     if (isMobile) return;
     closeAllMenus();
     setScheduleAnchorEl(e.currentTarget);
   };
   const handleScheduleClose = () => setScheduleAnchorEl(null);
-  
+
   const handleAlltimeOpen = (e) => {
     if (isMobile) return;
     closeAllMenus();
@@ -698,10 +698,10 @@ const AlltimeLayout = () => {
           </Box>
 
           {/* DESKTOP NAV */}
-{!isMobile && (
+          {!isMobile && (
             <Box sx={{ display: 'flex', gap: 1.5 }}>
               {navItems.map((item) => {
-                const submenuMap = { 
+                const submenuMap = {
                   '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/matchup' },
                   '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/rankings' },
                   '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/nba-playoffs' },
@@ -709,10 +709,10 @@ const AlltimeLayout = () => {
                 };
 
                 const config = submenuMap[item.path];
-                
+
                 // FIXED LOGIC: Keep "Posts" active if we are on the posts list OR a single post page
-                const isActive = 
-                  location.pathname === item.path || 
+                const isActive =
+                  location.pathname === item.path ||
                   (item.path === '/matchup' && location.pathname === '/') ||
                   (item.path === '/posts' && location.pathname.startsWith('/post'));
 
@@ -768,11 +768,11 @@ const AlltimeLayout = () => {
                                   const isDisabled = (sub.requiresAuth && !isAuthenticated) || (sub.requiresPremium && !isPremium);
                                   const needsAuth = sub.requiresAuth && !isAuthenticated;
                                   const needsPremium = sub.requiresPremium && !isPremium;
-                                  
-                                  const tooltipContent = needsAuth && sub.tooltip 
-                                    ? sub.tooltip 
-                                    : needsPremium && sub.premiumTooltip 
-                                    ? (
+
+                                  const tooltipContent = needsAuth && sub.tooltip
+                                    ? sub.tooltip
+                                    : needsPremium && sub.premiumTooltip
+                                      ? (
                                         <Box>
                                           {sub.premiumTooltip}{' '}
                                           <Link
@@ -785,21 +785,21 @@ const AlltimeLayout = () => {
                                           </Link>
                                         </Box>
                                       )
-                                    : '';
-                                  
+                                      : '';
+
                                   return (
-                                    <Tooltip 
-                                      key={sub.path} 
-                                      title={tooltipContent} 
+                                    <Tooltip
+                                      key={sub.path}
+                                      title={tooltipContent}
                                       placement="right"
                                       arrow
                                     >
                                       <span>
                                         <MenuItem
-                                          onClick={() => { 
+                                          onClick={() => {
                                             if (!isDisabled) {
-                                              handleNavClick(sub.path); 
-                                              config.handleClose(); 
+                                              handleNavClick(sub.path);
+                                              config.handleClose();
                                             }
                                           }}
                                           disabled={isDisabled}
@@ -829,12 +829,12 @@ const AlltimeLayout = () => {
                     </Popper>
                   </Box>
                 ) : (
-                  <Tooltip 
+                  <Tooltip
                     title={
                       item.requiresAuth && !isAuthenticated && item.tooltip
                         ? item.tooltip
                         : item.requiresPremium && !isPremium && item.premiumTooltip
-                        ? (
+                          ? (
                             <Box>
                               {item.premiumTooltip}{' '}
                               <Link
@@ -847,8 +847,8 @@ const AlltimeLayout = () => {
                               </Link>
                             </Box>
                           )
-                        : ''
-                    } 
+                          : ''
+                    }
                     placement="bottom"
                     arrow
                   >
@@ -895,12 +895,12 @@ const AlltimeLayout = () => {
                   value={selectedLeague || ''}
                   onChange={(e) => {
                     const newLeagueId = e.target.value;
-                    
+
                     if (!newLeagueId) {
                       console.warn('⚠️ No league ID received in onChange');
                       return;
                     }
-                    
+
                     const leagueIdStr = String(newLeagueId);
                     setSelectedLeague(leagueIdStr);
                   }}
@@ -922,11 +922,11 @@ const AlltimeLayout = () => {
                     const leagueIdStr = String(l.leagueId);
                     const isDisabled = false; // TODO: Remove this once we have premium features
                     const menuItem = (
-                      <MenuItem 
+                      <MenuItem
                         key={l.leagueId}
                         value={leagueIdStr}
                         disabled={isDisabled}
-                        sx={{ 
+                        sx={{
                           fontSize: '0.85rem',
                           opacity: isDisabled ? 0.5 : 1,
                         }}
@@ -934,7 +934,7 @@ const AlltimeLayout = () => {
                         {l.name.split(' ').slice(0, 2).join(' ')}
                       </MenuItem>
                     );
-                    
+
                     if (isDisabled) {
                       return (
                         <Tooltip
@@ -962,7 +962,7 @@ const AlltimeLayout = () => {
                         </Tooltip>
                       );
                     }
-                    
+
                     return menuItem;
                   })}
                 </Select>
@@ -1008,7 +1008,7 @@ const AlltimeLayout = () => {
           </Box>
         </Box>
 
- {/* MOBILE MENU */}
+        {/* MOBILE MENU */}
         <Menu
           anchorEl={mobileMenuAnchor}
           open={Boolean(mobileMenuAnchor)}
@@ -1031,23 +1031,23 @@ const AlltimeLayout = () => {
             const isExpanded = mobileExpandedMenu === item.path;
 
             // Updated mobile active logic
-            const isActive = 
-              location.pathname === item.path || 
+            const isActive =
+              location.pathname === item.path ||
               (item.path === '/matchup' && location.pathname === '/') ||
               (item.path === '/posts' && location.pathname.startsWith('/post'));
 
             return !item.hasSubmenu ? (
-              <MenuItem 
-                key={item.path} 
+              <MenuItem
+                key={item.path}
                 onClick={() => {
                   const isDisabled = (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium);
                   if (!isDisabled) {
                     handleNavClick(item.path);
                   }
-                }} 
+                }}
                 disabled={(item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium)}
-                sx={{ 
-                  py: 2, 
+                sx={{
+                  py: 2,
                   px: 2.5,
                   gap: 2.5,
                   bgcolor: isActive ? 'rgba(74,144,226,0.15)' : 'transparent',
@@ -1069,12 +1069,12 @@ const AlltimeLayout = () => {
               </MenuItem>
             ) : (
               <Box key={item.path}>
-                <MenuItem 
-                  onClick={() => setMobileExpandedMenu(isExpanded ? null : item.path)} 
-                  sx={{ 
-                    py: 2, 
+                <MenuItem
+                  onClick={() => setMobileExpandedMenu(isExpanded ? null : item.path)}
+                  sx={{
+                    py: 2,
                     px: 2.5,
-                    gap: 2.5, 
+                    gap: 2.5,
                     fontWeight: 600,
                     bgcolor: isExpanded ? 'rgba(74,144,226,0.08)' : 'transparent',
                   }}
@@ -1085,12 +1085,12 @@ const AlltimeLayout = () => {
                   <Typography fontWeight={600} fontSize="0.95rem" sx={{ flex: 1 }}>
                     {item.label}
                   </Typography>
-                  <ExpandMore 
-                    sx={{ 
+                  <ExpandMore
+                    sx={{
                       transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
                       transition: 'transform 0.3s',
                       fontSize: '1.5rem',
-                    }} 
+                    }}
                   />
                 </MenuItem>
                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
@@ -1100,16 +1100,16 @@ const AlltimeLayout = () => {
                       const isSubActive = location.pathname === sub.path;
                       const needsAuth = sub.requiresAuth && !isAuthenticated;
                       const needsPremium = sub.requiresPremium && !isPremium;
-                      
+
                       return (
                         <MenuItem
                           key={sub.path}
                           onClick={() => !isDisabled && handleNavClick(sub.path)}
                           disabled={isDisabled}
-                          sx={{ 
-                            pl: 7, 
+                          sx={{
+                            pl: 7,
                             pr: 2.5,
-                            py: 2, 
+                            py: 2,
                             gap: 2.5,
                             bgcolor: isSubActive ? 'rgba(74,144,226,0.15)' : 'transparent',
                             borderLeft: isSubActive ? '3px solid #4a90e2' : '3px solid transparent',
@@ -1158,7 +1158,7 @@ const AlltimeLayout = () => {
       {/* CONTENT & FOOTER */}
       <Container maxWidth={false} disableGutters sx={{ flexGrow: 1 }}>
         {isPageLoading || (loadingLeagues && isAuthenticated) ? (
-          <ReassuringLoader 
+          <ReassuringLoader
             type={loadingLeagues && isAuthenticated ? 'leagues' : 'page'}
             minHeight="70vh"
           />
@@ -1178,56 +1178,56 @@ const AlltimeLayout = () => {
             <SEOContent />
           </LeagueProvider>
         )}
-      </Container>  
+      </Container>
 
-      {/* <AffiliateOffersButton /> */}
-<Box 
-  component="footer" 
-  sx={{ 
-    py: 2.5, 
-    textAlign: 'center', 
-    borderTop: '1px solid #f0f0f0', 
-    bgcolor: '#fafafa' // Slight off-white to distinguish from content
-  }}
->
-  <Container maxWidth="md">
-    <Stack 
-      direction={{ xs: 'column', sm: 'row' }} 
-      spacing={{ xs: 1, sm: 2 }} 
-      justifyContent="center" 
-      alignItems="center"
-      divider={isMobile ? null : <Typography variant="caption" color="text.disabled">|</Typography>}
-    >
-      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-        © {new Date().getFullYear()} Fantasy Goats Guru
-      </Typography>
-
-      <Link 
-        component={RouterLink} 
-        to="/privacy-policy" 
-        variant="caption"
-        sx={{ 
-          color: 'text.secondary', 
-          textDecoration: 'none', 
-          '&:hover': { color: 'primary.main', textDecoration: 'underline' } 
+      <AffiliateOffersButton />
+      <Box
+        component="footer"
+        sx={{
+          py: 2.5,
+          textAlign: 'center',
+          borderTop: '1px solid #f0f0f0',
+          bgcolor: '#fafafa' // Slight off-white to distinguish from content
         }}
       >
-        Privacy Policy
-      </Link>
+        <Container maxWidth="md">
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={{ xs: 1, sm: 2 }}
+            justifyContent="center"
+            alignItems="center"
+            divider={isMobile ? null : <Typography variant="caption" color="text.disabled">|</Typography>}
+          >
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+              © {new Date().getFullYear()} Fantasy Goats Guru
+            </Typography>
 
-      <Typography 
-        variant="caption" 
-        sx={{ 
-          color: 'text.secondary', 
-          fontStyle: 'italic',
-          fontSize: '0.8rem' 
-        }}
-      >
-        As an Amazon Associate I earn from qualifying purchases.
-      </Typography>
-    </Stack>
-  </Container>
-</Box>
+            <Link
+              component={RouterLink}
+              to="/privacy-policy"
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                textDecoration: 'none',
+                '&:hover': { color: 'primary.main', textDecoration: 'underline' }
+              }}
+            >
+              Privacy Policy
+            </Link>
+
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                fontStyle: 'italic',
+                fontSize: '0.8rem'
+              }}
+            >
+              As an Amazon Associate I earn from qualifying purchases.
+            </Typography>
+          </Stack>
+        </Container>
+      </Box>
     </Box>
   );
 };

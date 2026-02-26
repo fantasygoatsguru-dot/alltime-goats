@@ -35,7 +35,8 @@ const AffiliateOffersButton = () => {
     let cancelled = false;
     fetchAffiliateLinks().then((data) => {
       if (!cancelled && data?.length) {
-        setLinks(data);
+        const shuffled = [...data].sort(() => 0.5 - Math.random());
+        setLinks(shuffled.slice(0, 3));
       }
       setLoaded(true);
     });

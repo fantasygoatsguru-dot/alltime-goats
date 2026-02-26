@@ -6,16 +6,16 @@ export const searchPlayers = async (searchTerm = '') => {
       .from('alltime_player_info')
       .select('player_id, player_name')
       .order('player_name', { ascending: true });
-    
+
     // If search term provided, filter by it
     if (searchTerm.trim()) {
       query = query.ilike('player_name', `%${searchTerm}%`);
     }
-    
+
     const { data, error } = await query.limit(100); // Return top 100 matches
-    
+
     if (error) throw error;
-    
+
     return data.map(row => ({
       id: row.player_id.toString(),
       name: row.player_name,
@@ -40,9 +40,9 @@ export const fetchAllPlayers = async () => {
         .select('player_id, player_name')
         .order('player_name', { ascending: true })
         .range(page * pageSize, (page + 1) * pageSize - 1);
-      
+
       if (error) throw error;
-      
+
       if (data.length === 0) {
         hasMore = false;
       } else {
@@ -67,9 +67,9 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
     let playerInfoQuery = supabase
       .from('alltime_player_info')
       .select('player_id');
-    
+
     let applyPlayerInfoFilter = false;
-    
+
     // Apply nationality filter
     if (filterParams.nationalities && filterParams.nationalities.length > 0) {
       playerInfoQuery = playerInfoQuery.in('nationality', filterParams.nationalities);
@@ -81,13 +81,13 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
       playerInfoQuery = playerInfoQuery.in('player_name', filterParams.playerNames);
       applyPlayerInfoFilter = true;
     }
-    
+
     // Apply team filter (use team_name from player_info, not team_abbreviation)
     if (filterParams.teamNames && filterParams.teamNames.length > 0) {
       playerInfoQuery = playerInfoQuery.in('team_name', filterParams.teamNames);
       applyPlayerInfoFilter = true;
     }
-    
+
     // Apply height filter
     if (filterParams.height) {
       const { operand, value } = filterParams.height;
@@ -100,7 +100,7 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
       }
       applyPlayerInfoFilter = true;
     }
-    
+
     // Apply season experience filter
     if (filterParams.seasonExperience) {
       const { operand, value } = filterParams.seasonExperience;
@@ -113,30 +113,30 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
       }
       applyPlayerInfoFilter = true;
     }
-    
+
     // Get filtered player IDs if we applied any player info filters
     let filteredPlayerIds = null;
     if (applyPlayerInfoFilter) {
       const { data: playerInfoData, error: playerInfoError } = await playerInfoQuery;
       if (playerInfoError) throw playerInfoError;
       filteredPlayerIds = playerInfoData.map(p => p.player_id);
-      
+
       // If no players match the demographic filters, return empty
       if (filteredPlayerIds.length === 0) {
         return [];
       }
     }
-    
+
     // Step 2: Query season averages with stat filters
     let seasonQuery = supabase
       .from('alltime_player_season_averages')
       .select('player_id, player_name, season, team_abbreviation, points_per_game, rebounds_per_game, assists_per_game, steals_per_game, blocks_per_game, three_pointers_per_game, field_goal_percentage, free_throw_percentage, turnovers_per_game, points_z, rebounds_z, assists_z, steals_z, blocks_z, three_pointers_z, fg_percentage_z, ft_percentage_z, turnovers_z, total_value');
-    
+
     // Apply player ID filter if we have demographic filters
     if (filteredPlayerIds) {
       seasonQuery = seasonQuery.in('player_id', filteredPlayerIds);
     }
-    
+
     // Apply season filter - convert year to season format (2020 -> "2019-20")
     if (filterParams.season) {
       const seasons = Array.isArray(filterParams.season) ? filterParams.season : [filterParams.season];
@@ -154,7 +154,7 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
       });
       seasonQuery = seasonQuery.in('season', convertedSeasons);
     }
-    
+
     // Apply numeric filters with operators
     const numericFields = [
       { param: 'points', column: 'points_per_game' },
@@ -166,7 +166,7 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
       { param: 'turnovers', column: 'turnovers_per_game' },
       { param: 'total_value', column: 'total_value' },
     ];
-    
+
     numericFields.forEach(({ param, column }) => {
       if (filterParams[param]) {
         const { operand, value } = filterParams[param];
@@ -189,7 +189,7 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
         }
       }
     });
-    
+
     // Apply percentage filters
     if (filterParams.fgPercentage) {
       const { operand, value } = filterParams.fgPercentage;
@@ -202,7 +202,7 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
         case '=': seasonQuery = seasonQuery.eq('field_goal_percentage', percentValue); break;
       }
     }
-    
+
     if (filterParams.ftPercentage) {
       const { operand, value } = filterParams.ftPercentage;
       const percentValue = value / 100;
@@ -214,37 +214,37 @@ export const fetchFilteredPlayerAverages = async (filterParams = {}) => {
         case '=': seasonQuery = seasonQuery.eq('free_throw_percentage', percentValue); break;
       }
     }
-    
+
     // Order and limit to 200 results
     seasonQuery = seasonQuery.order('total_value', { ascending: false }).limit(200);
-    
+
     const { data: seasonData, error: seasonError } = await seasonQuery;
-    
+
     if (seasonError) throw seasonError;
-    
+
     if (!seasonData || seasonData.length === 0) {
       return [];
     }
-    
+
     // Get unique player IDs
     const playerIds = [...new Set(seasonData.map(row => row.player_id))];
-    
+
     // Fetch player info for all players (with limit)
     const { data: playerInfo, error: playerInfoError } = await supabase
       .from('alltime_player_info')
       .select('player_id, position, nationality, height, season_experience')
       .in('player_id', playerIds.slice(0, 200));
-    
+
     if (playerInfoError) {
       console.warn('Error fetching player info, using defaults:', playerInfoError);
     }
-    
+
     // Create a map for quick lookup
     const playerInfoMap = (playerInfo || []).reduce((acc, info) => {
       acc[info.player_id] = info;
       return acc;
     }, {});
-    
+
     // Transform data to match expected format
     return seasonData.map(row => {
       const info = playerInfoMap[row.player_id] || {};
@@ -292,15 +292,15 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
     let playerInfoQuery = supabase
       .from('alltime_player_info')
       .select('player_id');
-    
+
     let applyPlayerInfoFilter = false;
-    
+
     // Apply player name filter
     if (filterParams.playerNames && filterParams.playerNames.length > 0) {
       playerInfoQuery = playerInfoQuery.in('player_name', filterParams.playerNames);
       applyPlayerInfoFilter = true;
     }
-    
+
     // Apply nationality filter
     if (filterParams.nationalities && filterParams.nationalities.length > 0) {
       playerInfoQuery = playerInfoQuery.in('nationality', filterParams.nationalities);
@@ -312,7 +312,7 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
       playerInfoQuery = playerInfoQuery.in('team_name', filterParams.teamNames);
       applyPlayerInfoFilter = true;
     }
-    
+
     // Apply height filter
     if (filterParams.height) {
       const { operand, value } = filterParams.height;
@@ -325,7 +325,7 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
       }
       applyPlayerInfoFilter = true;
     }
-    
+
     // Apply season experience filter
     if (filterParams.seasonExperience) {
       const { operand, value } = filterParams.seasonExperience;
@@ -338,30 +338,30 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
       }
       applyPlayerInfoFilter = true;
     }
-    
+
     // Get filtered player IDs if we applied any player info filters
     let filteredPlayerIds = null;
     if (applyPlayerInfoFilter) {
       const { data: playerInfoData, error: playerInfoError } = await playerInfoQuery;
       if (playerInfoError) throw playerInfoError;
       filteredPlayerIds = playerInfoData.map(p => p.player_id);
-      
+
       // If no players match the demographic filters, return empty
       if (filteredPlayerIds.length === 0) {
         return [];
       }
     }
-    
+
     // Step 2: Query game logs with stat filters
     let query = supabase
       .from('alltime_player_game_logs')
       .select('player_id, player_name, season, team_abbreviation, points, rebounds, assists, steals, blocks, three_pointers_made, field_goals_made, field_goals_attempted, free_throws_made, free_throws_attempted, turnovers, fantasy_points');
-    
+
     // Apply player ID filter if we have demographic filters
     if (filteredPlayerIds) {
       query = query.in('player_id', filteredPlayerIds);
     }
-    
+
     // Apply season filter - convert year to season format (2020 -> "2019-20")
     if (filterParams.season) {
       const seasons = Array.isArray(filterParams.season) ? filterParams.season : [filterParams.season];
@@ -379,7 +379,7 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
       });
       query = query.in('season', convertedSeasons);
     }
-    
+
     // Apply numeric filters with operators
     const numericFields = [
       { param: 'points', column: 'points' },
@@ -391,7 +391,7 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
       { param: 'turnovers', column: 'turnovers' },
       { param: 'fantasy_points', column: 'fantasy_points' },
     ];
-    
+
     numericFields.forEach(({ param, column }) => {
       if (filterParams[param]) {
         const { operand, value } = filterParams[param];
@@ -414,37 +414,37 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
         }
       }
     });
-    
+
     // Order and limit to 200 results
     query = query.order('fantasy_points', { ascending: false }).limit(200);
-    
+
     const { data: gameData, error: gameError } = await query;
-    
+
     if (gameError) throw gameError;
-    
+
     if (!gameData || gameData.length === 0) {
       return [];
     }
-    
+
     // Get unique player IDs
     const playerIds = [...new Set(gameData.map(row => row.player_id))];
-    
+
     // Fetch player info for all players (with limit)
     const { data: playerInfo, error: playerInfoError } = await supabase
       .from('alltime_player_info')
       .select('player_id, position, nationality, height, season_experience')
       .in('player_id', playerIds.slice(0, 500));
-    
+
     if (playerInfoError) {
       console.warn('Error fetching player info, using defaults:', playerInfoError);
     }
-    
+
     // Create a map for quick lookup
     const playerInfoMap = (playerInfo || []).reduce((acc, info) => {
       acc[info.player_id] = info;
       return acc;
     }, {});
-    
+
     // Transform data and calculate percentages
     return gameData.map(row => {
       const info = playerInfoMap[row.player_id] || {};
@@ -464,11 +464,11 @@ export const fetchFilteredPlayerGameStats = async (filterParams = {}) => {
           steals: row.steals,
           blocks: row.blocks,
           three_pointers: row.three_pointers_made,
-          field_goal_percentage: row.field_goals_attempted > 0 
-            ? row.field_goals_made / row.field_goals_attempted 
+          field_goal_percentage: row.field_goals_attempted > 0
+            ? row.field_goals_made / row.field_goals_attempted
             : 0,
-          free_throw_percentage: row.free_throws_attempted > 0 
-            ? row.free_throws_made / row.free_throws_attempted 
+          free_throw_percentage: row.free_throws_attempted > 0
+            ? row.free_throws_made / row.free_throws_attempted
             : 0,
           turnovers: row.turnovers,
           fantasy_points: row.fantasy_points
@@ -486,13 +486,13 @@ export const fetchAllTimePlayerStats = async (players) => {
     if (!players || players.length === 0) {
       return [];
     }
-    
+
     const team1Players = players.filter(p => p.team === 'team1');
     const team2Players = players.filter(p => p.team === 'team2');
-    
+
     // Limit to 200 players max for safety
     const limitedPlayers = players.slice(0, 500);
-    
+
     // Fetch all player stats from Supabase
     // We need to query each player-season combination
     const fetchPromises = limitedPlayers.map(async (player) => {
@@ -502,30 +502,30 @@ export const fetchAllTimePlayerStats = async (players) => {
         .eq('player_id', parseInt(player.id))
         .eq('season', player.season)
         .single();
-      
+
       if (error) {
         console.error(`Error fetching player ${player.id} season ${player.season}:`, error);
         return null;
       }
-      
+
       return data;
     });
-    
+
     const results = await Promise.all(fetchPromises);
     const validResults = results.filter(r => r !== null);
-    
+
     // Fetch player info for additional data
     const playerIds = [...new Set(validResults.map(r => r.player_id))];
     const { data: playerInfo } = await supabase
       .from('alltime_player_info')
       .select('player_id, position')
       .in('player_id', playerIds.slice(0, 200));
-    
+
     const playerInfoMap = (playerInfo || []).reduce((acc, info) => {
       acc[info.player_id] = info;
       return acc;
     }, {});
-    
+
     const playerStats = validResults.map(row => {
       const info = playerInfoMap[row.player_id] || {};
       return {
@@ -557,22 +557,22 @@ export const fetchAllTimePlayerStats = async (players) => {
         }
       };
     });
-    
+
     const calculateTeamStats = (teamPlayers, statsResults) => {
-      const teamStats = statsResults.filter(stat => 
+      const teamStats = statsResults.filter(stat =>
         teamPlayers.some(p => parseInt(p.id) === stat.playerId && p.season === stat.season)
       );
-      
+
       if (teamStats.length === 0) {
         return {
           Points: 0, '3pt': 0, Assists: 0, Steals: 0, 'FT%': 0,
           'FG%': 0, Turnovers: 0, Blocks: 0, Rebounds: 0
         };
       }
-      
+
       const avgFG = teamStats.reduce((sum, s) => sum + (s.stats.field_goal_percentage || 0), 0) / teamStats.length;
       const avgFT = teamStats.reduce((sum, s) => sum + (s.stats.free_throw_percentage || 0), 0) / teamStats.length;
-      
+
       return {
         Points: teamStats.reduce((sum, s) => sum + (s.stats.points || 0), 0),
         '3pt': teamStats.reduce((sum, s) => sum + (s.stats.three_pointers || 0), 0),
@@ -585,19 +585,19 @@ export const fetchAllTimePlayerStats = async (players) => {
         Rebounds: teamStats.reduce((sum, s) => sum + (s.stats.rebounds || 0), 0)
       };
     };
-    
+
     const calculateTeamZScores = (teamPlayers, statsResults) => {
-      const teamStats = statsResults.filter(stat => 
+      const teamStats = statsResults.filter(stat =>
         teamPlayers.some(p => parseInt(p.id) === stat.playerId && p.season === stat.season)
       );
-      
+
       if (teamStats.length === 0) {
         return {
           Points: 0, '3pt': 0, Assists: 0, Steals: 0, 'FT%': 0,
           'FG%': 0, Turnovers: 0, Blocks: 0, Rebounds: 0
         };
       }
-      
+
       return {
         Points: teamStats.reduce((sum, s) => sum + (s.stats.points_z || 0), 0),
         '3pt': teamStats.reduce((sum, s) => sum + (s.stats.three_pointers_z || 0), 0),
@@ -610,15 +610,15 @@ export const fetchAllTimePlayerStats = async (players) => {
         Rebounds: teamStats.reduce((sum, s) => sum + (s.stats.rebounds_z || 0), 0)
       };
     };
-    
+
     const calculateTeamContributions = (teamPlayers, statsResults) => {
-      const teamStats = statsResults.filter(stat => 
+      const teamStats = statsResults.filter(stat =>
         teamPlayers.some(p => parseInt(p.id) === stat.playerId && p.season === stat.season)
       );
-      
+
       const contributions = {};
       const categories = ['Points', '3pt', 'Assists', 'Steals', 'FT%', 'FG%', 'Turnovers', 'Blocks', 'Rebounds'];
-      
+
       categories.forEach(category => {
         contributions[category] = teamStats.map(stat => {
           let value = 0;
@@ -633,17 +633,17 @@ export const fetchAllTimePlayerStats = async (players) => {
             case 'Blocks': value = stat.stats.blocks || 0; break;
             case 'Rebounds': value = stat.stats.rebounds || 0; break;
           }
-          
+
           return {
             playerName: stat.playerName,
             value: value
           };
         });
       });
-      
+
       return contributions;
     };
-    
+
     const teamAverages = {
       team1Averages: calculateTeamStats(team1Players, playerStats),
       team2Averages: calculateTeamStats(team2Players, playerStats),
@@ -652,9 +652,9 @@ export const fetchAllTimePlayerStats = async (players) => {
       team1Contributions: calculateTeamContributions(team1Players, playerStats),
       team2Contributions: calculateTeamContributions(team2Players, playerStats)
     };
-    
+
     console.log('Final teamAverages:', teamAverages);
-    
+
     return [
       ...playerStats,
       { teamAverages }
@@ -665,7 +665,7 @@ export const fetchAllTimePlayerStats = async (players) => {
   }
 };
 
-const AFFILIATE_LINKS_MAX = 3;
+const AFFILIATE_LINKS_MAX = 15;
 
 export const fetchAffiliateLinks = async () => {
   try {
@@ -745,7 +745,7 @@ export const fetchLikesCount = async (sanityPostId) => {
 // 4. Add Like (with Deduplication)
 export const addLike = async ({ sanityPostId }) => {
   const userId = getBrowserId();
-  
+
   const { data, error } = await supabase
     .from('post_likes')
     .insert([
@@ -755,6 +755,6 @@ export const addLike = async ({ sanityPostId }) => {
   // If error code is 23505 (Unique Violation), the user already liked it. 
   // We can ignore this error.
   if (error && error.code !== '23505') throw error;
-  
+
   return data;
 };
