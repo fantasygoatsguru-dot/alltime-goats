@@ -3,8 +3,8 @@ import { useParams, Link as RouterLink } from "react-router-dom";
 import { PortableText } from "@portabletext/react";
 import imageUrlBuilder from "@sanity/image-url";
 import { client } from "../sanity/client";
-import { 
-  fetchAffiliateLinks, 
+import {
+  fetchAffiliateLinks,
   recordAffiliateClick,
   fetchCommentsForPost,
   submitComment,
@@ -272,20 +272,20 @@ export default function Post() {
         <Typography variant={isMobile ? "h4" : "h3"} component="h1" sx={{ mb: 1, fontWeight: 800, color: "#222" }}>
           {post.title}
         </Typography>
-        
+
         {/* METADATA & DISCLAIMER SECTION */}
         <Stack spacing={1} sx={{ mb: 3, alignItems: 'center' }}>
           <Typography variant="subtitle1" sx={{ color: "#666" }}>
             {new Date(post.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
           </Typography>
-          
+
           {/* FTC Disclosure: Styled subtly but clearly visible before the content */}
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              fontStyle: 'italic', 
-              color: 'text.secondary', 
-              maxWidth: '600px', 
+          <Typography
+            variant="caption"
+            sx={{
+              fontStyle: 'italic',
+              color: 'text.secondary',
+              maxWidth: '600px',
               lineHeight: 1.4,
               px: 2
             }}
@@ -294,21 +294,21 @@ export default function Post() {
           </Typography>
         </Stack>
 
-        <Button 
-          variant={hasLiked ? "contained" : "outlined"} 
-          onClick={handleLike} 
-          disabled={hasLiked} 
-          sx={{ 
-            borderRadius: 8, 
-            px: 3, 
-            textTransform: 'none', 
+        <Button
+          variant={hasLiked ? "contained" : "outlined"}
+          onClick={handleLike}
+          disabled={hasLiked}
+          sx={{
+            borderRadius: 8,
+            px: 3,
+            textTransform: 'none',
             fontSize: '1rem',
             borderColor: hasLiked ? 'transparent' : '#ddd',
             color: hasLiked ? '#fff' : '#555',
             "&.Mui-disabled": {
-               bgcolor: "#1976d2",
-               color: "#fff",
-               opacity: 0.8
+              bgcolor: "#1976d2",
+              color: "#fff",
+              opacity: 0.8
             }
           }}
         >
@@ -316,7 +316,7 @@ export default function Post() {
         </Button>
       </Box>
 
-      <Box sx={{ mx: "auto", "& p": { lineHeight: 1.8, fontSize: "1.15rem", color: "#333", mb: 3 }, "& h2, & h3": { mt: 5, mb: 2.5, fontWeight: 700, color: "#111" }, "& img": { mx: "auto" } }}>
+      <Box sx={{ mx: "auto", "& p, & p strong, & li, & li strong": { lineHeight: 1.8, fontSize: "1.15rem", color: "#333", mb: 3 }, "& h2, & h3": { mt: 5, mb: 2.5, fontWeight: 700, color: "#111" }, "& img": { mx: "auto" } }}>
         {Array.isArray(post.body) && post.body.map((block, i) => (
           <React.Fragment key={block._key || i}>
             <PortableText value={[block]} components={ptComponents} />
@@ -329,14 +329,14 @@ export default function Post() {
 
       {/* --- COMMENTS SECTION --- */}
       <Box component="section" sx={{ pb: 8 }}>
-        <Box 
+        <Box
           onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
-          sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            mb: 4, 
-            borderBottom: '2px solid #f0f0f0', 
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: 4,
+            borderBottom: '2px solid #f0f0f0',
             pb: 1,
             cursor: 'pointer',
             '&:hover': { bgcolor: 'rgba(0,0,0,0.02)' }
@@ -352,18 +352,18 @@ export default function Post() {
           </Box>
 
           <IconButton size="small">
-             {isCommentsExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            {isCommentsExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </Box>
 
         <Collapse in={isCommentsExpanded} timeout="auto" unmountOnExit>
-          <Paper 
-            elevation={0} 
-            sx={{ 
-              p: 3, 
-              bgcolor: '#fff', 
-              border: '1px solid #e0e0e0', 
-              borderRadius: 3, 
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              bgcolor: '#fff',
+              border: '1px solid #e0e0e0',
+              borderRadius: 3,
               mb: 6,
               boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
             }}
@@ -371,34 +371,34 @@ export default function Post() {
             <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 700, color: '#444' }}>
               Leave a comment
             </Typography>
-            <TextField 
-              fullWidth 
-              label="Name" 
-              variant="outlined" 
-              size="small" 
+            <TextField
+              fullWidth
+              label="Name"
+              variant="outlined"
+              size="small"
               sx={{ mb: 2, bgcolor: 'white' }}
               value={commentForm.name}
               onChange={(e) => setCommentForm({ ...commentForm, name: e.target.value })}
             />
-            <TextField 
-              fullWidth 
-              multiline 
-              rows={3} 
-              label="What are your thoughts?" 
-              variant="outlined" 
-              sx={{ mb: 2, bgcolor: 'white' }} 
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label="What are your thoughts?"
+              variant="outlined"
+              sx={{ mb: 2, bgcolor: 'white' }}
               value={commentForm.body}
               onChange={(e) => setCommentForm({ ...commentForm, body: e.target.value })}
             />
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 onClick={handleCommentSubmit}
                 disabled={isSubmitting || !commentForm.name || !commentForm.body}
                 endIcon={<SendIcon />}
-                sx={{ 
-                  textTransform: 'none', 
-                  fontWeight: 700, 
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 700,
                   px: 3,
                   borderRadius: 2
                 }}
@@ -410,21 +410,21 @@ export default function Post() {
 
           <Stack spacing={3}>
             {comments.map((comment, index) => (
-              <Paper 
-                key={comment.id || index} 
+              <Paper
+                key={comment.id || index}
                 elevation={0}
-                sx={{ 
-                  display: 'flex', 
-                  gap: 2.5, 
-                  p: 3, 
-                  bgcolor: '#f8f9fa', 
+                sx={{
+                  display: 'flex',
+                  gap: 2.5,
+                  p: 3,
+                  bgcolor: '#f8f9fa',
                   borderRadius: 3,
                   border: '1px solid #f0f0f0'
                 }}
               >
-                <Avatar 
-                  sx={{ 
-                    background: 'linear-gradient(135deg, #1976d2 0%, #64b5f6 100%)', 
+                <Avatar
+                  sx={{
+                    background: 'linear-gradient(135deg, #1976d2 0%, #64b5f6 100%)',
                     color: '#fff',
                     width: 48,
                     height: 48,
@@ -433,7 +433,7 @@ export default function Post() {
                 >
                   {comment.author_name ? comment.author_name[0].toUpperCase() : "?"}
                 </Avatar>
-                
+
                 <Box sx={{ flex: 1 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#111' }}>
@@ -450,7 +450,7 @@ export default function Post() {
               </Paper>
             ))}
           </Stack>
-          
+
           {comments.length === 0 && (
             <Box sx={{ textAlign: 'center', py: 6, opacity: 0.6 }}>
               <Typography variant="h6" sx={{ color: '#ccc', fontWeight: 600 }}>

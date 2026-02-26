@@ -11,7 +11,7 @@ export default function MarkdownBlockRenderer({ value }) {
         my: 4,
         overflowX: "auto",
         color: "#333", // Default text color
-        "& p, & li": {
+        "& p, & li, & span, & strong, & b, & em, & i": {
           lineHeight: 1.8,
           fontSize: "1.15rem",
           color: "#333",
