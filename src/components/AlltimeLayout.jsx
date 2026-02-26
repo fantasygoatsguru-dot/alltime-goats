@@ -19,7 +19,6 @@ import {
   ClickAwayListener,
   Collapse,
   useMediaQuery,
-  Stack,
   useTheme,
 } from '@mui/material';
 import { Logout, ExpandMore } from '@mui/icons-material';
@@ -631,6 +630,7 @@ const AlltimeLayout = () => {
     if (p === '/season-games') return <SeasonGames />;
     if (p === '/rankings') return <Rankings />;
     if (p === '/chat') return <FantasyChat />;
+    if (p === '/posts') return <Posts />;
     if (p === '/playoffs') return <LeaguePlayoffs />;
     if (p === '/nba-playoffs') return <NBAPlayoffs />;
     if (p === '/my-league-playoffs') return <MyLeaguePlayoffs />;
@@ -698,7 +698,7 @@ const AlltimeLayout = () => {
           </Box>
 
           {/* DESKTOP NAV */}
-{!isMobile && (
+          {!isMobile && (
             <Box sx={{ display: 'flex', gap: 1.5 }}>
               {navItems.map((item) => {
                 const submenuMap = { 
@@ -709,13 +709,7 @@ const AlltimeLayout = () => {
                 };
 
                 const config = submenuMap[item.path];
-                
-                // FIXED LOGIC: Keep "Posts" active if we are on the posts list OR a single post page
-                const isActive = 
-                  location.pathname === item.path || 
-                  (item.path === '/matchup' && location.pathname === '/') ||
-                  (item.path === '/posts' && location.pathname.startsWith('/post'));
-
+                const isActive = location.pathname === item.path || (item.path === '/matchup' && location.pathname === '/');
                 const isSubmenuActive = config && config.submenu.some(s => s.path === location.pathname);
 
                 return item.hasSubmenu ? (
@@ -1008,7 +1002,7 @@ const AlltimeLayout = () => {
           </Box>
         </Box>
 
- {/* MOBILE MENU */}
+        {/* MOBILE MENU */}
         <Menu
           anchorEl={mobileMenuAnchor}
           open={Boolean(mobileMenuAnchor)}
@@ -1030,12 +1024,6 @@ const AlltimeLayout = () => {
             const submenu = submenuMap[item.path];
             const isExpanded = mobileExpandedMenu === item.path;
 
-            // Updated mobile active logic
-            const isActive = 
-              location.pathname === item.path || 
-              (item.path === '/matchup' && location.pathname === '/') ||
-              (item.path === '/posts' && location.pathname.startsWith('/post'));
-
             return !item.hasSubmenu ? (
               <MenuItem 
                 key={item.path} 
@@ -1050,17 +1038,13 @@ const AlltimeLayout = () => {
                   py: 2, 
                   px: 2.5,
                   gap: 2.5,
-                  bgcolor: isActive ? 'rgba(74,144,226,0.15)' : 'transparent',
-                  borderLeft: isActive ? '4px solid #4a90e2' : '4px solid transparent',
                   opacity: (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium) ? 0.5 : 1,
                 }}
               >
                 <Box sx={{ width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <IconWrapper>{item.icon}</IconWrapper>
                 </Box>
-                <Typography fontWeight={isActive ? 800 : 600} fontSize="0.95rem" color={isActive ? 'primary.main' : 'inherit'}>
-                  {item.label}
-                </Typography>
+                <Typography fontWeight={600} fontSize="0.95rem">{item.label}</Typography>
                 {((item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium)) && (
                   <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
                     Locked
@@ -1097,7 +1081,7 @@ const AlltimeLayout = () => {
                   <Box sx={{ bgcolor: 'rgba(0,0,0,0.02)' }}>
                     {submenu.map((sub) => {
                       const isDisabled = (sub.requiresAuth && !isAuthenticated) || (sub.requiresPremium && !isPremium);
-                      const isSubActive = location.pathname === sub.path;
+                      const isActive = location.pathname === sub.path;
                       const needsAuth = sub.requiresAuth && !isAuthenticated;
                       const needsPremium = sub.requiresPremium && !isPremium;
                       
@@ -1111,8 +1095,8 @@ const AlltimeLayout = () => {
                             pr: 2.5,
                             py: 2, 
                             gap: 2.5,
-                            bgcolor: isSubActive ? 'rgba(74,144,226,0.15)' : 'transparent',
-                            borderLeft: isSubActive ? '3px solid #4a90e2' : '3px solid transparent',
+                            bgcolor: isActive ? 'rgba(74,144,226,0.15)' : 'transparent',
+                            borderLeft: isActive ? '3px solid #4a90e2' : '3px solid transparent',
                             opacity: isDisabled ? 0.5 : 1,
                             '&:hover': {
                               bgcolor: isDisabled ? 'transparent' : 'rgba(74,144,226,0.08)',
@@ -1122,7 +1106,7 @@ const AlltimeLayout = () => {
                           <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.2rem' }}>
                             {sub.icon}
                           </Box>
-                          <Typography fontSize="0.9rem" fontWeight={isSubActive ? 600 : 400}>
+                          <Typography fontSize="0.9rem" fontWeight={isActive ? 600 : 400}>
                             {sub.label}
                           </Typography>
                           {isDisabled && (needsAuth ? sub.tooltip : needsPremium ? 'Premium' : '') && (
@@ -1181,53 +1165,14 @@ const AlltimeLayout = () => {
       </Container>  
 
       {/* <AffiliateOffersButton /> */}
-<Box 
-  component="footer" 
-  sx={{ 
-    py: 2.5, 
-    textAlign: 'center', 
-    borderTop: '1px solid #f0f0f0', 
-    bgcolor: '#fafafa' // Slight off-white to distinguish from content
-  }}
->
-  <Container maxWidth="md">
-    <Stack 
-      direction={{ xs: 'column', sm: 'row' }} 
-      spacing={{ xs: 1, sm: 2 }} 
-      justifyContent="center" 
-      alignItems="center"
-      divider={isMobile ? null : <Typography variant="caption" color="text.disabled">|</Typography>}
-    >
-      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-        © {new Date().getFullYear()} Fantasy Goats Guru
-      </Typography>
-
-      <Link 
-        component={RouterLink} 
-        to="/privacy-policy" 
-        variant="caption"
-        sx={{ 
-          color: 'text.secondary', 
-          textDecoration: 'none', 
-          '&:hover': { color: 'primary.main', textDecoration: 'underline' } 
-        }}
-      >
-        Privacy Policy
-      </Link>
-
-      <Typography 
-        variant="caption" 
-        sx={{ 
-          color: 'text.secondary', 
-          fontStyle: 'italic',
-          fontSize: '0.8rem' 
-        }}
-      >
-        As an Amazon Associate I earn from qualifying purchases.
-      </Typography>
-    </Stack>
-  </Container>
-</Box>
+      <Box component="footer" sx={{ py: 3, textAlign: 'center', borderTop: '1px solid #e0e0e0', bgcolor: '#fff' }}>
+        <Typography variant="caption" color="text.secondary" display="block">
+          © {new Date().getFullYear()} Fantasy Goats Guru ·{' '}
+          <Link component={RouterLink} to="/privacy-policy" color="primary" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+            Privacy Policy
+          </Link>
+        </Typography>
+      </Box>
     </Box>
   );
 };
