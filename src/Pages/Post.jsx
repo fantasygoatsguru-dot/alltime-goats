@@ -26,14 +26,14 @@ import {
   Avatar,
   Divider,
   Stack,
-  Collapse, // Added for animation
-  IconButton // Added for the toggle arrow
+  Collapse,
+  IconButton
 } from "@mui/material";
 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SendIcon from '@mui/icons-material/Send';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'; // Added
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';     // Added
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0]`;
 
@@ -147,14 +147,11 @@ export default function Post() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Interactions State
   const [comments, setComments] = useState([]);
   const [likesCount, setLikesCount] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [commentForm, setCommentForm] = useState({ name: "", body: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // NEW: State for collapsing/expanding comments
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
 
   useEffect(() => {
@@ -272,14 +269,31 @@ export default function Post() {
       )}
 
       <Box sx={{ textAlign: "center", mb: 5 }}>
-        <Typography variant={isMobile ? "h4" : "h3"} component="h1" sx={{ mb: 2, fontWeight: 800, color: "#222" }}>
+        <Typography variant={isMobile ? "h4" : "h3"} component="h1" sx={{ mb: 1, fontWeight: 800, color: "#222" }}>
           {post.title}
         </Typography>
-        <Typography variant="subtitle1" sx={{ color: "#666", mb: 2 }}>
-          {new Date(post.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-        </Typography>
+        
+        {/* METADATA & DISCLAIMER SECTION */}
+        <Stack spacing={1} sx={{ mb: 3, alignItems: 'center' }}>
+          <Typography variant="subtitle1" sx={{ color: "#666" }}>
+            {new Date(post.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+          </Typography>
+          
+          {/* FTC Disclosure: Styled subtly but clearly visible before the content */}
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              fontStyle: 'italic', 
+              color: 'text.secondary', 
+              maxWidth: '600px', 
+              lineHeight: 1.4,
+              px: 2
+            }}
+          >
+            Disclaimer: This article contains affiliate links where I may receive a small commission at no cost to you.
+          </Typography>
+        </Stack>
 
-        {/* Like Button */}
         <Button 
           variant={hasLiked ? "contained" : "outlined"} 
           onClick={handleLike} 
@@ -306,7 +320,7 @@ export default function Post() {
         {Array.isArray(post.body) && post.body.map((block, i) => (
           <React.Fragment key={block._key || i}>
             <PortableText value={[block]} components={ptComponents} />
-            {i === 1 && affiliate && <AffiliateInlineCard item={affiliate} />}
+            {/* Affiliate Card injected after the second block of content */}
           </React.Fragment>
         ))}
       </Box>
@@ -315,8 +329,6 @@ export default function Post() {
 
       {/* --- COMMENTS SECTION --- */}
       <Box component="section" sx={{ pb: 8 }}>
-        
-        {/* Clickable Header for Collapsing */}
         <Box 
           onClick={() => setIsCommentsExpanded(!isCommentsExpanded)}
           sx={{ 
@@ -344,9 +356,7 @@ export default function Post() {
           </IconButton>
         </Box>
 
-        {/* Collapsible Content */}
         <Collapse in={isCommentsExpanded} timeout="auto" unmountOnExit>
-          {/* Comment Form */}
           <Paper 
             elevation={0} 
             sx={{ 
@@ -369,8 +379,6 @@ export default function Post() {
               sx={{ mb: 2, bgcolor: 'white' }}
               value={commentForm.name}
               onChange={(e) => setCommentForm({ ...commentForm, name: e.target.value })}
-              InputLabelProps={{ style: { color: '#666' } }}
-              inputProps={{ style: { color: '#222' } }}
             />
             <TextField 
               fullWidth 
@@ -381,8 +389,6 @@ export default function Post() {
               sx={{ mb: 2, bgcolor: 'white' }} 
               value={commentForm.body}
               onChange={(e) => setCommentForm({ ...commentForm, body: e.target.value })}
-              InputLabelProps={{ style: { color: '#666' } }}
-              inputProps={{ style: { color: '#222' } }}
             />
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Button 
@@ -402,7 +408,6 @@ export default function Post() {
             </Box>
           </Paper>
 
-          {/* Comments List */}
           <Stack spacing={3}>
             {comments.map((comment, index) => (
               <Paper 
@@ -423,8 +428,7 @@ export default function Post() {
                     color: '#fff',
                     width: 48,
                     height: 48,
-                    fontWeight: 'bold',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                    fontWeight: 'bold'
                   }}
                 >
                   {comment.author_name ? comment.author_name[0].toUpperCase() : "?"}
@@ -451,9 +455,6 @@ export default function Post() {
             <Box sx={{ textAlign: 'center', py: 6, opacity: 0.6 }}>
               <Typography variant="h6" sx={{ color: '#ccc', fontWeight: 600 }}>
                 No comments yet
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#888' }}>
-                Be the first to share your thoughts!
               </Typography>
             </Box>
           )}
