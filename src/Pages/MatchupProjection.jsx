@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, Alert, FormControl, Select, MenuItem, CircularProgress, Tooltip } from "@mui/material";
+import { Box, Typography, Alert, FormControl, Select, MenuItem, CircularProgress, Tooltip, Grid } from "@mui/material";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
@@ -13,23 +13,28 @@ const MatchupProjection = () => {
     const { user, isAuthenticated, ensureValidToken } = useAuth();
     const userId = user?.userId || null;
     const isConnected = isAuthenticated;
-    
-    const { selectedLeague, userLeagues, currentMatchup: contextMatchup, setCurrentMatchup: setContextMatchup } = useLeague();
-    
+
+    const { selectedLeague, userLeagues, currentMatchup: contextMatchup, setCurrentMatchup: setContextMatchup, leagueTeams, setLeagueTeams } = useLeague();
+
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
     const [periodLoading, setPeriodLoading] = useState(false);
     const [error, setError] = useState(null);
-    
+
     const [currentMatchup, setCurrentMatchup] = useState(null);
     const [matchupProjection, setMatchupProjection] = useState(null);
     const [scheduleData, setScheduleData] = useState(null);
     const [periodType, setPeriodType] = useState('season');
+
+    const [allLeagueTeams, setAllLeagueTeams] = useState([]);
+    const [selectedTeam1, setSelectedTeam1] = useState("");
+    const [selectedTeam2, setSelectedTeam2] = useState("");
+    const [loadingTeams, setLoadingTeams] = useState(false);
     const [disabledPlayers, setDisabledPlayers] = useState(() => {
         const saved = localStorage.getItem('disabledPlayers');
         return saved ? JSON.parse(saved) : {};
     });
-    
+
     const hasInitialized = useRef(false);
     const loadingTimeoutRef = useRef(null);
 
@@ -70,7 +75,7 @@ const MatchupProjection = () => {
         setError(null);
         try {
             sessionStorage.setItem('oauth_return_path', '/matchup-projection');
-            
+
             const data = await callSupabaseFunction("yahoo-oauth", {
                 action: "authorize",
                 isDev: isDev,
@@ -87,9 +92,9 @@ const MatchupProjection = () => {
     };
 
     const handlePlayerStatusChange = (playerId, newStatus, dateStr = null) => {
-        
+
         const updatedDisabledPlayers = { ...disabledPlayers };
-        
+
         if (newStatus === 'enabled') {
             updatedDisabledPlayers[playerId] = 'enabled';
         } else if (newStatus === 'disabledForDay' && dateStr) {
@@ -110,10 +115,10 @@ const MatchupProjection = () => {
         } else {
             updatedDisabledPlayers[playerId] = newStatus;
         }
-        
+
         setDisabledPlayers(updatedDisabledPlayers);
         localStorage.setItem('disabledPlayers', JSON.stringify(updatedDisabledPlayers));
-        
+
         recalculateProjectionWithDisabledPlayers(updatedDisabledPlayers);
     };
 
@@ -137,11 +142,11 @@ const MatchupProjection = () => {
 
                 const updatedPlayers = day.players.map(player => {
                     const autoDisabled = isPlayerAutoDisabled(player);
-                    
+
                     const playerDisableStatus = updatedDisabledPlayers[player.id];
                     let manuallyDisabled = false;
                     let manuallyEnabled = false;
-                    
+
                     if (playerDisableStatus === 'enabled') {
                         manuallyEnabled = true;
                     } else if (playerDisableStatus === 'disabled' || playerDisableStatus === 'disabledForWeek') {
@@ -153,7 +158,7 @@ const MatchupProjection = () => {
                             manuallyDisabled = true;
                         }
                     }
-                    
+
                     const isDisabled = manuallyEnabled ? false : (autoDisabled || manuallyDisabled);
 
                     if (!isDisabled) {
@@ -192,11 +197,11 @@ const MatchupProjection = () => {
         let team2Score = 0;
 
         const categories = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers', 'turnovers'];
-        
+
         categories.forEach(cat => {
             const team1Total = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals[cat] || 0), 0);
             const team2Total = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals[cat] || 0), 0);
-            
+
             let winner = 'Tie';
             if (cat === 'turnovers') {
                 if (team1Total < team2Total) { winner = team1Updated.name; team1Score++; }
@@ -205,7 +210,7 @@ const MatchupProjection = () => {
                 if (team1Total > team2Total) { winner = team1Updated.name; team1Score++; }
                 else if (team2Total > team1Total) { winner = team2Updated.name; team2Score++; }
             }
-            
+
             categoryResults[cat] = { team1: team1Total, team2: team2Total, winner };
         });
 
@@ -214,14 +219,14 @@ const MatchupProjection = () => {
         const team1FgAttempted = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsAttempted || 0), 0);
         const team2FgMade = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsMade || 0), 0);
         const team2FgAttempted = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.fieldGoalsAttempted || 0), 0);
-        
+
         const t1FgPct = team1FgAttempted > 0 ? (team1FgMade / team1FgAttempted) * 100 : 0;
         const t2FgPct = team2FgAttempted > 0 ? (team2FgMade / team2FgAttempted) * 100 : 0;
-        
+
         let fgWinner = 'Tie';
         if (t1FgPct > t2FgPct) { fgWinner = team1Updated.name; team1Score++; }
         else if (t2FgPct > t1FgPct) { fgWinner = team2Updated.name; team2Score++; }
-        
+
         categoryResults.fieldGoalPercentage = {
             winner: fgWinner,
             team1: t1FgPct,
@@ -237,14 +242,14 @@ const MatchupProjection = () => {
         const team1FtAttempted = team1Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsAttempted || 0), 0);
         const team2FtMade = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsMade || 0), 0);
         const team2FtAttempted = team2Updated.dailyProjections.reduce((sum, day) => sum + (day.totals.freeThrowsAttempted || 0), 0);
-        
+
         const t1FtPct = team1FtAttempted > 0 ? (team1FtMade / team1FtAttempted) * 100 : 0;
         const t2FtPct = team2FtAttempted > 0 ? (team2FtMade / team2FtAttempted) * 100 : 0;
-        
+
         let ftWinner = 'Tie';
         if (t1FtPct > t2FtPct) { ftWinner = team1Updated.name; team1Score++; }
         else if (t2FtPct > t1FtPct) { ftWinner = team2Updated.name; team2Score++; }
-        
+
         categoryResults.freeThrowPercentage = {
             winner: ftWinner,
             team1: t1FtPct,
@@ -293,6 +298,8 @@ const MatchupProjection = () => {
             // Use matchup from context if available
             if (contextMatchup) {
                 setCurrentMatchup(contextMatchup);
+                setSelectedTeam1(contextMatchup.team1.name);
+                setSelectedTeam2(contextMatchup.team2.name);
                 setInitialLoading(false);
                 return;
             }
@@ -311,6 +318,8 @@ const MatchupProjection = () => {
                         setContextMatchup(data.matchup);
                     }
                     setCurrentMatchup(data.matchup);
+                    setSelectedTeam1(data.matchup.team1.name);
+                    setSelectedTeam2(data.matchup.team2.name);
                 }
             } catch (err) {
                 console.error("Error fetching current matchup:", err);
@@ -325,15 +334,94 @@ const MatchupProjection = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isConnected, selectedLeague, userId, contextMatchup, setContextMatchup]);
 
+    // Fetch all league teams for dropdowns
+    useEffect(() => {
+        const fetchAllTeams = async () => {
+            if (!isConnected || !selectedLeague || !userId) return;
+
+            // Use leagueTeams from context if available
+            if (leagueTeams && leagueTeams.length > 0) {
+                setAllLeagueTeams(leagueTeams);
+                return;
+            }
+
+            setLoadingTeams(true);
+            try {
+                const data = await callSupabaseFunction("yahoo-fantasy-api", {
+                    action: "getAllTeamsInLeague",
+                    userId: userId,
+                    leagueId: selectedLeague,
+                });
+
+                if (data.teams && data.teams.length > 0) {
+                    setAllLeagueTeams(data.teams);
+                    if (setLeagueTeams) {
+                        setLeagueTeams(data.teams);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching all league teams:", err);
+            } finally {
+                setLoadingTeams(false);
+            }
+        };
+
+        if (isConnected && selectedLeague && userId) {
+            fetchAllTeams();
+        }
+    }, [isConnected, selectedLeague, userId, leagueTeams, setLeagueTeams]);
+
+    const handleTeamSelect = async (teamPosition, teamName) => {
+        if (!currentMatchup || !allLeagueTeams.length) return;
+
+        const newTeam1Name = teamPosition === "team1" ? teamName : (selectedTeam1 || currentMatchup.team1.name);
+        const newTeam2Name = teamPosition === "team2" ? teamName : (selectedTeam2 || currentMatchup.team2.name);
+
+        setSelectedTeam1(newTeam1Name);
+        setSelectedTeam2(newTeam2Name);
+
+        // Check if we reverted back to the exact original matchup
+        if (contextMatchup && newTeam1Name === contextMatchup.team1.name && newTeam2Name === contextMatchup.team2.name) {
+            setCurrentMatchup(contextMatchup);
+            return;
+        }
+
+        const team1Data = allLeagueTeams.find(t => t.name === newTeam1Name);
+        const team2Data = allLeagueTeams.find(t => t.name === newTeam2Name);
+
+        if (!team1Data || !team2Data) return;
+
+        setLoading(true);
+        try {
+            const data = await callSupabaseFunction("yahoo-fantasy-api", {
+                action: "getCustomMatchup",
+                userId: userId,
+                leagueId: selectedLeague,
+                team1Key: team1Data.key,
+                team2Key: team2Data.key,
+                week: currentMatchup.week
+            });
+
+            if (data.matchup) {
+                setCurrentMatchup(data.matchup);
+            }
+        } catch (err) {
+            console.error("Error fetching custom matchup:", err);
+            setError(err.message || "Failed to fetch custom matchup");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Calculate matchup projection
     const calculateMatchupProjection = async (matchup) => {
         if (!scheduleData || !matchup) {
             console.log('Cannot calculate projection:', { hasScheduleData: !!scheduleData, hasMatchup: !!matchup });
             return;
         }
-        
+
         console.log('Calculating matchup projection for:', matchup.team1.name, 'vs', matchup.team2.name);
-    
+
         try {
             // Get YYYY-MM-DD directly in Eastern Time
             const getEasternDateString = (date) => {
@@ -346,13 +434,13 @@ const MatchupProjection = () => {
                 // parts = [MM, DD, YYYY]
                 return `${parts[2]}-${parts[0]}-${parts[1]}`;
             };
-    
+
             // Get current matchup week dates (Monday to Sunday) in Eastern Time
             const getCurrentWeekDates = () => {
                 const now = new Date();
-                
+
                 // Get current date/time components in Eastern Time
-                const easternTimeString = now.toLocaleString('en-US', { 
+                const easternTimeString = now.toLocaleString('en-US', {
                     timeZone: 'America/New_York',
                     year: 'numeric',
                     month: '2-digit',
@@ -362,14 +450,14 @@ const MatchupProjection = () => {
                     second: '2-digit',
                     hour12: false
                 });
-                
+
                 const [datePart, timePart] = easternTimeString.split(', ');
                 const [month, day, year] = datePart.split('/');
                 const [hour, minute, second] = timePart.split(':');
-                
+
                 // Create date object representing "today" in Eastern Time
                 const easternNow = new Date(year, month - 1, day, hour, minute, second);
-                
+
                 const dayOfWeek = easternNow.getDay();
                 // Monday = 1, Sunday = 0 → move so that Monday is start of week
                 const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -386,10 +474,10 @@ const MatchupProjection = () => {
 
                 return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
             };
-    
+
             const { weekStart, weekEnd, currentDate, todayDateStr } = getCurrentWeekDates();
-            
-    
+
+
             // Get player IDs and their NBA teams
             const getPlayerTeams = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
@@ -399,9 +487,9 @@ const MatchupProjection = () => {
                     .from('yahoo_nba_mapping')
                     .select('nba_id, yahoo_id, name, team')
                     .or(`nba_id.in.(${playerIds.join(',')}),yahoo_id.in.(${playerIds.join(',')})`);
-    
+
                 if (error) throw error;
-    
+
                 return players.map(p => {
                     const playerId = p.nbaPlayerId || p.yahooPlayerId || p.id;
                     const playerInfo = data.find(pi => pi.nba_id === playerId || pi.yahoo_id === playerId);
@@ -412,12 +500,12 @@ const MatchupProjection = () => {
                     };
                 });
             };
-    
+
             // Get player averages
             const getPlayerAverages = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
                 if (playerIds.length === 0) return {};
-    
+
                 const { data, error } = await supabase
                     .from('player_period_averages')
                     .select('*')
@@ -426,7 +514,7 @@ const MatchupProjection = () => {
                     .in('player_id', playerIds);
 
                 if (error) throw error;
-    
+
                 const averages = {};
                 data.forEach(row => {
                     averages[row.player_id] = {
@@ -443,15 +531,15 @@ const MatchupProjection = () => {
                         freeThrowsAttempted: row.free_throws_attempted_per_game || 0,
                     };
                 });
-    
+
                 return averages;
             };
-    
+
             // Get actual stats for games already played this week (BEFORE today)
             const getActualStats = async (players) => {
                 const playerIds = players.map(p => p.nbaPlayerId || p.yahooPlayerId || p.id).filter(Boolean);
                 if (playerIds.length === 0) return {};
-    
+
                 const { data, error } = await supabase
                     .from('player_game_logs')
                     .select('*')
@@ -460,9 +548,9 @@ const MatchupProjection = () => {
                     .gte('game_date', weekStart.toISOString().split('T')[0])
                     .lt('game_date', todayDateStr)
                     .order('game_date', { ascending: true });
-    
+
                 if (error) throw error;
-    
+
                 const stats = {};
                 data.forEach(game => {
                     if (!stats[game.player_id]) {
@@ -487,25 +575,25 @@ const MatchupProjection = () => {
                     stats[game.player_id].freeThrowsAttempted += game.free_throws_attempted || 0;
                     stats[game.player_id].gamesPlayed += 1;
                 });
-    
+
                 return stats;
             };
-    
+
             const team1WithTeams = await getPlayerTeams(matchup.team1.players);
             const team2WithTeams = await getPlayerTeams(matchup.team2.players);
-    
+
             const team1Averages = await getPlayerAverages(team1WithTeams);
             const team2Averages = await getPlayerAverages(team2WithTeams);
-    
+
             const team1Actual = await getActualStats(team1WithTeams);
             const team2Actual = await getActualStats(team2WithTeams);
-    
+
             const isPlayerAutoDisabled = (player) => {
                 const position = player.selectedPosition || player.selected_position;
                 const status = player.status;
                 return position === 'IL+' || position === 'IL' || status === 'INJ' || status === 'OUT';
             };
-    
+
             // Calculate projected stats with daily breakdown
             const calculateTeamProjection = (players, averages, actualStats) => {
                 const actual = {
@@ -514,25 +602,25 @@ const MatchupProjection = () => {
                     fieldGoalsMade: 0, fieldGoalsAttempted: 0,
                     freeThrowsMade: 0, freeThrowsAttempted: 0
                 };
-                
+
                 const dailyProjections = [];
-                
+
                 // Create all 7 days, using weekStart as the base
                 for (let i = 0; i < 7; i++) {
                     const dayDate = new Date(weekStart);
                     dayDate.setDate(weekStart.getDate() + i);
-                    
+
                     // Get date string in Eastern Time for this day
                     const dateStr = getEasternDateString(dayDate);
                     const dayOfWeek = dayDate.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/New_York' });
                     const monthDay = dayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
-                    
+
                     // Compare date strings directly
                     const isToday = dateStr === todayDateStr;
                     const isPast = dateStr < todayDateStr;
-                    
+
                     console.log(`Day ${i}: ${dateStr} (${dayOfWeek} ${monthDay}), isToday: ${isToday}, isPast: ${isPast}, today: ${todayDateStr}`);
-                    
+
                     const dayStats = {
                         date: dateStr,
                         dayOfWeek,
@@ -547,7 +635,7 @@ const MatchupProjection = () => {
                             freeThrowsMade: 0, freeThrowsAttempted: 0
                         }
                     };
-                    
+
                     // Only process today and future days (not past days)
                     if (!isPast) {
                         players.forEach(player => {
@@ -555,14 +643,14 @@ const MatchupProjection = () => {
                             const playerKey = `${playerId}`;
                             const playerAvg = averages[playerId] || {};
                             const teamsPlaying = scheduleData[dateStr];
-                            
+
                             if (teamsPlaying && player.nbaTeam && teamsPlaying.includes(player.nbaTeam)) {
                                 const autoDisabled = isPlayerAutoDisabled(player);
-                                
+
                                 const playerDisableStatus = disabledPlayers[playerKey];
                                 let manuallyDisabled = false;
                                 let manuallyEnabled = false;
-                                
+
                                 if (playerDisableStatus === 'enabled') {
                                     manuallyEnabled = true;
                                 } else if (playerDisableStatus === 'disabled' || playerDisableStatus === 'disabledForWeek') {
@@ -574,9 +662,9 @@ const MatchupProjection = () => {
                                         manuallyDisabled = true;
                                     }
                                 }
-                                
+
                                 const isDisabled = manuallyEnabled ? false : (autoDisabled || manuallyDisabled);
-                                
+
                                 dayStats.players.push({
                                     id: playerKey,
                                     name: player.playerName || player.name,
@@ -587,7 +675,7 @@ const MatchupProjection = () => {
                                     status: player.status,
                                     selectedPosition: player.selectedPosition || player.selected_position
                                 });
-                                
+
                                 if (!isDisabled) {
                                     dayStats.totals.points += playerAvg.points || 0;
                                     dayStats.totals.rebounds += playerAvg.rebounds || 0;
@@ -604,20 +692,20 @@ const MatchupProjection = () => {
                             }
                         });
                     }
-                    
+
                     dailyProjections.push(dayStats);
                 }
-    
+
                 // Calculate actual stats from games already played (before today)
                 players.forEach(player => {
                     const playerId = player.nbaPlayerId || player.yahooPlayerId || player.id;
                     const playerActual = actualStats[playerId] || {};
-    
+
                     Object.keys(actual).forEach(key => {
                         actual[key] += playerActual[key] || 0;
                     });
                 });
-    
+
                 // Sum up projected stats from today onwards
                 const projected = {
                     points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
@@ -625,7 +713,7 @@ const MatchupProjection = () => {
                     fieldGoalsMade: 0, fieldGoalsAttempted: 0,
                     freeThrowsMade: 0, freeThrowsAttempted: 0
                 };
-                
+
                 dailyProjections.forEach(day => {
                     if (!day.isPast) {
                         Object.keys(projected).forEach(key => {
@@ -633,28 +721,28 @@ const MatchupProjection = () => {
                         });
                     }
                 });
-    
+
                 const total = {};
                 Object.keys(actual).forEach(key => {
                     total[key] = actual[key] + projected[key];
                 });
-    
+
                 return { actual, projected, total, dailyProjections };
             };
-    
+
             const team1Projection = calculateTeamProjection(team1WithTeams, team1Averages, team1Actual);
             const team2Projection = calculateTeamProjection(team2WithTeams, team2Averages, team2Actual);
-    
+
             // Calculate category winners
             const categories = ['points', 'rebounds', 'assists', 'steals', 'blocks', 'threePointers'];
             const categoryResults = {};
             let team1Score = 0;
             let team2Score = 0;
-    
+
             categories.forEach(cat => {
                 const t1 = team1Projection.total[cat];
                 const t2 = team2Projection.total[cat];
-                
+
                 if (t1 > t2) {
                     categoryResults[cat] = { winner: matchup.team1.name, team1: t1, team2: t2 };
                     team1Score++;
@@ -665,17 +753,17 @@ const MatchupProjection = () => {
                     categoryResults[cat] = { winner: 'Tie', team1: t1, team2: t2 };
                 }
             });
-    
+
             // FG%
-            const t1FgPct = team1Projection.total.fieldGoalsAttempted > 0 
-                ? (team1Projection.total.fieldGoalsMade / team1Projection.total.fieldGoalsAttempted) * 100 
+            const t1FgPct = team1Projection.total.fieldGoalsAttempted > 0
+                ? (team1Projection.total.fieldGoalsMade / team1Projection.total.fieldGoalsAttempted) * 100
                 : 0;
-            const t2FgPct = team2Projection.total.fieldGoalsAttempted > 0 
-                ? (team2Projection.total.fieldGoalsMade / team2Projection.total.fieldGoalsAttempted) * 100 
+            const t2FgPct = team2Projection.total.fieldGoalsAttempted > 0
+                ? (team2Projection.total.fieldGoalsMade / team2Projection.total.fieldGoalsAttempted) * 100
                 : 0;
-    
+
             if (t1FgPct > t2FgPct) {
-                categoryResults.fieldGoalPercentage = { 
+                categoryResults.fieldGoalPercentage = {
                     winner: matchup.team1.name, team1: t1FgPct, team2: t2FgPct,
                     team1Made: team1Projection.total.fieldGoalsMade,
                     team1Attempted: team1Projection.total.fieldGoalsAttempted,
@@ -684,7 +772,7 @@ const MatchupProjection = () => {
                 };
                 team1Score++;
             } else if (t2FgPct > t1FgPct) {
-                categoryResults.fieldGoalPercentage = { 
+                categoryResults.fieldGoalPercentage = {
                     winner: matchup.team2.name, team1: t1FgPct, team2: t2FgPct,
                     team1Made: team1Projection.total.fieldGoalsMade,
                     team1Attempted: team1Projection.total.fieldGoalsAttempted,
@@ -693,7 +781,7 @@ const MatchupProjection = () => {
                 };
                 team2Score++;
             } else {
-                categoryResults.fieldGoalPercentage = { 
+                categoryResults.fieldGoalPercentage = {
                     winner: 'Tie', team1: t1FgPct, team2: t2FgPct,
                     team1Made: team1Projection.total.fieldGoalsMade,
                     team1Attempted: team1Projection.total.fieldGoalsAttempted,
@@ -701,17 +789,17 @@ const MatchupProjection = () => {
                     team2Attempted: team2Projection.total.fieldGoalsAttempted
                 };
             }
-    
+
             // FT%
-            const t1FtPct = team1Projection.total.freeThrowsAttempted > 0 
-                ? (team1Projection.total.freeThrowsMade / team1Projection.total.freeThrowsAttempted) * 100 
+            const t1FtPct = team1Projection.total.freeThrowsAttempted > 0
+                ? (team1Projection.total.freeThrowsMade / team1Projection.total.freeThrowsAttempted) * 100
                 : 0;
-            const t2FtPct = team2Projection.total.freeThrowsAttempted > 0 
-                ? (team2Projection.total.freeThrowsMade / team2Projection.total.freeThrowsAttempted) * 100 
+            const t2FtPct = team2Projection.total.freeThrowsAttempted > 0
+                ? (team2Projection.total.freeThrowsMade / team2Projection.total.freeThrowsAttempted) * 100
                 : 0;
-    
+
             if (t1FtPct > t2FtPct) {
-                categoryResults.freeThrowPercentage = { 
+                categoryResults.freeThrowPercentage = {
                     winner: matchup.team1.name, team1: t1FtPct, team2: t2FtPct,
                     team1Made: team1Projection.total.freeThrowsMade,
                     team1Attempted: team1Projection.total.freeThrowsAttempted,
@@ -720,7 +808,7 @@ const MatchupProjection = () => {
                 };
                 team1Score++;
             } else if (t2FtPct > t1FtPct) {
-                categoryResults.freeThrowPercentage = { 
+                categoryResults.freeThrowPercentage = {
                     winner: matchup.team2.name, team1: t1FtPct, team2: t2FtPct,
                     team1Made: team1Projection.total.freeThrowsMade,
                     team1Attempted: team1Projection.total.freeThrowsAttempted,
@@ -729,7 +817,7 @@ const MatchupProjection = () => {
                 };
                 team2Score++;
             } else {
-                categoryResults.freeThrowPercentage = { 
+                categoryResults.freeThrowPercentage = {
                     winner: 'Tie', team1: t1FtPct, team2: t2FtPct,
                     team1Made: team1Projection.total.freeThrowsMade,
                     team1Attempted: team1Projection.total.freeThrowsAttempted,
@@ -737,7 +825,7 @@ const MatchupProjection = () => {
                     team2Attempted: team2Projection.total.freeThrowsAttempted
                 };
             }
-    
+
             // Turnovers
             const t1To = team1Projection.total.turnovers;
             const t2To = team2Projection.total.turnovers;
@@ -750,7 +838,7 @@ const MatchupProjection = () => {
             } else {
                 categoryResults.turnovers = { winner: 'Tie', team1: t1To, team2: t2To };
             }
-    
+
             const projectionData = {
                 weekStart: weekStart.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
                 weekEnd: weekEnd.toLocaleDateString('en-US', { timeZone: 'America/New_York' }),
@@ -767,11 +855,11 @@ const MatchupProjection = () => {
                 team1Score,
                 team2Score
             };
-            
+
             setMatchupProjection(projectionData);
             setInitialLoading(false);
             setPeriodLoading(false);
-    
+
         } catch (error) {
             console.error('Error calculating matchup projection:', error);
             setMatchupProjection(null);
@@ -793,7 +881,7 @@ const MatchupProjection = () => {
 
     if (initialLoading) {
         return (
-            <ReassuringLoader 
+            <ReassuringLoader
                 type="matchup"
                 customMessage="Loading your matchup projection"
                 customSubtext="Gathering player stats, projections, and team data"
@@ -828,82 +916,124 @@ const MatchupProjection = () => {
 
             {/* Header with Title, Tooltip, and Period Selector */}
             {isConnected && currentMatchup && (
-                <Box 
-                    sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between',
-                        mb: 3, 
-                        mt: 2,
-                        pb: 2,
-                        borderBottom: '1px solid #e0e0e0'
-                    }}
-                >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography
-                            variant="h5"
-                            sx={{
-                                fontWeight: 600,
-                                color: '#003366',
-                                fontSize: '1.25rem',
-                            }}
-                        >
-                            Matchup Projection
-                        </Typography>
-                        <Tooltip
-                            title="If players give their average stats for the rest of the week, how will the week end?"
-                            arrow
-                        >
-                            <Box 
-                                sx={{ 
-                                    bgcolor: '#003366', 
-                                    borderRadius: '50%', 
-                                    width: 20, 
-                                    height: 20, 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'center',
-                                    cursor: 'help',
-                                    fontSize: '0.75rem',
-                                    color: '#fff',
+                <Box sx={{ mb: 3, mt: 2, pb: 2, borderBottom: '1px solid #e0e0e0' }}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            mb: 2
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography
+                                variant="h5"
+                                sx={{
                                     fontWeight: 600,
+                                    color: '#003366',
+                                    fontSize: '1.25rem',
                                 }}
                             >
-                                i
-                            </Box>
-                        </Tooltip>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <FormControl size="small" sx={{ minWidth: 140 }}>
-                            <Select
-                                value={periodType}
-                                onChange={(e) => setPeriodType(e.target.value)}
-                                disabled={periodLoading}
-                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
+                                Matchup Projection
+                            </Typography>
+                            <Tooltip
+                                title="If players give their average stats for the rest of the week, how will the week end?"
+                                arrow
                             >
-                                <MenuItem value="season">Full Season</MenuItem>
-                                <MenuItem value="60_days">Last 60 Days</MenuItem>
-                                <MenuItem value="30_days">Last 30 Days</MenuItem>
-                                <MenuItem value="7_days">Last 7 Days</MenuItem>
-                            </Select>
-                        </FormControl>
-                        {periodLoading && (
-                            <CircularProgress size={20} sx={{ color: '#003366' }} />
-                        )}
+                                <Box
+                                    sx={{
+                                        bgcolor: '#003366',
+                                        borderRadius: '50%',
+                                        width: 20,
+                                        height: 20,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: 'help',
+                                        fontSize: '0.75rem',
+                                        color: '#fff',
+                                        fontWeight: 600,
+                                    }}
+                                >
+                                    i
+                                </Box>
+                            </Tooltip>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <FormControl size="small" sx={{ minWidth: 140 }}>
+                                <Select
+                                    value={periodType}
+                                    onChange={(e) => setPeriodType(e.target.value)}
+                                    disabled={periodLoading}
+                                    sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
+                                >
+                                    <MenuItem value="season">Full Season</MenuItem>
+                                    <MenuItem value="60_days">Last 60 Days</MenuItem>
+                                    <MenuItem value="30_days">Last 30 Days</MenuItem>
+                                    <MenuItem value="7_days">Last 7 Days</MenuItem>
+                                </Select>
+                            </FormControl>
+                            {periodLoading && (
+                                <CircularProgress size={20} sx={{ color: '#003366' }} />
+                            )}
+                        </Box>
                     </Box>
+
+                    {/* Team Selection Dropdowns */}
+                    <Grid container spacing={2} sx={{ alignItems: 'center', justifyContent: 'center' }}>
+                        <Grid item xs={12} md={5}>
+                            <FormControl fullWidth size="small">
+                                <Select
+                                    value={selectedTeam1 || currentMatchup.team1.name}
+                                    onChange={(e) => handleTeamSelect("team1", e.target.value)}
+                                    disabled={loadingTeams || periodLoading}
+                                    sx={{ bgcolor: '#fff', fontWeight: 600 }}
+                                >
+                                    {allLeagueTeams.map((team) => (
+                                        <MenuItem key={`team1-${team.key}`} value={team.name}>{team.name}</MenuItem>
+                                    ))}
+                                    {allLeagueTeams.length === 0 && (
+                                        <MenuItem value={currentMatchup.team1.name}>{currentMatchup.team1.name}</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} md={2} sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ color: '#003366', fontWeight: 700 }}>
+                                {loadingTeams ? <CircularProgress size={20} /> : "VS"}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={5}>
+                            <FormControl fullWidth size="small">
+                                <Select
+                                    value={selectedTeam2 || currentMatchup.team2.name}
+                                    onChange={(e) => handleTeamSelect("team2", e.target.value)}
+                                    disabled={loadingTeams || periodLoading}
+                                    sx={{ bgcolor: '#fff', fontWeight: 600 }}
+                                >
+                                    {allLeagueTeams.map((team) => (
+                                        <MenuItem key={`team2-${team.key}`} value={team.name}>{team.name}</MenuItem>
+                                    ))}
+                                    {allLeagueTeams.length === 0 && (
+                                        <MenuItem value={currentMatchup.team2.name}>{currentMatchup.team2.name}</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
                 </Box>
             )}
 
             {/* Matchup Projection Tracker */}
             <Box sx={{ position: 'relative' }}>
                 {periodLoading && (
-                    <Box 
-                        sx={{ 
-                            position: 'absolute', 
-                            top: 0, 
-                            left: 0, 
-                            right: 0, 
-                            bottom: 0, 
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
                             zIndex: 10,
                             display: 'flex',
                             alignItems: 'center',

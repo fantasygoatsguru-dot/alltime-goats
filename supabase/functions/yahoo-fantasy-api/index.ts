@@ -71,7 +71,7 @@ interface YahooPlayerWithStatsDTO {
 // UPDATED: Now auto-refreshes expired tokens
 async function getAccessToken(userId: string): Promise<string> {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-  
+
   const { data: tokenData, error } = await supabase
     .from("yahoo_tokens")
     .select("access_token, refresh_token, expires_at")
@@ -236,7 +236,8 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const { action, userId, leagueId, week } = await req.json();
+    const body = await req.json();
+    const { action, userId, leagueId, week } = body;
 
     if (!userId) throw new Error("User ID is required");
 
@@ -256,8 +257,8 @@ serve(async (req) => {
       );
     }
 
-   
-        // ──────────────────────────────────────────────────────────
+
+    // ──────────────────────────────────────────────────────────
     // 2. Get Current Matchup + RAW FG/FT STRINGS + KEEP % STATS
     // ──────────────────────────────────────────────────────────
     if (action === "getCurrentMatchup") {
@@ -361,7 +362,7 @@ serve(async (req) => {
           { team1: number; team2: number; winner: string }
         >,
       };
-      
+
       team1Stats.forEach((wrapper: any) => {
         const stat = wrapper.stat;
         const statId = stat.stat_id;
@@ -462,6 +463,226 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
+
+    // ──────────────────────────────────────────────────────────
+    // 2.5 Get Custom Matchup (synthesize two arbitrary teams)
+    // ──────────────────────────────────────────────────────────
+    if (action === "getCustomMatchup") {
+      const { team1Key, team2Key } = body;
+      console.log(`[getCustomMatchup] Starting request. Team1: ${team1Key}, Team2: ${team2Key}, Week: ${week}`);
+
+      if (!team1Key || !team2Key) {
+        console.error("[getCustomMatchup] Missing keys in request body");
+        throw new Error("Both team1Key and team2Key are required");
+      }
+
+      // ──────────────────────────────────────────────────────
+      // 1. Fetch matchups for both teams to extract their stats
+      // ──────────────────────────────────────────────────────
+      console.log(`[getCustomMatchup] Fetching matchup data from Yahoo...`);
+      const [team1MatchupResp, team2MatchupResp] = await Promise.all([
+        makeYahooRequest(accessToken, `/team/${team1Key}/matchups;weeks=current`),
+        makeYahooRequest(accessToken, `/team/${team2Key}/matchups;weeks=current`),
+      ]);
+
+      const t1Matchup = team1MatchupResp?.fantasy_content?.team?.matchups?.[0]?.matchup;
+      const t2Matchup = team2MatchupResp?.fantasy_content?.team?.matchups?.[0]?.matchup;
+
+      if (!t1Matchup || !t2Matchup) {
+        console.error(`[getCustomMatchup] Missing matchup data. t1Matchup exists: ${!!t1Matchup}, t2Matchup exists: ${!!t2Matchup}`);
+        console.error("[getCustomMatchup] Team 1 Raw Resp:", JSON.stringify(team1MatchupResp).substring(0, 300));
+        throw new Error("Could not fetch current matchup stats for one or both teams");
+      }
+
+      const extractTeamFromMatchup = (matchup: any, queryTeamKey: string) => {
+        const teams = matchup.teams || [];
+        const found = teams.find((t: any) => t.team.team_key === queryTeamKey);
+        if (!found) {
+          const availableKeys = teams.map((t: any) => t?.team?.team_key);
+          console.error(`[getCustomMatchup] Team ${queryTeamKey} not found in matchup. Available keys:`, availableKeys);
+          throw new Error(`Could not find team ${queryTeamKey} in its own matchup`);
+        }
+        return found.team;
+      };
+
+      const team1Raw = extractTeamFromMatchup(t1Matchup, team1Key);
+      const team2Raw = extractTeamFromMatchup(t2Matchup, team2Key);
+      console.log(`[getCustomMatchup] Successfully extracted raw teams: ${team1Raw.name} vs ${team2Raw.name}`);
+
+      // ──────────────────────────────────────────────────────
+      // 2. Fetch rosters (contains raw FG/FT per player)
+      // ──────────────────────────────────────────────────────
+      console.log(`[getCustomMatchup] Fetching rosters...`);
+      const [team1RosterResp, team2RosterResp] = await Promise.all([
+        makeYahooRequest(accessToken, `/team/${team1Key}/roster`),
+        makeYahooRequest(accessToken, `/team/${team2Key}/roster`),
+      ]);
+
+      // ──────────────────────────────────────────────────────
+      // 3. Sum raw FG/FT → return as "FGM/FGA" and "FTM/FTA" strings
+      // ──────────────────────────────────────────────────────
+      const sumRawFgFtStrings = (rosterResp: any, teamName: string) => {
+        const players = rosterResp?.fantasy_content?.team?.roster?.players || [];
+        console.log(`[getCustomMatchup] Found ${players.length} players for ${teamName} to calculate raw FG/FT`);
+
+        let FGM = 0, FGA = 0, FTM = 0, FTA = 0;
+
+        players.forEach((p: any) => {
+          if (!p?.player) return;
+          const stats = p.player?.player_stats?.stats || [];
+          stats.forEach((s: any) => {
+            const id = s.stat?.stat_id;
+            const val = parseInt(s.stat?.value, 10) || 0;
+            if (id === '5') FGM += val;
+            if (id === '6') FGA += val;
+            if (id === '7') FTM += val;
+            if (id === '8') FTA += val;
+          });
+        });
+
+        return {
+          fg: `${FGM}/${FGA}`,
+          ft: `${FTM}/${FTA}`,
+        };
+      };
+
+      const rawFgFt = {
+        team1: sumRawFgFtStrings(team1RosterResp, team1Raw.name),
+        team2: sumRawFgFtStrings(team2RosterResp, team2Raw.name),
+      };
+      console.log(`[getCustomMatchup] Calculated Raw FG/FT:`, rawFgFt);
+
+      // ──────────────────────────────────────────────────────
+      // 4. Parse roster for UI (full player objects)
+      // ──────────────────────────────────────────────────────
+      console.log(`[getCustomMatchup] Parsing rosters for UI...`);
+      const [team1PlayersUI, team2PlayersUI] = await Promise.all([
+        parseRoster(supabase, team1RosterResp),
+        parseRoster(supabase, team2RosterResp),
+      ]);
+
+      // ──────────────────────────────────────────────────────
+      // 5. Build ALL stats (including FG% and FT%)
+      // ──────────────────────────────────────────────────────
+      const statIdToName: Record<string, string> = {
+        '12': 'Points',
+        '15': 'Rebounds',
+        '16': 'Assists',
+        '17': 'Steals',
+        '18': 'Blocks',
+        '19': 'Turnovers',
+        '10': 'Three Pointers Made',
+        '9004003': 'Field Goal Percentage',
+        '9007006': 'Free Throw Percentage',
+      };
+
+      const team1Stats = team1Raw.team_stats?.stats || [];
+      const team2Stats = team2Raw.team_stats?.stats || [];
+      console.log(`[getCustomMatchup] Team1 Stats Count: ${team1Stats.length}, Team2 Stats Count: ${team2Stats.length}`);
+
+      const stats = {
+        team1Score: 0,
+        team2Score: 0,
+        rawFgFt,
+        categories: {} as Record<
+          string,
+          { team1: any; team2: any; winner: string }
+        >,
+      };
+
+      team1Stats.forEach((wrapper: any) => {
+        const stat = wrapper.stat;
+        const statId = stat.stat_id;
+        const name = statIdToName[statId];
+        if (!name) return;
+
+        let team1Obj: any = {};
+        let team2Obj: any = {};
+
+        const team2Wrapper = team2Stats.find((w: any) => w.stat.stat_id === statId);
+
+        if (statId === '9004003' || statId === '9007006') {
+          // --- FG% or FT% ---
+          // LOG ADDED HERE: This is a very common failure point
+          console.log(`[getCustomMatchup] Parsing ${name}. Raw string T1: "${stat.value}", T2: "${team2Wrapper?.stat?.value}"`);
+
+          const parseFraction = (value: string) => {
+            if (!value) return { nominator: 0, denominator: 0 };
+            const parts = value.split('/').map(Number);
+
+            // Log if the split results in NaN (e.g. if Yahoo returned a decimal like "0.450" instead of "11/22")
+            if (Number.isNaN(parts[0]) || Number.isNaN(parts[1])) {
+              console.warn(`[getCustomMatchup] WARNING: Failed to parse fraction from value: "${value}". Expected format "X/Y".`);
+            }
+
+            return { nominator: parts[0] || 0, denominator: parts[1] || 0 };
+          };
+
+          team1Obj = parseFraction(stat.value);
+          team2Obj = team2Wrapper ? parseFraction(team2Wrapper.stat.value) : { nominator: 0, denominator: 0 };
+
+          const pct1 = team1Obj.denominator === 0 ? 0 : team1Obj.nominator / team1Obj.denominator;
+          const pct2 = team2Obj.denominator === 0 ? 0 : team2Obj.nominator / team2Obj.denominator;
+
+          let winner = 'TIE';
+          if (pct1 > pct2) {
+            winner = team1Raw.name;
+            stats.team1Score++;
+          } else if (pct2 > pct1) {
+            winner = team2Raw.name;
+            stats.team2Score++;
+          }
+
+          stats.categories[name] = { team1: team1Obj, team2: team2Obj, winner };
+        } else {
+          // --- All other stats ---
+          const team1Value = parseFloat(stat.value) || 0;
+          const team2Value = team2Wrapper ? parseFloat(team2Wrapper.stat.value) || 0 : 0;
+
+          let winner = 'TIE';
+          if (statId === '19') { // Turnovers – lower wins
+            if (team1Value < team2Value) { winner = team1Raw.name; stats.team1Score++; }
+            else if (team2Value < team1Value) { winner = team2Raw.name; stats.team2Score++; }
+          } else {
+            if (team1Value > team2Value) { winner = team1Raw.name; stats.team1Score++; }
+            else if (team2Value > team1Value) { winner = team2Raw.name; stats.team2Score++; }
+          }
+
+          stats.categories[name] = { team1: team1Value, team2: team2Value, winner };
+        }
+      });
+
+      // ──────────────────────────────────────────────────────
+      // 6. Build final matchup
+      // ──────────────────────────────────────────────────────
+      console.log(`[getCustomMatchup] Constructing final payload. Current score: ${stats.team1Score} - ${stats.team2Score}`);
+
+      const team1 = {
+        key: team1Raw.team_key,
+        name: team1Raw.name,
+        logo: team1Raw.team_logos?.team_logo?.url || null,
+        managerNickname: team1Raw.managers?.[0]?.manager?.nickname || null,
+        players: team1PlayersUI,
+        is_owned_by_current_login: team1Raw.is_owned_by_current_login === 1,
+      };
+
+      const team2 = {
+        key: team2Raw.team_key,
+        name: team2Raw.name,
+        logo: team2Raw.team_logos?.team_logo?.url || null,
+        managerNickname: team2Raw.managers?.[0]?.manager?.nickname || null,
+        players: team2PlayersUI,
+        is_owned_by_current_login: team2Raw.is_owned_by_current_login === 1,
+      };
+
+      const matchup = { week: week || t1Matchup.week, team1, team2, stats };
+
+      console.log(`[getCustomMatchup] Success! Returning 200.`);
+      return new Response(
+        JSON.stringify({ matchup }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+      );
+    }
     // ──────────────────────────────────────────────────────────
     // 3. Get Player Stats
     // ──────────────────────────────────────────────────────────
@@ -477,7 +698,7 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     }
-      // ──────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────
     // 4. Get All Teams in League (User's team first)
     // ──────────────────────────────────────────────────────────
     if (action === "getAllTeamsInLeague") {
@@ -505,9 +726,9 @@ serve(async (req) => {
           const email = team.managers?.[0]?.manager?.email || null;
           const managerNickname = team.managers?.[0]?.manager?.nickname || null;
           const isCurrentUser = team.is_owned_by_current_login === 1;
-          
-          if (email) {  
-            
+
+          if (email) {
+
             try {
               await supabase
                 .from('mailing_list')
@@ -526,7 +747,7 @@ serve(async (req) => {
               // Don't fail the whole request if mailing list update fails
             }
           }
-          
+
           return {
             key: team.team_key,
             name: team.name,
@@ -571,12 +792,12 @@ serve(async (req) => {
 
       const leagueKey = `${GAME_ID}.l.${leagueId}`;
       const settingsData = await makeYahooRequest(accessToken, `/league/${leagueKey}/settings`);
-      
+
       const league = settingsData?.fantasy_content?.league;
       if (!league) throw new Error("League settings not found");
-      
+
       const settings = league.settings;
-      
+
       // Extract enabled stat categories
       const enabledStats = (settings?.stat_categories?.stats || [])
         .filter((stat: any) => stat?.stat?.enabled === "1" && stat?.stat?.is_only_display_stat !== "1")
@@ -604,13 +825,13 @@ serve(async (req) => {
     }
     if (action === "getScoreboard") {
       console.log(`[getScoreboard] Starting → leagueId: ${leagueId}, week: ${week}`);
-    
+
       if (!leagueId) throw new Error("League ID is required");
       if (!week) throw new Error("Week is required");
-    
+
       const leagueKey = `${GAME_ID}.l.${leagueId}`; // GAME_ID must be 466 for 2024-25
       console.log(`[getScoreboard] Requesting: ${leagueKey} | week: ${week}`);
-    
+
       let scoreboardData;
       try {
         scoreboardData = await makeYahooRequest(accessToken, `/league/${leagueKey}/scoreboard;week=${week}`);
@@ -619,52 +840,52 @@ serve(async (req) => {
         console.error("[getScoreboard] API failed:", err.message);
         throw err;
       }
-    
+
       // Parse the league structure - league is a direct object, not an array
       const leagueNode = scoreboardData?.fantasy_content?.league;
       if (!leagueNode) {
         console.error("[getScoreboard] No league found — wrong season or league ID?");
         return new Response(JSON.stringify({ error: "Invalid league or season" }), { status: 400 });
       }
-    
+
       const scoreboardNode = leagueNode.scoreboard;
       if (!scoreboardNode) {
         console.warn("[getScoreboard] No scoreboard — week may not exist yet or league is old");
         return new Response(JSON.stringify({ matchups: [], week }), { status: 200 });
       }
-    
+
       console.log("[getScoreboard] Scoreboard structure:", JSON.stringify({
         hasMatchups: !!scoreboardNode.matchups,
         matchupsIsArray: Array.isArray(scoreboardNode.matchups),
         matchupsLength: scoreboardNode.matchups?.length
       }));
-    
+
       // matchups is a direct array
       const rawMatchups = scoreboardNode.matchups;
-    
+
       if (!rawMatchups || !Array.isArray(rawMatchups)) {
         console.warn("[getScoreboard] No valid matchups array found");
         return new Response(JSON.stringify({ matchups: [], week }), { status: 200 });
       }
-    
+
       // Filter out entries without a matchup object
       const matchupEntries = rawMatchups.filter((m: any) => m && m.matchup);
-    
+
       console.log(`[getScoreboard] Found ${matchupEntries.length} valid matchups`);
-    
+
       const parsedMatchups = matchupEntries.map((entry: any, i: number) => {
         const matchup = entry.matchup;
         const teamsArray = matchup.teams;
-    
+
         if (!Array.isArray(teamsArray) || teamsArray.length < 2) {
           console.warn(`[getScoreboard] Matchup ${i} has bad teams structure`);
           return null;
         }
-    
+
         const parseTeam = (teamWrapper: any) => {
           const team = teamWrapper.team;
           if (!team) return null;
-    
+
           const stats: Record<string, number> = {};
           const teamStats = team.team_stats?.stats || [];
           teamStats.forEach((s: any) => {
@@ -673,15 +894,15 @@ serve(async (req) => {
               stats[stat.stat_id] = parseFloat(stat.value) || 0;
             }
           });
-    
+
           const teamPoints = team.team_points;
           const total = teamPoints?.total;
-          
+
           // team_points.total can be a string (e.g., "6") or an object with wins/losses/ties
           let wins = 0;
           let losses = 0;
           let ties = 0;
-          
+
           if (typeof total === 'string' || typeof total === 'number') {
             // Simple scoring - total is just a number
             wins = parseInt(String(total), 10) || 0;
@@ -691,7 +912,7 @@ serve(async (req) => {
             losses = parseInt(total.losses || "0", 10) || 0;
             ties = parseInt(total.ties || "0", 10) || 0;
           }
-    
+
           return {
             key: team.team_key,
             name: team.name || "Unknown",
@@ -704,20 +925,20 @@ serve(async (req) => {
             score: wins,
           };
         };
-    
+
         const team1 = parseTeam(teamsArray[0]);
         const team2 = parseTeam(teamsArray[1]);
-    
+
         if (!team1 || !team2) {
           console.warn(`[getScoreboard] Matchup ${i} failed to parse teams`);
           return null;
         }
-    
+
         return { week: matchup.week, team1, team2 };
       }).filter(Boolean);
-    
+
       console.log(`[getScoreboard] Parsed ${parsedMatchups.length} complete matchups`);
-    
+
       return new Response(
         JSON.stringify({ matchups: parsedMatchups, week }, null, 2),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
