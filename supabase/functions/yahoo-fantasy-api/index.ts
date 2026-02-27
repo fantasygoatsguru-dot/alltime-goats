@@ -487,7 +487,6 @@ serve(async (req) => {
       // ──────────────────────────────────────────────────────
       // 1. Fetch matchups for both teams to extract their stats
       // ──────────────────────────────────────────────────────
-      console.log(`[getCustomMatchup] Fetching matchup data from Yahoo...`);
       const weekParam = week ? week : "current";
       const [team1MatchupResp, team2MatchupResp] = await Promise.all([
         makeYahooRequest(accessToken, `/team/${team1Key}/matchups;weeks=${weekParam}`),
@@ -513,14 +512,12 @@ serve(async (req) => {
         throw new Error("Could not extract team data from Yahoo response");
       }
 
-      console.log(`[getCustomMatchup] Successfully extracted raw teams: ${team1Raw.name} vs ${team2Raw.name}`);
 
       // 1.5 Fetch scoreboard to guarantee we have week_start and week_end
       let week_start = t1Matchup?.week_start || t2Matchup?.week_start;
       let week_end = t1Matchup?.week_end || t2Matchup?.week_end;
 
       if (!week_start || !week_end) {
-        console.log(`[getCustomMatchup] Matchup dates missing. Fetching scoreboard for week ${weekParam}...`);
         try {
           const leagueKey = `${GAME_ID}.l.${leagueId}`;
           const scoreboardResp = await makeYahooRequest(accessToken, `/league/${leagueKey}/scoreboard;week=${weekParam}`);
@@ -533,7 +530,6 @@ serve(async (req) => {
           }
 
           if (!week_start || !week_end) {
-            console.log(`[getCustomMatchup] Scoreboard empty. Fetching game_weeks for exact dates...`);
             const gameWeeksResp = await makeYahooRequest(accessToken, `/game/${GAME_ID}/game_weeks`);
 
             // Robust recursive scanner for Yahoo's weird JSON conversions
@@ -553,9 +549,7 @@ serve(async (req) => {
             if (match) {
               week_start = match.start;
               week_end = match.end;
-              console.log(`[getCustomMatchup] Found exact dates from game_weeks: ${week_start} to ${week_end}`);
             } else {
-              console.log(`[getCustomMatchup] Recursive search could not find week ${weekParam} bounds.`);
             }
           }
         } catch (e) {
@@ -566,7 +560,6 @@ serve(async (req) => {
       // ──────────────────────────────────────────────────────
       // 2. Fetch rosters (contains raw FG/FT per player)
       // ──────────────────────────────────────────────────────
-      console.log(`[getCustomMatchup] Fetching rosters...`);
       const [team1RosterResp, team2RosterResp] = await Promise.all([
         makeYahooRequest(accessToken, `/team/${team1Key}/roster`),
         makeYahooRequest(accessToken, `/team/${team2Key}/roster`),
@@ -577,8 +570,6 @@ serve(async (req) => {
       // ──────────────────────────────────────────────────────
       const sumRawFgFtStrings = (rosterResp: any, teamName: string) => {
         const players = rosterResp?.fantasy_content?.team?.roster?.players || [];
-        console.log(`[getCustomMatchup] Found ${players.length} players for ${teamName} to calculate raw FG/FT`);
-
         let FGM = 0, FGA = 0, FTM = 0, FTA = 0;
 
         players.forEach((p: any) => {
@@ -604,12 +595,10 @@ serve(async (req) => {
         team1: sumRawFgFtStrings(team1RosterResp, team1Raw.name),
         team2: sumRawFgFtStrings(team2RosterResp, team2Raw.name),
       };
-      console.log(`[getCustomMatchup] Calculated Raw FG/FT:`, rawFgFt);
 
       // ──────────────────────────────────────────────────────
       // 4. Parse roster for UI (full player objects)
       // ──────────────────────────────────────────────────────
-      console.log(`[getCustomMatchup] Parsing rosters for UI...`);
       const [team1PlayersUI, team2PlayersUI] = await Promise.all([
         parseRoster(supabase, team1RosterResp),
         parseRoster(supabase, team2RosterResp),
@@ -658,8 +647,6 @@ serve(async (req) => {
         if (statId === '9004003' || statId === '9007006') {
           // --- FG% or FT% ---
           // LOG ADDED HERE: This is a very common failure point
-          console.log(`[getCustomMatchup] Parsing ${name}. Raw string T1: "${stat.value}", T2: "${team2Wrapper?.stat?.value}"`);
-
           const parseFraction = (value: string) => {
             if (!value) return { nominator: 0, denominator: 0 };
             const parts = value.split('/').map(Number);
@@ -709,8 +696,6 @@ serve(async (req) => {
       // ──────────────────────────────────────────────────────
       // 6. Build final matchup
       // ──────────────────────────────────────────────────────
-      console.log(`[getCustomMatchup] Constructing final payload. Current score: ${stats.team1Score} - ${stats.team2Score}`);
-
       const team1 = {
         key: team1Raw.team_key,
         name: team1Raw.name,
@@ -738,7 +723,6 @@ serve(async (req) => {
         stats
       };
 
-      console.log(`[getCustomMatchup] Success! Returning 200.`);
       return new Response(
         JSON.stringify({ matchup }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
