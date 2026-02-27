@@ -273,7 +273,8 @@ serve(async (req) => {
       if (!userTeamEntry) throw new Error("Could not find your team in this league");
 
       const userTeamKey = userTeamEntry.team.team_key;
-      const matchupData = await makeYahooRequest(accessToken, `/team/${userTeamKey}/matchups;weeks=current`);
+      const weekParam = week ? week : "current";
+      const matchupData = await makeYahooRequest(accessToken, `/team/${userTeamKey}/matchups;weeks=${weekParam}`);
       const currentMatchup = matchupData?.fantasy_content?.team?.matchups?.[0]?.matchup;
       if (!currentMatchup) throw new Error("No current matchup found");
 
@@ -444,7 +445,14 @@ serve(async (req) => {
         is_owned_by_current_login: false,
       };
 
-      const matchup = { week, team1, team2, stats };
+      const matchup = {
+        week: week || currentMatchup.week,
+        week_start: currentMatchup.week_start,
+        week_end: currentMatchup.week_end,
+        team1,
+        team2,
+        stats
+      };
 
       // Save to Supabase
       await supabase.from("yahoo_matchups").upsert({
@@ -480,34 +488,80 @@ serve(async (req) => {
       // 1. Fetch matchups for both teams to extract their stats
       // ──────────────────────────────────────────────────────
       console.log(`[getCustomMatchup] Fetching matchup data from Yahoo...`);
+      const weekParam = week ? week : "current";
       const [team1MatchupResp, team2MatchupResp] = await Promise.all([
-        makeYahooRequest(accessToken, `/team/${team1Key}/matchups;weeks=current`),
-        makeYahooRequest(accessToken, `/team/${team2Key}/matchups;weeks=current`),
+        makeYahooRequest(accessToken, `/team/${team1Key}/matchups;weeks=${weekParam}`),
+        makeYahooRequest(accessToken, `/team/${team2Key}/matchups;weeks=${weekParam}`),
       ]);
 
       const t1Matchup = team1MatchupResp?.fantasy_content?.team?.matchups?.[0]?.matchup;
       const t2Matchup = team2MatchupResp?.fantasy_content?.team?.matchups?.[0]?.matchup;
 
-      if (!t1Matchup || !t2Matchup) {
-        console.error(`[getCustomMatchup] Missing matchup data. t1Matchup exists: ${!!t1Matchup}, t2Matchup exists: ${!!t2Matchup}`);
-        console.error("[getCustomMatchup] Team 1 Raw Resp:", JSON.stringify(team1MatchupResp).substring(0, 300));
-        throw new Error("Could not fetch current matchup stats for one or both teams");
-      }
-
       const extractTeamFromMatchup = (matchup: any, queryTeamKey: string) => {
         const teams = matchup.teams || [];
         const found = teams.find((t: any) => t.team.team_key === queryTeamKey);
         if (!found) {
-          const availableKeys = teams.map((t: any) => t?.team?.team_key);
-          console.error(`[getCustomMatchup] Team ${queryTeamKey} not found in matchup. Available keys:`, availableKeys);
-          throw new Error(`Could not find team ${queryTeamKey} in its own matchup`);
+          return null;
         }
         return found.team;
       };
 
-      const team1Raw = extractTeamFromMatchup(t1Matchup, team1Key);
-      const team2Raw = extractTeamFromMatchup(t2Matchup, team2Key);
+      const team1Raw = t1Matchup ? extractTeamFromMatchup(t1Matchup, team1Key) : team1MatchupResp?.fantasy_content?.team;
+      const team2Raw = t2Matchup ? extractTeamFromMatchup(t2Matchup, team2Key) : team2MatchupResp?.fantasy_content?.team;
+
+      if (!team1Raw || !team2Raw) {
+        throw new Error("Could not extract team data from Yahoo response");
+      }
+
       console.log(`[getCustomMatchup] Successfully extracted raw teams: ${team1Raw.name} vs ${team2Raw.name}`);
+
+      // 1.5 Fetch scoreboard to guarantee we have week_start and week_end
+      let week_start = t1Matchup?.week_start || t2Matchup?.week_start;
+      let week_end = t1Matchup?.week_end || t2Matchup?.week_end;
+
+      if (!week_start || !week_end) {
+        console.log(`[getCustomMatchup] Matchup dates missing. Fetching scoreboard for week ${weekParam}...`);
+        try {
+          const leagueKey = `${GAME_ID}.l.${leagueId}`;
+          const scoreboardResp = await makeYahooRequest(accessToken, `/league/${leagueKey}/scoreboard;week=${weekParam}`);
+          const matchups = scoreboardResp?.fantasy_content?.league?.scoreboard?.matchups;
+          // Some weeks (like playoffs) might have empty matchups, meaning week_start won't be here.
+          if (matchups && Object.keys(matchups).length > 0 && matchups['0']?.matchup) {
+            const firstMatchup = matchups['0'].matchup;
+            week_start = firstMatchup?.week_start;
+            week_end = firstMatchup?.week_end;
+          }
+
+          if (!week_start || !week_end) {
+            console.log(`[getCustomMatchup] Scoreboard empty. Fetching game_weeks for exact dates...`);
+            const gameWeeksResp = await makeYahooRequest(accessToken, `/game/${GAME_ID}/game_weeks`);
+
+            // Robust recursive scanner for Yahoo's weird JSON conversions
+            const findGameWeekDates = (obj: any, w: string): { start: string, end: string } | null => {
+              if (!obj || typeof obj !== 'object') return null;
+              if (String(obj.week) === w && obj.start && obj.end) {
+                return { start: obj.start, end: obj.end };
+              }
+              for (const key of Object.keys(obj)) {
+                const result = findGameWeekDates(obj[key], w);
+                if (result) return result;
+              }
+              return null;
+            };
+
+            const match = findGameWeekDates(gameWeeksResp, String(weekParam));
+            if (match) {
+              week_start = match.start;
+              week_end = match.end;
+              console.log(`[getCustomMatchup] Found exact dates from game_weeks: ${week_start} to ${week_end}`);
+            } else {
+              console.log(`[getCustomMatchup] Recursive search could not find week ${weekParam} bounds.`);
+            }
+          }
+        } catch (e) {
+          console.error("[getCustomMatchup] Failed to fetch fallback dates:", e);
+        }
+      }
 
       // ──────────────────────────────────────────────────────
       // 2. Fetch rosters (contains raw FG/FT per player)
@@ -675,7 +729,14 @@ serve(async (req) => {
         is_owned_by_current_login: team2Raw.is_owned_by_current_login === 1,
       };
 
-      const matchup = { week: week || t1Matchup.week, team1, team2, stats };
+      const matchup = {
+        week: week || t1Matchup?.week || weekParam,
+        week_start: week_start,
+        week_end: week_end,
+        team1,
+        team2,
+        stats
+      };
 
       console.log(`[getCustomMatchup] Success! Returning 200.`);
       return new Response(

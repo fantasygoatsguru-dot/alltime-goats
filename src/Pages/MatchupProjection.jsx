@@ -30,6 +30,9 @@ const MatchupProjection = () => {
     const [selectedTeam1, setSelectedTeam1] = useState("");
     const [selectedTeam2, setSelectedTeam2] = useState("");
     const [loadingTeams, setLoadingTeams] = useState(false);
+    const [selectedWeek, setSelectedWeek] = useState(null);
+    const [currentYahooWeek, setCurrentYahooWeek] = useState(null);
+    const availableWeeks = Array.from({ length: 24 }, (_, i) => i + 1);
     const [disabledPlayers, setDisabledPlayers] = useState(() => {
         const saved = localStorage.getItem('disabledPlayers');
         return saved ? JSON.parse(saved) : {};
@@ -314,12 +317,16 @@ const MatchupProjection = () => {
                 });
 
                 if (data.matchup) {
-                    if (setContextMatchup) {
+                    if (setContextMatchup && (!selectedWeek || selectedWeek === parseInt(data.matchup.week, 10))) {
                         setContextMatchup(data.matchup);
                     }
                     setCurrentMatchup(data.matchup);
                     setSelectedTeam1(data.matchup.team1.name);
                     setSelectedTeam2(data.matchup.team2.name);
+                    if (!currentYahooWeek && data.matchup.week) {
+                        setCurrentYahooWeek(parseInt(data.matchup.week, 10));
+                        setSelectedWeek(parseInt(data.matchup.week, 10));
+                    }
                 }
             } catch (err) {
                 console.error("Error fetching current matchup:", err);
@@ -399,7 +406,7 @@ const MatchupProjection = () => {
                 leagueId: selectedLeague,
                 team1Key: team1Data.key,
                 team2Key: team2Data.key,
-                week: currentMatchup.week
+                week: selectedWeek ? String(selectedWeek) : currentMatchup.week
             });
 
             if (data.matchup) {
@@ -408,6 +415,39 @@ const MatchupProjection = () => {
         } catch (err) {
             console.error("Error fetching custom matchup:", err);
             setError(err.message || "Failed to fetch custom matchup");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleWeekSelect = async (e) => {
+        const week = e.target.value;
+        setSelectedWeek(week);
+
+        if (!currentMatchup || !allLeagueTeams.length) return;
+
+        const team1Data = allLeagueTeams.find(t => t.name === (selectedTeam1 || currentMatchup.team1.name));
+        const team2Data = allLeagueTeams.find(t => t.name === (selectedTeam2 || currentMatchup.team2.name));
+
+        if (!team1Data || !team2Data) return;
+
+        setLoading(true);
+        try {
+            const data = await callSupabaseFunction("yahoo-fantasy-api", {
+                action: "getCustomMatchup",
+                userId: userId,
+                leagueId: selectedLeague,
+                team1Key: team1Data.key,
+                team2Key: team2Data.key,
+                week: String(week)
+            });
+
+            if (data.matchup) {
+                setCurrentMatchup(data.matchup);
+            }
+        } catch (err) {
+            console.error("Error fetching generic weekly matchup:", err);
+            setError(err.message || "Failed to fetch matchup for week.");
         } finally {
             setLoading(false);
         }
@@ -435,8 +475,8 @@ const MatchupProjection = () => {
                 return `${parts[2]}-${parts[0]}-${parts[1]}`;
             };
 
-            // Get current matchup week dates (Monday to Sunday) in Eastern Time
-            const getCurrentWeekDates = () => {
+            // Calculate explicit week dates based on API response
+            const getExplicitWeekDates = () => {
                 const now = new Date();
 
                 // Get current date/time components in Eastern Time
@@ -457,25 +497,36 @@ const MatchupProjection = () => {
 
                 // Create date object representing "today" in Eastern Time
                 const easternNow = new Date(year, month - 1, day, hour, minute, second);
-
-                const dayOfWeek = easternNow.getDay();
-                // Monday = 1, Sunday = 0 → move so that Monday is start of week
-                const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-
-                const weekStart = new Date(easternNow);
-                weekStart.setDate(easternNow.getDate() + daysToMonday + 1); // ✅ Shift forward by 1 day
-                weekStart.setHours(0, 0, 0, 0);
-
-                const weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekStart.getDate() + 6);
-                weekEnd.setHours(23, 59, 59, 999);
-
                 const todayDateStr = getEasternDateString(now);
+
+                let weekStart, weekEnd;
+
+                if (matchup.week_start && matchup.week_end) {
+                    const [sYear, sMonth, sDay] = matchup.week_start.split('-');
+                    weekStart = new Date(sYear, sMonth - 1, sDay, 0, 0, 0);
+
+                    const [eYear, eMonth, eDay] = matchup.week_end.split('-');
+                    weekEnd = new Date(eYear, eMonth - 1, eDay, 23, 59, 59, 999);
+                } else {
+                    // Fallback to old behavior if missing format
+                    const dayOfWeek = easternNow.getDay();
+                    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                    weekStart = new Date(easternNow);
+                    weekStart.setDate(easternNow.getDate() + daysToMonday + 1);
+                    weekStart.setHours(0, 0, 0, 0);
+                    weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    weekEnd.setHours(23, 59, 59, 999);
+                }
 
                 return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
             };
 
-            const { weekStart, weekEnd, currentDate, todayDateStr } = getCurrentWeekDates();
+            const { weekStart, weekEnd, currentDate, todayDateStr } = getExplicitWeekDates();
+
+            // Matchups differ in length (e.g., All Star week is 14 days)
+            const diffTime = Math.abs(weekEnd - weekStart);
+            const numDaysInWeek = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
 
             // Get player IDs and their NBA teams
@@ -605,8 +656,8 @@ const MatchupProjection = () => {
 
                 const dailyProjections = [];
 
-                // Create all 7 days, using weekStart as the base
-                for (let i = 0; i < 7; i++) {
+                // Create all days in the matchup duration, using weekStart as the base
+                for (let i = 0; i < numDaysInWeek; i++) {
                     const dayDate = new Date(weekStart);
                     dayDate.setDate(weekStart.getDate() + i);
 
@@ -981,7 +1032,7 @@ const MatchupProjection = () => {
 
                     {/* Team Selection Dropdowns */}
                     <Grid container spacing={2} sx={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <Grid item xs={12} md={5}>
+                        <Grid item xs={12} md={3}>
                             <FormControl fullWidth size="small">
                                 <Select
                                     value={selectedTeam1 || currentMatchup.team1.name}
@@ -998,12 +1049,12 @@ const MatchupProjection = () => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={12} md={2} sx={{ textAlign: 'center' }}>
+                        <Grid item xs={12} md={1} sx={{ textAlign: 'center' }}>
                             <Typography variant="h6" sx={{ color: '#003366', fontWeight: 700 }}>
                                 {loadingTeams ? <CircularProgress size={20} /> : "VS"}
                             </Typography>
                         </Grid>
-                        <Grid item xs={12} md={5}>
+                        <Grid item xs={12} md={3}>
                             <FormControl fullWidth size="small">
                                 <Select
                                     value={selectedTeam2 || currentMatchup.team2.name}
@@ -1017,6 +1068,20 @@ const MatchupProjection = () => {
                                     {allLeagueTeams.length === 0 && (
                                         <MenuItem value={currentMatchup.team2.name}>{currentMatchup.team2.name}</MenuItem>
                                     )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} md={2}>
+                            <FormControl fullWidth size="small">
+                                <Select
+                                    value={selectedWeek || currentYahooWeek || ""}
+                                    onChange={handleWeekSelect}
+                                    disabled={loadingTeams || periodLoading || !currentYahooWeek}
+                                    sx={{ bgcolor: '#fff', fontWeight: 600 }}
+                                >
+                                    {availableWeeks.map((w) => (
+                                        <MenuItem key={`week-${w}`} value={w}>Week {w}</MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -1054,6 +1119,7 @@ const MatchupProjection = () => {
                     currentMatchup={currentMatchup}
                     onPlayerStatusChange={handlePlayerStatusChange}
                     isConnected={isConnected}
+                    isFutureWeek={parseInt(selectedWeek, 10) > parseInt(currentYahooWeek, 10)}
                 />
             </Box>
         </Box>
