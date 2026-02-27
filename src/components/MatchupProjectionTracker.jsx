@@ -198,7 +198,10 @@ const MatchupProjectionTracker = ({
         <>
             <Box sx={{ p: 2 }}>
                 {/* Projected Score Display */}
-                <Box sx={{ mb: 2, p: 1.5, bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                <Box sx={{
+                    mb: 2, p: 1.5, bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', justifyContent: 'center', /* Center horizontally */
+                    textAlign: 'center',      /* Keep text centered if it wraps on mobile */
+                }}>
                     <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', minWidth: '150px' }}>
                         Projected Final Score:
                     </Typography>
