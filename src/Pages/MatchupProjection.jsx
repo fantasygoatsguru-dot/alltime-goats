@@ -381,6 +381,8 @@ const MatchupProjection = () => {
     const handleTeamSelect = async (teamPosition, teamName) => {
         if (!currentMatchup || !allLeagueTeams.length) return;
 
+        setLoading(true);
+
         const newTeam1Name = teamPosition === "team1" ? teamName : (selectedTeam1 || currentMatchup.team1.name);
         const newTeam2Name = teamPosition === "team2" ? teamName : (selectedTeam2 || currentMatchup.team2.name);
 
@@ -390,15 +392,19 @@ const MatchupProjection = () => {
         // Check if we reverted back to the exact original matchup
         if (contextMatchup && newTeam1Name === contextMatchup.team1.name && newTeam2Name === contextMatchup.team2.name) {
             setCurrentMatchup(contextMatchup);
+            setLoading(false);
             return;
         }
 
         const team1Data = allLeagueTeams.find(t => t.name === newTeam1Name);
         const team2Data = allLeagueTeams.find(t => t.name === newTeam2Name);
 
-        if (!team1Data || !team2Data) return;
+        if (!team1Data || !team2Data) {
+            setLoading(false);
+            return;
+        }
 
-        setLoading(true);
+
         try {
             const data = await callSupabaseFunction("yahoo-fantasy-api", {
                 action: "getCustomMatchup",
@@ -426,12 +432,16 @@ const MatchupProjection = () => {
 
         if (!currentMatchup || !allLeagueTeams.length) return;
 
+        setLoading(true);
+
         const team1Data = allLeagueTeams.find(t => t.name === (selectedTeam1 || currentMatchup.team1.name));
         const team2Data = allLeagueTeams.find(t => t.name === (selectedTeam2 || currentMatchup.team2.name));
 
-        if (!team1Data || !team2Data) return;
+        if (!team1Data || !team2Data) {
+            setLoading(false);
+            return;
+        }
 
-        setLoading(true);
         try {
             const data = await callSupabaseFunction("yahoo-fantasy-api", {
                 action: "getCustomMatchup",
@@ -965,127 +975,95 @@ const MatchupProjection = () => {
                 showTeamSelectors={false}
             />
 
-            {/* Header with Title, Tooltip, and Period Selector */}
+            {/* Header with Title, Tooltip, and Filters */}
             {isConnected && currentMatchup && (
-                <Box sx={{ mb: 3, mt: 2, pb: 2, borderBottom: '1px solid #e0e0e0' }}>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            mb: 2
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography
-                                variant="h5"
-                                sx={{
-                                    fontWeight: 600,
-                                    color: '#003366',
-                                    fontSize: '1.25rem',
-                                }}
-                            >
-                                Matchup Projection
-                            </Typography>
-                            <Tooltip
-                                title="If players give their average stats for the rest of the week, how will the week end?"
-                                arrow
-                            >
-                                <Box
-                                    sx={{
-                                        bgcolor: '#003366',
-                                        borderRadius: '50%',
-                                        width: 20,
-                                        height: 20,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        cursor: 'help',
-                                        fontSize: '0.75rem',
-                                        color: '#fff',
-                                        fontWeight: 600,
-                                    }}
-                                >
-                                    i
-                                </Box>
-                            </Tooltip>
-                        </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <FormControl size="small" sx={{ minWidth: 140 }}>
-                                <Select
-                                    value={periodType}
-                                    onChange={(e) => setPeriodType(e.target.value)}
-                                    disabled={periodLoading}
-                                    sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
-                                >
-                                    <MenuItem value="season">Full Season</MenuItem>
-                                    <MenuItem value="60_days">Last 60 Days</MenuItem>
-                                    <MenuItem value="30_days">Last 30 Days</MenuItem>
-                                    <MenuItem value="7_days">Last 7 Days</MenuItem>
-                                </Select>
-                            </FormControl>
-                            {periodLoading && (
-                                <CircularProgress size={20} sx={{ color: '#003366' }} />
-                            )}
-                        </Box>
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 2,
+                    pb: 2,
+                    borderBottom: '2px solid #ddd',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                    mt: 2
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: '#003366', fontSize: '1.25rem' }}>
+                            Matchup Projection
+                        </Typography>
+                        <Tooltip title="If players give their average stats for the rest of the week, how will the week end?" arrow>
+                            <Box sx={{ bgcolor: '#003366', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'help', fontSize: '0.75rem', color: '#fff', fontWeight: 600 }}>
+                                i
+                            </Box>
+                        </Tooltip>
+                        {periodLoading && <CircularProgress size={20} sx={{ color: '#003366', ml: 1 }} />}
                     </Box>
 
-                    {/* Team Selection Dropdowns */}
-                    <Grid container spacing={2} sx={{ alignItems: 'center', justifyContent: 'center' }}>
-                        <Grid item xs={12} md={3}>
-                            <FormControl fullWidth size="small">
-                                <Select
-                                    value={selectedTeam1 || currentMatchup.team1.name}
-                                    onChange={(e) => handleTeamSelect("team1", e.target.value)}
-                                    disabled={loadingTeams || periodLoading}
-                                    sx={{ bgcolor: '#fff', fontWeight: 600 }}
-                                >
-                                    {allLeagueTeams.map((team) => (
-                                        <MenuItem key={`team1-${team.key}`} value={team.name}>{team.name}</MenuItem>
-                                    ))}
-                                    {allLeagueTeams.length === 0 && (
-                                        <MenuItem value={currentMatchup.team1.name}>{currentMatchup.team1.name}</MenuItem>
-                                    )}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} md={1} sx={{ textAlign: 'center' }}>
-                            <Typography variant="h6" sx={{ color: '#003366', fontWeight: 700 }}>
-                                {loadingTeams ? <CircularProgress size={20} /> : "VS"}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                            <FormControl fullWidth size="small">
-                                <Select
-                                    value={selectedTeam2 || currentMatchup.team2.name}
-                                    onChange={(e) => handleTeamSelect("team2", e.target.value)}
-                                    disabled={loadingTeams || periodLoading}
-                                    sx={{ bgcolor: '#fff', fontWeight: 600 }}
-                                >
-                                    {allLeagueTeams.map((team) => (
-                                        <MenuItem key={`team2-${team.key}`} value={team.name}>{team.name}</MenuItem>
-                                    ))}
-                                    {allLeagueTeams.length === 0 && (
-                                        <MenuItem value={currentMatchup.team2.name}>{currentMatchup.team2.name}</MenuItem>
-                                    )}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12} md={2}>
-                            <FormControl fullWidth size="small">
-                                <Select
-                                    value={selectedWeek || currentYahooWeek || ""}
-                                    onChange={handleWeekSelect}
-                                    disabled={loadingTeams || periodLoading || !currentYahooWeek}
-                                    sx={{ bgcolor: '#fff', fontWeight: 600 }}
-                                >
-                                    {availableWeeks.map((w) => (
-                                        <MenuItem key={`week-${w}`} value={w}>Week {w}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                    </Grid>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
+                            <Select
+                                value={periodType}
+                                onChange={(e) => setPeriodType(e.target.value)}
+                                disabled={periodLoading}
+                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
+                            >
+                                <MenuItem value="season">Full Season</MenuItem>
+                                <MenuItem value="60_days">Last 60 Days</MenuItem>
+                                <MenuItem value="30_days">Last 30 Days</MenuItem>
+                                <MenuItem value="7_days">Last 7 Days</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
+                            <Select
+                                value={selectedTeam1 || currentMatchup.team1.name}
+                                onChange={(e) => handleTeamSelect("team1", e.target.value)}
+                                disabled={loadingTeams || periodLoading || loading}
+                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
+                            >
+                                {allLeagueTeams.map((team) => (
+                                    <MenuItem key={`team1-${team.key}`} value={team.name}>{team.name}</MenuItem>
+                                ))}
+                                {allLeagueTeams.length === 0 && (
+                                    <MenuItem value={currentMatchup.team1.name}>{currentMatchup.team1.name}</MenuItem>
+                                )}
+                            </Select>
+                        </FormControl>
+
+                        <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
+                            {loadingTeams || loading ? <CircularProgress size={16} /> : "VS"}
+                        </Typography>
+
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
+                            <Select
+                                value={selectedTeam2 || currentMatchup.team2.name}
+                                onChange={(e) => handleTeamSelect("team2", e.target.value)}
+                                disabled={loadingTeams || periodLoading || loading}
+                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
+                            >
+                                {allLeagueTeams.map((team) => (
+                                    <MenuItem key={`team2-${team.key}`} value={team.name}>{team.name}</MenuItem>
+                                ))}
+                                {allLeagueTeams.length === 0 && (
+                                    <MenuItem value={currentMatchup.team2.name}>{currentMatchup.team2.name}</MenuItem>
+                                )}
+                            </Select>
+                        </FormControl>
+
+                        <FormControl size="small" sx={{ minWidth: 100 }}>
+                            <Select
+                                value={selectedWeek || currentYahooWeek || ""}
+                                onChange={handleWeekSelect}
+                                disabled={loadingTeams || periodLoading || loading || !currentYahooWeek}
+                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
+                            >
+                                {availableWeeks.map((w) => (
+                                    <MenuItem key={`week-${w}`} value={w}>Week {w}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
                 </Box>
             )}
 
