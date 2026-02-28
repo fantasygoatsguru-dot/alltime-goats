@@ -14,7 +14,7 @@ const MatchupProjection = () => {
     const userId = user?.userId || null;
     const isConnected = isAuthenticated;
 
-    const { selectedLeague, userLeagues, currentMatchup: contextMatchup, setCurrentMatchup: setContextMatchup, leagueTeams, setLeagueTeams } = useLeague();
+    const { selectedLeague, userLeagues, currentMatchup: contextMatchup, setCurrentMatchup: setContextMatchup, leagueTeams, setLeagueTeams, leagueSettings } = useLeague();
 
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
@@ -323,9 +323,15 @@ const MatchupProjection = () => {
                     setCurrentMatchup(data.matchup);
                     setSelectedTeam1(data.matchup.team1.name);
                     setSelectedTeam2(data.matchup.team2.name);
-                    if (!currentYahooWeek && data.matchup.week) {
-                        setCurrentYahooWeek(parseInt(data.matchup.week, 10));
-                        setSelectedWeek(parseInt(data.matchup.week, 10));
+
+                    let weekNum = parseInt(data.matchup.week, 10);
+                    if (Number.isNaN(weekNum) && leagueSettings?.currentWeek) {
+                        weekNum = parseInt(leagueSettings.currentWeek, 10);
+                    }
+
+                    if (!currentYahooWeek && weekNum) {
+                        setCurrentYahooWeek(weekNum);
+                        setSelectedWeek(weekNum);
                     }
                 }
             } catch (err) {
@@ -1058,9 +1064,16 @@ const MatchupProjection = () => {
                                 disabled={loadingTeams || periodLoading || loading || !currentYahooWeek}
                                 sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
                             >
-                                {availableWeeks.map((w) => (
-                                    <MenuItem key={`week-${w}`} value={w}>Week {w}</MenuItem>
-                                ))}
+                                {availableWeeks
+                                    .filter((w) => !leagueSettings?.playoffStartWeek || w < leagueSettings.playoffStartWeek + 3)
+                                    .map((w) => {
+                                        const isPlayoff = leagueSettings?.playoffStartWeek && w >= leagueSettings.playoffStartWeek;
+                                        return (
+                                            <MenuItem key={`week-${w}`} value={w}>
+                                                Week {w} {isPlayoff ? "(Playoffs)" : ""}
+                                            </MenuItem>
+                                        );
+                                    })}
                             </Select>
                         </FormControl>
                     </Box>
