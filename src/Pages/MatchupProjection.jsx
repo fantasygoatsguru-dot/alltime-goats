@@ -1088,9 +1088,14 @@ const MatchupProjection = () => {
                                 sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
                             >
                                 {availableWeeks
-                                    .filter((w) => !leagueSettings?.playoffStartWeek || w < leagueSettings.playoffStartWeek + 3)
+                                    .filter((w) => {
+                                        if (!leagueSettings?.playoffStartWeek) return true;
+                                        const startWeek = parseInt(leagueSettings.playoffStartWeek, 10);
+                                        return w < startWeek + 3;
+                                    })
                                     .map((w) => {
-                                        const isPlayoff = leagueSettings?.playoffStartWeek && w >= leagueSettings.playoffStartWeek;
+                                        const startWeek = leagueSettings?.playoffStartWeek ? parseInt(leagueSettings.playoffStartWeek, 10) : null;
+                                        const isPlayoff = startWeek && w >= startWeek;
                                         return (
                                             <MenuItem key={`week-${w}`} value={w}>
                                                 Week {w} {isPlayoff ? "(Playoffs)" : ""}
