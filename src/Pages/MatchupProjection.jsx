@@ -303,6 +303,17 @@ const MatchupProjection = () => {
                 setCurrentMatchup(contextMatchup);
                 setSelectedTeam1(contextMatchup.team1.name);
                 setSelectedTeam2(contextMatchup.team2.name);
+
+                let weekNum = parseInt(contextMatchup.week, 10);
+                if (Number.isNaN(weekNum) && leagueSettings?.currentWeek) {
+                    weekNum = parseInt(leagueSettings.currentWeek, 10);
+                }
+
+                if (!currentYahooWeek && weekNum) {
+                    setCurrentYahooWeek(weekNum);
+                    setSelectedWeek(weekNum);
+                }
+
                 setInitialLoading(false);
                 return;
             }
