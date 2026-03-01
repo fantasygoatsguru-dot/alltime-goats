@@ -519,20 +519,32 @@ const MatchupProjection = () => {
 
                 if (matchup.week_start && matchup.week_end) {
                     const [sYear, sMonth, sDay] = matchup.week_start.split('-');
-                    weekStart = new Date(sYear, sMonth - 1, sDay, 0, 0, 0);
+                    // We parse explicitly as 12-noon Eastern to avoid local offset issues shifting it into previous/next day
+                    weekStart = new Date(`${matchup.week_start}T12:00:00-05:00`);
 
                     const [eYear, eMonth, eDay] = matchup.week_end.split('-');
-                    weekEnd = new Date(eYear, eMonth - 1, eDay, 23, 59, 59, 999);
+                    weekEnd = new Date(`${matchup.week_end}T23:59:59-05:00`);
                 } else {
                     // Fallback to old behavior if missing format
                     const dayOfWeek = easternNow.getDay();
                     const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-                    weekStart = new Date(easternNow);
-                    weekStart.setDate(easternNow.getDate() + daysToMonday + 1);
-                    weekStart.setHours(0, 0, 0, 0);
-                    weekEnd = new Date(weekStart);
-                    weekEnd.setDate(weekStart.getDate() + 6);
-                    weekEnd.setHours(23, 59, 59, 999);
+
+                    // Construct an EST date directly using the string parsing
+                    const fallbackStart = new Date(easternNow);
+                    fallbackStart.setDate(easternNow.getDate() + daysToMonday);
+                    const sYear = fallbackStart.getFullYear();
+                    const sMonth = String(fallbackStart.getMonth() + 1).padStart(2, '0');
+                    const sDay = String(fallbackStart.getDate()).padStart(2, '0');
+
+                    weekStart = new Date(`${sYear}-${sMonth}-${sDay}T12:00:00-05:00`);
+
+                    const fallbackEnd = new Date(fallbackStart);
+                    fallbackEnd.setDate(fallbackStart.getDate() + 6);
+                    const eYear = fallbackEnd.getFullYear();
+                    const eMonth = String(fallbackEnd.getMonth() + 1).padStart(2, '0');
+                    const eDay = String(fallbackEnd.getDate()).padStart(2, '0');
+
+                    weekEnd = new Date(`${eYear}-${eMonth}-${eDay}T23:59:59-05:00`);
                 }
 
                 return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
