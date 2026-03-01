@@ -130,28 +130,27 @@ const MyLeaguePlayoffs = () => {
     }
 
     const initialDisabled = {};
-    
+
     leagueTeams.forEach((team) => {
       if (!team || !Array.isArray(team.players)) return;
-      
+
       const players = team.players;
       const totalRosterSize = players.length;
-      
+
       // Count IL spots (players in IL or IL+ positions)
       const ilSpots = players.filter(p => {
         const selectedPosition = p.selectedPosition || p.selected_position;
         return selectedPosition === 'IL' || selectedPosition === 'IL+';
       }).length;
-      
+
       // Calculate max active roster
       const maxActiveRoster = totalRosterSize - ilSpots;
-      
-      debugger
+
 
       // If we have more active players than allowed, disable the lowest z-score players
       if (players.length > maxActiveRoster) {
         const playersToDisable = players.length - maxActiveRoster;
-        
+
         // Sort active players by z-score (ascending, so lowest first)
         const sortedByZScore = [...players].sort((a, b) => {
           const statA = playerStats[a.nbaPlayerId] || playerStats[a.yahooPlayerId];
@@ -160,7 +159,7 @@ const MyLeaguePlayoffs = () => {
           const zScoreB = statB?.total_value ?? -999;
           return zScoreA - zScoreB;
         });
-        
+
         // Disable the lowest z-score players
         for (let i = 0; i < playersToDisable; i++) {
           const player = sortedByZScore[i];
@@ -182,9 +181,9 @@ const MyLeaguePlayoffs = () => {
         setPlayerStatsLoaded(false);
         return;
       }
-      
+
       setPlayerStatsLoaded(false);
-      
+
       const nbaIds = [];
       const yahooIds = [];
       leagueTeams.forEach((t) => {
@@ -194,7 +193,7 @@ const MyLeaguePlayoffs = () => {
           if (p?.yahooPlayerId && !p?.nbaPlayerId) yahooIds.push(p.yahooPlayerId);
         });
       });
-      
+
       if (nbaIds.length === 0 && yahooIds.length === 0) {
         setPlayerStatsLoaded(true);
         return;
@@ -207,7 +206,7 @@ const MyLeaguePlayoffs = () => {
             .from("yahoo_nba_mapping")
             .select("yahoo_id, nba_id")
             .in("yahoo_id", yahooIds);
-          
+
           if (mappingData) {
             const mappedNbaIds = mappingData
               .map((m) => m.nba_id)
@@ -215,14 +214,14 @@ const MyLeaguePlayoffs = () => {
             allNbaIds = [...allNbaIds, ...mappedNbaIds];
           }
         }
-        
+
         const uniqueNbaIds = [...new Set(allNbaIds)];
-        
+
         if (uniqueNbaIds.length === 0) {
           setPlayerStatsLoaded(true);
           return;
         }
-        
+
         const { data, error } = await supabase
           .from("player_period_averages")
           .select("*")
@@ -230,20 +229,20 @@ const MyLeaguePlayoffs = () => {
           .eq("season", "2025-26")
           .eq("period_type", "season");
         if (error) throw error;
-        
+
         const map = {};
         if (Array.isArray(data)) {
           data.forEach((s) => {
             map[s.player_id] = s;
           });
         }
-        
+
         if (yahooIds.length > 0) {
           const { data: mappingData } = await supabase
             .from("yahoo_nba_mapping")
             .select("yahoo_id, nba_id")
             .in("yahoo_id", yahooIds);
-          
+
           if (mappingData) {
             mappingData.forEach((m) => {
               if (m.nba_id && map[m.nba_id]) {
@@ -252,7 +251,7 @@ const MyLeaguePlayoffs = () => {
             });
           }
         }
-        
+
         setPlayerStats(map);
       } catch (e) {
         console.error("Error loading player stats:", e);
@@ -368,15 +367,15 @@ const MyLeaguePlayoffs = () => {
 
   const sortedFantasyTeams = useMemo(() => {
     const copy = [...fantasyTeamData];
-    
+
     if (!sortBy) {
       copy.sort((a, b) => b.totalGames - a.totalGames);
       return copy;
     }
-    
+
     const { column, type, direction } = sortBy;
     const multiplier = direction === 'desc' ? 1 : -1;
-    
+
     if (column === 'total') {
       if (type === 'games') {
         copy.sort((a, b) => multiplier * (b.totalGames - a.totalGames));
@@ -391,7 +390,7 @@ const MyLeaguePlayoffs = () => {
         copy.sort((a, b) => multiplier * ((b.weekData[weekNum]?.strength || 0) - (a.weekData[weekNum]?.strength || 0)));
       }
     }
-    
+
     return copy;
   }, [fantasyTeamData, sortBy]);
 
@@ -423,7 +422,7 @@ const MyLeaguePlayoffs = () => {
     try {
       const currentPath = window.location.pathname;
       sessionStorage.setItem('oauth_return_path', currentPath);
-      
+
       const isDev = window.location.hostname === 'localhost';
       const { data } = await supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } });
       if (data?.authUrl) {
@@ -461,8 +460,8 @@ const MyLeaguePlayoffs = () => {
   // Helper to render sort indicator
   const SortIndicator = ({ isActive, direction }) => {
     if (!isActive) return null;
-    return direction === 'desc' ? 
-      <ArrowDownwardIcon sx={{ fontSize: '1rem', ml: 0.5 }} /> : 
+    return direction === 'desc' ?
+      <ArrowDownwardIcon sx={{ fontSize: '1rem', ml: 0.5 }} /> :
       <ArrowUpwardIcon sx={{ fontSize: '1rem', ml: 0.5 }} />;
   };
 
@@ -541,8 +540,8 @@ const MyLeaguePlayoffs = () => {
       {/* ── Fantasy View ──────────────────────────────────────────── */}
       {isAuthenticated && leagueTeams?.length > 0 ? (
         <>
-          <TableContainer 
-            component={Paper} 
+          <TableContainer
+            component={Paper}
             elevation={3}
             sx={{
               overflowX: 'auto',
@@ -559,12 +558,12 @@ const MyLeaguePlayoffs = () => {
                   {playoffWeeks.map((w) => {
                     const isGamesSorted = sortBy?.column === String(w.number) && sortBy?.type === 'games';
                     const isStrengthSorted = sortBy?.column === String(w.number) && sortBy?.type === 'strength';
-                    
+
                     return (
-                      <TableCell 
-                        key={w.number} 
-                        align="center" 
-                        sx={{ 
+                      <TableCell
+                        key={w.number}
+                        align="center"
+                        sx={{
                           fontWeight: 700,
                           minWidth: 140,
                           px: 1,
@@ -589,7 +588,7 @@ const MyLeaguePlayoffs = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 transition: 'all 0.2s',
-                                '&:hover': { 
+                                '&:hover': {
                                   bgcolor: isGamesSorted ? 'primary.dark' : 'grey.300',
                                   transform: 'translateY(-1px)',
                                 },
@@ -612,7 +611,7 @@ const MyLeaguePlayoffs = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 transition: 'all 0.2s',
-                                '&:hover': { 
+                                '&:hover': {
                                   bgcolor: isStrengthSorted ? 'secondary.dark' : 'grey.300',
                                   transform: 'translateY(-1px)',
                                 },
@@ -628,9 +627,9 @@ const MyLeaguePlayoffs = () => {
                   })}
                   <TableCell
                     align="center"
-                    sx={{ 
-                      fontWeight: 700, 
-                      bgcolor: "info.main", 
+                    sx={{
+                      fontWeight: 700,
+                      bgcolor: "info.main",
                       color: "white",
                       minWidth: 120,
                       cursor: 'pointer',
@@ -641,17 +640,17 @@ const MyLeaguePlayoffs = () => {
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       Total Games
-                      <SortIndicator 
-                        isActive={sortBy?.column === 'total' && sortBy?.type === 'games'} 
-                        direction={sortBy?.direction} 
+                      <SortIndicator
+                        isActive={sortBy?.column === 'total' && sortBy?.type === 'games'}
+                        direction={sortBy?.direction}
                       />
                     </Box>
                   </TableCell>
                   <TableCell
                     align="center"
-                    sx={{ 
-                      fontWeight: 700, 
-                      bgcolor: "secondary.main", 
+                    sx={{
+                      fontWeight: 700,
+                      bgcolor: "secondary.main",
                       color: "white",
                       minWidth: 140,
                       cursor: 'pointer',
@@ -663,9 +662,9 @@ const MyLeaguePlayoffs = () => {
                     <Tooltip title="Sum of (games × player z-score) across all weeks">
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         Total Strength
-                        <SortIndicator 
-                          isActive={sortBy?.column === 'total' && sortBy?.type === 'strength'} 
-                          direction={sortBy?.direction} 
+                        <SortIndicator
+                          isActive={sortBy?.column === 'total' && sortBy?.type === 'strength'}
+                          direction={sortBy?.direction}
                         />
                       </Box>
                     </Tooltip>
@@ -676,7 +675,7 @@ const MyLeaguePlayoffs = () => {
                 {sortedFantasyTeams.map((team) => (
                   <React.Fragment key={team.teamKey}>
                     {/* Summary Row */}
-                    <TableRow 
+                    <TableRow
                       hover
                       sx={{
                         bgcolor: team.isUserTeam ? 'rgba(74, 144, 226, 0.08)' : 'transparent',

@@ -20,7 +20,6 @@ const MatchupProjectionTracker = ({
     isConnected,
     isFutureWeek = false
 }) => {
-    debugger
     const [expandedCategory, setExpandedCategory] = useState(null);
     const [playerStatusMenu, setPlayerStatusMenu] = useState(null);
     const [selectedPlayerForMenu, setSelectedPlayerForMenu] = useState(null);
@@ -199,14 +198,15 @@ const MatchupProjectionTracker = ({
             <Box sx={{ p: 2 }}>
                 {/* Projected Score Display */}
                 <Box sx={{
-                    mb: 2, p: 1.5, bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', justifyContent: 'center', /* Center horizontally */
-                    textAlign: 'center',      /* Keep text centered if it wraps on mobile */
+                    mb: 2, p: 1.5, bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1,
+                    display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, flexWrap: 'wrap', justifyContent: 'center',
+                    textAlign: 'center'
                 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366', minWidth: '150px' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366' }}>
                         Projected Final Score:
                     </Typography>
-                    <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <Typography variant="body2" sx={{ color: '#000' }}>
+                    <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center' }}>
+                        <Typography variant="body2" sx={{ color: '#000', whiteSpace: 'nowrap' }}>
                             <strong style={{ color: accurateScore.team1Score > accurateScore.team2Score ? "#2e7d32" : accurateScore.team1Score < accurateScore.team2Score ? "#c62828" : "#666" }}>
                                 {matchupProjection.team1.name} {accurateScore.team1Score}
                             </strong>
@@ -214,7 +214,7 @@ const MatchupProjectionTracker = ({
                         <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
                             -
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#000' }}>
+                        <Typography variant="body2" sx={{ color: '#000', whiteSpace: 'nowrap' }}>
                             <strong style={{ color: accurateScore.team2Score > accurateScore.team1Score ? "#2e7d32" : accurateScore.team2Score < accurateScore.team1Score ? "#c62828" : "#666" }}>
                                 {accurateScore.team2Score} {matchupProjection.team2.name}
                             </strong>
