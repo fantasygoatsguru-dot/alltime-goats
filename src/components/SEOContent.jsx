@@ -3,11 +3,13 @@ import { Box, Typography, Collapse, IconButton, Chip } from '@mui/material';
 import { ExpandMore, ExpandLess, Search } from '@mui/icons-material';
 import { useLocation } from 'react-router-dom';
 import { getSEOContent } from '../config/seo-content';
+import { getFaq } from '../config/structured-data';
 
 const SEOContent = () => {
   const location = useLocation();
   const [isExpanded, setIsExpanded] = useState(false);
   const seoData = getSEOContent(location.pathname);
+  const faq = getFaq(location.pathname);
 
   if (!seoData) return null;
 
@@ -90,7 +92,49 @@ const SEOContent = () => {
           }}
         >
           <Box dangerouslySetInnerHTML={{ __html: seoData.content }} />
-          
+
+          {faq && faq.length > 0 && (
+            <Box component="section" sx={{ mt: 3 }}>
+              <Typography
+                component="h3"
+                sx={{
+                  mb: 1.5,
+                  fontSize: { xs: '0.95rem', sm: '1rem' },
+                  fontWeight: 700,
+                  color: '#333',
+                }}
+              >
+                Frequently Asked Questions
+              </Typography>
+              {faq.map((item, i) => (
+                <Box key={i} sx={{ mb: i === faq.length - 1 ? 0 : 2 }}>
+                  <Typography
+                    component="h4"
+                    sx={{
+                      mb: 0.5,
+                      fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                      fontWeight: 600,
+                      color: '#222',
+                    }}
+                  >
+                    {item.question}
+                  </Typography>
+                  <Typography
+                    component="p"
+                    sx={{
+                      m: 0,
+                      lineHeight: 1.7,
+                      fontSize: { xs: '0.9rem', sm: '0.95rem' },
+                      color: '#444',
+                    }}
+                  >
+                    {item.answer}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+
           {seoData.keywords && seoData.keywords.length > 0 && (
             <Box sx={{ mt: 3, pt: 3, borderTop: '1px solid #e0e0e0' }}>
               <Typography

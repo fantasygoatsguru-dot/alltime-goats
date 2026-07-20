@@ -69,31 +69,9 @@ const NBAPlayoffs = () => {
   const [selectedOpponentTeam, setSelectedOpponentTeam] = useState(null);
   const [teamMenuAnchor, setTeamMenuAnchor] = useState(null);
 
-  // ── SEO Structured Data ───────────────────────────────────────────
-  useEffect(() => {
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      name: "NBA Playoff Schedule Analyzer",
-      description:
-        "Analyze NBA team playoff schedules. View game counts by week and plan your fantasy basketball strategy.",
-      url: "https://fantasygoats.guru/nba-playoffs",
-      applicationCategory: "SportsApplication",
-      operatingSystem: "Web",
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-      },
-    };
-
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(structuredData);
-    document.head.appendChild(script);
-
-    return () => document.head.removeChild(script);
-  }, []);
+  // Structured data (WebApplication + FAQPage + Breadcrumb) is now baked into
+  // the prerendered HTML and kept in sync by the global <StructuredData />
+  // component from a single source (src/config/structured-data.js).
 
   // ── Load data ────────────────────────────────────────────────────
   useEffect(() => {

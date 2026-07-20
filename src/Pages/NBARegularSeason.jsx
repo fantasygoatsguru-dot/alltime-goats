@@ -22,43 +22,9 @@ const NBARegularSeason = () => {
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
   const [allWeeks, setAllWeeks] = useState([]);
 
-  // ── SEO Structured Data ───────────────────────────────────────────
-  useEffect(() => {
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "NBA Regular Season Schedule",
-      "description": "View complete NBA regular season schedule by week. Track game counts for all NBA teams throughout the season.",
-      "url": "https://fantasygoats.guru/nba-regular-season",
-      "applicationCategory": "SportsApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "featureList": [
-        "NBA regular season schedule",
-        "Weekly game count tracking",
-        "Team schedule comparison"
-      ],
-      "keywords": "NBA schedule, NBA regular season, basketball schedule, NBA games by week"
-    };
-
-    let scriptTag = document.getElementById('nba-regular-season-structured-data');
-    if (!scriptTag) {
-      scriptTag = document.createElement('script');
-      scriptTag.id = 'nba-regular-season-structured-data';
-      scriptTag.type = 'application/ld+json';
-      document.head.appendChild(scriptTag);
-    }
-    scriptTag.textContent = JSON.stringify(structuredData);
-
-    return () => {
-      const tag = document.getElementById('nba-regular-season-structured-data');
-      if (tag) tag.remove();
-    };
-  }, []);
+  // Structured data (WebApplication + FAQPage + Breadcrumb) is now baked into
+  // the prerendered HTML and kept in sync by the global <StructuredData />
+  // component from a single source (src/config/structured-data.js).
 
   // ── Load static data ───────────────────────────────────────────
   useEffect(() => {

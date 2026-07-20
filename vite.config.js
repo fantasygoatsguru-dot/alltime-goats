@@ -14,7 +14,10 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     assetsDir: 'assets',
-    emptyOutDir: false,
+    // Clean dist on each build so stale, content-hashed JS chunks from previous
+    // builds don't pile up (and get deployed). All static files come from
+    // public/, and prerender runs after the build, so this is safe.
+    emptyOutDir: true,
   },
   server: {
     port: 5173,

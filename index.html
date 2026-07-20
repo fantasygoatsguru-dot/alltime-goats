@@ -65,44 +65,10 @@
     <meta name="twitter:image:alt" content="Fantasy Goats Guru Logo" />
     <meta name="twitter:url" content="https://fantasygoats.guru" />
 
-    <!-- Structured Data (JSON-LD for rich snippets) -->
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "Fantasy Goats Guru",
-            "url": "https://fantasygoats.guru",
-            "description": "Explore your fantasy league's rich history. Track stats, relive rivalries, and celebrate legendary performances.",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.png",
-                "width": 200,
-                "height": 200
-            },
-            "potentialAction": {
-                "@type": "SearchAction",
-                "target": {
-                    "@type": "EntryPoint",
-                    "urlTemplate": "https://fantasygoats.guru/rankings?search={search_term_string}"
-                },
-                "query-input": "required name=search_term_string"
-            },
-            "sameAs": []
-        }
-    </script>
-
-    <!-- Organization Schema -->
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "SportsOrganization",
-            "name": "Fantasy Goats Guru",
-            "url": "https://fantasygoats.guru",
-            "logo": "https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.png",
-            "description": "Fantasy basketball analytics and league history platform",
-            "sport": "Basketball"
-        }
-    </script>
+    <!-- Structured Data (JSON-LD) is injected per-route into a single
+         #structured-data <script> at build time by scripts/prerender.js and
+         kept in sync on navigation by the <StructuredData /> component. Source
+         of truth: src/config/structured-data.js. Do not hardcode schema here. -->
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HVGGQV3NEZ"></script>

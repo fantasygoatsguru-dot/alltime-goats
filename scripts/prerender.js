@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { getPublicRoutes } from '../src/config/seo-routes.js';
 import { getSEOContent } from '../src/config/seo-content.js';
+import { getStructuredData, getFaq } from '../src/config/structured-data.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,9 +71,21 @@ const buildSeoBlock = (route) => {
   const seo = getSEOContent(route.path);
   const heading = seo?.title || route.title.split('|')[0].trim();
   const body = seo?.content || `<p>${route.description}</p>`;
+
+  // Visible FAQ text must accompany FAQPage schema — bake it in too so it
+  // matches what the SEOContent component renders on the live page.
+  const faq = getFaq(route.path);
+  const faqHtml = faq
+    ? `<section>
+<h3>Frequently Asked Questions</h3>
+${faq.map((f) => `<h4>${f.question}</h4>\n<p>${f.answer}</p>`).join('\n')}
+</section>`
+    : '';
+
   return `
 <h1>${heading}</h1>
 ${body}
+${faqHtml}
 ${navHtml}
 `;
 };
@@ -108,6 +121,14 @@ for (const route of routes) {
     `<div id="root"></div>\n${hiddenSeo}`
   );
   html = html.replace(/<body>/, `<body>\n${noscript}`);
+
+  // Bake JSON-LD structured data into <head> (same id the client component
+  // reuses on navigation, so there is never a duplicate). Escape "</" to avoid
+  // prematurely closing the script tag.
+  const schemas = getStructuredData(route.path);
+  const ldJson = JSON.stringify(schemas).replace(/<\//g, '<\\/');
+  const ldScript = `<script type="application/ld+json" id="structured-data">${ldJson}</script>`;
+  html = html.replace('</head>', `  ${ldScript}\n</head>`);
 
   // Write to the right location: '/' -> dist/index.html, others -> dist/<path>/index.html
   const outPath =
