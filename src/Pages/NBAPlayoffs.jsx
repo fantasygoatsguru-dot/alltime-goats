@@ -323,8 +323,8 @@ const NBAPlayoffs = () => {
           gap: 2,
         }}
       >
-        <Typography variant="h4" fontWeight={700} color="primary.main">
-          NBA Fantasy Playoff Schedule
+        <Typography variant="h4" component="h1" fontWeight={700} color="primary.main">
+          2026–27 NBA Fantasy Playoff Schedule — Games Per Week
         </Typography>
 
         {!isAuthenticated ? (
@@ -350,6 +350,10 @@ const NBAPlayoffs = () => {
         </Button>
         ) : null}
       </Box>
+
+      {/* SEO intro copy lives in the collapsed <SEOContent /> block at the
+          bottom of the page (see AlltimeLayout + seo-content.js) and in the
+          prerendered HTML, so it stays crawlable without dominating the top. */}
 
       {/* Controls */}
       <Box

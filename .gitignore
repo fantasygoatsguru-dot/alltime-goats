@@ -36,3 +36,4 @@ certs/
 # Supabase
 .supabase/
 supabase/.temp
+client_secret.json

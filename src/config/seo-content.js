@@ -86,17 +86,17 @@ export const SEO_CONTENT = {
   },
   
   '/nba-playoffs': {
-    title: 'NBA Playoff Schedule for Fantasy Basketball',
+    title: 'NBA Fantasy Playoff Schedule 2026–27 — Games Per Week',
     content: `
-      <p>Navigate fantasy basketball playoffs with our comprehensive NBA playoff schedule analysis. The NBA playoffs overlap with many fantasy basketball league playoffs, making schedule awareness critical for lineup decisions and understanding which NBA teams continue playing.</p>
-      
-      <p>Fantasy playoff success requires different strategy than <a href="/nba-regular-season">the regular season</a>. Consistency matters more than upside since a single bad game can cost you a matchup. Our NBA playoff schedule tools help you identify reliable performers on teams likely to continue playing deep into the postseason.</p>
-      
-      <p>Understanding NBA playoff schedules also helps with dynasty and keeper league decisions. Players on young, improving teams that make deep playoff runs gain valuable experience and often break out the following season. Check our <a href="/rankings">player rankings</a> and <a href="/seasons">historical season data</a> to identify these future breakout candidates.</p>
-      
-      <p>For daily fantasy basketball players, NBA playoff scheduling creates unique opportunities. Reduced player rotation, increased minutes for stars, and intense defensive effort create a different fantasy landscape than the regular season. Use our <a href="/matchup">matchup analyzer</a> to navigate these dynamics for DFS success.</p>
+      <p>The fantasy basketball playoffs typically run during weeks 19–24 of the 2026–27 season, and the single biggest edge you can get is knowing how many games each NBA team plays those weeks. More games means more chances for your players to score, grab rebounds, and win categories. Our grid above shows the exact game count for all 30 NBA teams, week by week, so you can build a roster loaded with games when it matters most.</p>
+
+      <p>Set your league's championship week using the selector, then sort any column to see which teams have the heaviest — and lightest — fantasy playoff schedules. Target players on teams with 3–4 games in your title weeks, and think twice about stars stuck on a light 1–2 game schedule during your championship. This is a different question than <a href="/nba-regular-season">the regular-season schedule</a>, where you're optimizing games across all 24 weeks.</p>
+
+      <p>Use the schedule to plan streaming and waiver moves ahead of your matchups: pick up role players on high-game teams, and drop players whose teams go quiet during your playoff run. Pair this with our <a href="/rankings">player rankings</a> to weigh schedule strength against raw production, and the <a href="/matchup">matchup analyzer</a> to project category winners for a specific week.</p>
+
+      <p>Whether you're in a Yahoo, ESPN, or Fantrax head-to-head league, the fantasy basketball playoff schedule is where championships are won and lost. Bookmark this page and check it before every playoff week to make sure you're starting the players with the most opportunities to produce.</p>
     `,
-    keywords: ['NBA playoffs', 'fantasy playoffs', 'playoff schedule', 'fantasy basketball playoffs', 'NBA postseason', 'playoff fantasy strategy']
+    keywords: ['fantasy basketball playoff schedule', 'nba fantasy playoff schedule', 'games per week', 'fantasy basketball playoffs 2026-27', 'championship week schedule', 'nba fantasy playoffs']
   },
   
   '/teams': {
