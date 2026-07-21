@@ -28,6 +28,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
+import YahooConnect from "../components/YahooConnect";
 import { supabase } from "../utils/supabase";
 
 const MyLeaguePlayoffs = () => {
@@ -418,20 +419,6 @@ const MyLeaguePlayoffs = () => {
     });
   };
   const handleWeekSelect = (e) => setPlayoffStartWeek(+e.target.value);
-  const handleYahooConnect = async () => {
-    try {
-      const currentPath = window.location.pathname;
-      sessionStorage.setItem('oauth_return_path', currentPath);
-
-      const isDev = window.location.hostname === 'localhost';
-      const { data } = await supabase.functions.invoke('yahoo-oauth', { body: { action: 'authorize', isDev } });
-      if (data?.authUrl) {
-        window.location.href = data.authUrl;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // ── Loading guards ─────────────────────────────────────────────
   if (
@@ -823,36 +810,7 @@ const MyLeaguePlayoffs = () => {
           </TableContainer>
         </>
       ) : (
-        <Box
-          sx={{
-            mt: 4,
-            p: 3,
-            bgcolor: "primary.main",
-            color: "white",
-            borderRadius: 2,
-            textAlign: "center",
-            boxShadow: 3,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-            Connect to Yahoo! to see your team's playoff strength
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<SportsBasketballIcon />}
-            onClick={handleYahooConnect}
-            sx={{
-              bgcolor: "white",
-              color: "primary.main",
-              fontWeight: 600,
-              "&:hover": {
-                bgcolor: "grey.100",
-              },
-            }}
-          >
-            Connect to Yahoo
-          </Button>
-        </Box>
+        <YahooConnect variant="gate" toolName="Team Playoff Strength" />
       )}
     </Box>
   );

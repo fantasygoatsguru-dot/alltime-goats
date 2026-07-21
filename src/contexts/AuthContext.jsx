@@ -7,11 +7,57 @@ const USER_STORAGE_KEY = 'yahoo_user_data';
 const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000; // Refresh 5 minutes before expiry
 
 export const AuthProvider = ({ children }) => {
+  // --- Yahoo layer (the "data source"): unchanged legacy identity ---
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const refreshTimerRef = useRef(null);
   const isRefreshingRef = useRef(false);
+
+  // --- Supabase Auth layer (the "account"): who you are, owns entitlements ---
+  const [authUser, setAuthUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      setAuthUser(data?.session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+      sub?.subscription?.unsubscribe();
+    };
+  }, []);
+
+  const signInWithGoogle = async () => {
+    return supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + window.location.pathname },
+    });
+  };
+
+  // Passwordless email magic link. Resolves once the email is sent; the session
+  // arrives later when the user clicks the link and lands back on the site.
+  const signInWithEmail = async (email) => {
+    return supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + window.location.pathname },
+    });
+  };
+
+  const signOutAccount = async () => {
+    await supabase.auth.signOut();
+    setAuthUser(null);
+  };
 
   const refreshToken = async (userData) => {
     if (isRefreshingRef.current) {
@@ -151,6 +197,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = {
+    // Yahoo layer (data source) — unchanged
     user,
     isAuthenticated,
     loading,
@@ -158,6 +205,13 @@ export const AuthProvider = ({ children }) => {
     logout,
     ensureValidToken,
     refreshToken: () => refreshToken(user),
+    // Supabase Auth layer (account)
+    authUser,
+    authLoading,
+    isSignedIn: !!authUser,
+    signInWithGoogle,
+    signInWithEmail,
+    signOutAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

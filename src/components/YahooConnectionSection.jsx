@@ -13,12 +13,12 @@ import {
 } from "@mui/material";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import SwitchIcon from "@mui/icons-material/SwapHoriz";
+import YahooConnect from "./YahooConnect";
 
 const YahooConnectionSection = ({
     isConnected,
     loading,
     userLeagues,
-    onYahooConnect,
     allLeagueTeams,
     selectedTeam1,
     selectedTeam2,
@@ -27,48 +27,10 @@ const YahooConnectionSection = ({
     showTeamSelectors = true,
 }) => {
     if (!isConnected && userLeagues?.length === 0) {
+        // Standardized subtle connect button (shared with rankings, top games, etc.).
         return (
-            <Box
-                sx={{
-                    mb: 4,
-                    p: 3,
-                    bgcolor: "#f8f9fa",
-                    borderRadius: 2,
-                    textAlign: "center",
-                    maxWidth: 500,
-                    mx: "auto",
-                    border: "1px solid rgba(0, 0, 0, 0.12)",
-                }}
-            >
-                <Typography
-                    variant="body1"
-                    sx={{
-                        mb: 2,
-                        color: "#212121",
-                        fontFamily: '"Roboto Mono", monospace',
-                    }}
-                >
-                    Load your teams players from Yahoo Fantasy
-                </Typography>
-                <Button
-                    variant="outlined"
-                    onClick={onYahooConnect}
-                    disabled={loading}
-                    startIcon={loading ? <CircularProgress size={20} /> : <SportsBasketballIcon />}
-                    sx={{
-                        color: "#4a90e2",
-                        borderColor: "#4a90e2",
-                        "&:hover": {
-                            borderColor: "#80deea",
-                            bgcolor: "rgba(74, 144, 226, 0.1)",
-                        },
-                        fontFamily: '"Roboto Mono", monospace',
-                        px: 4,
-                        py: 1.2,
-                    }}
-                >
-                    {loading ? "Connecting..." : "Connect to Yahoo"}
-                </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                <YahooConnect variant="button" label="Load your team from Yahoo" />
             </Box>
         );
     }

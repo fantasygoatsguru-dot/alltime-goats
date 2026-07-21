@@ -31,6 +31,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
 import { useLeague } from "../contexts/LeagueContext";
 import { useAuth } from "../contexts/AuthContext";
+import YahooConnect from "../components/YahooConnect";
 
 const VALID_PERIOD_TYPES = ['season', 'last_day', '7_days', '30_days', '60_days'];
 
@@ -502,7 +503,7 @@ const SeasonGames = () => {
   return (
     <Box sx={{ p: 2, minHeight: "100vh", bgcolor: '#f5f5f5' }}>
       {/* Header Bar */}
-      <Box sx={{ 
+      <Box sx={{
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
@@ -560,6 +561,9 @@ const SeasonGames = () => {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          {!isAuthenticated && (
+            <YahooConnect variant="button" label="Load your players from Yahoo" />
+          )}
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <Select
               value={periodType}

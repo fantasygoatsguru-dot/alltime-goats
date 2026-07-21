@@ -25,6 +25,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
 import { useLeague } from '../contexts/LeagueContext';
 import { useAuth } from '../contexts/AuthContext';
+import YahooConnect from '../components/YahooConnect';
 
 const PUNT_CATEGORIES = [
     { key: 'points_z', label: 'PTS', fullName: 'Points' },
@@ -425,7 +426,7 @@ const Rankings = () => {
     return (
         <Box sx={{ p: 2, minHeight: '100vh', bgcolor: '#f5f5f5' }}>
             {/* Header Bar */}
-            <Box sx={{ 
+            <Box sx={{
                 display: 'flex', 
                 justifyContent: 'space-between', 
                 alignItems: 'center',
@@ -440,6 +441,9 @@ const Rankings = () => {
                 </Typography>
                 
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                    {!isAuthenticated && (
+                        <YahooConnect variant="button" label="Load your players from Yahoo" />
+                    )}
                     <FormControl size="small" sx={{ minWidth: 140 }}>
                         <Select
                             value={periodType}

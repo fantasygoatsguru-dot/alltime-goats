@@ -12,6 +12,26 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Phase 3 of the auth migration: if the caller has a Supabase Auth session,
+// supabase.functions.invoke() forwards their access token as the Authorization
+// header. Resolve it to a Supabase user id so the Yahoo connection can be linked
+// to the account. Returns null for the legacy path (anon key / no session), in
+// which case the email-bridge trigger links the row later.
+async function getAuthUserId(req: Request): Promise<string | null> {
+  try {
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!token || token === SUPABASE_SERVICE_ROLE_KEY) return null;
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data?.user) return null; // anon key or invalid token -> no user
+    return data.user.id;
+  } catch (_e) {
+    return null;
+  }
+}
+
 serve(async (req) => {
   console.log("=== Yahoo OAuth Request ===");
   console.log("Method:", req.method);
@@ -150,23 +170,32 @@ serve(async (req) => {
       const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
       console.log("Token expires at:", expiresAt.toISOString());
 
+      // Link this Yahoo connection to the caller's Supabase account when signed in.
+      const authUserId = await getAuthUserId(req);
+      console.log("Supabase auth user id:", authUserId || "none (legacy/no session)");
+
+      const tokenRow: Record<string, unknown> = {
+        user_id: userId,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        token_type: tokenData.token_type,
+        expires_at: expiresAt.toISOString(),
+        // Store user profile information
+        email: userInfo.email || null,
+        name: userInfo.name || null,
+        given_name: userInfo.given_name || null,
+        family_name: userInfo.family_name || null,
+        nickname: userInfo.nickname || null,
+        profile_picture: userInfo.picture || null,
+        locale: userInfo.locale || null,
+      };
+      // Only set auth_user_id when we actually resolved one, so a re-connect from
+      // a logged-out session never nulls out an existing link.
+      if (authUserId) tokenRow.auth_user_id = authUserId;
+
       const { error: upsertError } = await supabase
         .from("yahoo_tokens")
-        .upsert({
-          user_id: userId,
-          access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token,
-          token_type: tokenData.token_type,
-          expires_at: expiresAt.toISOString(),
-          // Store user profile information
-          email: userInfo.email || null,
-          name: userInfo.name || null,
-          given_name: userInfo.given_name || null,
-          family_name: userInfo.family_name || null,
-          nickname: userInfo.nickname || null,
-          profile_picture: userInfo.picture || null,
-          locale: userInfo.locale || null,
-        }, {
+        .upsert(tokenRow, {
           onConflict: "user_id",
         });
 

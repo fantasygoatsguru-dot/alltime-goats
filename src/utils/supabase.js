@@ -3,7 +3,17 @@ import { createClient } from "@supabase/supabase-js";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Implicit flow (tokens returned on the URL #hash) is deliberate: the Yahoo OAuth
+// callbacks in AlltimeLayout/Matchup own the `?code=` query param, so Supabase Auth
+// (Google + magic link) must not use the PKCE `?code=` flow or the two would clash.
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    flowType: "implicit",
+    detectSessionInUrl: true,
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
 
 const CURRENT_SEASON = "2025-26";
 

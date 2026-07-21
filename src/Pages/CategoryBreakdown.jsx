@@ -18,6 +18,7 @@ import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import InfoIcon from "@mui/icons-material/Info";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
+import YahooConnect from "../components/YahooConnect";
 import { supabase } from "../utils/supabase";
 
 const CURRENT_SEASON = "2025-26";
@@ -35,29 +36,12 @@ const CATEGORIES = [
 ];
 
 const CategoryBreakdown = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { leagueTeams, leagueSettings } = useLeague();
 
   const [playerStats, setPlayerStats] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "desc" });
-
-  const handleYahooConnect = async () => {
-    try {
-      const currentPath = window.location.pathname;
-      sessionStorage.setItem("oauth_return_path", currentPath);
-
-      const isDev = window.location.hostname === "localhost";
-      const { data } = await supabase.functions.invoke("yahoo-oauth", {
-        body: { action: "authorize", isDev },
-      });
-      if (data?.authUrl) {
-        window.location.href = data.authUrl;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // Load player stats
   useEffect(() => {
@@ -236,42 +220,9 @@ const CategoryBreakdown = () => {
     return "Your League";
   }, [leagueSettings, leagueTeams]);
 
-  // Not authenticated
+  // Not connected to Yahoo — this tool requires league data.
   if (!isAuthenticated) {
-    return (
-      <Box sx={{ p: { xs: 2, md: 4 } }}>
-        <Box
-          sx={{
-            mt: 4,
-            p: 3,
-            bgcolor: "primary.main",
-            color: "white",
-            borderRadius: 2,
-            textAlign: "center",
-            boxShadow: 3,
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-            Connect to Yahoo to view category breakdown
-          </Typography>
-          <Button
-            variant="contained"
-            startIcon={<SportsBasketballIcon />}
-            onClick={handleYahooConnect}
-            sx={{
-              bgcolor: "white",
-              color: "primary.main",
-              fontWeight: 600,
-              "&:hover": {
-                bgcolor: "grey.100",
-              },
-            }}
-          >
-            Connect to Yahoo
-          </Button>
-        </Box>
-      </Box>
-    );
+    return <YahooConnect variant="gate" toolName="Category Breakdown" />;
   }
 
   // Loading

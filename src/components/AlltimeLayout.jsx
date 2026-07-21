@@ -21,8 +21,9 @@ import {
   useMediaQuery,
   Stack,
   useTheme,
+  Divider,
 } from '@mui/material';
-import { Logout, ExpandMore } from '@mui/icons-material';
+import { Logout, ExpandMore, Login } from '@mui/icons-material';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
@@ -52,6 +53,7 @@ import { supabase } from '../utils/supabase';
 import ReassuringLoader from './ReassuringLoader';
 import SEOContent from './SEOContent';
 import AffiliateOffersButton from './AffiliateOffersButton';
+import AuthModal from './AuthModal';
 
 // === ICON WRAPPER FOR RESPONSIVE SIZING ===
 const IconWrapper = ({ children }) => {
@@ -201,7 +203,7 @@ const CategoryBreakdownIcon = () => (
 const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, isAuthenticated, logout, login } = useAuth();
+  const { user, isAuthenticated, logout, login, authUser, isSignedIn, signOutAccount } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -221,6 +223,7 @@ const AlltimeLayout = () => {
   const [yahooConnecting, setYahooConnecting] = useState(false);
   const [loadingLeagues, setLoadingLeagues] = useState(false);
   const [leagueSettings, setLeagueSettings] = useState(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // === MAIN NAV ITEMS WITH NEW SVGs ===
   const navItems = [
@@ -765,7 +768,9 @@ const AlltimeLayout = () => {
                             <ClickAwayListener onClickAway={config.handleClose}>
                               <Box>
                                 {config.submenu.map((sub) => {
-                                  const isDisabled = (sub.requiresAuth && !isAuthenticated) || (sub.requiresPremium && !isPremium);
+                                  // Yahoo-required tools stay navigable — they show an in-page
+                                  // "Connect Yahoo" gate. Only premium (entitlement) disables nav.
+                                  const isDisabled = sub.requiresPremium && !isPremium;
                                   const needsAuth = sub.requiresAuth && !isAuthenticated;
                                   const needsPremium = sub.requiresPremium && !isPremium;
 
@@ -887,8 +892,28 @@ const AlltimeLayout = () => {
             </Box>
           )}
 
-          {/* RIGHT: Connect to Yahoo + Profile */}
+          {/* RIGHT: Account + Connect to Yahoo + Profile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, flexShrink: 0 }}>
+            {!isSignedIn && (
+              <Button
+                variant="outlined"
+                startIcon={<Login />}
+                onClick={() => setAuthModalOpen(true)}
+                sx={{
+                  height: 38,
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  color: '#4a90e2',
+                  borderColor: '#4a90e2',
+                  textTransform: 'none',
+                  borderRadius: 3,
+                  px: { xs: 1.5, sm: 2 },
+                  '&:hover': { borderColor: '#357abd', bgcolor: 'rgba(74,144,226,0.08)' },
+                }}
+              >
+                Sign In
+              </Button>
+            )}
             {isAuthenticated && userLeagues.length > 0 ? (
               <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
                 <Select
@@ -967,41 +992,19 @@ const AlltimeLayout = () => {
                   })}
                 </Select>
               </FormControl>
-            ) : (
-              <Button
-                variant="contained"
-                startIcon={yahooConnecting ? <CircularProgress size={18} color="inherit" /> : <SportsBasketballIcon />}
-                onClick={handleYahooConnect}
-                disabled={yahooConnecting}
-                sx={{
-                  height: 38,
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  bgcolor: '#4a90e2',
-                  color: 'white',
-                  borderRadius: 3,
-                  px: 2,
-                  textTransform: 'none',
-                  boxShadow: '0 4px 12px rgba(74,144,226,0.4)',
-                  '&:hover': {
-                    bgcolor: '#357abd',
-                    boxShadow: '0 6px 16px rgba(74,144,226,0.5)',
-                  },
-                  '&:active': { transform: 'translateY(1px)' },
-                }}
-              >
-                {yahooConnecting ? 'Connecting...' : 'Connect to Yahoo'}
-              </Button>
-            )}
+            ) : null}
+            {/* Yahoo is no longer a header login. It's a per-tool integration:
+                tools that need league data prompt to connect contextually, and
+                the profile menu offers "Connect Yahoo league" for signed-in users. */}
 
-            {isAuthenticated && user && (
+            {(isSignedIn || (isAuthenticated && user)) && (
               <IconButton onClick={(e) => setProfileAnchorEl(e.currentTarget)}>
                 <Avatar
                   src={displayPicture?.includes('default') ? 'https://www.svgrepo.com/show/513271/basketball.svg' : displayPicture}
                   alt={displayName}
                   sx={{ width: 38, height: 38, border: '2px solid #4a90e2' }}
                 >
-                  {displayName[0]}
+                  {(displayName || authUser?.email || 'U')[0].toUpperCase()}
                 </Avatar>
               </IconButton>
             )}
@@ -1020,6 +1023,26 @@ const AlltimeLayout = () => {
           anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
           transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         >
+          {/* Account (Supabase) — independent of Yahoo */}
+          {!isSignedIn ? (
+            <MenuItem
+              onClick={() => { setMobileMenuAnchor(null); setAuthModalOpen(true); }}
+              sx={{ py: 2, px: 2.5, gap: 2.5, color: '#4a90e2', fontWeight: 700 }}
+            >
+              <Login />
+              <Typography fontWeight={700} fontSize="0.95rem">Sign In</Typography>
+            </MenuItem>
+          ) : (
+            <MenuItem disabled sx={{ py: 1.5, px: 2.5, opacity: 1 }}>
+              <Box>
+                <Typography fontWeight={700} fontSize="0.9rem">Signed in</Typography>
+                {authUser?.email && (
+                  <Typography variant="caption" color="text.secondary">{authUser.email}</Typography>
+                )}
+              </Box>
+            </MenuItem>
+          )}
+          <Divider />
           {navItems.map((item) => {
             const submenuMap = {
               '/league': leagueSubmenu,
@@ -1096,7 +1119,8 @@ const AlltimeLayout = () => {
                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                   <Box sx={{ bgcolor: 'rgba(0,0,0,0.02)' }}>
                     {submenu.map((sub) => {
-                      const isDisabled = (sub.requiresAuth && !isAuthenticated) || (sub.requiresPremium && !isPremium);
+                      // Yahoo-required tools stay navigable (in-page gate handles connect).
+                      const isDisabled = sub.requiresPremium && !isPremium;
                       const isSubActive = location.pathname === sub.path;
                       const needsAuth = sub.requiresAuth && !isAuthenticated;
                       const needsPremium = sub.requiresPremium && !isPremium;
@@ -1145,15 +1169,32 @@ const AlltimeLayout = () => {
       <Menu anchorEl={profileAnchorEl} open={Boolean(profileAnchorEl)} onClose={() => setProfileAnchorEl(null)}>
         <MenuItem disabled sx={{ opacity: 1 }}>
           <Box>
-            <Typography fontWeight={700}>{displayName}</Typography>
+            <Typography fontWeight={700}>{isSignedIn ? (displayName || authUser?.email) : displayName}</Typography>
+            {isSignedIn && authUser?.email && (
+              <Typography variant="caption" color="text.secondary">{authUser.email}</Typography>
+            )}
           </Box>
         </MenuItem>
         <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/profile'); }}>Profile</MenuItem>
         <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/about'); }}>About us</MenuItem>
-        <MenuItem onClick={() => { logout(); setProfileAnchorEl(null); navigate('/matchup'); }} sx={{ color: '#d32f2f' }}>
-          <Logout sx={{ mr: 1 }} /> Logout
-        </MenuItem>
+        {!isAuthenticated && (
+          <MenuItem onClick={() => { setProfileAnchorEl(null); handleYahooConnect(); }} disabled={yahooConnecting}>
+            <SportsBasketballIcon sx={{ mr: 1, color: '#4a90e2' }} /> Connect Yahoo league
+          </MenuItem>
+        )}
+        {isAuthenticated && (
+          <MenuItem onClick={() => { logout(); setProfileAnchorEl(null); navigate('/matchup'); }} sx={{ color: '#d32f2f' }}>
+            <Logout sx={{ mr: 1 }} /> Disconnect Yahoo
+          </MenuItem>
+        )}
+        {isSignedIn && (
+          <MenuItem onClick={async () => { await signOutAccount(); setProfileAnchorEl(null); navigate('/posts'); }} sx={{ color: '#d32f2f' }}>
+            <Logout sx={{ mr: 1 }} /> Sign out
+          </MenuItem>
+        )}
       </Menu>
+
+      <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
 
       {/* CONTENT & FOOTER */}
       <Container maxWidth={false} disableGutters sx={{ flexGrow: 1 }}>

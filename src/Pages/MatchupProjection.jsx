@@ -5,6 +5,7 @@ import { useLeague } from "../contexts/LeagueContext";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
 import MatchupProjectionTracker from "../components/MatchupProjectionTracker";
 import YahooConnectionSection from "../components/YahooConnectionSection";
+import YahooConnect from "../components/YahooConnect";
 import ReassuringLoader from "../components/ReassuringLoader";
 
 const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -968,6 +969,11 @@ const MatchupProjection = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scheduleData, currentMatchup, periodType]);
+
+    // Yahoo-required tool: no projection without a connected league.
+    if (!isConnected) {
+        return <YahooConnect variant="gate" toolName="Matchup Projection" />;
+    }
 
     if (initialLoading) {
         return (

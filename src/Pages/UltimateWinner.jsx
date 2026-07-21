@@ -16,6 +16,7 @@ import {
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
+import YahooConnect from "../components/YahooConnect";
 import { supabase } from "../utils/supabase";
 
 /* --------------------
@@ -264,38 +265,11 @@ const UltimateWinner = () => {
 
   const handleWeekSelect = (e) => setSelectedWeek(+e.target.value);
 
-  const handleYahooConnect = async () => {
-    try {
-      sessionStorage.setItem("oauth_return_path", window.location.pathname);
-      const isDev = location.hostname === "localhost";
-      const { data } = await supabase.functions.invoke("yahoo-oauth", {
-        body: { action: "authorize", isDev },
-      });
-      if (data?.authUrl) window.location.href = data.authUrl;
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   /* --------------------
        RENDER
   -----------------------*/
   if (!isAuthenticated) {
-    return (
-      <Box sx={{ p: 4, textAlign: "center" }}>
-        <Paper sx={{ p: 4, maxWidth: 500, mx: "auto", bgcolor: "primary.main", color: "white" }}>
-          <Typography variant="h5" fontWeight={700}>Connect to Yahoo Fantasy Basketball</Typography>
-          <Button
-            variant="contained"
-            sx={{ bgcolor: "white", color: "primary.main", mt: 2 }}
-            startIcon={<SportsBasketballIcon />}
-            onClick={handleYahooConnect}
-          >
-            Connect Now
-          </Button>
-        </Paper>
-      </Box>
-    );
+    return <YahooConnect variant="gate" toolName="the Head-to-Head Matrix" />;
   }
 
   if (isLoading) {
