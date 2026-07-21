@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
@@ -63,6 +63,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Navigate to="/posts" replace />} />
             <Route path="/privacy-policy" element={<AlltimeLayout />} />
+            <Route path="/terms" element={<AlltimeLayout />} />
             <Route path="/posts" element={<AlltimeLayout />} />
             <Route path="/post/:slug" element={<AlltimeLayout />} />
             <Route path="/about" element={<AlltimeLayout />} />

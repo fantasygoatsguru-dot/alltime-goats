@@ -135,6 +135,13 @@ export const seoRoutes = [
     priority: 0.3,
   },
   {
+    path: '/terms',
+    title: 'Terms of Service | Fantasy Goats Guru',
+    description: 'The terms governing your use of Fantasy Goats Guru fantasy basketball tools, statistics, and content.',
+    changefreq: 'yearly',
+    priority: 0.3,
+  },
+  {
     path: '/profile',
     title: 'My Profile | Fantasy Goats Guru',
     description: 'Manage your Fantasy Goats Guru profile and preferences.',

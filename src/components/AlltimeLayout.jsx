@@ -45,6 +45,7 @@ import CategoryBreakdown from '../Pages/CategoryBreakdown';
 import About from '../Pages/About';
 import UserProfile from '../Pages/UserProfile';
 import PrivacyPolicy from '../Pages/PrivacyPolicy';
+import Terms from '../Pages/Terms';
 import Posts from '../Pages/Posts';
 import Post from '../Pages/Post';
 import { useAuth } from '../contexts/AuthContext';
@@ -642,6 +643,7 @@ const AlltimeLayout = () => {
     if (p === '/about') return <About />;
     if (p === '/profile') return <UserProfile />;
     if (p === '/privacy-policy') return <PrivacyPolicy />;
+    if (p === '/terms') return <Terms />;
     if (p === '/posts') return <Posts />;
     if (p.startsWith('/post/')) return <Post />;
     return <Matchup />;
@@ -1254,6 +1256,19 @@ const AlltimeLayout = () => {
               }}
             >
               Privacy Policy
+            </Link>
+
+            <Link
+              component={RouterLink}
+              to="/terms"
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                textDecoration: 'none',
+                '&:hover': { color: 'primary.main', textDecoration: 'underline' }
+              }}
+            >
+              Terms of Service
             </Link>
 
             <Typography
