@@ -55,7 +55,6 @@ import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
 import ReassuringLoader from './ReassuringLoader';
 import SEOContent from './SEOContent';
-import AffiliateOffersButton from './AffiliateOffersButton';
 import AuthModal from './AuthModal';
 
 // === ICON WRAPPER FOR RESPONSIVE SIZING ===
@@ -1227,7 +1226,6 @@ const AlltimeLayout = () => {
         )}
       </Container>
 
-      <AffiliateOffersButton />
       <Box
         component="footer"
         sx={{
@@ -1274,17 +1272,6 @@ const AlltimeLayout = () => {
             >
               Terms of Service
             </Link>
-
-            <Typography
-              variant="caption"
-              sx={{
-                color: 'text.secondary',
-                fontStyle: 'italic',
-                fontSize: '0.8rem'
-              }}
-            >
-              As an Amazon Associate I earn from qualifying purchases.
-            </Typography>
           </Stack>
         </Container>
       </Box>

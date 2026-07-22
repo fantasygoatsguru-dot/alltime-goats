@@ -64,15 +64,7 @@ const Terms = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        4. Affiliate Links
-      </Typography>
-      <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
-        The Service contains affiliate links, including through the Amazon Services LLC Associates
-        Program. We may earn a commission from qualifying purchases at no additional cost to you.
-      </Typography>
-
-      <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        5. Intellectual Property
+        4. Intellectual Property
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
         The Service, including its design, tools, and original content, is owned by us and protected
@@ -81,7 +73,7 @@ const Terms = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        6. Limitation of Liability
+        5. Limitation of Liability
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
         To the maximum extent permitted by law, the Service is provided "as is" and "as available,"
@@ -90,7 +82,7 @@ const Terms = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        7. Changes to These Terms
+        6. Changes to These Terms
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
         We may update these Terms from time to time. Changes will be posted here with an updated
@@ -99,7 +91,7 @@ const Terms = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        8. Contact Us
+        7. Contact Us
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
         Questions about these Terms? Contact us at <strong>[insert your email or form link]</strong>.

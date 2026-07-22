@@ -37,7 +37,7 @@ const PrivacyPolicy = () => {
             <strong>Non-Personal Information</strong>: We use third-party services like Google Analytics and Google Tag Manager to collect anonymized data about your visit, such as pages viewed, time spent, and device type.
           </li>
           <li>
-            <strong>Cookies and Tracking Technologies</strong>: We use cookies for analytics and site functionality. Affiliate links on our site may set cookies when you visit partner sites.
+            <strong>Cookies and Tracking Technologies</strong>: We use cookies for analytics and site functionality.
           </li>
         </Box>
       </Typography>
@@ -66,24 +66,6 @@ const PrivacyPolicy = () => {
             </Link>.
           </li>
         </Box>
-      </Typography>
-
-        {/* Affiliate Disclosure */}
-        <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        Affiliate Disclosure
-      </Typography>
-
-      <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
-        Fantasy Goats participates in affiliate marketing programs, including the
-        Amazon Services LLC Associates Program. This means we may earn a
-        commission from qualifying purchases made through affiliate links on our
-        website, at no additional cost to you.
-      </Typography>
-
-      <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
-        As an Amazon Associate, we earn from qualifying purchases. Affiliate
-        links help support the operation and continued development of this site
-        while allowing us to provide free tools and content.
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>

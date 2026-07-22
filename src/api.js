@@ -665,33 +665,6 @@ export const fetchAllTimePlayerStats = async (players) => {
   }
 };
 
-const AFFILIATE_LINKS_MAX = 15;
-
-export const fetchAffiliateLinks = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('affiliate_links')
-      .select('id, label, url, thumbnail_url')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true })
-      .limit(AFFILIATE_LINKS_MAX);
-
-    if (error) throw error;
-    return data || [];
-  } catch (error) {
-    console.error('Error fetching affiliate links:', error);
-    return [];
-  }
-};
-
-export const recordAffiliateClick = async (affiliateLinkId) => {
-  try {
-    await supabase.from('affiliate_clicks').insert({ affiliate_link_id: affiliateLinkId });
-  } catch (error) {
-    console.error('Error recording affiliate click:', error);
-  }
-};
-
 const getBrowserId = () => {
   let id = localStorage.getItem('site_browser_id');
   if (!id) {
