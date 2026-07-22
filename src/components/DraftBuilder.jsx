@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Box, Typography, Chip, Button, CircularProgress, Collapse, IconButton, Portal } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Typography, Chip, Button, CircularProgress, Collapse, IconButton } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -47,21 +47,7 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [picks, setPicks] = useState(() => new Set()); // selected player names (any number per round)
-  const [inView, setInView] = useState(false); // draft section visible?
-  const [collapsed, setCollapsed] = useState(false);
-  const [rosterOpen, setRosterOpen] = useState(false);
-  const containerRef = useRef(null);
-
-  // Show the floating panel only while the draft section is on screen.
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return undefined;
-    const obs = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
-      rootMargin: '-80px 0px -80px 0px',
-    });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [loading]);
+  const [rosterOpen, setRosterOpen] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -186,9 +172,9 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
   const fmt = (z) => `${z > 0 ? '+' : ''}${z.toFixed(2)}`;
 
   return (
-    <Box ref={containerRef}>
-      {/* Rounds — full width */}
-      <Box>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 340px' }, gap: { xs: 2, md: 3 } }}>
+      {/* Rounds */}
+      <Box sx={{ order: { xs: 2, md: 1 }, minWidth: 0 }}>
         {rounds.map((r) => {
           const pickedInRound = r.candidates.filter((c) => picks.has(c.name)).map((c) => c.name);
           return (
@@ -219,8 +205,6 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
                         borderLeft: `4px solid ${selected ? TEAM_COLOR : '#d7dde5'}`,
                       }}
                     >
-                      {/* Add control on the LEFT so it's never hidden by the
-                          floating team panel that overlaps the right edge. */}
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 0.75 }}>
                         <Button
                           onClick={() => togglePick(c.name)}
@@ -258,52 +242,39 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
         })}
       </Box>
 
-      {/* Floating "Your team" panel — fixed to the viewport, visible only while
-          the draft section is on screen, so it travels with you as you scroll. */}
-      {inView && (
-        <Portal>
+      {/* "Your team" — a sticky card in its own column, so it travels with you
+          as you scroll but never overlaps the round content. */}
+      <Box sx={{ order: { xs: 1, md: 2 } }}>
+        <Box
+          sx={{
+            position: { md: 'sticky' },
+            top: { md: 24 },
+            bgcolor: '#ffffff',
+            border: '1px solid #d9e0e8',
+            borderRadius: 2.5,
+            boxShadow: '0 8px 24px rgba(15,35,64,0.10)',
+            overflow: 'hidden',
+          }}
+        >
           <Box
             sx={{
-              position: 'fixed',
-              zIndex: 1250,
-              right: { xs: 12, md: 24 },
-              bottom: { xs: 88, md: 100 },
-              width: { xs: 'min(340px, calc(100vw - 24px))', sm: 320 },
-              bgcolor: '#ffffff',
-              border: '1px solid #d9e0e8',
-              borderRadius: 2.5,
-              boxShadow: '0 16px 40px rgba(15,35,64,0.22)',
-              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 1,
+              px: 2,
+              py: 1.25,
+              bgcolor: '#0f2340',
+              color: '#fff',
             }}
           >
-            {/* Header — click to collapse/expand */}
-            <Box
-              onClick={() => setCollapsed((v) => !v)}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 1,
-                px: 2,
-                py: 1.25,
-                cursor: 'pointer',
-                bgcolor: '#0f2340',
-                color: '#fff',
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography sx={{ fontWeight: 900, fontSize: '0.95rem' }}>Your team</Typography>
-                <Box sx={{ px: 1, py: 0.15, borderRadius: 5, bgcolor: 'rgba(255,255,255,0.16)', fontSize: '0.72rem', fontWeight: 800 }}>
-                  {teamValues.count} {teamValues.count === 1 ? 'player' : 'players'}
-                </Box>
-              </Box>
-              <IconButton size="small" sx={{ color: '#fff', p: 0.25 }} aria-label={collapsed ? 'Expand' : 'Collapse'}>
-                {collapsed ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
-              </IconButton>
+            <Typography sx={{ fontWeight: 900, fontSize: '0.95rem' }}>Your team</Typography>
+            <Box sx={{ px: 1, py: 0.15, borderRadius: 5, bgcolor: 'rgba(255,255,255,0.16)', fontSize: '0.72rem', fontWeight: 800 }}>
+              {teamValues.count} {teamValues.count === 1 ? 'player' : 'players'}
             </Box>
+          </Box>
 
-            <Collapse in={!collapsed}>
-              <Box sx={{ p: 1.5, maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }}>
+          <Box sx={{ p: 1.5, maxHeight: { md: 'calc(100vh - 140px)' }, overflowY: { md: 'auto' } }}>
                 {teamValues.count === 0 ? (
                   <Box sx={{ py: 3, textAlign: 'center', color: '#98a2b1' }}>
                     <Typography sx={{ fontSize: '0.83rem', lineHeight: 1.5 }}>
@@ -417,11 +388,9 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
                     </Button>
                   </>
                 )}
-              </Box>
-            </Collapse>
           </Box>
-        </Portal>
-      )}
+        </Box>
+      </Box>
     </Box>
   );
 }

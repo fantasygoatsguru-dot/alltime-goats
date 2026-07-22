@@ -45,16 +45,6 @@ export default function Guide() {
   const punt = categoryByKey[guide.puntKey];
   const sections = guide.sections || [];
 
-  // Table of contents: authored sections + the fixed blocks we always render.
-  const toc = [
-    ...sections.map((s) => ({ id: s.id, label: s.heading })),
-    { id: 'board', label: 'Live draft board' },
-    ...(guide.roundTargets ? [{ id: 'mock-draft', label: 'Round-by-round draft' }] : []),
-    ...(guide.buildingBlocks ? [{ id: 'blocks', label: 'Building blocks' }] : []),
-    ...(guide.exampleTeams ? [{ id: 'examples', label: 'Example teams' }] : []),
-    ...(guide.faqs ? [{ id: 'faq', label: 'FAQ' }] : []),
-  ];
-
   return (
     <Box sx={{ bgcolor: '#f5f6f8', minHeight: '100vh', pb: 10 }}>
       {/* Hero */}
@@ -114,38 +104,9 @@ export default function Guide() {
         </Container>
       </Box>
 
-      <Container maxWidth="lg" sx={{ pt: { xs: 3, md: 5 } }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '220px 1fr' }, gap: { xs: 0, md: 5 } }}>
-          {/* Sticky TOC */}
-          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-            <Box sx={{ position: 'sticky', top: 90 }}>
-              <Typography sx={{ fontSize: '0.7rem', letterSpacing: 1.5, textTransform: 'uppercase', color: '#98a2b1', fontWeight: 700, mb: 1.5 }}>
-                On this page
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, borderLeft: '2px solid #e2e6ec', pl: 2 }}>
-                {toc.map((t) => (
-                  <Box
-                    key={t.id}
-                    component="a"
-                    href={`#${t.id}`}
-                    sx={{
-                      textDecoration: 'none',
-                      color: '#5a6472',
-                      fontSize: '0.85rem',
-                      fontWeight: 500,
-                      py: 0.4,
-                      '&:hover': { color: '#2f80ed' },
-                    }}
-                  >
-                    {t.label}
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Body */}
-          <Box sx={{ maxWidth: 760 }}>
+      <Container maxWidth="xl" sx={{ pt: { xs: 3, md: 5 } }}>
+          {/* Body — full width now that the TOC is gone */}
+          <Box>
             {sections.map((s) => (
               <Box key={s.id}>
                 <SectionHeading id={s.id}>{s.heading}</SectionHeading>
@@ -172,8 +133,8 @@ export default function Guide() {
                 <SectionHeading id="mock-draft">Round-by-round draft</SectionHeading>
                 <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
                   Draft your own punt-{punt?.name.toLowerCase()} team. Add any players you like — as many per
-                  round as you want — and the floating panel tracks your team's radar (against an average
-                  opponent), cumulated per-game totals and category analysis, live from this season's numbers.
+                  round as you want — and the Your Team panel tracks your radar (against an average opponent),
+                  cumulated per-game totals and category analysis, live from this season's numbers.
                 </Typography>
                 <DraftBuilder rounds={guide.roundTargets} puntKey={guide.puntKey} />
               </>
@@ -304,7 +265,6 @@ export default function Guide() {
               </Button>
             </Box>
           </Box>
-        </Box>
       </Container>
     </Box>
   );
