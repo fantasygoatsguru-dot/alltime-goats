@@ -128,6 +128,20 @@ export const seoRoutes = [
     priority: 0.5,
   },
   {
+    path: '/guides',
+    title: 'Fantasy Basketball Strategy Guides 2025-26 | Punt Builds & Draft Boards',
+    description: 'Fantasy basketball punt strategy guides for 2025-26, each paired with a live, re-ranked z-score draft board. Learn punt blocks, punt FG%, punt assists and more.',
+    changefreq: 'weekly',
+    priority: 0.8,
+  },
+  {
+    path: '/guides/punt-blocks',
+    title: 'Punt Blocks Strategy 2025-26 | Live Draft Board | Fantasy Goats Guru',
+    description: 'The complete punt blocks build for 2025-26 fantasy basketball: strategy, strengths and weaknesses, and a live draft board re-ranked with blocks removed from the z-score total.',
+    changefreq: 'weekly',
+    priority: 0.7,
+  },
+  {
     path: '/privacy-policy',
     title: 'Privacy Policy | Fantasy Goats Guru',
     description: 'Read our privacy policy to learn how we protect your data and respect your privacy on Fantasy Goats Guru.',

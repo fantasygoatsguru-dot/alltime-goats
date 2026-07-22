@@ -48,6 +48,8 @@ import PrivacyPolicy from '../Pages/PrivacyPolicy';
 import Terms from '../Pages/Terms';
 import Posts from '../Pages/Posts';
 import Post from '../Pages/Post';
+import Guides from '../Pages/Guides';
+import Guide from '../Pages/Guide';
 import { useAuth } from '../contexts/AuthContext';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
@@ -251,12 +253,12 @@ const AlltimeLayout = () => {
       hasSubmenu: true,
     },
     {
-      path: '/posts',
-      label: 'Posts',
+      path: '/guides',
+      label: 'Guides',
       icon: (
         <img
           src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/menu/blog.svg"
-          alt="Posts"
+          alt="Guides"
         />
       ),
       requiresAuth: false,
@@ -646,6 +648,8 @@ const AlltimeLayout = () => {
     if (p === '/terms') return <Terms />;
     if (p === '/posts') return <Posts />;
     if (p.startsWith('/post/')) return <Post />;
+    if (p === '/guides' || p === '/guides/') return <Guides />;
+    if (p.startsWith('/guides/')) return <Guide />;
     return <Matchup />;
   };
 

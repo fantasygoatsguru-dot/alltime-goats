@@ -66,6 +66,8 @@ const App = () => {
             <Route path="/terms" element={<AlltimeLayout />} />
             <Route path="/posts" element={<AlltimeLayout />} />
             <Route path="/post/:slug" element={<AlltimeLayout />} />
+            <Route path="/guides" element={<AlltimeLayout />} />
+            <Route path="/guides/:slug" element={<AlltimeLayout />} />
             <Route path="/about" element={<AlltimeLayout />} />
             <Route path="/profile" element={<AlltimeLayout />} />
             <Route path="/teams" element={<AlltimeLayout />} />
