@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getPublicRoutes } from '../src/config/seo-routes.js';
+import seoRoutes, { getPublicRoutes } from '../src/config/seo-routes.js';
 import { getSEOContent } from '../src/config/seo-content.js';
 import { getStructuredData, getFaq } from '../src/config/structured-data.js';
 
@@ -55,8 +55,10 @@ const navHtml = `
   <ul>
     <li><a href="/">Fantasy Basketball Tools</a></li>
     <li><a href="/my-team">Fantasy Team Analyzer</a></li>
+    <li><a href="/matchup">Fantasy Basketball Matchup Analyzer</a></li>
     <li><a href="/matchup-projection">Weekly Matchup Projection</a></li>
     <li><a href="/rankings">Fantasy Basketball Rankings</a></li>
+    <li><a href="/guides">Fantasy Basketball Strategy Guides</a></li>
     <li><a href="/nba-regular-season">NBA Fantasy Schedule Grid</a></li>
     <li><a href="/nba-playoffs">NBA Fantasy Playoff Schedule</a></li>
     <li><a href="/teams">All-Time NBA Teams</a></li>
@@ -143,3 +145,53 @@ for (const route of routes) {
 }
 
 console.log(`✅ Prerendered ${count} routes with per-page title/meta/H1/content`);
+
+// ── generate sitemap.xml from the same route config ─────────────────
+// Built from seo-routes.js so it can never drift out of sync again — the
+// static, hand-maintained sitemap was silently missing new routes (e.g.
+// /guides), leaving them "unknown to Google". Overwrites the copy Vite
+// placed in dist/ from public/.
+//
+// SITEMAP_EXTRA: auth-"enhanced" tools that are usable (and indexable)
+// without signing in, so they're excluded from prerender via requiresAuth
+// but should still be discoverable in the sitemap.
+const SITEMAP_EXTRA = ['/matchup'];
+const today = new Date().toISOString().slice(0, 10);
+
+const sitemapEntries = [
+  ...getPublicRoutes().filter((r) => !r.alias),
+  ...SITEMAP_EXTRA
+    .map((p) => seoRoutes.find((r) => r.path === p))
+    .filter(Boolean),
+];
+
+const urlXml = (r) => {
+  const loc = `${BASE_URL}${r.path === '/' ? '/' : r.path}`;
+  const image =
+    r.path === '/'
+      ? `
+    <image:image>
+      <image:loc>https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.png</image:loc>
+      <image:title>Fantasy Goats Guru Logo</image:title>
+    </image:image>`
+      : '';
+  return `  <url>
+    <loc>${loc}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${r.changefreq || 'weekly'}</changefreq>
+    <priority>${(r.priority ?? 0.7).toFixed(1)}</priority>${image}
+  </url>`;
+};
+
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+${sitemapEntries.map(urlXml).join('\n')}
+</urlset>
+`;
+
+fs.writeFileSync(path.join(distPath, 'sitemap.xml'), sitemap);
+console.log(`🗺️  Generated sitemap.xml with ${sitemapEntries.length} URLs`);

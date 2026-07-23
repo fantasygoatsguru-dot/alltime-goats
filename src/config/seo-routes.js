@@ -11,8 +11,8 @@ export const seoRoutes = [
   },
   {
     path: '/my-team',
-    title: 'Fantasy Basketball Team Analyzer | Roster Stats & Strength',
-    description: 'Analyze your fantasy basketball team: player stats, category strengths and weaknesses, and team strength. Compare your roster against league averages and optimize your lineup.',
+    title: 'Fantasy Basketball Team Analyzer | Free 9-Cat Roster Grader',
+    description: 'Grade your fantasy basketball roster in seconds. This free team analyzer scores every player with 9-category z-scores, exposes your category strengths and weaknesses, and shows how your team stacks up against the league — no signup required to try it.',
     changefreq: 'daily',
     priority: 0.9,
   },
@@ -62,8 +62,8 @@ export const seoRoutes = [
   },
   {
     path: '/nba-playoffs',
-    title: 'NBA Fantasy Playoff Schedule 2026–27 | Games Per Week by Team',
-    description: 'See how many games every NBA team plays during the fantasy basketball playoff weeks (19–24) of 2026–27. Sort the grid by week and optimize your roster for championship week.',
+    title: 'NBA Fantasy Basketball Playoff Schedule 2026–27 | Games Per Week',
+    description: 'Free fantasy basketball playoff schedule grid for 2026–27 — see exactly how many games all 30 NBA teams play during championship weeks 19–24, sort by week, and stack your roster with games when your title is on the line. No login required.',
     changefreq: 'weekly',
     priority: 0.8,
   },
