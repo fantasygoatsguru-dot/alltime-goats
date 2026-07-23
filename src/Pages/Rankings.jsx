@@ -367,9 +367,9 @@ const Rankings = () => {
     
     const columns = useMemo(() => {
         const baseColumns = [
-            { id: 'select', label: '', sortable: false, align: 'center', width: 40 },
-            { id: 'rank', label: 'Rank', sortable: false, align: 'center', width: 50 },
-            { id: 'player_name', label: 'Name', sortable: true, align: 'left', width: 160 },
+            { id: 'select', label: '', sortable: false, align: 'center', width: 40, sticky: true, left: 0 },
+            { id: 'rank', label: 'Rank', sortable: false, align: 'center', width: 50, sticky: true, left: 40 },
+            { id: 'player_name', label: 'Name', sortable: true, align: 'left', width: 160, sticky: true, left: 90 },
             { id: 'position', label: 'Pos', sortable: true, width: 50 },
             { id: 'team_abbreviation', label: 'Team', sortable: true, width: 55 },
             { id: 'total_value', label: 'Value', sortable: true, width: 60 },
@@ -442,7 +442,7 @@ const Rankings = () => {
                 
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
                     {!isAuthenticated && (
-                        <YahooConnect variant="button" label="Load your players from Yahoo" />
+                        <YahooConnect variant="button" label="Load from Yahoo" />
                     )}
                     <FormControl size="small" sx={{ minWidth: 140 }}>
                         <Select
@@ -621,37 +621,27 @@ const Rankings = () => {
                 </Box>
             ) : (
                 <Box sx={{ bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1, overflow: 'hidden' }}>
-                    {/* FIXED: Smooth horizontal scrolling container */}
-                    <Box
+                    {/* Single scroll container — one context for both axes with a
+                        sticky header. Avoids the nested-scroller jank; uses dvh so the
+                        mobile URL bar doesn't clip it, and overscroll:contain to stop
+                        the page bouncing when you reach an edge. */}
+                    <TableContainer
                         sx={{
-                            overflowX: 'auto',
-                            overflowY: 'hidden',
-                            WebkitOverflowScrolling: 'touch', // Helps older iOS
-                            overscrollBehaviorX: 'contain',   // Prevents body bounce/pull-to-refresh
-                            touchAction: 'pan-x pinch-zoom',  // Critical: allows horizontal scroll, blocks vertical interference
-                            '&::-webkit-scrollbar': {
-                                height: '8px',
-                            },
-                            '&::-webkit-scrollbar-track': {
-                                background: '#f1f1f1',
-                                borderRadius: '4px',
-                            },
+                            maxHeight: { xs: 'calc(100dvh - 250px)', sm: 'calc(100dvh - 240px)' },
+                            overflow: 'auto',
+                            WebkitOverflowScrolling: 'touch',
+                            overscrollBehavior: 'contain',
+                            scrollbarWidth: 'thin',
+                            '&::-webkit-scrollbar': { width: '8px', height: '8px' },
+                            '&::-webkit-scrollbar-track': { background: '#f1f1f1', borderRadius: '4px' },
                             '&::-webkit-scrollbar-thumb': {
                                 background: '#c1c1c1',
                                 borderRadius: '4px',
-                                '&:hover': {
-                                    background: '#a8a8a8',
-                                },
+                                '&:hover': { background: '#a8a8a8' },
                             },
                         }}
                     >
-                        <TableContainer 
-                            sx={{ 
-                                maxHeight: { xs: 'calc(100vh - 280px)', sm: 'calc(100vh - 300px)' },
-                                minWidth: { xs: 1000, md: 1200 }, // Slightly narrower on mobile
-                            }}
-                        >
-                            <Table size="small" stickyHeader>
+                        <Table size="small" stickyHeader sx={{ minWidth: { xs: 1000, md: 1200 }, borderCollapse: 'separate', borderSpacing: 0 }}>
                                 <TableHead>
                                     <TableRow>
                                         {columns.map((column) => (
@@ -667,6 +657,14 @@ const Rankings = () => {
                                                     px: 0.5,
                                                     borderBottom: '1px solid #ddd',
                                                     width: column.width || 'auto',
+                                                    ...(column.sticky && {
+                                                        position: 'sticky',
+                                                        left: column.left,
+                                                        zIndex: 5, // above sticky body cells (3) and normal header (2)
+                                                        minWidth: column.width,
+                                                        maxWidth: column.width,
+                                                        borderRight: column.id === 'player_name' ? '2px solid #002244' : 'none',
+                                                    }),
                                                 }}
                                             >
                                                 {column.id === 'select' ? (
@@ -722,6 +720,14 @@ const Rankings = () => {
                                             hoverColor = 'rgba(0, 102, 204, 0.12)';
                                         }
 
+                                        // Opaque equivalent of the row tint, for the frozen
+                                        // left columns (a translucent bg would let scrolled
+                                        // cells bleed through the sticky columns).
+                                        let solidBg = '#fff';
+                                        if (isMyPlayer) solidBg = '#cce0f5';
+                                        else if (isOpponentPlayer) solidBg = '#fbdfcc';
+                                        else if (isSelected) solidBg = '#ebf3fb';
+
                                         return (
                                             <TableRow
                                                 key={player.id}
@@ -771,6 +777,15 @@ const Rankings = () => {
                                                                 bgcolor: cellBg,
                                                                 fontWeight: column.id === 'player_name' ? 600 : 400,
                                                                 width: column.width || 'auto',
+                                                                ...(column.sticky && {
+                                                                    position: 'sticky',
+                                                                    left: column.left,
+                                                                    zIndex: 3,
+                                                                    bgcolor: solidBg,
+                                                                    minWidth: column.width,
+                                                                    maxWidth: column.width,
+                                                                    borderRight: column.id === 'player_name' ? '2px solid #e0e0e0' : 'none',
+                                                                }),
                                                             }}
                                                         >
                                                             {column.id === 'select' ? (
@@ -814,9 +829,8 @@ const Rankings = () => {
                                         );
                                     })}
                                 </TableBody>
-                            </Table>
-                        </TableContainer>
-                    </Box>
+                        </Table>
+                    </TableContainer>
 
                     {/* Optional: Scroll hint for mobile users */}
                     {isMobile && (

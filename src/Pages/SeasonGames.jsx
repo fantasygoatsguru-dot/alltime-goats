@@ -562,7 +562,7 @@ const SeasonGames = () => {
 
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           {!isAuthenticated && (
-            <YahooConnect variant="button" label="Load your players from Yahoo" />
+            <YahooConnect variant="button" label="Load from Yahoo" />
           )}
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <Select

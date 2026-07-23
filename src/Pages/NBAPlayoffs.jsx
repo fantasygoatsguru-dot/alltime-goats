@@ -324,7 +324,7 @@ const NBAPlayoffs = () => {
             },
           }}
         >
-            Load your players from Yahoo
+            Load from Yahoo
         </Button>
         ) : null}
       </Box>
