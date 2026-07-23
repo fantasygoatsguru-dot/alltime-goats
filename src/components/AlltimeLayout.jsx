@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Box,
   Container,
@@ -208,6 +208,9 @@ const AlltimeLayout = () => {
   const { user, isAuthenticated, logout, login, authUser, isSignedIn, signOutAccount } = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // Show the full wordmark only when there's comfortable room; between md and lg
+  // the desktop nav keeps all items but drops the wordmark text to avoid clipping.
+  const isLarge = useMediaQuery(theme.breakpoints.up('lg'));
 
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
@@ -595,33 +598,33 @@ const AlltimeLayout = () => {
     setAlltimeAnchorEl(null);
   };
 
-  const handleLeagueOpen = (e) => {
-    if (isMobile) return;
-    closeAllMenus();
-    setLeagueAnchorEl(e.currentTarget);
+  // Hover-intent: opening on hover needs a short close delay so the cursor can
+  // travel the gap from the trigger to the panel without the menu snapping shut.
+  // Entering the panel cancels the pending close; leaving either re-arms it.
+  const closeTimer = useRef(null);
+  const cancelClose = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
   };
-  const handleLeagueClose = () => setLeagueAnchorEl(null);
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(closeAllMenus, 140);
+  };
+  // Open one menu on hover, keeping it stable if it's already the open one.
+  const openMenu = (setAnchor, current) => (e) => {
+    if (isMobile) return;
+    cancelClose();
+    if (current === e.currentTarget) return;
+    closeAllMenus();
+    setAnchor(e.currentTarget);
+  };
 
-  const handleRankingsOpen = (e) => {
-    if (isMobile) return;
-    closeAllMenus();
-    setRankingsAnchorEl(e.currentTarget);
-  };
-  const handleRankingsClose = () => setRankingsAnchorEl(null);
-
-  const handleScheduleOpen = (e) => {
-    if (isMobile) return;
-    closeAllMenus();
-    setScheduleAnchorEl(e.currentTarget);
-  };
-  const handleScheduleClose = () => setScheduleAnchorEl(null);
-
-  const handleAlltimeOpen = (e) => {
-    if (isMobile) return;
-    closeAllMenus();
-    setAlltimeAnchorEl(e.currentTarget);
-  };
-  const handleAlltimeClose = () => setAlltimeAnchorEl(null);
+  const handleLeagueOpen = openMenu(setLeagueAnchorEl, leagueAnchorEl);
+  const handleRankingsOpen = openMenu(setRankingsAnchorEl, rankingsAnchorEl);
+  const handleScheduleOpen = openMenu(setScheduleAnchorEl, scheduleAnchorEl);
+  const handleAlltimeOpen = openMenu(setAlltimeAnchorEl, alltimeAnchorEl);
 
   const renderContent = () => {
     const p = location.pathname;
@@ -656,7 +659,7 @@ const AlltimeLayout = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#EEEEEE' }}>
       {/* HEADER */}
       <Box sx={{
-        bgcolor: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
         borderBottom: '4px solid #4a90e2',
         boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
         position: 'relative',
@@ -686,7 +689,7 @@ const AlltimeLayout = () => {
               }}
             />
 
-            {!isMobile && (
+            {isLarge && (
               <Tooltip title="Fantasy Goats Guru">
                 <Typography
                   variant="h5"
@@ -707,13 +710,13 @@ const AlltimeLayout = () => {
 
           {/* DESKTOP NAV */}
           {!isMobile && (
-            <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', gap: 0.75 }}>
               {navItems.map((item) => {
                 const submenuMap = {
-                  '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: handleLeagueClose, defaultPath: '/matchup' },
-                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: handleRankingsClose, defaultPath: '/rankings' },
-                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: handleScheduleClose, defaultPath: '/nba-playoffs' },
-                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: handleAlltimeClose, defaultPath: '/games' },
+                  '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: scheduleClose, defaultPath: '/matchup' },
+                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: scheduleClose, defaultPath: '/rankings' },
+                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: scheduleClose, defaultPath: '/nba-playoffs' },
+                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: scheduleClose, defaultPath: '/games' },
                 };
 
                 const config = submenuMap[item.path];
@@ -727,13 +730,18 @@ const AlltimeLayout = () => {
                 const isSubmenuActive = config && config.submenu.some(s => s.path === location.pathname);
 
                 return item.hasSubmenu ? (
-                  <Box key={item.path} sx={{ position: 'relative' }}>
+                  <Box
+                    key={item.path}
+                    sx={{ position: 'relative' }}
+                    onMouseEnter={config.handleOpen}
+                    onMouseLeave={config.handleClose}
+                  >
                     <Button
                       onMouseEnter={config.handleOpen}
                       onClick={() => handleNavClick(config.defaultPath)}
                       startIcon={<IconWrapper>{item.icon}</IconWrapper>}
                       sx={{
-                        px: { xs: 2.5, md: 3.8 },
+                        px: { xs: 1.5, md: 2 },
                         py: 1.5,
                         fontSize: '0.95rem',
                         fontWeight: isSubmenuActive ? 700 : 600,
@@ -760,6 +768,7 @@ const AlltimeLayout = () => {
                         <Grow {...TransitionProps}>
                           <Paper
                             elevation={20}
+                            onMouseEnter={cancelClose}
                             onMouseLeave={config.handleClose}
                             sx={{
                               bgcolor: '#fff',
@@ -821,10 +830,8 @@ const AlltimeLayout = () => {
                                             '&:hover': { bgcolor: isDisabled ? 'transparent' : 'rgba(74,144,226,0.12)' },
                                             opacity: isDisabled ? 0.5 : 1,
                                             cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                            gap: 2,
                                           }}
                                         >
-                                          {sub.icon}
                                           <Typography fontWeight={600} fontSize="0.95rem">{sub.label}</Typography>
                                         </MenuItem>
                                       </span>
@@ -874,7 +881,7 @@ const AlltimeLayout = () => {
                         disabled={(item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium)}
                         startIcon={<IconWrapper>{item.icon}</IconWrapper>}
                         sx={{
-                          px: { xs: 2.5, md: 3.8 },
+                          px: { xs: 1.5, md: 2 },
                           py: 1.5,
                           fontSize: '0.95rem',
                           fontWeight: isActive ? 700 : 600,
@@ -1139,7 +1146,6 @@ const AlltimeLayout = () => {
                             pl: 7,
                             pr: 2.5,
                             py: 2,
-                            gap: 2.5,
                             bgcolor: isSubActive ? 'rgba(74,144,226,0.15)' : 'transparent',
                             borderLeft: isSubActive ? '3px solid #4a90e2' : '3px solid transparent',
                             opacity: isDisabled ? 0.5 : 1,
@@ -1148,9 +1154,6 @@ const AlltimeLayout = () => {
                             },
                           }}
                         >
-                          <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.2rem' }}>
-                            {sub.icon}
-                          </Box>
                           <Typography fontSize="0.9rem" fontWeight={isSubActive ? 600 : 400}>
                             {sub.label}
                           </Typography>
