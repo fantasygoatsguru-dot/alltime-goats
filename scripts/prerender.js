@@ -195,3 +195,49 @@ ${sitemapEntries.map(urlXml).join('\n')}
 
 fs.writeFileSync(path.join(distPath, 'sitemap.xml'), sitemap);
 console.log(`🗺️  Generated sitemap.xml with ${sitemapEntries.length} URLs`);
+
+// ── IndexNow: notify Bing/Yandex/etc. of the current URL set ─────────
+// Reuses the exact list the sitemap is built from so the two can never
+// drift. Ownership is proven by the key file served at
+// `${BASE_URL}/${INDEXNOW_KEY}.txt` (see public/). Only pings on Netlify
+// production builds, and never fails the deploy on a network error.
+const INDEXNOW_KEY = 'ce61a9a3019daed33a7f22175b55f9eb';
+const host = new URL(BASE_URL).host;
+
+async function submitToIndexNow() {
+  if (process.env.CONTEXT && process.env.CONTEXT !== 'production') {
+    console.log(`⏭️  IndexNow skipped (build context: ${process.env.CONTEXT})`);
+    return;
+  }
+  if (!process.env.NETLIFY && !process.env.INDEXNOW_FORCE) {
+    console.log('⏭️  IndexNow skipped (not a Netlify build; set INDEXNOW_FORCE=1 to override)');
+    return;
+  }
+
+  const urlList = sitemapEntries.map(
+    (r) => `${BASE_URL}${r.path === '/' ? '/' : r.path}`
+  );
+
+  try {
+    const res = await fetch('https://api.indexnow.org/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        host,
+        key: INDEXNOW_KEY,
+        keyLocation: `${BASE_URL}/${INDEXNOW_KEY}.txt`,
+        urlList,
+      }),
+    });
+    // 200 = accepted, 202 = accepted/pending verification. Both are success.
+    if (res.ok) {
+      console.log(`📣 IndexNow submitted ${urlList.length} URLs (HTTP ${res.status})`);
+    } else {
+      console.warn(`⚠️  IndexNow returned HTTP ${res.status} — continuing build`);
+    }
+  } catch (err) {
+    console.warn(`⚠️  IndexNow submission failed (${err.message}) — continuing build`);
+  }
+}
+
+await submitToIndexNow();
