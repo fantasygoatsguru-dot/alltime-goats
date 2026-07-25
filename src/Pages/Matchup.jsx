@@ -60,7 +60,18 @@ import WeeklyMatchupResults from "../components/WeeklyMatchupResults";
 import YahooConnectionSection from "../components/YahooConnectionSection";
 import StatsComparisonGraph from "../components/StatsComparisonGraph";
 import PlayerComparisonGraph from "../components/PlayerComparisonGraph";
-import ReassuringLoader from "../components/ReassuringLoader";
+
+// Shared token system with the Guides / Matchup Projection pages.
+const rosterSelectSx = {
+    bgcolor: '#fff',
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    color: '#0f2340',
+    borderRadius: 2,
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e6e9ee' },
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#2f80ed' },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#2f80ed' },
+};
 
 const DEFAULT_PLAYERS = {
     team1: [
@@ -1388,40 +1399,41 @@ const getCurrentWeekDates = () => {
     // Show loading state on initial load
     if (initialLoading) {
         return (
-            <ReassuringLoader 
-                type={isConnected ? 'matchup' : 'default'}
-                customMessage={isConnected ? 'Loading your matchup' : 'Preparing your matchup'}
-                customSubtext={isConnected 
-                    ? 'Gathering player stats, projections, and team data' 
-                    : 'Setting up the comparison tool for you'}
-                minHeight="100vh"
-            />
+            <Box sx={{ bgcolor: '#f5f6f8', minHeight: '100vh', px: { xs: 1.5, md: 3 }, py: { xs: 2, md: 3 } }}>
+                <Box sx={{ bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 3, py: 8, textAlign: 'center' }}>
+                    <CircularProgress size={36} sx={{ color: '#2f80ed', mb: 1.5 }} />
+                    <Typography sx={{ color: '#0f2340', fontWeight: 600, fontSize: '0.9rem' }}>
+                        {isConnected ? 'Loading your matchup…' : 'Preparing your matchup…'}
+                    </Typography>
+                </Box>
+            </Box>
         );
     }
 
     return (
         <Box
             sx={{
-                p: 2,
-                minHeight: "100vh",
-                color: "#212121",
+                bgcolor: '#f5f6f8',
+                minHeight: '100vh',
+                px: { xs: 1.5, md: 3 },
+                py: { xs: 2, md: 3 },
             }}
         >
             <Typography
-                variant="h4"
                 sx={{
-                    mb: 3,
-                    fontWeight: "bold",
-                    textAlign: "center",
-                    color: "#4a90e2",
-                    fontFamily: '"Roboto Mono", monospace',
+                    mb: 2.5,
+                    fontWeight: 800,
+                    fontSize: '1.3rem',
+                    letterSpacing: -0.5,
+                    textAlign: { xs: 'center', md: 'left' },
+                    color: '#0f2340',
                 }}
             >
-                Fantasy Goats Comparison
+                Team Comparison
             </Typography>
 
             {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
                     {error}
                 </Alert>
             )}
@@ -1444,12 +1456,13 @@ const getCurrentWeekDates = () => {
             {/* Team Rosters */}
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
-                            <Box sx={{ mb: 2 }}>
+                            <Box sx={{ mb: 2, bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 3, p: 2, height: '100%' }}>
+                                <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0f2340', mb: 1.5 }}>
+                                    {team1Name}
+                                </Typography>
                                 <List
                                     sx={{
-                                        bgcolor: "#f5f5f5",
-                                        borderRadius: 1,
-                                        p: 1,
+                                        p: 0,
                                         maxHeight: 400,
                                         overflow: "auto",
                                     }}
@@ -1459,26 +1472,23 @@ const getCurrentWeekDates = () => {
                                 <ListItem
                                     key={`${player.id}-${index}`}
                                     sx={{
-                                        py: 0.5,
-                                        px: 1,
-                                        mb: 0.5,
-                                        borderRadius: 1,
-                                        bgcolor: player.active
-                                            ? "rgba(74, 144, 226, 0.1)"
-                                            : "rgba(158, 158, 158, 0.1)",
-                                        border: `1px solid ${
-                                            player.active
-                                                ? "rgba(74, 144, 226, 0.2)"
-                                                : "rgba(158, 158, 158, 0.2)"
-                                        }`,
+                                        py: 0.75,
+                                        px: 1.25,
+                                        mb: 0.75,
+                                        borderRadius: 2,
+                                        bgcolor: player.active ? '#fff' : '#f8f9fb',
+                                        border: '1px solid #e6e9ee',
+                                        opacity: player.active ? 1 : 0.55,
+                                        transition: 'opacity .15s ease',
                                     }}
                                 >
                                     <ListItemText
                                         primary={player.name}
                                         primaryTypographyProps={{
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            color: "#212121",
-                                            fontSize: "0.875rem",
+                                            color: "#0f2340",
+                                            fontWeight: 600,
+                                            fontSize: "0.85rem",
+                                            sx: { textDecoration: player.active ? 'none' : 'line-through' },
                                         }}
                                     />
                                     <Tooltip
@@ -1501,10 +1511,10 @@ const getCurrentWeekDates = () => {
                                             size="small"
                                             sx={{
                                                 color: player.active
-                                                    ? "#4a90e2"
+                                                    ? "#2f80ed"
                                                     : "#b0bec5",
                                                 "&:hover": {
-                                                    bgcolor: "rgba(74, 144, 226, 0.2)",
+                                                    bgcolor: "rgba(47, 128, 237, 0.12)",
                                                 },
                                             }}
                                         >
@@ -1523,15 +1533,15 @@ const getCurrentWeekDates = () => {
                                             size="small"
                                             sx={{
                                                 color: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
-                                                    ? "#4a90e2"
-                                                    : "#4CAF50",
+                                                    ? "#2f80ed"
+                                                    : "#1e8e5a",
                                                 bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
-                                                    ? "rgba(74, 144, 226, 0.2)"
+                                                    ? "rgba(47, 128, 237, 0.14)"
                                                     : "transparent",
                                                 "&:hover": {
                                                     bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
-                                                        ? "rgba(74, 144, 226, 0.3)"
-                                                        : "rgba(76, 175, 80, 0.2)",
+                                                        ? "rgba(47, 128, 237, 0.2)"
+                                                        : "rgba(30, 142, 90, 0.12)",
                                                 },
                                             }}
                                         >
@@ -1550,9 +1560,9 @@ const getCurrentWeekDates = () => {
                                             }
                                             size="small"
                                             sx={{
-                                                color: "#ff6f61",
+                                                color: "#d9534f",
                                                 "&:hover": {
-                                                    bgcolor: "rgba(255, 111, 97, 0.2)",
+                                                    bgcolor: "rgba(217, 83, 79, 0.12)",
                                                 },
                                             }}
                                         >
@@ -1562,13 +1572,12 @@ const getCurrentWeekDates = () => {
                                 </ListItem>
                             )})}
                         </List>
-                        <Box sx={{ display: 'flex', gap: 1, mt: 2, p: 1 }}>
+                        <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
                             <FormControl fullWidth variant="outlined" size="small">
-                                <InputLabel 
-                                    sx={{ 
-                                        color: "#424242",
-                                        fontFamily: "'Roboto Mono', monospace",
-                                        fontSize: '0.875rem'
+                                <InputLabel
+                                    sx={{
+                                        color: "#5a6472",
+                                        fontSize: '0.85rem'
                                     }}
                                 >
                                     Add Player
@@ -1577,26 +1586,15 @@ const getCurrentWeekDates = () => {
                                     value={team1AddPlayer}
                                     onChange={(e) => setTeam1AddPlayer(e.target.value)}
                                     label="Add Player"
-                                    sx={{
-                                        color: "#212121",
-                                        borderRadius: 1,
-                                        fontFamily: "'Roboto Mono', monospace",
-                                        fontSize: '0.875rem',
-                                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
-                                        "& .MuiSelect-icon": { color: "#4a90e2" }
-                                    }}
+                                    sx={rosterSelectSx}
                                 >
                                     {allPlayers
                                         .filter(player => !team1Players.some(p => p.name === player.name))
                                         .map((player) => (
-                                            <MenuItem 
-                                                key={player.id} 
+                                            <MenuItem
+                                                key={player.id}
                                                 value={player.name}
-                                                sx={{
-                                                    fontFamily: "'Roboto Mono', monospace",
-                                                    fontSize: '0.875rem'
-                                                }}
+                                                sx={{ fontSize: '0.85rem' }}
                                             >
                                                 {player.name}
                                             </MenuItem>
@@ -1608,15 +1606,19 @@ const getCurrentWeekDates = () => {
                                 onClick={handleAddPlayerTeam1}
                                 disabled={!team1AddPlayer}
                                 sx={{
-                                    bgcolor: "#4a90e2",
-                                    color: "#212121",
-                                    fontFamily: "'Roboto Mono', monospace",
+                                    bgcolor: "#2f80ed",
+                                    color: "#fff",
+                                    fontWeight: 700,
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    boxShadow: 'none',
                                     "&:hover": {
-                                        bgcolor: "#80deea"
+                                        bgcolor: "#256fd0",
+                                        boxShadow: 'none',
                                     },
                                     "&.Mui-disabled": {
-                                        bgcolor: "#b0bec5",
-                                        color: "#e0e0e0"
+                                        bgcolor: "#e6e9ee",
+                                        color: "#b0bec5"
                                     }
                                 }}
                             >
@@ -1627,12 +1629,13 @@ const getCurrentWeekDates = () => {
                 </Grid>
 
                         <Grid item xs={12} md={6}>
-                            <Box sx={{ mb: 2 }}>
+                            <Box sx={{ mb: 2, bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 3, p: 2, height: '100%' }}>
+                                <Typography sx={{ fontWeight: 800, fontSize: '1rem', color: '#0f2340', mb: 1.5 }}>
+                                    {team2Name}
+                                </Typography>
                                 <List
                                     sx={{
-                                        bgcolor: "#f5f5f5",
-                                        borderRadius: 1,
-                                        p: 1,
+                                        p: 0,
                                         maxHeight: 400,
                                         overflow: "auto",
                                     }}
@@ -1642,26 +1645,23 @@ const getCurrentWeekDates = () => {
                                 <ListItem
                                     key={`${player.id}-${index}`}
                                     sx={{
-                                        py: 0.5,
-                                        px: 1,
-                                        mb: 0.5,
-                                        borderRadius: 1,
-                                        bgcolor: player.active
-                                            ? "rgba(74, 144, 226, 0.1)"
-                                            : "rgba(158, 158, 158, 0.1)",
-                                        border: `1px solid ${
-                                            player.active
-                                                ? "rgba(74, 144, 226, 0.2)"
-                                                : "rgba(158, 158, 158, 0.2)"
-                                        }`,
+                                        py: 0.75,
+                                        px: 1.25,
+                                        mb: 0.75,
+                                        borderRadius: 2,
+                                        bgcolor: player.active ? '#fff' : '#f8f9fb',
+                                        border: '1px solid #e6e9ee',
+                                        opacity: player.active ? 1 : 0.55,
+                                        transition: 'opacity .15s ease',
                                     }}
                                 >
                                     <ListItemText
                                         primary={player.name}
                                         primaryTypographyProps={{
-                                            fontFamily: '"Roboto Mono", monospace',
-                                            color: "#212121",
-                                            fontSize: "0.875rem",
+                                            color: "#0f2340",
+                                            fontWeight: 600,
+                                            fontSize: "0.85rem",
+                                            sx: { textDecoration: player.active ? 'none' : 'line-through' },
                                         }}
                                     />
                                     <Tooltip
@@ -1684,10 +1684,10 @@ const getCurrentWeekDates = () => {
                                             size="small"
                                             sx={{
                                                 color: player.active
-                                                    ? "#4a90e2"
+                                                    ? "#2f80ed"
                                                     : "#b0bec5",
                                                 "&:hover": {
-                                                    bgcolor: "rgba(74, 144, 226, 0.2)",
+                                                    bgcolor: "rgba(47, 128, 237, 0.12)",
                                                 },
                                             }}
                                         >
@@ -1706,15 +1706,15 @@ const getCurrentWeekDates = () => {
                                             size="small"
                                             sx={{
                                                 color: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
-                                                    ? "#4a90e2"
-                                                    : "#4CAF50",
+                                                    ? "#2f80ed"
+                                                    : "#1e8e5a",
                                                 bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
-                                                    ? "rgba(74, 144, 226, 0.2)"
+                                                    ? "rgba(47, 128, 237, 0.14)"
                                                     : "transparent",
                                                 "&:hover": {
                                                     bgcolor: isPlayerInComparison(player.name, player.id, player.nbaPlayerId, player.yahooPlayerId)
-                                                        ? "rgba(74, 144, 226, 0.3)"
-                                                        : "rgba(76, 175, 80, 0.2)",
+                                                        ? "rgba(47, 128, 237, 0.2)"
+                                                        : "rgba(30, 142, 90, 0.12)",
                                                 },
                                             }}
                                         >
@@ -1733,9 +1733,9 @@ const getCurrentWeekDates = () => {
                                             }
                                             size="small"
                                             sx={{
-                                                color: "#ff6f61",
+                                                color: "#d9534f",
                                                 "&:hover": {
-                                                    bgcolor: "rgba(255, 111, 97, 0.2)",
+                                                    bgcolor: "rgba(217, 83, 79, 0.12)",
                                                 },
                                             }}
                                         >
@@ -1745,13 +1745,12 @@ const getCurrentWeekDates = () => {
                                 </ListItem>
                             )})}
                         </List>
-                        <Box sx={{ display: 'flex', gap: 1, mt: 2, p: 1 }}>
+                        <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
                             <FormControl fullWidth variant="outlined" size="small">
-                                <InputLabel 
-                                    sx={{ 
-                                        color: "#424242",
-                                        fontFamily: "'Roboto Mono', monospace",
-                                        fontSize: '0.875rem'
+                                <InputLabel
+                                    sx={{
+                                        color: "#5a6472",
+                                        fontSize: '0.85rem'
                                     }}
                                 >
                                     Add Player
@@ -1760,26 +1759,15 @@ const getCurrentWeekDates = () => {
                                     value={team2AddPlayer}
                                     onChange={(e) => setTeam2AddPlayer(e.target.value)}
                                     label="Add Player"
-                                    sx={{
-                                        color: "#212121",
-                                        borderRadius: 1,
-                                        fontFamily: "'Roboto Mono', monospace",
-                                        fontSize: '0.875rem',
-                                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "#4a90e2" },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#80deea" },
-                                        "& .MuiSelect-icon": { color: "#4a90e2" }
-                                    }}
+                                    sx={rosterSelectSx}
                                 >
                                     {allPlayers
                                         .filter(player => !team2Players.some(p => p.name === player.name))
                                         .map((player) => (
-                                            <MenuItem 
-                                                key={player.id} 
+                                            <MenuItem
+                                                key={player.id}
                                                 value={player.name}
-                                                sx={{
-                                                    fontFamily: "'Roboto Mono', monospace",
-                                                    fontSize: '0.875rem'
-                                                }}
+                                                sx={{ fontSize: '0.85rem' }}
                                             >
                                                 {player.name}
                                             </MenuItem>
@@ -1791,15 +1779,19 @@ const getCurrentWeekDates = () => {
                                 onClick={handleAddPlayerTeam2}
                                 disabled={!team2AddPlayer}
                                 sx={{
-                                    bgcolor: "#4a90e2",
-                                    color: "#212121",
-                                    fontFamily: "'Roboto Mono', monospace",
+                                    bgcolor: "#2f80ed",
+                                    color: "#fff",
+                                    fontWeight: 700,
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    boxShadow: 'none',
                                     "&:hover": {
-                                        bgcolor: "#80deea"
+                                        bgcolor: "#256fd0",
+                                        boxShadow: 'none',
                                     },
                                     "&.Mui-disabled": {
-                                        bgcolor: "#b0bec5",
-                                        color: "#e0e0e0"
+                                        bgcolor: "#e6e9ee",
+                                        color: "#b0bec5"
                                     }
                                 }}
                             >
@@ -1811,7 +1803,7 @@ const getCurrentWeekDates = () => {
             </Grid>
 
             {/* Comparison Graphs */}
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ mt: 0.5 }}>
                 <Grid item xs={12} md={6}>
                     <StatsComparisonGraph
                         teamAverages={playerStats.find((p) => p.teamAverages)?.teamAverages || null}
@@ -1832,6 +1824,7 @@ const getCurrentWeekDates = () => {
             </Grid>
 
             {/* Weekly Matchup Results */}
+            <Box sx={{ mt: 2 }} />
             <WeeklyMatchupResults
                 weeklyResults={weeklyResults}
                 team1Name={team1Name}
