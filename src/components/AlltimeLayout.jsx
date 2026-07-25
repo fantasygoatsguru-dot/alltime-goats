@@ -52,7 +52,9 @@ import Guides from '../Pages/Guides';
 import Guide from '../Pages/Guide';
 import Pricing from '../Pages/Pricing';
 import PurchaseSuccess from '../Pages/PurchaseSuccess';
+import GatedTool from './GatedTool';
 import { useAuth } from '../contexts/AuthContext';
+import { useEntitlements } from '../hooks/useEntitlements';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
 import ReassuringLoader from './ReassuringLoader';
@@ -208,6 +210,7 @@ const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout, login, authUser, isSignedIn, signOutAccount } = useAuth();
+  const { hasPass } = useEntitlements();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   // Show the full wordmark only when there's comfortable room; between md and lg
@@ -300,27 +303,27 @@ const AlltimeLayout = () => {
       label: 'Matchup Projection',
       icon: <MatchupIcon />,
       requiresAuth: true,
-      requiresPremium: false,
+      requiresPremium: true,
       tooltip: 'Connect to Yahoo to view your matchups',
-      premiumTooltip: 'Upgrade to premium to access matchup projections'
+      premiumTooltip: 'Requires a Season Pass'
     },
     {
       path: '/ultimate-winner',
       label: 'Head-to-Head Matrix',
       icon: <UltimateWinnerIcon />,
       requiresAuth: true,
-      requiresPremium: false,
+      requiresPremium: true,
       tooltip: 'Connect to Yahoo to view head-to-head matrix',
-      premiumTooltip: 'Upgrade to premium to access head-to-head matrix'
+      premiumTooltip: 'Requires a Season Pass'
     },
     {
       path: '/category-breakdown',
       label: 'Category Breakdown',
       icon: <CategoryBreakdownIcon />,
       requiresAuth: true,
-      requiresPremium: false,
+      requiresPremium: true,
       tooltip: 'Connect to Yahoo to view category breakdown',
-      premiumTooltip: 'Upgrade to premium to access category breakdown'
+      premiumTooltip: 'Requires a Season Pass'
     },
   ];
 
@@ -338,18 +341,18 @@ const AlltimeLayout = () => {
       label: 'Team Playoff Strength',
       icon: <MyTeamIcon />,
       requiresAuth: true,
-      requiresPremium: false,
+      requiresPremium: true,
       tooltip: 'Connect to Yahoo to view your playoff schedule',
-      premiumTooltip: 'Upgrade to premium to access your playoff schedule'
+      premiumTooltip: 'Requires a Season Pass'
     },
     {
       path: '/my-league-regular-season',
       label: 'Team Season Strength',
       icon: <MyTeamIcon />,
       requiresAuth: true,
-      requiresPremium: false,
+      requiresPremium: true,
       tooltip: 'Connect to Yahoo to view your league schedule',
-      premiumTooltip: 'Upgrade to premium to access your league schedule'
+      premiumTooltip: 'Requires a Season Pass'
     },
   ];
 
@@ -392,7 +395,7 @@ const AlltimeLayout = () => {
 
   const displayName = userProfile?.name || user?.name || 'User';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
-  const isPremium = userProfile?.is_premium ?? false;
+  const isPremium = hasPass('season');
 
   useEffect(() => {
     const fetchUserLeagues = async () => {
@@ -631,10 +634,10 @@ const AlltimeLayout = () => {
   const renderContent = () => {
     const p = location.pathname;
     if (p === '/' || p === '/matchup') return <Matchup />;
-    if (p === '/matchup-projection') return <MatchupProjection />;
+    if (p === '/matchup-projection') return <GatedTool toolId="matchup-projection" toolName="Matchup Projection"><MatchupProjection /></GatedTool>;
     if (p === '/my-team') return <MyTeam />;
-    if (p === '/ultimate-winner') return <UltimateWinner />;
-    if (p === '/category-breakdown') return <CategoryBreakdown />;
+    if (p === '/ultimate-winner') return <GatedTool toolId="ultimate-winner" toolName="the Head-to-Head Matrix"><UltimateWinner /></GatedTool>;
+    if (p === '/category-breakdown') return <GatedTool toolId="category-breakdown" toolName="Category Breakdown"><CategoryBreakdown /></GatedTool>;
     if (p === '/teams') return <Alltime />;
     if (p === '/seasons' || p === '/table') return <AlltimeTable />;
     if (p === '/games') return <AlltimeGames />;
@@ -643,9 +646,9 @@ const AlltimeLayout = () => {
     if (p === '/chat') return <FantasyChat />;
     if (p === '/playoffs') return <LeaguePlayoffs />;
     if (p === '/nba-playoffs') return <NBAPlayoffs />;
-    if (p === '/my-league-playoffs') return <MyLeaguePlayoffs />;
+    if (p === '/my-league-playoffs') return <GatedTool toolId="my-league-playoffs" toolName="Team Playoff Strength"><MyLeaguePlayoffs /></GatedTool>;
     if (p === '/nba-regular-season') return <NBARegularSeason />;
-    if (p === '/my-league-regular-season') return <MyLeagueRegularSeason />;
+    if (p === '/my-league-regular-season') return <GatedTool toolId="my-league-regular-season" toolName="Team Season Strength"><MyLeagueRegularSeason /></GatedTool>;
     if (p === '/about') return <About />;
     if (p === '/profile') return <UserProfile />;
     if (p === '/privacy-policy') return <PrivacyPolicy />;
@@ -786,28 +789,16 @@ const AlltimeLayout = () => {
                             <ClickAwayListener onClickAway={config.handleClose}>
                               <Box>
                                 {config.submenu.map((sub) => {
-                                  // Yahoo-required tools stay navigable — they show an in-page
-                                  // "Connect Yahoo" gate. Only premium (entitlement) disables nav.
-                                  const isDisabled = sub.requiresPremium && !isPremium;
+                                  // Both Yahoo- and premium-gated tools stay navigable — the
+                                  // destination page renders the right gate (Connect Yahoo /
+                                  // PremiumGate). Nav never blocks the click.
                                   const needsAuth = sub.requiresAuth && !isAuthenticated;
                                   const needsPremium = sub.requiresPremium && !isPremium;
 
                                   const tooltipContent = needsAuth && sub.tooltip
                                     ? sub.tooltip
                                     : needsPremium && sub.premiumTooltip
-                                      ? (
-                                        <Box>
-                                          {sub.premiumTooltip}{' '}
-                                          <Link
-                                            href="https://buymeacoffee.com/fantasygoatsguru"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{ color: '#fff', textDecoration: 'underline', fontWeight: 600 }}
-                                          >
-                                            Support us here
-                                          </Link>
-                                        </Box>
-                                      )
+                                      ? sub.premiumTooltip
                                       : '';
 
                                   return (
@@ -820,23 +811,26 @@ const AlltimeLayout = () => {
                                       <span>
                                         <MenuItem
                                           onClick={() => {
-                                            if (!isDisabled) {
-                                              handleNavClick(sub.path);
-                                              config.handleClose();
-                                            }
+                                            handleNavClick(sub.path);
+                                            config.handleClose();
                                           }}
-                                          disabled={isDisabled}
                                           sx={{
                                             px: 3, py: 2,
                                             bgcolor: location.pathname === sub.path ? 'rgba(74,144,226,0.18)' : 'transparent',
                                             borderBottom: '1px solid #f0f0f0',
                                             '&:last-child': { borderBottom: 'none' },
-                                            '&:hover': { bgcolor: isDisabled ? 'transparent' : 'rgba(74,144,226,0.12)' },
-                                            opacity: isDisabled ? 0.5 : 1,
-                                            cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                            '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
                                           }}
                                         >
-                                          <Typography fontWeight={600} fontSize="0.95rem">{sub.label}</Typography>
+                                          <Typography fontWeight={600} fontSize="0.95rem" sx={{ flexGrow: 1 }}>{sub.label}</Typography>
+                                          {needsPremium && (
+                                            <Typography
+                                              variant="caption"
+                                              sx={{ ml: 1.5, color: '#4a90e2', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+                                            >
+                                              Pass
+                                            </Typography>
+                                          )}
                                         </MenuItem>
                                       </span>
                                     </Tooltip>
@@ -1135,35 +1129,30 @@ const AlltimeLayout = () => {
                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                   <Box sx={{ bgcolor: 'rgba(0,0,0,0.02)' }}>
                     {submenu.map((sub) => {
-                      // Yahoo-required tools stay navigable (in-page gate handles connect).
-                      const isDisabled = sub.requiresPremium && !isPremium;
+                      // Both Yahoo- and premium-gated tools stay navigable — the
+                      // destination page renders the right gate.
                       const isSubActive = location.pathname === sub.path;
-                      const needsAuth = sub.requiresAuth && !isAuthenticated;
                       const needsPremium = sub.requiresPremium && !isPremium;
 
                       return (
                         <MenuItem
                           key={sub.path}
-                          onClick={() => !isDisabled && handleNavClick(sub.path)}
-                          disabled={isDisabled}
+                          onClick={() => handleNavClick(sub.path)}
                           sx={{
                             pl: 7,
                             pr: 2.5,
                             py: 2,
                             bgcolor: isSubActive ? 'rgba(74,144,226,0.15)' : 'transparent',
                             borderLeft: isSubActive ? '3px solid #4a90e2' : '3px solid transparent',
-                            opacity: isDisabled ? 0.5 : 1,
-                            '&:hover': {
-                              bgcolor: isDisabled ? 'transparent' : 'rgba(74,144,226,0.08)',
-                            },
+                            '&:hover': { bgcolor: 'rgba(74,144,226,0.08)' },
                           }}
                         >
-                          <Typography fontSize="0.9rem" fontWeight={isSubActive ? 600 : 400}>
+                          <Typography fontSize="0.9rem" fontWeight={isSubActive ? 600 : 400} sx={{ flexGrow: 1 }}>
                             {sub.label}
                           </Typography>
-                          {isDisabled && (needsAuth ? sub.tooltip : needsPremium ? 'Premium' : '') && (
-                            <Typography variant="caption" sx={{ ml: 'auto', color: 'text.secondary', fontSize: '0.7rem' }}>
-                              Locked
+                          {needsPremium && (
+                            <Typography variant="caption" sx={{ ml: 1.5, color: '#4a90e2', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              Pass
                             </Typography>
                           )}
                         </MenuItem>

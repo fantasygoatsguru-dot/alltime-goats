@@ -2,6 +2,13 @@
 // "Share" links (not secret) for the store fantasygoatsguru.lemonsqueezy.com.
 // Keep pass ids in sync with the pass_type values the lemonsqueezy-webhook
 // edge function writes to the entitlements table.
+
+// The season these passes unlock. Deliberately separate from CURRENT_SEASON
+// in src/utils/supabase.js (which tracks the season whose *stats* are being
+// displayed) — entitlements are sold ahead of the season they cover. Keep in
+// sync with CURRENT_SEASON in supabase/functions/lemonsqueezy-webhook/index.ts.
+export const PASS_SEASON = '2026-27';
+
 export const PASSES = [
   {
     id: 'draft',
