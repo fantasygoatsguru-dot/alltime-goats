@@ -12,6 +12,43 @@ import {
     Menu,
     MenuItem,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+
+// Team identity colors — used throughout the dense stats table so a team's
+// numbers stay glanceable without re-reading the header each row.
+const TEAM1_COLOR = "#1e8e5a";
+const TEAM2_COLOR = "#d9534f";
+
+// Win/loss cell shading: a single hue per outcome, three intensities to
+// encode margin size (close / moderate / blowout) — the intensity math is
+// unchanged, only the color values were unified into one coherent palette.
+const winCellStyle = (intensity) => {
+    if (intensity < 0.4) return { bg: "rgba(30, 142, 90, 0.08)", text: "#1e8e5a", hoverBg: "rgba(30, 142, 90, 0.14)" };
+    if (intensity < 0.7) return { bg: "rgba(30, 142, 90, 0.14)", text: "#187249", hoverBg: "rgba(30, 142, 90, 0.2)" };
+    return { bg: "rgba(30, 142, 90, 0.2)", text: "#14603c", hoverBg: "rgba(30, 142, 90, 0.26)" };
+};
+const lossCellStyle = (intensity) => {
+    if (intensity < 0.4) return { bg: "rgba(217, 83, 79, 0.08)", text: "#d9534f", hoverBg: "rgba(217, 83, 79, 0.14)" };
+    if (intensity < 0.7) return { bg: "rgba(217, 83, 79, 0.14)", text: "#c0392b", hoverBg: "rgba(217, 83, 79, 0.2)" };
+    return { bg: "rgba(217, 83, 79, 0.2)", text: "#a5281c", hoverBg: "rgba(217, 83, 79, 0.26)" };
+};
+const tieCellStyle = { bg: "rgba(90, 100, 114, 0.05)", text: "#8595ad", hoverBg: "rgba(90, 100, 114, 0.1)" };
+
+// Day-by-day columns only show on tablet/desktop, where there's room for
+// 7+ extra columns. On mobile the same numbers move into the expand panel
+// below, so nothing is lost — it just stops forcing a horizontal scroll.
+const dayColSx = { display: { xs: 'none', md: 'table-cell' } };
+
+const formatDayValue = (day, catKey, isPct) => {
+    if (!day || !day.totals) return '0.0';
+    if (isPct) {
+        const madeKey = catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade';
+        const attemptedKey = catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted';
+        return `${(day.totals[madeKey] || 0).toFixed(0)}/${(day.totals[attemptedKey] || 0).toFixed(0)}`;
+    }
+    return (day.totals[catKey] || 0).toFixed(1);
+};
 
 const MatchupProjectionTracker = ({
     matchupProjection,
@@ -167,11 +204,11 @@ const MatchupProjectionTracker = ({
 
     if (!isConnected) {
         return (
-            <Box sx={{ mt: 4, p: 4, bgcolor: "#f8f9fa", borderRadius: 1, textAlign: 'center', border: "1px solid rgba(0, 0, 0, 0.12)" }}>
+            <Box sx={{ mt: 4, p: 4, bgcolor: "#fff", borderRadius: 3, textAlign: 'center', border: "1px solid #e6e9ee" }}>
                 <Typography
                     variant="h6"
                     sx={{
-                        color: "#003366",
+                        color: "#0f2340",
                         fontWeight: 600,
                         mb: 2
                     }}
@@ -181,7 +218,7 @@ const MatchupProjectionTracker = ({
                 <Typography
                     variant="body2"
                     sx={{
-                        color: "#666",
+                        color: "#5a6472",
                         fontStyle: 'italic'
                     }}
                 >
@@ -195,42 +232,73 @@ const MatchupProjectionTracker = ({
 
     return (
         <>
-            <Box sx={{ p: 2 }}>
-                {/* Projected Score Display */}
+            <Box sx={{ p: { xs: 1, sm: 2 } }}>
+                {/* Scoreboard */}
                 <Box sx={{
-                    mb: 2, p: 1.5, bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1,
-                    display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, flexWrap: 'wrap', justifyContent: 'center',
-                    textAlign: 'center'
+                    mb: 2.5, bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 3,
+                    display: 'flex', alignItems: 'center', overflow: 'hidden',
                 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: '#003366' }}>
-                        Projected Final Score:
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: { xs: 1, sm: 2 }, alignItems: 'center' }}>
-                        <Typography variant="body2" sx={{ color: '#000', whiteSpace: 'nowrap' }}>
-                            <strong style={{ color: accurateScore.team1Score > accurateScore.team2Score ? "#2e7d32" : accurateScore.team1Score < accurateScore.team2Score ? "#c62828" : "#666" }}>
-                                {matchupProjection.team1.name} {accurateScore.team1Score}
-                            </strong>
+                    <Box sx={{ flex: 1, py: 2.5, px: 2, textAlign: 'center' }}>
+                        <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: 0.4, color: '#5a6472', mb: 0.5 }}>
+                            {matchupProjection.team1.name}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-                            -
+                        <Typography
+                            sx={{
+                                fontSize: { xs: '1.8rem', sm: '2.2rem' },
+                                fontWeight: 900,
+                                lineHeight: 1,
+                                color: accurateScore.team1Score > accurateScore.team2Score ? TEAM1_COLOR : accurateScore.team1Score < accurateScore.team2Score ? TEAM2_COLOR : '#0f2340',
+                            }}
+                        >
+                            {accurateScore.team1Score}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#000', whiteSpace: 'nowrap' }}>
-                            <strong style={{ color: accurateScore.team2Score > accurateScore.team1Score ? "#2e7d32" : accurateScore.team2Score < accurateScore.team1Score ? "#c62828" : "#666" }}>
-                                {accurateScore.team2Score} {matchupProjection.team2.name}
-                            </strong>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: { xs: 1, sm: 2 } }}>
+                        <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: 1, color: '#8595ad', textTransform: 'uppercase' }}>
+                            Projected
+                        </Typography>
+                        <Box sx={{ width: 1, height: 28, bgcolor: '#e6e9ee', my: 0.5 }} />
+                    </Box>
+
+                    <Box sx={{ flex: 1, py: 2.5, px: 2, textAlign: 'center' }}>
+                        <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: 0.4, color: '#5a6472', mb: 0.5 }}>
+                            {matchupProjection.team2.name}
+                        </Typography>
+                        <Typography
+                            sx={{
+                                fontSize: { xs: '1.8rem', sm: '2.2rem' },
+                                fontWeight: 900,
+                                lineHeight: 1,
+                                color: accurateScore.team2Score > accurateScore.team1Score ? TEAM1_COLOR : accurateScore.team2Score < accurateScore.team1Score ? TEAM2_COLOR : '#0f2340',
+                            }}
+                        >
+                            {accurateScore.team2Score}
                         </Typography>
                     </Box>
                 </Box>
 
                 {/* Day-by-Day Stats Breakdown */}
-                <Box sx={{ bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1, overflow: 'hidden' }}>
+                <Box sx={{ bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 3, overflow: 'hidden' }}>
+                    <Typography
+                        sx={{
+                            display: { xs: 'block', md: 'none' },
+                            px: 1.5, pt: 1.25, pb: 0.25,
+                            fontSize: '0.7rem', fontWeight: 600, color: '#8595ad',
+                        }}
+                    >
+                        Tap a category for the day-by-day breakdown
+                    </Typography>
                     <Box
                         sx={{
-                            overflowX: 'auto',
+                            // Only tablet/desktop actually need to scroll — mobile hides the
+                            // day columns entirely, so pan-x here would just eat mobile taps
+                            // meant to expand a row.
+                            overflowX: { xs: 'visible', md: 'auto' },
                             overflowY: 'hidden',
                             WebkitOverflowScrolling: 'touch',
                             overscrollBehaviorX: 'contain',
-                            touchAction: 'pan-x pinch-zoom',
+                            touchAction: { xs: 'auto', md: 'pan-x pinch-zoom' },
                             '&::-webkit-scrollbar': {
                                 height: '8px',
                             },
@@ -247,18 +315,19 @@ const MatchupProjectionTracker = ({
                             },
                         }}
                     >
-                        <TableContainer sx={{ minWidth: { xs: 800, md: 1000 } }}>
-                            <Table size="small" stickyHeader>
+                        <TableContainer sx={{ minWidth: { xs: 'auto', md: 1000 } }}>
+                            <Table size="small" stickyHeader sx={{ width: '100%' }}>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell sx={{ color: "#666", fontWeight: 600 }}>Category</TableCell>
+                                        <TableCell sx={{ color: "#5a6472", fontWeight: 700, fontSize: { xs: '0.7rem', md: '0.72rem' }, textTransform: 'uppercase', letterSpacing: 0.4, bgcolor: '#f8f9fb', borderBottom: '1px solid #e6e9ee', whiteSpace: 'nowrap' }}>Category</TableCell>
                                         <TableCell
                                             align="center"
                                             sx={{
                                                 color: "#9c27b0",
-                                                fontWeight: 600,
+                                                fontWeight: 700,
                                                 fontSize: '0.7rem',
-                                                bgcolor: 'rgba(156, 39, 176, 0.1)'
+                                                bgcolor: 'rgba(156, 39, 176, 0.08)',
+                                                borderBottom: '1px solid #e6e9ee',
                                             }}
                                         >
                                             <Box>Current</Box>
@@ -271,21 +340,23 @@ const MatchupProjectionTracker = ({
                                                 key={idx}
                                                 align="center"
                                                 sx={{
-                                                    color: day.isToday ? "#003366" : "#666",
-                                                    fontWeight: 600,
+                                                    ...dayColSx,
+                                                    color: day.isToday ? "#0f2340" : "#5a6472",
+                                                    fontWeight: 700,
                                                     fontSize: '0.7rem',
-                                                    bgcolor: day.isToday ? 'rgba(0, 51, 102, 0.1)' : 'transparent'
+                                                    bgcolor: day.isToday ? 'rgba(47, 128, 237, 0.08)' : '#f8f9fb',
+                                                    borderBottom: '1px solid #e6e9ee',
                                                 }}
                                             >
                                                 <Box>{day.dayOfWeek}</Box>
-                                                <Box sx={{ fontSize: '0.65rem', color: day.isToday ? '#003366' : '#888' }}>
+                                                <Box sx={{ fontSize: '0.65rem', color: day.isToday ? '#0f2340' : '#8595ad' }}>
                                                     {day.monthDay}
                                                     {day.isToday && ' (Today)'}
                                                 </Box>
                                             </TableCell>
                                         ))}
-                                        <TableCell align="center" sx={{ color: "#666", fontWeight: 600 }}>Total</TableCell>
-                                        <TableCell sx={{ color: "#666", fontWeight: 600 }}>Winner</TableCell>
+                                        <TableCell align="center" sx={{ color: "#5a6472", fontWeight: 700, fontSize: { xs: '0.7rem', md: '0.72rem' }, textTransform: 'uppercase', letterSpacing: 0.4, bgcolor: '#f8f9fb', borderBottom: '1px solid #e6e9ee' }}>Total</TableCell>
+                                        <TableCell sx={{ color: "#5a6472", fontWeight: 700, fontSize: { xs: '0.7rem', md: '0.72rem' }, textTransform: 'uppercase', letterSpacing: 0.4, bgcolor: '#f8f9fb', borderBottom: '1px solid #e6e9ee' }}>Winner</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -452,45 +523,10 @@ const MatchupProjectionTracker = ({
                                             }
                                         }
 
-                                        // Calculate color intensity: use different shades based on margin
-                                        // Close categories: lighter colors, Blowouts: darker/more saturated colors
-                                        let bgColor, textColor;
-
-                                        if (isWin) {
-                                            // Green shades: light green for close, dark green for blowouts
-                                            if (marginIntensity < 0.4) {
-                                                // Close win: light green
-                                                bgColor = 'rgba(200, 230, 201, 0.3)';
-                                                textColor = 'rgba(76, 175, 80, 0.8)';
-                                            } else if (marginIntensity < 0.7) {
-                                                // Moderate win: medium green
-                                                bgColor = 'rgba(129, 199, 132, 0.4)';
-                                                textColor = 'rgba(56, 142, 60, 1)';
-                                            } else {
-                                                // Blowout: dark green
-                                                bgColor = 'rgba(76, 175, 80, 0.5)';
-                                                textColor = 'rgba(27, 94, 32, 1)';
-                                            }
-                                        } else if (isLoss) {
-                                            // Red shades: light red for close, dark red for blowouts
-                                            if (marginIntensity < 0.4) {
-                                                // Close loss: light red
-                                                bgColor = 'rgba(255, 205, 210, 0.3)';
-                                                textColor = 'rgba(244, 67, 54, 0.8)';
-                                            } else if (marginIntensity < 0.7) {
-                                                // Moderate loss: medium red
-                                                bgColor = 'rgba(239, 154, 154, 0.4)';
-                                                textColor = 'rgba(211, 47, 47, 1)';
-                                            } else {
-                                                // Blowout: dark red
-                                                bgColor = 'rgba(244, 67, 54, 0.5)';
-                                                textColor = 'rgba(183, 28, 28, 1)';
-                                            }
-                                        } else {
-                                            // Tie: gray
-                                            bgColor = 'rgba(158, 158, 158, 0.05)';
-                                            textColor = 'rgba(158, 158, 158, 0.8)';
-                                        }
+                                        // Cell shading: one hue per outcome, intensity encodes margin size.
+                                        const cellStyle = isWin ? winCellStyle(marginIntensity) : isLoss ? lossCellStyle(marginIntensity) : tieCellStyle;
+                                        const bgColor = cellStyle.bg;
+                                        const textColor = cellStyle.text;
 
                                         // Use Yahoo stats if available, otherwise fall back to calculated
                                         let team1CurrentValue, team2CurrentValue;
@@ -540,27 +576,7 @@ const MatchupProjectionTracker = ({
                                             team2TotalDisplay = team2TotalNumeric.toFixed(1);
                                         }
 
-                                        // Calculate hover color with slightly increased intensity
-                                        let hoverBgColor;
-                                        if (isWin) {
-                                            if (marginIntensity < 0.4) {
-                                                hoverBgColor = 'rgba(129, 199, 132, 0.4)';
-                                            } else if (marginIntensity < 0.7) {
-                                                hoverBgColor = 'rgba(76, 175, 80, 0.5)';
-                                            } else {
-                                                hoverBgColor = 'rgba(56, 142, 60, 0.6)';
-                                            }
-                                        } else if (isLoss) {
-                                            if (marginIntensity < 0.4) {
-                                                hoverBgColor = 'rgba(239, 154, 154, 0.4)';
-                                            } else if (marginIntensity < 0.7) {
-                                                hoverBgColor = 'rgba(244, 67, 54, 0.5)';
-                                            } else {
-                                                hoverBgColor = 'rgba(211, 47, 47, 0.6)';
-                                            }
-                                        } else {
-                                            hoverBgColor = 'rgba(158, 158, 158, 0.1)';
-                                        }
+                                        const hoverBgColor = cellStyle.hoverBg;
 
                                         return (
                                             <React.Fragment key={catKey}>
@@ -572,21 +588,22 @@ const MatchupProjectionTracker = ({
                                                     }}
                                                     onClick={() => setExpandedCategory(isExpanded ? null : catKey)}
                                                 >
-                                                    <TableCell sx={{ color: "#212121", fontWeight: 600 }}>
-                                                        {catLabels[catKey]} {isExpanded ? '▼' : '▶'}
+                                                    <TableCell sx={{ color: "#0f2340", fontWeight: 700, fontSize: { xs: '0.78rem', md: '0.8rem' }, display: 'flex', alignItems: 'center', gap: 0.5, border: 'none', whiteSpace: 'nowrap' }}>
+                                                        {isExpanded ? <ExpandMoreIcon sx={{ fontSize: 16, color: '#8595ad' }} /> : <ChevronRightIcon sx={{ fontSize: 16, color: '#8595ad' }} />}
+                                                        {catLabels[catKey]}
                                                     </TableCell>
                                                     <TableCell
                                                         align="center"
                                                         sx={{
-                                                            fontSize: '0.65rem',
-                                                            py: 0.5,
+                                                            fontSize: { xs: '0.72rem', md: '0.68rem' },
+                                                            py: 0.75,
                                                             bgcolor: 'rgba(156, 39, 176, 0.05)'
                                                         }}
                                                     >
-                                                        <Box sx={{ color: "#4CAF50" }}>
+                                                        <Box sx={{ color: "#1e8e5a" }}>
                                                             {team1CurrentValue}
                                                         </Box>
-                                                        <Box sx={{ color: "#ff6f61" }}>
+                                                        <Box sx={{ color: "#d9534f" }}>
                                                             {team2CurrentValue}
                                                         </Box>
                                                     </TableCell>
@@ -595,48 +612,43 @@ const MatchupProjectionTracker = ({
                                                             key={idx}
                                                             align="center"
                                                             sx={{
+                                                                ...dayColSx,
                                                                 fontSize: '0.65rem',
                                                                 py: 0.5,
-                                                                bgcolor: day.isToday ? 'rgba(0, 51, 102, 0.05)' : 'transparent'
+                                                                bgcolor: day.isToday ? 'rgba(47, 128, 237, 0.05)' : 'transparent'
                                                             }}
                                                         >
                                                             {day.isPast ? (
-                                                                <Box sx={{ color: '#666' }}>-</Box>
+                                                                <Box sx={{ color: '#5a6472' }}>-</Box>
                                                             ) : (
                                                                 <>
-                                                                    <Box sx={{ color: "#4CAF50" }}>
-                                                                        {isPct
-                                                                            ? `${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(day.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                                            : (day.totals[catKey] || 0).toFixed(1)
-                                                                        }
+                                                                    <Box sx={{ color: "#1e8e5a" }}>
+                                                                        {formatDayValue(day, catKey, isPct)}
                                                                     </Box>
-                                                                    <Box sx={{ color: "#ff6f61" }}>
-                                                                        {isPct
-                                                                            ? `${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsMade' : 'freeThrowsMade'] || 0).toFixed(0)}/${(matchupProjection.team2.dailyProjections[idx]?.totals[catKey === 'fieldGoalPercentage' ? 'fieldGoalsAttempted' : 'freeThrowsAttempted'] || 0).toFixed(0)}`
-                                                                            : (matchupProjection.team2.dailyProjections[idx]?.totals[catKey] || 0).toFixed(1)
-                                                                        }
+                                                                    <Box sx={{ color: "#d9534f" }}>
+                                                                        {formatDayValue(matchupProjection.team2.dailyProjections[idx], catKey, isPct)}
                                                                     </Box>
                                                                 </>
                                                             )}
                                                         </TableCell>
                                                     ))}
-                                                    <TableCell align="center">
-                                                        <Box sx={{ color: "#4CAF50", fontWeight: 600 }}>
+                                                    <TableCell align="center" sx={{ fontSize: { xs: '0.72rem', md: '0.75rem' }, py: 0.75 }}>
+                                                        <Box sx={{ color: "#1e8e5a", fontWeight: 600 }}>
                                                             {team1TotalDisplay}
                                                         </Box>
-                                                        <Box sx={{ color: "#ff6f61", fontWeight: 600 }}>
+                                                        <Box sx={{ color: "#d9534f", fontWeight: 600 }}>
                                                             {team2TotalDisplay}
                                                         </Box>
                                                     </TableCell>
-                                                    <TableCell>
-                                                        <Typography sx={{ fontWeight: 600, fontSize: '0.75rem' }} style={{ color: textColor }}>
+                                                    <TableCell sx={{ py: 0.75 }}>
+                                                        <Typography sx={{ fontWeight: 700, fontSize: { xs: '0.72rem', md: '0.75rem' }, whiteSpace: 'nowrap' }} style={{ color: textColor }}>
                                                             {isWin ? matchupProjection.team1.name.split(' ')[0] : isLoss ? matchupProjection.team2.name.split(' ')[0] : 'TIE'}
                                                         </Typography>
                                                     </TableCell>
                                                 </TableRow>
                                                 {isExpanded && (
                                                     <TableRow>
-                                                        <TableCell colSpan={10} sx={{ bgcolor: 'rgb(206, 195, 208)', p: 2 }}>
+                                                        <TableCell colSpan={100} sx={{ bgcolor: '#f8f9fb', p: { xs: 1.5, sm: 2 } }}>
                                                             <Grid container spacing={2}>
                                                                 {matchupProjection.team1.dailyProjections.map((day, idx) => {
                                                                     if (day.isPast || (day.players.length === 0 && matchupProjection.team2.dailyProjections[idx]?.players.length === 0)) return null;
@@ -644,12 +656,17 @@ const MatchupProjectionTracker = ({
 
                                                                     return (
                                                                         <Grid item xs={12} sm={6} md={4} key={idx}>
-                                                                            <Box sx={{ bgcolor: '#ffffff', p: 1.5, borderRadius: 1, border: day.isToday ? '2px solid #003366' : '1px solid rgba(0, 0, 0, 0.12)' }}>
-                                                                                <Typography variant="caption" sx={{ color: day.isToday ? '#003366' : '#666', fontWeight: 600, display: 'block', mb: 1, textAlign: 'center' }}>
+                                                                            <Box sx={{ bgcolor: '#ffffff', p: 1.5, borderRadius: 2, border: day.isToday ? '1.5px solid #2f80ed' : '1px solid #e6e9ee' }}>
+                                                                                <Typography variant="caption" sx={{ color: day.isToday ? '#0f2340' : '#5a6472', fontWeight: 600, display: 'block', mb: 0.5, textAlign: 'center' }}>
                                                                                     {day.dayOfWeek} {day.monthDay} {day.isToday ? '(Today)' : ''}
                                                                                 </Typography>
+                                                                                <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', fontWeight: 700, mb: 1.5, fontSize: '0.75rem' }}>
+                                                                                    <span style={{ color: '#1e8e5a' }}>{formatDayValue(day, catKey, isPct)}</span>
+                                                                                    <span style={{ color: '#8595ad', fontWeight: 500 }}> vs </span>
+                                                                                    <span style={{ color: '#d9534f' }}>{formatDayValue(team2Day, catKey, isPct)}</span>
+                                                                                </Typography>
                                                                                 <Box sx={{ mb: 1.5 }}>
-                                                                                    <Typography variant="caption" sx={{ color: '#4CAF50', fontWeight: 600, display: 'block', mb: 0.5 }}>
+                                                                                    <Typography variant="caption" sx={{ color: '#1e8e5a', fontWeight: 600, display: 'block', mb: 0.5 }}>
                                                                                         {matchupProjection.team1.name}
                                                                                     </Typography>
                                                                                     {day.players.length > 0 ? day.players.map((player, pidx) => {
@@ -670,7 +687,7 @@ const MatchupProjectionTracker = ({
                                                                                                     handlePlayerClick(e, player, day.date);
                                                                                                 }}
                                                                                                 sx={{
-                                                                                                    color: isDisabled ? '#666' : '#4CAF50',
+                                                                                                    color: isDisabled ? '#5a6472' : '#1e8e5a',
                                                                                                     display: 'block',
                                                                                                     fontSize: '0.7rem',
                                                                                                     ml: 1,
@@ -690,13 +707,13 @@ const MatchupProjectionTracker = ({
                                                                                             </Typography>
                                                                                         );
                                                                                     }) : (
-                                                                                        <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
+                                                                                        <Typography variant="caption" sx={{ color: '#5a6472', display: 'block', fontSize: '0.7rem', ml: 1 }}>
                                                                                             No games
                                                                                         </Typography>
                                                                                     )}
                                                                                 </Box>
                                                                                 <Box>
-                                                                                    <Typography variant="caption" sx={{ color: '#ff6f61', fontWeight: 600, display: 'block', mb: 0.5 }}>
+                                                                                    <Typography variant="caption" sx={{ color: '#d9534f', fontWeight: 600, display: 'block', mb: 0.5 }}>
                                                                                         {matchupProjection.team2.name}
                                                                                     </Typography>
                                                                                     {team2Day && team2Day.players.length > 0 ? team2Day.players.map((player, pidx) => {
@@ -717,7 +734,7 @@ const MatchupProjectionTracker = ({
                                                                                                     handlePlayerClick(e, player, day.date);
                                                                                                 }}
                                                                                                 sx={{
-                                                                                                    color: isDisabled ? '#666' : '#ff6f61',
+                                                                                                    color: isDisabled ? '#5a6472' : '#d9534f',
                                                                                                     display: 'block',
                                                                                                     fontSize: '0.7rem',
                                                                                                     ml: 1,
@@ -737,7 +754,7 @@ const MatchupProjectionTracker = ({
                                                                                             </Typography>
                                                                                         );
                                                                                     }) : (
-                                                                                        <Typography variant="caption" sx={{ color: '#666', display: 'block', fontSize: '0.7rem', ml: 1 }}>
+                                                                                        <Typography variant="caption" sx={{ color: '#5a6472', display: 'block', fontSize: '0.7rem', ml: 1 }}>
                                                                                             No games
                                                                                         </Typography>
                                                                                     )}
@@ -769,7 +786,8 @@ const MatchupProjectionTracker = ({
                 PaperProps={{
                     sx: {
                         bgcolor: '#ffffff',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
+                        border: '1px solid #e6e9ee',
+                        borderRadius: 2,
                         minWidth: 200,
                         zIndex: 9999
                     }
@@ -785,10 +803,12 @@ const MatchupProjectionTracker = ({
                         handlePlayerStatusChange('enabled');
                     }}
                     sx={{
-                        color: '#212121',
+                        color: '#0f2340',
+                        fontWeight: 600,
+                        fontSize: '0.85rem',
                         py: 1.5,
-                        '&:hover': { bgcolor: 'rgba(76, 175, 80, 0.2)' },
-                        '&:active': { bgcolor: 'rgba(76, 175, 80, 0.3)' }
+                        '&:hover': { bgcolor: 'rgba(30, 142, 90, 0.1)' },
+                        '&:active': { bgcolor: 'rgba(30, 142, 90, 0.16)' }
                     }}
                 >
                     ✓ Enable Player
@@ -800,10 +820,12 @@ const MatchupProjectionTracker = ({
                         handlePlayerStatusChange('disabledForDay');
                     }}
                     sx={{
-                        color: '#212121',
+                        color: '#0f2340',
+                        fontWeight: 600,
+                        fontSize: '0.85rem',
                         py: 1.5,
-                        '&:hover': { bgcolor: 'rgba(255, 152, 0, 0.2)' },
-                        '&:active': { bgcolor: 'rgba(255, 152, 0, 0.3)' }
+                        '&:hover': { bgcolor: 'rgba(224, 168, 0, 0.12)' },
+                        '&:active': { bgcolor: 'rgba(224, 168, 0, 0.18)' }
                     }}
                 >
                     ⊗ Disable for Day
@@ -815,10 +837,12 @@ const MatchupProjectionTracker = ({
                         handlePlayerStatusChange('disabledForWeek');
                     }}
                     sx={{
-                        color: '#212121',
+                        color: '#0f2340',
+                        fontWeight: 600,
+                        fontSize: '0.85rem',
                         py: 1.5,
-                        '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' },
-                        '&:active': { bgcolor: 'rgba(244, 67, 54, 0.3)' }
+                        '&:hover': { bgcolor: 'rgba(217, 83, 79, 0.1)' },
+                        '&:active': { bgcolor: 'rgba(217, 83, 79, 0.16)' }
                     }}
                 >
                     ✗ Disable for Week

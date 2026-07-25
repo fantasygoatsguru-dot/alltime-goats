@@ -1,14 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, Typography, Alert, FormControl, Select, MenuItem, CircularProgress, Tooltip, Grid } from "@mui/material";
+import { Box, Typography, Alert, FormControl, Select, MenuItem, CircularProgress, Tooltip, Grid, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
 import MatchupProjectionTracker from "../components/MatchupProjectionTracker";
 import YahooConnectionSection from "../components/YahooConnectionSection";
 import YahooConnect from "../components/YahooConnect";
-import ReassuringLoader from "../components/ReassuringLoader";
 
 const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+// Shared token system with the Guides pages: navy for text, one accent blue,
+// soft neutral surfaces — practical and numerical, not decorative.
+const selectSx = {
+    bgcolor: '#fff',
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    color: '#0f2340',
+    borderRadius: 2,
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e6e9ee' },
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#2f80ed' },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#2f80ed' },
+};
+
+const periodToggleSx = {
+    '& .MuiToggleButtonGroup-grouped': {
+        border: '1px solid #e6e9ee !important',
+        borderRadius: '20px !important',
+        mx: 0.3,
+        px: 2,
+        fontSize: '0.78rem',
+        fontWeight: 700,
+        textTransform: 'none',
+        color: '#5a6472',
+        '&.Mui-selected': {
+            bgcolor: '#2f80ed',
+            color: '#fff',
+            '&:hover': { bgcolor: '#256fd0' },
+        },
+    },
+};
 
 const MatchupProjection = () => {
     const { user, isAuthenticated, ensureValidToken } = useAuth();
@@ -975,28 +1006,18 @@ const MatchupProjection = () => {
         return <YahooConnect variant="gate" toolName="Matchup Projection" />;
     }
 
-    if (initialLoading) {
-        return (
-            <ReassuringLoader
-                type="matchup"
-                customMessage="Loading your matchup projection"
-                customSubtext="Gathering player stats, projections, and team data"
-                minHeight="100vh"
-            />
-        );
-    }
-
     return (
         <Box
             sx={{
-                p: 2,
-                minHeight: "100vh",
-                color: "#212121",
+                bgcolor: '#f5f6f8',
+                minHeight: '100vh',
+                px: { xs: 1.5, md: 3 },
+                py: { xs: 2, md: 3 },
             }}
         >
 
             {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
                     {error}
                 </Alert>
             )}
@@ -1012,141 +1033,150 @@ const MatchupProjection = () => {
 
             {/* Header with Title, Tooltip, and Filters */}
             {isConnected && currentMatchup && (
-                <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 2,
-                    pb: 2,
-                    borderBottom: '2px solid #ddd',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                    mt: 2
-                }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="h5" sx={{ fontWeight: 600, color: '#003366', fontSize: '1.25rem' }}>
+                <Box
+                    sx={{
+                        bgcolor: '#fff',
+                        border: '1px solid #e6e9ee',
+                        borderRadius: 3,
+                        p: { xs: 2, md: 2.5 },
+                        mt: 2,
+                        mb: 2.5,
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: '1.3rem', letterSpacing: -0.5, color: '#0f2340' }}>
                             Matchup Projection
                         </Typography>
                         <Tooltip title="If players give their average stats for the rest of the week, how will the week end?" arrow>
-                            <Box sx={{ bgcolor: '#003366', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'help', fontSize: '0.75rem', color: '#fff', fontWeight: 600 }}>
-                                i
-                            </Box>
+                            <InfoOutlinedIcon sx={{ fontSize: 18, color: '#8595ad', cursor: 'help' }} />
                         </Tooltip>
-                        {periodLoading && <CircularProgress size={20} sx={{ color: '#003366', ml: 1 }} />}
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <FormControl size="small" sx={{ minWidth: 140 }}>
-                            <Select
-                                value={periodType}
-                                onChange={(e) => setPeriodType(e.target.value)}
-                                disabled={periodLoading}
-                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
-                            >
-                                <MenuItem value="season">Full Season</MenuItem>
-                                <MenuItem value="60_days">Last 60 Days</MenuItem>
-                                <MenuItem value="30_days">Last 30 Days</MenuItem>
-                                <MenuItem value="7_days">Last 7 Days</MenuItem>
-                            </Select>
-                        </FormControl>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+                        <ToggleButtonGroup
+                            value={periodType}
+                            exclusive
+                            onChange={(e, v) => v && setPeriodType(v)}
+                            disabled={periodLoading}
+                            size="small"
+                            sx={periodToggleSx}
+                        >
+                            <ToggleButton value="season">Season</ToggleButton>
+                            <ToggleButton value="60_days">60 Days</ToggleButton>
+                            <ToggleButton value="30_days">30 Days</ToggleButton>
+                            <ToggleButton value="7_days">7 Days</ToggleButton>
+                        </ToggleButtonGroup>
 
-                        <FormControl size="small" sx={{ minWidth: 140 }}>
-                            <Select
-                                value={selectedTeam1 || currentMatchup.team1.name}
-                                onChange={(e) => handleTeamSelect("team1", e.target.value)}
-                                disabled={loadingTeams || periodLoading || loading}
-                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
-                            >
-                                {allLeagueTeams.map((team) => (
-                                    <MenuItem key={`team1-${team.key}`} value={team.name}>{team.name}</MenuItem>
-                                ))}
-                                {allLeagueTeams.length === 0 && (
-                                    <MenuItem value={currentMatchup.team1.name}>{currentMatchup.team1.name}</MenuItem>
-                                )}
-                            </Select>
-                        </FormControl>
+                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <FormControl size="small" sx={{ minWidth: 140 }}>
+                                <Select
+                                    value={selectedTeam1 || currentMatchup.team1.name}
+                                    onChange={(e) => handleTeamSelect("team1", e.target.value)}
+                                    disabled={loadingTeams || periodLoading || loading}
+                                    sx={selectSx}
+                                >
+                                    {allLeagueTeams.map((team) => (
+                                        <MenuItem key={`team1-${team.key}`} value={team.name}>{team.name}</MenuItem>
+                                    ))}
+                                    {allLeagueTeams.length === 0 && (
+                                        <MenuItem value={currentMatchup.team1.name}>{currentMatchup.team1.name}</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
 
-                        <Typography variant="body2" sx={{ color: '#666', fontWeight: 600 }}>
-                            {loadingTeams || loading ? <CircularProgress size={16} /> : "VS"}
-                        </Typography>
+                            <Typography sx={{ color: '#8595ad', fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                {loadingTeams || loading ? <CircularProgress size={14} sx={{ color: '#2f80ed' }} /> : "vs"}
+                            </Typography>
 
-                        <FormControl size="small" sx={{ minWidth: 140 }}>
-                            <Select
-                                value={selectedTeam2 || currentMatchup.team2.name}
-                                onChange={(e) => handleTeamSelect("team2", e.target.value)}
-                                disabled={loadingTeams || periodLoading || loading}
-                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
-                            >
-                                {allLeagueTeams.map((team) => (
-                                    <MenuItem key={`team2-${team.key}`} value={team.name}>{team.name}</MenuItem>
-                                ))}
-                                {allLeagueTeams.length === 0 && (
-                                    <MenuItem value={currentMatchup.team2.name}>{currentMatchup.team2.name}</MenuItem>
-                                )}
-                            </Select>
-                        </FormControl>
+                            <FormControl size="small" sx={{ minWidth: 140 }}>
+                                <Select
+                                    value={selectedTeam2 || currentMatchup.team2.name}
+                                    onChange={(e) => handleTeamSelect("team2", e.target.value)}
+                                    disabled={loadingTeams || periodLoading || loading}
+                                    sx={selectSx}
+                                >
+                                    {allLeagueTeams.map((team) => (
+                                        <MenuItem key={`team2-${team.key}`} value={team.name}>{team.name}</MenuItem>
+                                    ))}
+                                    {allLeagueTeams.length === 0 && (
+                                        <MenuItem value={currentMatchup.team2.name}>{currentMatchup.team2.name}</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
 
-                        <FormControl size="small" sx={{ minWidth: 100 }}>
-                            <Select
-                                value={selectedWeek || currentYahooWeek || ""}
-                                onChange={handleWeekSelect}
-                                disabled={loadingTeams || periodLoading || loading || !currentYahooWeek}
-                                sx={{ bgcolor: '#fff', fontSize: '0.875rem' }}
-                            >
-                                {availableWeeks
-                                    .filter((w) => {
-                                        if (!leagueSettings?.playoffStartWeek) return true;
-                                        const startWeek = parseInt(leagueSettings.playoffStartWeek, 10);
-                                        return w < startWeek + 3;
-                                    })
-                                    .map((w) => {
-                                        const startWeek = leagueSettings?.playoffStartWeek ? parseInt(leagueSettings.playoffStartWeek, 10) : null;
-                                        const isPlayoff = startWeek && w >= startWeek;
-                                        return (
-                                            <MenuItem key={`week-${w}`} value={w}>
-                                                Week {w} {isPlayoff ? "(Playoffs)" : ""}
-                                            </MenuItem>
-                                        );
-                                    })}
-                            </Select>
-                        </FormControl>
+                            <FormControl size="small" sx={{ minWidth: 100 }}>
+                                <Select
+                                    value={selectedWeek || currentYahooWeek || ""}
+                                    onChange={handleWeekSelect}
+                                    disabled={loadingTeams || periodLoading || loading || !currentYahooWeek}
+                                    sx={selectSx}
+                                >
+                                    {availableWeeks
+                                        .filter((w) => {
+                                            if (!leagueSettings?.playoffStartWeek) return true;
+                                            const startWeek = parseInt(leagueSettings.playoffStartWeek, 10);
+                                            return w < startWeek + 3;
+                                        })
+                                        .map((w) => {
+                                            const startWeek = leagueSettings?.playoffStartWeek ? parseInt(leagueSettings.playoffStartWeek, 10) : null;
+                                            const isPlayoff = startWeek && w >= startWeek;
+                                            return (
+                                                <MenuItem key={`week-${w}`} value={w}>
+                                                    Week {w} {isPlayoff ? "(Playoffs)" : ""}
+                                                </MenuItem>
+                                            );
+                                        })}
+                                </Select>
+                            </FormControl>
+                        </Box>
                     </Box>
                 </Box>
             )}
 
             {/* Matchup Projection Tracker */}
-            <Box sx={{ position: 'relative' }}>
-                {periodLoading && (
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            zIndex: 10,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            minHeight: '400px'
-                        }}
-                    >
-                        <Box sx={{ textAlign: 'center' }}>
-                            <CircularProgress size={40} sx={{ color: '#003366', mb: 2 }} />
-                            <Typography sx={{ color: '#003366', fontWeight: 600 }}>
-                                Updating projections...
-                            </Typography>
+            {initialLoading ? (
+                <Box sx={{ bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 3, py: 8, textAlign: 'center' }}>
+                    <CircularProgress size={36} sx={{ color: '#2f80ed', mb: 1.5 }} />
+                    <Typography sx={{ color: '#0f2340', fontWeight: 600, fontSize: '0.9rem' }}>
+                        Loading your matchup projection…
+                    </Typography>
+                </Box>
+            ) : (
+                <Box sx={{ position: 'relative' }}>
+                    {periodLoading && (
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                zIndex: 10,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                minHeight: '400px',
+                                bgcolor: 'rgba(245, 246, 248, 0.7)',
+                                borderRadius: 3,
+                            }}
+                        >
+                            <Box sx={{ textAlign: 'center' }}>
+                                <CircularProgress size={36} sx={{ color: '#2f80ed', mb: 1.5 }} />
+                                <Typography sx={{ color: '#0f2340', fontWeight: 600, fontSize: '0.9rem' }}>
+                                    Updating projections…
+                                </Typography>
+                            </Box>
                         </Box>
-                    </Box>
-                )}
-                <MatchupProjectionTracker
-                    matchupProjection={matchupProjection}
-                    currentMatchup={currentMatchup}
-                    onPlayerStatusChange={handlePlayerStatusChange}
-                    isConnected={isConnected}
-                    isFutureWeek={parseInt(selectedWeek, 10) > parseInt(currentYahooWeek, 10)}
-                />
-            </Box>
+                    )}
+                    <MatchupProjectionTracker
+                        matchupProjection={matchupProjection}
+                        currentMatchup={currentMatchup}
+                        onPlayerStatusChange={handlePlayerStatusChange}
+                        isConnected={isConnected}
+                        isFutureWeek={parseInt(selectedWeek, 10) > parseInt(currentYahooWeek, 10)}
+                    />
+                </Box>
+            )}
         </Box>
     );
 };
