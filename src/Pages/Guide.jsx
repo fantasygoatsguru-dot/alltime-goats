@@ -8,6 +8,7 @@ import CategoryStrip from '../components/CategoryStrip';
 import PuntRankingTable from '../components/PuntRankingTable';
 import TeamRadar from '../components/TeamRadar';
 import DraftBuilder from '../components/DraftBuilder';
+import { useEntitlements } from '../hooks/useEntitlements';
 
 function SectionHeading({ id, children }) {
   return (
@@ -32,6 +33,8 @@ function SectionHeading({ id, children }) {
 export default function Guide() {
   const { slug } = useParams();
   const guide = guideBySlug[slug];
+  const { hasPass } = useEntitlements();
+  const unlocked = hasPass('draft');
 
   if (!guide) {
     return (
@@ -85,6 +88,17 @@ export default function Guide() {
           <Typography sx={{ color: '#b9c4d6', fontSize: { xs: '1rem', md: '1.15rem' }, maxWidth: 620, lineHeight: 1.5, mb: 3 }}>
             {guide.tagline}
           </Typography>
+
+          {guide.isPremium && !unlocked && (
+            <Button
+              component={RouterLink}
+              to="/pricing"
+              startIcon={<LockOutlinedIcon sx={{ fontSize: '1rem !important' }} />}
+              sx={{ mb: 3, textTransform: 'none', fontWeight: 700, bgcolor: '#2f80ed', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#256fd0' } }}
+            >
+              Unlock with Draft Pass
+            </Button>
+          )}
 
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'flex-end' }}>
             <Box>
@@ -173,8 +187,8 @@ export default function Guide() {
               <>
                 <SectionHeading id="examples">Example teams</SectionHeading>
 
-                {guide.isPremium ? (
-                  // Premium guides keep the roster blueprints gated.
+                {guide.isPremium && !unlocked ? (
+                  // Premium guides keep the roster blueprints gated until a Draft Pass is purchased.
                   <Box sx={{ position: 'relative' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
                       {guide.exampleTeams.map((t, i) => (
@@ -205,9 +219,11 @@ export default function Guide() {
                         Full build blueprints — draft-slot by draft-slot — are part of Goats Premium.
                       </Typography>
                       <Button
+                        component={RouterLink}
+                        to="/pricing"
                         sx={{ mt: 0.5, textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
                       >
-                        Unlock with Premium
+                        Unlock with Draft Pass
                       </Button>
                     </Box>
                   </Box>
