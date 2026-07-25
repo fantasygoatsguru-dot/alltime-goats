@@ -142,3 +142,10 @@ entrypoint = "./functions/yesterday-top-performers/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 static_files = [ "./functions/yesterday-top-performers/*.html" ]
+
+[functions.lemonsqueezy-webhook]
+enabled = true
+# LemonSqueezy calls this with no Supabase session JWT — auth is instead
+# handled inside the function via HMAC signature verification of the payload.
+verify_jwt = false
+entrypoint = "./functions/lemonsqueezy-webhook/index.ts"
