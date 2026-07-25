@@ -23,7 +23,7 @@ import {
   useTheme,
   Divider,
 } from '@mui/material';
-import { Logout, ExpandMore, Login } from '@mui/icons-material';
+import { Logout, ExpandMore, Login, ConfirmationNumberOutlined } from '@mui/icons-material';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
@@ -50,6 +50,8 @@ import Posts from '../Pages/Posts';
 import Post from '../Pages/Post';
 import Guides from '../Pages/Guides';
 import Guide from '../Pages/Guide';
+import Pricing from '../Pages/Pricing';
+import PurchaseSuccess from '../Pages/PurchaseSuccess';
 import { useAuth } from '../contexts/AuthContext';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
@@ -652,6 +654,8 @@ const AlltimeLayout = () => {
     if (p.startsWith('/post/')) return <Post />;
     if (p === '/guides' || p === '/guides/') return <Guides />;
     if (p.startsWith('/guides/')) return <Guide />;
+    if (p === '/pricing') return <Pricing onRequireSignIn={() => setAuthModalOpen(true)} />;
+    if (p === '/purchase-success') return <PurchaseSuccess />;
     return <Matchup />;
   };
 
@@ -1184,6 +1188,9 @@ const AlltimeLayout = () => {
           </Box>
         </MenuItem>
         <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/profile'); }}>Profile</MenuItem>
+        <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/pricing'); }}>
+          <ConfirmationNumberOutlined sx={{ mr: 1, color: '#4a90e2' }} /> Passes
+        </MenuItem>
         <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/about'); }}>About us</MenuItem>
         {!isAuthenticated && (
           <MenuItem onClick={() => { setProfileAnchorEl(null); handleYahooConnect(); }} disabled={yahooConnecting}>

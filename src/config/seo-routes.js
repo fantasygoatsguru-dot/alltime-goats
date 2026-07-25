@@ -156,6 +156,21 @@ export const seoRoutes = [
     priority: 0.3,
   },
   {
+    path: '/pricing',
+    title: 'Draft Pass, Season Pass & Combo | Fantasy Goats Guru Premium',
+    description: 'Unlock premium fantasy basketball tools with a Draft Pass, Season Pass, or Combo bundle. Weekly matchup projections, head-to-head breakdowns, team strength analysis, and draft-day rankings.',
+    changefreq: 'monthly',
+    priority: 0.8,
+  },
+  {
+    path: '/purchase-success',
+    title: 'Thank You | Fantasy Goats Guru',
+    description: 'Your Fantasy Goats Guru pass purchase is complete.',
+    changefreq: 'yearly',
+    priority: 0.1,
+    requiresAuth: true, // Not in sitemap
+  },
+  {
     path: '/profile',
     title: 'My Profile | Fantasy Goats Guru',
     description: 'Manage your Fantasy Goats Guru profile and preferences.',

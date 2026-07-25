@@ -68,6 +68,8 @@ const App = () => {
             <Route path="/post/:slug" element={<AlltimeLayout />} />
             <Route path="/guides" element={<AlltimeLayout />} />
             <Route path="/guides/:slug" element={<AlltimeLayout />} />
+            <Route path="/pricing" element={<AlltimeLayout />} />
+            <Route path="/purchase-success" element={<AlltimeLayout />} />
             <Route path="/about" element={<AlltimeLayout />} />
             <Route path="/profile" element={<AlltimeLayout />} />
             <Route path="/teams" element={<AlltimeLayout />} />
