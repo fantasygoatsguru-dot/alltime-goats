@@ -38,3 +38,4 @@ certs/
 supabase/.temp
 client_secret.json
 .mcp.json
+.playwright-mcp

@@ -132,11 +132,16 @@ for (const route of routes) {
   const ldScript = `<script type="application/ld+json" id="structured-data">${ldJson}</script>`;
   html = html.replace('</head>', `  ${ldScript}\n</head>`);
 
-  // Write to the right location: '/' -> dist/index.html, others -> dist/<path>/index.html
+  // Write to the right location: '/' -> dist/index.html, others -> dist/<path>.html
+  // (NOT dist/<path>/index.html — that shape makes Netlify treat the route as a
+  // directory and auto-301 the bare path to a trailing slash, which fights the
+  // no-slash canonical/sitemap URLs and gets flagged in GSC as "Page with
+  // redirect". A flat <path>.html is served for the extensionless request with
+  // no redirect at all.)
   const outPath =
     route.path === '/'
       ? indexPath
-      : path.join(distPath, route.path.replace(/^\//, ''), 'index.html');
+      : path.join(distPath, `${route.path.replace(/^\//, '')}.html`);
 
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   fs.writeFileSync(outPath, html);
