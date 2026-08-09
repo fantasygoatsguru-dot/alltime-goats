@@ -82,7 +82,18 @@ const Terms = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        6. Changes to These Terms
+        6. Passes and Refunds
+      </Typography>
+      <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
+        Draft Pass, Season Pass, and Combo are one-time purchases that unlock specific tools for a
+        single NBA season; they do not renew automatically. Payments are processed by Polar, our
+        merchant of record. Refund requests are handled under Polar's buyer refund policy — contact
+        us at the email below and we'll work with you, or you can request a refund directly through
+        Polar.
+      </Typography>
+
+      <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
+        7. Changes to These Terms
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
         We may update these Terms from time to time. Changes will be posted here with an updated
@@ -91,10 +102,14 @@ const Terms = () => {
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
-        7. Contact Us
+        8. Contact Us
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
-        Questions about these Terms? Contact us at <strong>[insert your email or form link]</strong>.
+        Questions about these Terms? Contact us at{" "}
+        <Link href="mailto:fantasygoatsguru@gmail.com" color="secondary" underline="hover">
+          fantasygoatsguru@gmail.com
+        </Link>
+        .
       </Typography>
 
       <Typography variant="body2" sx={{ mt: 4, color: "#bbbbbb" }}>

@@ -86,7 +86,11 @@ const PrivacyPolicy = () => {
         6. Your Rights
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
-        Depending on your location (e.g., EU under GDPR or California under CCPA), you may have rights to access, delete, or opt out of data collection. Contact us at <strong>[insert your email]</strong> to exercise these rights.
+        Depending on your location (e.g., EU under GDPR or California under CCPA), you may have rights to access, delete, or opt out of data collection. Contact us at{" "}
+        <Link href="mailto:fantasygoatsguru@gmail.com" color="secondary" underline="hover">
+          fantasygoatsguru@gmail.com
+        </Link>{" "}
+        to exercise these rights.
       </Typography>
 
       <Typography variant="h6" gutterBottom sx={{ mt: 4, color: "#ffffff" }}>
@@ -100,7 +104,11 @@ const PrivacyPolicy = () => {
         8. Contact Us
       </Typography>
       <Typography variant="body1" paragraph sx={{ color: "#ffffff" }}>
-        For questions, contact us at <strong>[insert your email or form link]</strong>.
+        For questions, contact us at{" "}
+        <Link href="mailto:fantasygoatsguru@gmail.com" color="secondary" underline="hover">
+          fantasygoatsguru@gmail.com
+        </Link>
+        .
       </Typography>
     </Container>
   );

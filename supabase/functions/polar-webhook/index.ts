@@ -32,8 +32,31 @@ serve(async (req) => {
     return new Response("Invalid payload", { status: 400 });
   }
 
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  if (event?.type === "order.refunded") {
+    // Revoke access immediately on refund. Polar can issue these at their
+    // own discretion (chargeback prevention) as well as on buyer request,
+    // so this can't be treated as a rare/manual case.
+    const externalOrderId: string | undefined = event.data?.id;
+    if (!externalOrderId) {
+      return new Response("Ignored (no order id)", { status: 200 });
+    }
+    const { error } = await supabase
+      .from("entitlements")
+      .delete()
+      .eq("external_order_id", externalOrderId)
+      .eq("source", "polar");
+    if (error) {
+      console.error("Polar webhook: failed to revoke entitlement on refund", error);
+      return new Response("Internal error", { status: 500 });
+    }
+    return new Response("OK", { status: 200 });
+  }
+
   if (event?.type !== "order.paid") {
-    // We only sell one-time passes, so order.paid is the only event we act on.
+    // We only act on paid orders and refunds; everything else (subscription
+    // events, etc.) is ignored since we only sell one-time passes.
     return new Response("Ignored", { status: 200 });
   }
 
@@ -63,8 +86,6 @@ serve(async (req) => {
     // with 200 to stop Polar from retrying indefinitely.
     return new Response("Missing required fields", { status: 200 });
   }
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   const { error } = await supabase.from("entitlements").insert({
     auth_user_id: authUserId,
