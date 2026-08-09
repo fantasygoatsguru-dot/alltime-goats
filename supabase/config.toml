@@ -144,8 +144,17 @@ entrypoint = "./functions/yesterday-top-performers/index.ts"
 static_files = [ "./functions/yesterday-top-performers/*.html" ]
 
 [functions.lemonsqueezy-webhook]
-enabled = true
+enabled = false
+# Superseded by functions.polar-webhook. Left registered-but-disabled rather
+# than deleted, in case Lemon Squeezy is revived later.
 # LemonSqueezy calls this with no Supabase session JWT — auth is instead
 # handled inside the function via HMAC signature verification of the payload.
 verify_jwt = false
 entrypoint = "./functions/lemonsqueezy-webhook/index.ts"
+
+[functions.polar-webhook]
+enabled = true
+# Polar calls this with no Supabase session JWT — auth is instead handled
+# inside the function via Standard Webhooks signature verification.
+verify_jwt = false
+entrypoint = "./functions/polar-webhook/index.ts"

@@ -1,12 +1,12 @@
-// LemonSqueezy pass definitions. Checkout URLs are LemonSqueezy's public
-// "Share" links (not secret) for the store fantasygoatsguru.lemonsqueezy.com.
-// Keep pass ids in sync with the pass_type values the lemonsqueezy-webhook
-// edge function writes to the entitlements table.
+// Polar pass definitions. Checkout URLs are Polar Checkout Links (one per
+// pass, each with a static `pass_type` set as metadata in the Polar
+// dashboard). Keep pass ids in sync with the pass_type values the
+// polar-webhook edge function writes to the entitlements table.
 
 // The season these passes unlock. Deliberately separate from CURRENT_SEASON
 // in src/utils/supabase.js (which tracks the season whose *stats* are being
 // displayed) — entitlements are sold ahead of the season they cover. Keep in
-// sync with CURRENT_SEASON in supabase/functions/lemonsqueezy-webhook/index.ts.
+// sync with CURRENT_SEASON in supabase/functions/polar-webhook/index.ts.
 export const PASS_SEASON = '2026-27';
 
 export const PASSES = [
@@ -21,7 +21,7 @@ export const PASSES = [
       'Tiered draft board',
       'Season-long player projections',
     ],
-    checkoutUrl: 'https://fantasygoatsguru.lemonsqueezy.com/checkout/buy/3a535e1e-4d4c-43fd-807c-3a80029ec9aa',
+    checkoutUrl: 'https://buy.polar.sh/polar_cl_w4Wddss5tVDYzdMLzwGLB4zAilHsr8BAwy2312OP8NL',
   },
   {
     id: 'season',
@@ -35,7 +35,7 @@ export const PASSES = [
       'Category breakdown',
       'Team playoff & season strength',
     ],
-    checkoutUrl: 'https://fantasygoatsguru.lemonsqueezy.com/checkout/buy/81b72409-98e0-4476-a900-208fa50620be',
+    checkoutUrl: 'https://buy.polar.sh/polar_cl_dWy4HqGrBFeUh6S3ITV2HfmdZhMbkEcCmnrVl3cpqYD',
   },
   {
     id: 'combo',
@@ -48,17 +48,18 @@ export const PASSES = [
       'Everything in Season Pass',
       'Save $10 vs. buying separately',
     ],
-    checkoutUrl: 'https://fantasygoatsguru.lemonsqueezy.com/checkout/buy/244c88b7-e275-4678-b0b8-1249a05007bd',
+    checkoutUrl: 'https://buy.polar.sh/polar_cl_Fnd1vxC3zzI15aW4TPZbB0SGtZXeVC551fFWV3YAJ7H',
     highlight: true,
   },
 ];
 
-// Appends the signed-in user's Supabase auth id (and email) as LemonSqueezy
-// checkout custom data, which the lemonsqueezy-webhook function reads back
-// out of meta.custom_data.auth_user_id to know who to credit.
+// Appends the signed-in user's Supabase auth id (and email) to the Polar
+// checkout link, which the polar-webhook function reads back out of
+// order.metadata.reference_id (auth id) to know who to credit; pass_type
+// itself comes from the static metadata set on each checkout link.
 export function buildCheckoutUrl(baseUrl, { authUserId, email }) {
   const url = new URL(baseUrl);
-  url.searchParams.set('checkout[custom][auth_user_id]', authUserId);
-  if (email) url.searchParams.set('checkout[email]', email);
+  url.searchParams.set('reference_id', authUserId);
+  if (email) url.searchParams.set('customer_email', email);
   return url.toString();
 }
