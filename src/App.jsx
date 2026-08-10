@@ -8,8 +8,6 @@ import TagManager from "react-gtm-module";
 import React from "react";
 import { Box } from "@mui/material";
 import PrivacyPolicy from "./Pages/PrivacyPolicy";
-import Posts from "./Pages/Posts";
-import Post from "./Pages/Post";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const theme = createTheme({
@@ -61,9 +59,10 @@ const App = () => {
         <GoogleAnalytics />
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
-            <Route path="/" element={<Navigate to="/posts" replace />} />
+            <Route path="/" element={<Navigate to="/guides" replace />} />
             <Route path="/privacy-policy" element={<AlltimeLayout />} />
             <Route path="/terms" element={<AlltimeLayout />} />
+            {/* Blog is still reachable, just no longer the landing page */}
             <Route path="/posts" element={<AlltimeLayout />} />
             <Route path="/post/:slug" element={<AlltimeLayout />} />
             <Route path="/guides" element={<AlltimeLayout />} />

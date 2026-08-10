@@ -685,7 +685,7 @@ const AlltimeLayout = () => {
             <Avatar
               src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.svg"
               alt="GOAT"
-              onClick={(e) => isMobile ? setMobileMenuAnchor(e.currentTarget) : navigate('/posts')}
+              onClick={(e) => isMobile ? setMobileMenuAnchor(e.currentTarget) : navigate('/guides')}
               sx={{
                 width: { xs: 50, sm: 56 },
                 height: { xs: 50, sm: 56 },
@@ -728,11 +728,10 @@ const AlltimeLayout = () => {
 
                 const config = submenuMap[item.path];
 
-                // FIXED LOGIC: Keep "Posts" active if we are on the posts list OR a single post page
+                // FIXED LOGIC: Keep "Guides" active on the guides list OR a single guide page
                 const isActive =
                   location.pathname === item.path ||
-                  (item.path === '/matchup' && location.pathname === '/') ||
-                  (item.path === '/posts' && location.pathname.startsWith('/post'));
+                  (item.path === '/guides' && location.pathname.startsWith('/guides'));
 
                 const isSubmenuActive = config && config.submenu.some(s => s.path === location.pathname);
 
@@ -1066,8 +1065,7 @@ const AlltimeLayout = () => {
             // Updated mobile active logic
             const isActive =
               location.pathname === item.path ||
-              (item.path === '/matchup' && location.pathname === '/') ||
-              (item.path === '/posts' && location.pathname.startsWith('/post'));
+              (item.path === '/guides' && location.pathname.startsWith('/guides'));
 
             return !item.hasSubmenu ? (
               <MenuItem
@@ -1192,7 +1190,7 @@ const AlltimeLayout = () => {
           </MenuItem>
         )}
         {isSignedIn && (
-          <MenuItem onClick={async () => { await signOutAccount(); setProfileAnchorEl(null); navigate('/posts'); }} sx={{ color: '#d32f2f' }}>
+          <MenuItem onClick={async () => { await signOutAccount(); setProfileAnchorEl(null); navigate('/guides'); }} sx={{ color: '#d32f2f' }}>
             <Logout sx={{ mr: 1 }} /> Sign out
           </MenuItem>
         )}
