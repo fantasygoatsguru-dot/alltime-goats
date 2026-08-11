@@ -7,7 +7,9 @@ import { guideBySlug, categoryByKey } from '../config/guides-content';
 import CategoryStrip from '../components/CategoryStrip';
 import RankingTable from '../components/RankingTable';
 import ProjectionList from '../components/ProjectionList';
+import PlayerNotes from '../components/PlayerNotes';
 import { PRIOR_SEASON } from '../config/top-150-2026-27';
+import { SLEEPERS, BUSTS } from '../config/sleepers-busts-2026-27';
 import TeamRadar from '../components/TeamRadar';
 import DraftBuilder from '../components/DraftBuilder';
 import { useEntitlements } from '../hooks/useEntitlements';
@@ -120,8 +122,17 @@ export default function Guide() {
               </span>
             ) : (
               <span>
-                Projected for {guide.season} — no punt, all{' '}
-                <strong style={{ color: '#8fb4ff' }}>nine categories</strong> weighted equally.
+                Projected for {guide.season} —{' '}
+                {guide.playerNotes ? (
+                  <>
+                    <strong style={{ color: '#8fb4ff' }}>value against draft price</strong>, scored across all nine
+                    categories.
+                  </>
+                ) : (
+                  <>
+                    no punt, all <strong style={{ color: '#8fb4ff' }}>nine categories</strong> weighted equally.
+                  </>
+                )}
               </span>
             )}
           </Box>
@@ -142,9 +153,24 @@ export default function Guide() {
               </Box>
             ))}
 
-            {/* The board: an authored projection for rankings guides, the live
-                re-ranked z-score table for punt builds. */}
-            {guide.projection ? (
+            {/* The board: an authored projection or write-up list for rankings
+                guides, the live re-ranked z-score table for punt builds. */}
+            {guide.playerNotes ? (
+              <>
+                <SectionHeading id="board">{guide.playerNotes.heading}</SectionHeading>
+                <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
+                  {guide.playerNotes.lead}
+                </Typography>
+                <PlayerNotes
+                  players={guide.playerNotes.source === 'busts' ? BUSTS : SLEEPERS}
+                  accent={guide.playerNotes.accent}
+                  freeLimit={guide.playerNotes.freeLimit}
+                  previewRows={guide.playerNotes.previewRows}
+                  lockedLabel={guide.playerNotes.source === 'busts' ? 'every bust case' : 'every sleeper'}
+                  unlocked={unlocked}
+                />
+              </>
+            ) : guide.projection ? (
               <>
                 <SectionHeading id="board">The projected top 150</SectionHeading>
                 <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>

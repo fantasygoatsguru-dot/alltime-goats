@@ -142,6 +142,20 @@ export const seoRoutes = [
     priority: 0.9,
   },
   {
+    path: '/guides/sleepers',
+    title: 'Fantasy Basketball Sleepers 2026-27 | 9-Cat Value Picks',
+    description: 'Fifteen fantasy basketball sleepers for 2026-27, each with the 9-category case for why he beats his draft price — plus last season\'s real per-game line.',
+    changefreq: 'weekly',
+    priority: 0.8,
+  },
+  {
+    path: '/guides/busts',
+    title: 'Fantasy Basketball Busts 2026-27 | Players to Avoid in 9-Cat',
+    description: 'Twelve fantasy basketball busts for 2026-27 — the players whose 9-category production will not cover their draft price, and exactly which category gives the value back.',
+    changefreq: 'weekly',
+    priority: 0.8,
+  },
+  {
     path: '/guides/punt-blocks',
     title: 'Punt Blocks Strategy 2026-27 | Live Draft Board | Fantasy Goats Guru',
     description: 'The complete punt blocks build for 2026-27 fantasy basketball: strategy, strengths and weaknesses, and a live draft board re-ranked with blocks removed from the z-score total.',

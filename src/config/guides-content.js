@@ -291,6 +291,137 @@ export const guides = [
     ],
   },
 
+  {
+    slug: 'sleepers',
+    type: 'rankings',
+    puntKey: null,
+    title: 'Sleepers',
+    season: CURRENT_GUIDE_SEASON,
+    difficulty: 'Intermediate',
+    isPremium: false,
+    tagline:
+      'Fifteen players whose projected 9-category value sits well above what they will cost you on draft day.',
+    strengths: [],
+    weaknesses: [],
+
+    // Unranked write-up list (config/sleepers-busts-2026-27.js).
+    playerNotes: {
+      source: 'sleepers',
+      accent: '#2e9e53',
+      freeLimit: 6,
+      previewRows: 2,
+      heading: 'The sleepers',
+      lead:
+        "Each name below costs less than it should, with the argument and last season's real line attached. Prices are the range these players typically go in a twelve-team league — adjust to what you actually see on the clock.",
+    },
+
+    sections: [
+      {
+        id: 'strategy',
+        heading: 'What a sleeper actually is',
+        body: [
+          "A sleeper is not a player nobody has heard of. It is a player whose projected nine-category value sits materially above what he will cost you, and in category leagues that gap almost always comes from the same three places: minutes that are about to grow, a scarce category supplied cheaply, or production the market is still discounting as a fluke.",
+          "The second of those is the one most drafters underrate. Points are everywhere; blocks, steals and free-throw percentage are not. A bench big who blocks 1.9 shots in 21 minutes moves a category you cannot otherwise buy after round eight, and he does it at no draft cost. That is a bigger edge than a mid-round scorer who adds four points a night to a column you were already winning.",
+        ],
+      },
+      {
+        id: 'draft',
+        heading: 'How to use this list',
+        body: [
+          "Do not reach. The entire point of a sleeper is the discount, and taking one two rounds early destroys the thing that made him valuable. Keep the list open as a queue: when your pick arrives and nobody on the main board is clearly better, take the sleeper whose best category is the one your roster is closest to losing.",
+          "Expect a third of them to miss. Sleeper picks are cheap precisely because they carry role risk, and a list where every name hits is a list that was too conservative to be useful. The correct way to hold them is loosely — draft two or three, give them until Thanksgiving, and drop the ones whose minutes never arrived.",
+        ],
+      },
+      {
+        id: 'caveats',
+        heading: 'What this list does not know',
+        body: [
+          "It is a projection of a season that has not been played, and the biggest single input to a sleeper — the depth chart he is standing in — is also the thing most likely to change between now and opening night. A signing or a trade can erase any of these cases overnight, so check the current roster before you draft, and treat the price ranges as approximations rather than market data.",
+        ],
+      },
+    ],
+
+    faqs: [
+      {
+        q: 'How are these different from the top 150?',
+        a: 'The top 150 ranks everyone on projected value. This list is specifically about the gap between that value and draft cost — several of these players appear on the main board too, just far higher than the market has them.',
+      },
+      {
+        q: 'How many sleepers should I actually draft?',
+        a: 'Two or three in the last five rounds. They are lottery tickets with good odds, not roster foundations, and a team built mostly out of them has no floor.',
+      },
+      {
+        q: 'Why are there so many bench players here?',
+        a: 'Because per-minute production is the most reliable predictor of what happens when minutes arrive, and it is systematically underpriced. A player producing at a top-40 rate in 22 minutes is one rotation change from being a top-40 player.',
+      },
+    ],
+  },
+
+  {
+    slug: 'busts',
+    type: 'rankings',
+    puntKey: null,
+    title: 'Busts',
+    season: CURRENT_GUIDE_SEASON,
+    difficulty: 'Intermediate',
+    isPremium: false,
+    tagline:
+      'Twelve players who will not return their draft price in 9-cat — and exactly which column gives the value back.',
+    strengths: [],
+    weaknesses: [],
+
+    playerNotes: {
+      source: 'busts',
+      accent: '#c0392b',
+      freeLimit: 5,
+      previewRows: 2,
+      heading: 'The busts',
+      lead:
+        "Every player below is good at basketball. That is not the question — the question is whether the nine-category production justifies the pick, and for each of these it does not at the price listed.",
+    },
+
+    sections: [
+      {
+        id: 'strategy',
+        heading: 'What "bust" means here',
+        body: [
+          "It does not mean the player will be bad. It means his nine-category value will not cover what you paid, which is a different claim and a much more common one. Almost every name below will look perfectly good in a box score and still cost you the round you spent on him.",
+          "Three patterns account for nearly all of them. The first is the hidden negative: a free-throw or field-goal percentage bad enough, on enough volume, to hand back most of what the player wins elsewhere. The second is the empty average — scoring volume with no rebounds, assists or defensive stats attached, which reads as stardom and grades as a fourth-rounder. The third is availability: elite per-game production over 40 games is not elite production, and a draft price does not come with a refund for the missing nights.",
+        ],
+      },
+      {
+        id: 'draft',
+        heading: 'How to use this list',
+        body: [
+          "Read it as a price list, not a blacklist. Several of these players are excellent picks two or three rounds later than they are going, and a few are outright bargains inside the right build — the write-ups say which. The mistake is not owning them; it is paying the consensus price for them.",
+          "The exception worth internalising is the punt case. A player whose only real flaw is free-throw percentage stops being a bust the moment you decide to concede that column, and the same is true for field-goal percentage. If you are committed to a build, take the matching punt guide's board over this list — it re-ranks these players with the offending column removed.",
+        ],
+      },
+      {
+        id: 'caveats',
+        heading: 'What this list does not know',
+        body: [
+          "Draft prices move, and a player who is a bust at pick 20 is a fine pick at pick 40. The ranges here are estimates of where these players typically go in a twelve-team league, not live market data — if the room lets one of them fall far enough, the objection disappears. Offseason moves and camp reports can also change a usage projection completely, so check both before you cross a name off.",
+        ],
+      },
+    ],
+
+    faqs: [
+      {
+        q: 'Are you saying these players are bad?',
+        a: 'No. Every one of them is a good NBA player and several are stars. The claim is narrower: at their current draft price, the nine-category production does not pay for the pick.',
+      },
+      {
+        q: 'Why do so many of these have free-throw percentage problems?',
+        a: 'Because free-throw percentage is weighted by volume, and a poor shooter who takes six attempts a night does far more damage than the raw percentage suggests. It is the most commonly underestimated negative in category leagues.',
+      },
+      {
+        q: 'What if one of these players falls to me late?',
+        a: 'Take him. Every bust case here is a price objection, and the price falling is the fix. The write-ups name the round where each becomes reasonable value.',
+      },
+    ],
+  },
+
   // ---- Stubs (not written out) --------------------------------------------
   { slug: 'punt-assists',    type: 'punt', puntKey: 'ast', title: 'Punt Assists',    season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Lean into bigs and low-usage wings.', strengths: ['blk', 'reb', 'fg'], weaknesses: ['ast', 'to'] },
   { slug: 'punt-fg',         type: 'punt', puntKey: 'fg',  title: 'Punt FG%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'The volume-scorer build. Fire away.',  strengths: ['pts', '3pm', 'ast', 'stl'], weaknesses: ['fg'] },
@@ -306,8 +437,9 @@ export const guideBySlug = Object.fromEntries(guides.map((g) => [g.slug, g]));
 export const guideGroups = [
   {
     id: 'rankings',
-    title: 'Rankings',
-    blurb: 'The unpunted baseline. Straight 9-category value, ranked and tiered.',
+    title: 'Rankings & Draft Prep',
+    blurb:
+      'The unpunted baseline for 2026-27 — projected 9-category value, plus the players priced wrong in both directions.',
     guides: guides.filter((g) => g.type === 'rankings'),
   },
   {
