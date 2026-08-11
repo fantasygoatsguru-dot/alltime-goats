@@ -1,6 +1,6 @@
 // Editorial content for the Guides section.
 // The STATS are never authored here — they come live from the z-score engine
-// (player_period_averages) via <PuntRankingTable> / <TeamRadar> / <DraftBuilder>.
+// (player_period_averages) via <RankingTable> / <TeamRadar> / <DraftBuilder>.
 // This file holds only the prose, structure, and human judgement around a build.
 //
 // Adding a guide = add an entry here. The template (Guide.jsx) and the hub
@@ -22,7 +22,10 @@ export const CATEGORIES = [
 
 export const categoryByKey = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
 
-export const CURRENT_GUIDE_SEASON = '2025-26';
+// The season the guides are written for. Editorial only — the live boards read
+// their numbers from `CURRENT_SEASON` in utils/supabase.js, which is still
+// 2025-26 until the new season's data lands.
+export const CURRENT_GUIDE_SEASON = '2026-27';
 
 // ---------------------------------------------------------------------------
 // GUIDES
@@ -205,6 +208,89 @@ export const guides = [
     ],
   },
 
+  // ---- Rankings ------------------------------------------------------------
+  {
+    slug: 'top-150',
+    type: 'rankings',
+    puntKey: null, // no punt — every category counts, hence "pure"
+    title: 'Top 150',
+    season: CURRENT_GUIDE_SEASON,
+    difficulty: 'Beginner',
+    isPremium: false, // free & indexable — the draft-season lead magnet
+    tagline:
+      'Projected 9-category value for 2026-27. No punt, no positional fudging — 150 players, each with the reasoning behind his rank.',
+    strengths: [],
+    weaknesses: [],
+
+    // This guide renders the authored projection (config/top-150-2026-27.js)
+    // instead of a live board — the season hasn't been played, so there are no
+    // z-scores to sort. `projection` switches Guide.jsx to <ProjectionList>.
+    projection: {
+      freeLimit: 48, // four full rounds free, then the paywall
+      previewRows: 3,
+    },
+
+    sections: [
+      {
+        id: 'strategy',
+        heading: 'What this ranking is',
+        body: [
+          "Every other guide in this section throws a category away on purpose. This one throws nothing away. All nine categories — points, threes, rebounds, assists, steals, blocks, field-goal percentage, free-throw percentage and turnovers — are weighted equally, and a player's rank is a projection of how much total z-score he will add to a roster this season. No positional adjustment, no name recognition, no punt.",
+          "That makes it the honest baseline. A top 150 tells you what each player is worth before you have committed to a build, which is exactly the information you need in the opening rounds when your team still has no identity. Once you know what everyone costs in raw value, choosing to give a category away becomes a decision you make with your eyes open rather than one the draft makes for you.",
+        ],
+      },
+      {
+        id: 'method',
+        heading: 'How the projection was built',
+        body: [
+          "Every rank starts from last season's actual nine-category production — the line you can see underneath each player below, pulled live from the same database that powers the rankings tool. That is the evidence. The projection then adjusts it for the four things a raw stat line cannot capture: age and trajectory, expected role and minutes, availability history, and the specific way a player's shape gains or loses value in a nine-category league.",
+          "The last of those is why this list looks different from the consensus. Turnovers count here, so high-usage playmakers fall. Free-throw percentage counts on volume, so a 60-percent big taking five attempts a night is penalised far more than the box score suggests. And blocks and steals are the scarcest columns on the board, so the players who supply them are ranked ahead of higher scorers who do not.",
+          "Availability is treated as part of the projection rather than a footnote. A player who produces a top-ten line in fifty games is ranked as what he is — a partial season of excellent production — not as a top-ten player with an asterisk. That is why several famous names sit twenty or thirty spots below where their per-game rate would put them.",
+        ],
+      },
+      {
+        id: 'draft',
+        heading: 'How to actually use it on draft day',
+        body: [
+          "For the first three or four rounds, take the best available player on this board and do not overthink it. Early picks are about raw value; no punt build is strong enough to justify reaching past a materially better player in round two.",
+          "From the middle rounds on, the list stops being a script and becomes a filter. Look at the roster you have accumulated, find the one or two categories you are already losing, and start reading for players who reinforce your strengths rather than patch your holes. That drift is how nearly every good team ends up in a punt — you do not choose it in advance, you notice it happening and commit.",
+          "The moment you know which category you are conceding, switch to the matching punt guide. Its board re-ranks the entire league with that column removed from the maths, and the ordering changes more than you would expect — that reshuffle is your real draft board for the rest of the night. Several players ranked in the eighties here are top-40 assets inside the right build, and the write-ups below say so where it applies.",
+        ],
+      },
+      {
+        id: 'caveats',
+        heading: 'What this list does not know',
+        body: [
+          "It is a projection of a season that has not been played, so treat it as a starting point with reasoning attached, not a verdict. Three gaps are worth naming outright. Offseason moves are not fully reflected — each player carries his last known team, and a trade or signing that changes a usage rate should move him on your own board. Rookies are excluded entirely: with no prior season to project from, ranking them would be guesswork dressed up as analysis, so slot this year's class in yourself.",
+          "And injury returns are the widest error bars on the list. Players coming back from a lost season appear without a prior-season line, ranked on what they were before plus a discount for the unknown. If the reports out of camp are good, move them up aggressively — that is where the biggest edges in a draft usually sit.",
+        ],
+      },
+    ],
+
+    faqs: [
+      {
+        q: 'Are these projections or last season\'s rankings?',
+        a: 'Projections. The 2026-27 season has not been played, so the ranks are a judgement call built on last season\'s production, age and trajectory, expected role, and availability history. Each player\'s actual prior-season line is shown underneath his write-up so you can see exactly what the projection is arguing with.',
+      },
+      {
+        q: 'Should I just draft straight down this list?',
+        a: 'For the first three or four rounds, yes. After that, fit beats raw value — once your roster leans a certain way, reinforcing your strong categories is worth more than adding a slightly better player who spreads your production thinner.',
+      },
+      {
+        q: 'Why is a big scorer ranked below a player who averages far fewer points?',
+        a: 'Because points are the least scarce category in 9-cat. A player who supplies steals, blocks or an elite percentage is helping in a column where the gap between good and average is much wider, and volume scorers usually give some of it back in turnovers and field-goal percentage.',
+      },
+      {
+        q: 'Does this work for 8-cat leagues?',
+        a: 'Mostly. If your league drops turnovers, high-usage playmakers are worth more than they appear here — anyone whose write-up flags turnovers as the main cost should move up a round or so.',
+      },
+      {
+        q: 'Why are there no rookies?',
+        a: 'Because there is nothing to project from. A first-year player has no prior nine-category production, so ranking him would be guesswork presented as analysis. Slot this year\'s class into the list yourself once you have seen the preseason roles.',
+      },
+    ],
+  },
+
   // ---- Stubs (not written out) --------------------------------------------
   { slug: 'punt-assists',    type: 'punt', puntKey: 'ast', title: 'Punt Assists',    season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Lean into bigs and low-usage wings.', strengths: ['blk', 'reb', 'fg'], weaknesses: ['ast', 'to'] },
   { slug: 'punt-fg',         type: 'punt', puntKey: 'fg',  title: 'Punt FG%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'The volume-scorer build. Fire away.',  strengths: ['pts', '3pm', 'ast', 'stl'], weaknesses: ['fg'] },
@@ -218,6 +304,12 @@ export const guideBySlug = Object.fromEntries(guides.map((g) => [g.slug, g]));
 
 // Grouping for the hub page.
 export const guideGroups = [
+  {
+    id: 'rankings',
+    title: 'Rankings',
+    blurb: 'The unpunted baseline. Straight 9-category value, ranked and tiered.',
+    guides: guides.filter((g) => g.type === 'rankings'),
+  },
   {
     id: 'punt',
     title: 'Punt Guides',

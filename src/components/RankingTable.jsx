@@ -29,14 +29,28 @@ const zBackground = (value) => {
 };
 
 /**
- * Live, re-ranked table for a punt build. Pulls the current-season z-scores,
- * removes the punted category from the total, and re-sorts. The punted column
- * is struck through — the visual signature of the whole Guides section.
+ * Live z-score board for a guide. Two modes:
+ *
+ *  - punt (`puntKey` set) — removes that category from the total and re-sorts,
+ *    striking the column through. The visual signature of the punt guides.
+ *  - pure (`puntKey` null) — all nine categories count, so the order is the
+ *    straight 9-cat ranking. Used by the Top 150.
+ *
+ * `season` is the season the numbers come from (preseason that is last year's,
+ * not the one the guide is written for), and `minGames` drops small-sample
+ * players who would otherwise ride a hot twenty games into the top 50.
  *
  * Free rows render fully; rows past `freeLimit` are blurred behind an unlock
  * prompt (the freemium teaser — purely visual here, real gating comes later).
  */
-export default function PuntRankingTable({ puntKey, freeLimit = 20, previewRows = 4 }) {
+export default function RankingTable({
+  puntKey = null,
+  season = CURRENT_SEASON,
+  limit = 150,
+  minGames = 0,
+  freeLimit = 20,
+  previewRows = 4,
+}) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -48,17 +62,20 @@ export default function PuntRankingTable({ puntKey, freeLimit = 20, previewRows 
     (async () => {
       try {
         setLoading(true);
-        const { data, error: err } = await supabase
+        let query = supabase
           .from('player_period_averages')
           .select('*')
-          .eq('season', CURRENT_SEASON)
-          .eq('period_type', 'season')
+          .eq('season', season)
+          .eq('period_type', 'season');
+        if (minGames > 0) query = query.gte('games_played', minGames);
+
+        const { data, error: err } = await query
           .order('total_value', { ascending: false })
-          .limit(150);
+          .limit(limit);
         if (err) throw err;
         if (active) setPlayers(data || []);
       } catch (e) {
-        console.error('PuntRankingTable fetch failed:', e);
+        console.error('RankingTable fetch failed:', e);
         if (active) setError(true);
       } finally {
         if (active) setLoading(false);
@@ -67,7 +84,7 @@ export default function PuntRankingTable({ puntKey, freeLimit = 20, previewRows 
     return () => {
       active = false;
     };
-  }, []);
+  }, [season, limit, minGames]);
 
   // Re-rank with the punted category removed from the z-score total.
   const ranked = useMemo(() => {
@@ -124,7 +141,8 @@ export default function PuntRankingTable({ puntKey, freeLimit = 20, previewRows 
     >
       <TableCell align="center" sx={{ py: 0.75, fontWeight: 700, color: '#0f2340', fontSize: '0.8rem' }}>
         {p.adjustedRank}
-        {p.rankChange !== 0 && (
+        {/* Movement is only meaningful against the unpunted board. */}
+        {puntKey && p.rankChange !== 0 && (
           <Typography
             component="span"
             sx={{ ml: 0.4, fontSize: '0.62rem', fontWeight: 600, color: p.rankChange > 0 ? '#2e9e5b' : '#c0392b' }}
@@ -221,10 +239,10 @@ export default function PuntRankingTable({ puntKey, freeLimit = 20, previewRows 
                       >
                         <LockOutlinedIcon sx={{ color: '#0f2340', fontSize: 22 }} />
                         <Typography sx={{ fontWeight: 700, color: '#0f2340', fontSize: '0.9rem' }}>
-                          See the full {punt?.name.toLowerCase()}-adjusted board
+                          {punt ? `See the full ${punt.name.toLowerCase()}-adjusted board` : 'See the full board'}
                         </Typography>
                         <Typography sx={{ color: '#667', fontSize: '0.78rem' }}>
-                          Top {freeLimit} free · unlock all 150 with a Goats account
+                          Top {freeLimit} free · unlock all {limit} with a Goats account
                         </Typography>
                       </Box>
                     </Box>
@@ -250,7 +268,14 @@ export default function PuntRankingTable({ puntKey, freeLimit = 20, previewRows 
         }}
       >
         <Typography sx={{ fontSize: '0.75rem', color: '#7a8290' }}>
-          Live z-scores, {CURRENT_SEASON} season · <strong style={{ color: '#c0392b' }}>{punt?.label}</strong> removed from Value
+          Live z-scores, {season} season ·{' '}
+          {punt ? (
+            <>
+              <strong style={{ color: '#c0392b' }}>{punt.label}</strong> removed from Value
+            </>
+          ) : (
+            <>all nine categories counted{minGames > 0 ? ` · ${minGames}+ games played` : ''}</>
+          )}
         </Typography>
         <Button
           component={RouterLink}

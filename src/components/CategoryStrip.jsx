@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { CATEGORIES } from '../config/guides-content';
+import { CATEGORIES, categoryByKey } from '../config/guides-content';
 
 // Shade ramps: dark (most extreme) → light (mild). Rank a category within its
 // group and step through the ramp, so the profile reads as a red→green
@@ -26,7 +26,13 @@ export default function CategoryStrip({ puntKey, strengths = [], weaknesses = []
   // Weaknesses other than the punt, in order — they get the lighter reds.
   const otherWeaknesses = weaknesses.filter((k) => k !== puntKey);
 
+  // No punt and no profile (the pure rankings guides): every category carries
+  // equal weight, so show each in its own identity colour rather than a row of
+  // grey, which would read as an empty state.
+  const evenProfile = !puntKey && !strengths.length && !weaknesses.length;
+
   const toneFor = (key) => {
+    if (evenProfile) return { bg: categoryByKey[key].color, text: '#fff' };
     if (key === puntKey) return { bg: REDS[0], text: '#fff', punted: true };
 
     const sIdx = strengths.indexOf(key);

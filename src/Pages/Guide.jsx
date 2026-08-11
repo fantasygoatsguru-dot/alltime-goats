@@ -5,7 +5,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import { guideBySlug, categoryByKey } from '../config/guides-content';
 import CategoryStrip from '../components/CategoryStrip';
-import PuntRankingTable from '../components/PuntRankingTable';
+import RankingTable from '../components/RankingTable';
+import ProjectionList from '../components/ProjectionList';
+import { PRIOR_SEASON } from '../config/top-150-2026-27';
 import TeamRadar from '../components/TeamRadar';
 import DraftBuilder from '../components/DraftBuilder';
 import { useEntitlements } from '../hooks/useEntitlements';
@@ -47,6 +49,7 @@ export default function Guide() {
 
   const punt = categoryByKey[guide.puntKey];
   const sections = guide.sections || [];
+  const board = guide.board || {};
 
   return (
     <Box sx={{ bgcolor: '#f5f6f8', minHeight: '100vh', pb: 10 }}>
@@ -111,9 +114,16 @@ export default function Guide() {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2.5, color: '#8595ad', fontSize: '0.82rem' }}>
             <SportsBasketballIcon sx={{ fontSize: 16, color: '#d9534f' }} />
-            <span>
-              Punting <strong style={{ color: '#ff8a80', textDecoration: 'line-through' }}>{punt?.name}</strong> — everything below is re-ranked with it removed.
-            </span>
+            {punt ? (
+              <span>
+                Punting <strong style={{ color: '#ff8a80', textDecoration: 'line-through' }}>{punt.name}</strong> — everything below is re-ranked with it removed.
+              </span>
+            ) : (
+              <span>
+                Projected for {guide.season} — no punt, all{' '}
+                <strong style={{ color: '#8fb4ff' }}>nine categories</strong> weighted equally.
+              </span>
+            )}
           </Box>
         </Container>
       </Box>
@@ -132,14 +142,40 @@ export default function Guide() {
               </Box>
             ))}
 
-            {/* Live draft board */}
-            <SectionHeading id="board">Live draft board</SectionHeading>
-            <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
-              Every player, re-ranked for this build. The{' '}
-              <strong style={{ color: '#c0392b', textDecoration: 'line-through' }}>{punt?.label}</strong> column is struck out and
-              pulled from the Value total — sort and draft straight off it.
-            </Typography>
-            <PuntRankingTable puntKey={guide.puntKey} />
+            {/* The board: an authored projection for rankings guides, the live
+                re-ranked z-score table for punt builds. */}
+            {guide.projection ? (
+              <>
+                <SectionHeading id="board">The projected top 150</SectionHeading>
+                <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
+                  Ranked for {guide.season}, one write-up per player explaining the placement. The stat line under
+                  each name is that player's actual {PRIOR_SEASON} production, pulled live from the same database
+                  behind the rankings tool — the evidence the projection is arguing with.
+                </Typography>
+                <ProjectionList
+                  freeLimit={guide.projection.freeLimit}
+                  previewRows={guide.projection.previewRows}
+                  unlocked={unlocked}
+                />
+              </>
+            ) : (
+              <>
+                <SectionHeading id="board">Live draft board</SectionHeading>
+                <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
+                  Every player, re-ranked for this build. The{' '}
+                  <strong style={{ color: '#c0392b', textDecoration: 'line-through' }}>{punt?.label}</strong> column is struck out
+                  and pulled from the Value total — sort and draft straight off it.
+                </Typography>
+                <RankingTable
+                  puntKey={guide.puntKey}
+                  season={board.dataSeason}
+                  limit={board.limit}
+                  minGames={board.minGames}
+                  freeLimit={board.freeLimit}
+                  previewRows={board.previewRows}
+                />
+              </>
+            )}
 
             {/* Round-by-round mock draft */}
             {guide.roundTargets && (
@@ -157,7 +193,7 @@ export default function Guide() {
             {/* Building blocks */}
             {guide.buildingBlocks && (
               <>
-                <SectionHeading id="blocks">First-round building blocks</SectionHeading>
+                <SectionHeading id="blocks">{guide.buildingBlocksHeading || 'First-round building blocks'}</SectionHeading>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                   {guide.buildingBlocks.map((b, i) => (
                     <Box
