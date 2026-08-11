@@ -167,6 +167,76 @@ export const SEO_CONTENT = {
       <p>Our matchup analysis integrates with Yahoo Fantasy Basketball to provide personalized insights based on your actual league and team. See exactly how you match up against your opponent this week and get strategic recommendations for maximizing your chances of winning your head-to-head matchup.</p>
     `,
     keywords: ['matchup analyzer', 'fantasy basketball matchup', 'team comparison', 'head-to-head fantasy', 'trade analyzer', 'player comparison']
+  },
+
+  '/guides': {
+    title: 'Fantasy Basketball Strategy Guides 2026-27',
+    content: `
+      <p>Every fantasy basketball draft comes down to two decisions: who is actually worth the pick, and which categories you are willing to lose. Our 2026-27 guides cover both. Start with the <a href="/guides/top-150">pure top 150 rankings</a> — projected nine-category value with no punt applied — then move to the punt guide that matches the roster you end up with.</p>
+
+      <p>The guides are built on Z-score analysis across all nine standard categories: points, three-pointers, rebounds, assists, steals, blocks, field goal percentage, free throw percentage and turnovers. That is the same engine behind our <a href="/rankings">fantasy basketball rankings</a>, so a player's value in a guide and his value in the tool always agree.</p>
+
+      <p>Draft prep runs deeper than a ranking list. Our <a href="/guides/sleepers">fantasy basketball sleepers</a> page identifies the players whose projected value sits above their draft cost, and the <a href="/guides/busts">busts</a> page names the players whose nine-category production will not cover the round they are going in — usually because of a free throw percentage, an empty scoring average, or a games-played history the consensus is ignoring.</p>
+
+      <p>Punt strategy guides explain how conceding a single category reshapes your entire board. Punt blocks and elite guards climb; punt free throw percentage and the best rebounding centers in the league become available rounds later than they should be. Each punt guide carries a live draft board that re-ranks every player with the punted column removed from the math, so you are drafting off real numbers rather than a static list.</p>
+    `,
+    keywords: ['fantasy basketball strategy', 'fantasy basketball guides', 'punt strategy', 'fantasy basketball draft strategy', '9-cat fantasy basketball', 'category leagues']
+  },
+
+  '/guides/top-150': {
+    title: 'Top 150 Fantasy Basketball Rankings 2026-27',
+    content: `
+      <p>Our projected top 150 fantasy basketball rankings for 2026-27 weight all nine categories equally — no punt, no positional adjustment, no name recognition. Every player carries a written explanation of why he is ranked where he is, alongside his actual per-game production from last season so you can see exactly what the projection is arguing with.</p>
+
+      <p>The list is grouped into rounds of a twelve-team draft, which is how it is actually used. Round one covers the multi-category anchors whose value gap over the field is the largest on the board. The middle rounds are where builds get decided, as most available players lean hard toward either big-man categories or guard categories. The late rounds are specialists: one or two elite columns attached to several negative ones.</p>
+
+      <p>Rankings are built from last season's nine-category production and then adjusted for age and trajectory, expected role and minutes, availability history, and the way a player's shape gains or loses value in category leagues. Turnovers count here, so high-usage playmakers fall. Free throw percentage is weighted by volume, so a poor shooter taking six attempts a night is penalized far more than the raw number suggests. Blocks and steals are the scarcest columns on the board, so the players who supply them rank ahead of higher scorers who do not.</p>
+
+      <p>Use the top 150 as your draft-day baseline for the first three or four rounds, then switch to the punt guide that matches your roster. Pair it with our <a href="/guides/sleepers">sleepers</a> and <a href="/guides/busts">busts</a> lists for the players priced wrong in either direction, and with the <a href="/rankings">rankings tool</a> to track how the projections hold up once games start.</p>
+    `,
+    keywords: ['top 150 fantasy basketball', 'fantasy basketball rankings 2026-27', 'fantasy basketball draft rankings', '9-cat rankings', 'z-score rankings', 'fantasy basketball projections']
+  },
+
+  '/guides/sleepers': {
+    title: 'Fantasy Basketball Sleepers 2026-27',
+    content: `
+      <p>A fantasy basketball sleeper is not a player nobody has heard of. It is a player whose projected nine-category value sits materially above what he will cost you on draft day, and that gap almost always comes from one of three places: minutes that are about to grow, a scarce category supplied cheaply, or production the market is still discounting as a fluke.</p>
+
+      <p>Category scarcity is the most underrated of the three. Points are everywhere; blocks, steals and free throw percentage are not. A bench center blocking nearly two shots in twenty minutes moves a category you cannot otherwise buy after round eight, and he does it at almost no draft cost — a bigger edge than a mid-round scorer adding four points a night to a column you were already winning.</p>
+
+      <p>Each sleeper below carries the full case for why the price is wrong, plus his real per-game line from last season. Per-minute production is the most reliable predictor of what happens when minutes arrive, which is why efficient young bigs and high-steal guards on crowded rosters dominate this kind of list.</p>
+
+      <p>Draft two or three sleepers in the last five rounds rather than reaching for them early — the discount is the entire point. Cross-reference with the <a href="/guides/top-150">top 150 rankings</a> to see where each player sits on the main board, check the <a href="/guides/busts">busts list</a> for the picks to avoid at the same cost, and use the <a href="/rankings">rankings tool</a> to track their production once the season starts.</p>
+    `,
+    keywords: ['fantasy basketball sleepers', 'fantasy basketball sleepers 2026-27', 'undervalued fantasy basketball players', 'late round picks', 'fantasy basketball breakouts', 'draft value picks']
+  },
+
+  '/guides/busts': {
+    title: 'Fantasy Basketball Busts 2026-27',
+    content: `
+      <p>A fantasy basketball bust is rarely a bad player. It is a good player whose nine-category production will not cover what you paid for him, which is a different claim and a far more common one. Almost every name on this list will look fine in a box score and still cost you the round you spent on him.</p>
+
+      <p>Three patterns account for nearly all of them. The first is the hidden negative — a free throw or field goal percentage bad enough, on enough volume, to hand back most of what the player wins elsewhere. The second is the empty average: scoring volume with no rebounds, assists or defensive stats attached, which reads as stardom and grades as a fourth-round profile. The third is availability, because elite per-game production across forty games is not elite production, and a draft pick does not come with a refund for the missing nights.</p>
+
+      <p>Read this list as a price list rather than a blacklist. Several of these players are excellent picks two or three rounds later than they are going, and a few become outright bargains inside the right build — a player whose only flaw is free throw percentage stops being a bust the moment you decide to punt that category.</p>
+
+      <p>Every entry names the specific column that gives the value back, along with the player's actual production from last season. Pair it with the <a href="/guides/top-150">projected top 150</a> to see where each player belongs instead, the <a href="/guides/sleepers">sleepers list</a> for the picks worth making at that cost, and the punt <a href="/guides">strategy guides</a> for the builds that turn these flaws into features.</p>
+    `,
+    keywords: ['fantasy basketball busts', 'fantasy basketball busts 2026-27', 'players to avoid fantasy basketball', 'overvalued players', 'fantasy basketball draft mistakes', 'adp value']
+  },
+
+  '/guides/punt-blocks': {
+    title: 'Punt Blocks Strategy 2026-27',
+    content: `
+      <p>Punting blocks means conceding the scarcest category in fantasy basketball on purpose and building a roster that wins everywhere else. As the NBA has drifted toward the perimeter, quality shot blocking has concentrated into a small group of centers — and those same centers tend to be the players who damage your free throw percentage and turnovers. Walking away from blocks lets you skip that entire aisle of the draft.</p>
+
+      <p>The payoff is roster flexibility. Freed from chasing swats, you can load up on skilled guards and wings who win assists, steals, threes and free throw percentage — four categories that travel well together. The trade is real: expect to run below average in rebounds and field goal percentage, because the players who supply those are usually the ones you are passing on.</p>
+
+      <p>Because you are ignoring the rarest category, your personal board gets deeper rather than shallower. Elite shot blockers slide down while high-usage guards and do-everything wings climb, and the live draft board on this page re-ranks every player in the league with blocks removed from the Z-score total so you can draft straight off it.</p>
+
+      <p>Punt blocks is a classic nine-category build and it has only gotten stronger as elite rim protection has become rarer. Start from the <a href="/guides/top-150">pure top 150</a> to understand what each player costs in raw value, then use this board to see how that value changes once blocks come out of the math. The same re-ranking is available for every category in the <a href="/rankings">rankings tool</a>.</p>
+    `,
+    keywords: ['punt blocks', 'punt strategy fantasy basketball', 'fantasy basketball punt build', '9-cat punt blocks', 'fantasy basketball draft strategy', 'category punting']
   }
 };
 

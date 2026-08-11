@@ -7,6 +7,7 @@
 // action, so they must never be added back.
 
 import { getSEODataByPath } from './seo-routes.js';
+import { guides } from './guides-content.js';
 
 const BASE = 'https://fantasygoats.guru';
 const LOGO =
@@ -67,11 +68,37 @@ const FAQ = {
         'A week-by-week view of how many games each NBA team plays, so you can target the weeks and teams that maximize the number of games your lineup plays.',
     },
   ],
+  '/guides': [
+    {
+      question: 'What is a punt strategy in fantasy basketball?',
+      answer:
+        'Punting means deliberately conceding one category and reallocating every pick toward the other eight. It works because a nine-category league is won by taking most columns, not all of them — and the players who are weak in the category you gave up are consistently available later than their overall value warrants.',
+    },
+    {
+      question: 'Should I decide on a punt before my draft?',
+      answer:
+        'Usually not. Take the best available player for the first three or four rounds, then look at what you have. Nearly every good team drifts into a punt rather than planning one — you notice which category you are already losing and commit to it from the middle rounds on.',
+    },
+    {
+      question: 'What are the nine categories in fantasy basketball?',
+      answer:
+        'Points, three-pointers made, rebounds, assists, steals, blocks, field goal percentage, free throw percentage and turnovers. Turnovers are the only one where a lower number is better, and it is the category most often ignored by rankings built for points leagues.',
+    },
+  ],
 };
+
+// Guide pages carry the FAQs authored in guides-content.js, which the guide
+// template also renders visibly — the requirement for FAQPage markup. Sourcing
+// both from the same place is what keeps them from drifting apart.
+const GUIDE_FAQ = Object.fromEntries(
+  guides
+    .filter((g) => g.faqs?.length)
+    .map((g) => [`/guides/${g.slug}`, g.faqs.map(({ q, a }) => ({ question: q, answer: a }))])
+);
 
 export const getFaq = (pathname) => {
   const clean = pathname === '/' ? '/' : pathname.replace(/\/$/, '');
-  return FAQ[clean] || null;
+  return FAQ[clean] || GUIDE_FAQ[clean] || null;
 };
 
 const buildWebApplication = (clean, title, description) => ({

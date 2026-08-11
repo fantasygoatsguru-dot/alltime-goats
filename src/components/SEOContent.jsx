@@ -9,7 +9,10 @@ const SEOContent = () => {
   const location = useLocation();
   const [isExpanded, setIsExpanded] = useState(false);
   const seoData = getSEOContent(location.pathname);
-  const faq = getFaq(location.pathname);
+  // Guide pages render their own FAQ section visibly (Guide.jsx), which is what
+  // the FAQPage markup needs — repeating it here would just duplicate the text
+  // on the page. Every other route relies on this block for it.
+  const faq = location.pathname.startsWith('/guides/') ? null : getFaq(location.pathname);
 
   if (!seoData) return null;
 
