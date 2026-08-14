@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import AdSense from "./components/AdSense";
 import SEOHead from "./components/SEOHead";
 import StructuredData from "./components/StructuredData";
 import TagManager from "react-gtm-module";
@@ -57,6 +58,7 @@ const App = () => {
         <SEOHead />
         <StructuredData />
         <GoogleAnalytics />
+        <AdSense />
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
             <Route path="/" element={<Navigate to="/guides" replace />} />

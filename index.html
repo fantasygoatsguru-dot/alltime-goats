@@ -76,8 +76,10 @@
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HVGGQV3NEZ"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8056587893315589"
-        crossorigin="anonymous"></script>
+    <!-- AdSense is NOT loaded here on purpose. A tag in <head> runs before React
+         and would show ads to paying users (and bake into every prerendered
+         page). It is injected at runtime, only for visitors without a pass, by
+         src/components/AdSense.jsx. Publisher id lives there too. -->
 
     <script>
         window.dataLayer = window.dataLayer || [];

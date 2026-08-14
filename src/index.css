@@ -68,3 +68,15 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Ad-free browsing is a paid perk. <html class="ad-free"> is set by
+   src/components/AdSense.jsx when the signed-in user holds a pass. It only
+   matters when someone buys mid-session, after the AdSense tag has already
+   loaded — Auto Ads cannot be unloaded, so its containers are hidden until the
+   next page load (which never loads the tag at all). */
+html.ad-free ins.adsbygoogle,
+html.ad-free .adsbygoogle,
+html.ad-free iframe[id^="google_ads_iframe"],
+html.ad-free div[id^="google_ads_iframe"] {
+  display: none !important;
+}

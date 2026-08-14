@@ -41,5 +41,9 @@ export const useEntitlements = () => {
 
   const hasPass = (type) => passTypes.includes(type) || passTypes.includes('combo');
 
-  return { hasPass, loading };
+  // True if the user holds ANY pass for the season. Used for perks that come
+  // with paying at all rather than with a specific pass — ad-free browsing.
+  const hasAnyPass = passTypes.length > 0;
+
+  return { hasPass, hasAnyPass, loading };
 };

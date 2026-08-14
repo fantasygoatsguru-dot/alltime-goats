@@ -21,6 +21,7 @@ export const PASSES = [
       'Full 9-cat z-score player rankings',
       'Tiered draft board',
       'Season-long player projections',
+      'Ad-free browsing',
     ],
     checkoutUrl: 'https://buy.polar.sh/polar_cl_w4Wddss5tVDYzdMLzwGLB4zAilHsr8BAwy2312OP8NL',
   },
@@ -35,6 +36,7 @@ export const PASSES = [
       'Unlimited tool usage',
       'Category breakdown',
       'Team playoff & season strength',
+      'Ad-free browsing',
     ],
     checkoutUrl: 'https://buy.polar.sh/polar_cl_dWy4HqGrBFeUh6S3ITV2HfmdZhMbkEcCmnrVl3cpqYD',
   },
@@ -47,6 +49,7 @@ export const PASSES = [
     features: [
       'Everything in Draft Pass',
       'Everything in Season Pass',
+      'Ad-free browsing',
       'Save $10 vs. buying separately',
     ],
     checkoutUrl: 'https://buy.polar.sh/polar_cl_Fnd1vxC3zzI15aW4TPZbB0SGtZXeVC551fFWV3YAJ7H',
