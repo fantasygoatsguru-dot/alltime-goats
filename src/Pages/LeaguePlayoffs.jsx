@@ -538,7 +538,7 @@ const LeaguePlayoffs = () => {
             label="Playoff Start Week"
             onChange={handleWeekSelect}
           >
-            {[19, 20, 21].map((n) => {
+            {[19, 20, 21, 22].map((n) => {
               const isLeagueDefault = leagueSettings?.playoffStartWeek === n;
               return (
                 <MenuItem key={n} value={n}>
