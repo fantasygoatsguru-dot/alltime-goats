@@ -3,6 +3,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { teamsPlayingOn } from "../_shared/schedule.ts";
+import { STATS_SEASON } from "../_shared/season.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
@@ -11,8 +13,7 @@ const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const YAHOO_CLIENT_ID = Deno.env.get('YAHOO_CLIENT_ID')!;
 const YAHOO_CLIENT_SECRET = Deno.env.get('YAHOO_CLIENT_SECRET')!;
 const GAME_ID = "466";           
-const CURRENT_SEASON = "2025-26";
-import SCHEDULE_DATA from "./schedule.json" with { type: "json" };
+const CURRENT_SEASON = STATS_SEASON;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
@@ -390,7 +391,7 @@ async function calculateFinalDayProjection(matchup: any, currentStats: any) {
   console.log(`[PROJ] Today (EST): ${todayDateStr}`);
 
   // Load schedule for today
-  const teamsPlayingToday = SCHEDULE_DATA[todayDateStr] || [];
+  const teamsPlayingToday = await teamsPlayingOn(todayDateStr);
   console.log(`[PROJ] ${teamsPlayingToday.length} teams playing today: ${teamsPlayingToday.join(', ')}`);
 
   // Map Yahoo → NBA

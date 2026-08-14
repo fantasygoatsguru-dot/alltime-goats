@@ -3,10 +3,11 @@
 // dashboard). Keep pass ids in sync with the pass_type values the
 // polar-webhook edge function writes to the entitlements table.
 
-// The season these passes unlock. Deliberately separate from CURRENT_SEASON
-// in src/utils/supabase.js (which tracks the season whose *stats* are being
-// displayed) — entitlements are sold ahead of the season they cover. Keep in
-// sync with CURRENT_SEASON in supabase/functions/polar-webhook/index.ts.
+// The season these passes unlock. Deliberately separate from STATS_SEASON in
+// config/season.js (the season whose *stats* are displayed) — entitlements are
+// sold ahead of the season they cover. Keep in sync with ENTITLEMENT_SEASON in
+// supabase/functions/_shared/season.ts, which the webhooks write to the
+// entitlements table.
 export const PASS_SEASON = '2026-27';
 
 export const PASSES = [

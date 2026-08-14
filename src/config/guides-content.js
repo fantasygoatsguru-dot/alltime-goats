@@ -1,3 +1,7 @@
+// Explicit .js extension: scripts/prerender.js reaches this file under plain
+// Node ESM (via structured-data.js), which does not resolve extensionless paths.
+import { CONTENT_SEASON } from './season.js';
+
 // Editorial content for the Guides section.
 // The STATS are never authored here — they come live from the z-score engine
 // (player_period_averages) via <RankingTable> / <TeamRadar> / <DraftBuilder>.
@@ -23,9 +27,9 @@ export const CATEGORIES = [
 export const categoryByKey = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
 
 // The season the guides are written for. Editorial only — the live boards read
-// their numbers from `CURRENT_SEASON` in utils/supabase.js, which is still
-// 2025-26 until the new season's data lands.
-export const CURRENT_GUIDE_SEASON = '2026-27';
+// their numbers from STATS_SEASON, which lags this until the new season's data
+// lands. See config/season.js for why the two flip separately.
+export const CURRENT_GUIDE_SEASON = CONTENT_SEASON;
 
 // ---------------------------------------------------------------------------
 // GUIDES

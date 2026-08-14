@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { STATS_SEASON } from "../_shared/season.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
@@ -11,7 +12,7 @@ const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const YAHOO_CLIENT_ID = Deno.env.get('YAHOO_CLIENT_ID')!;
 const YAHOO_CLIENT_SECRET = Deno.env.get('YAHOO_CLIENT_SECRET')!;
 const GAME_ID = "466";
-const CURRENT_SEASON = "2025-26";
+const CURRENT_SEASON = STATS_SEASON;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 

@@ -1,12 +1,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { ENTITLEMENT_SEASON } from "../_shared/season.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const LEMONSQUEEZY_WEBHOOK_SECRET = Deno.env.get("LEMONSQUEEZY_WEBHOOK_SECRET") || "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
-// Update each season alongside CURRENT_SEASON in src/utils/supabase.js.
-const CURRENT_SEASON = "2026-27";
+// The season a purchased pass unlocks — see _shared/season.ts. Leads the stats
+// season by design; keep in sync with PASS_SEASON in src/config/passes.js.
+const CURRENT_SEASON = ENTITLEMENT_SEASON;
 
 // LemonSqueezy variant id -> pass type. Test-mode and live-mode products have
 // different variant ids, so this map must be updated when switching to live.

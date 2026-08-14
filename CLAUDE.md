@@ -34,10 +34,30 @@ Supabase Edge Functions are deployed separately from the front end via `supabase
 **To add a page you must touch three places:** (1) add a `<Route>` in `App.jsx`, (2) add a `path === '...'` branch in `AlltimeLayout.renderContent()`, and (3) add the nav entry to the relevant submenu array (`leagueSubmenu`, `rankingsSubmenu`, `scheduleSubmenu`, `alltimeSubmenu`) near the top of `AlltimeLayout`. Missing any one silently breaks navigation or rendering.
 
 ### Two data-access modules with different scopes
-- `src/utils/supabase.js` — creates and exports the shared `supabase` client, and handles **current-season** data (`player_period_averages`, `player_game_logs`). Hardcodes `CURRENT_SEASON = "2025-26"` and anchors fantasy-week math to `2025-10-20`. Update these each season.
+- `src/utils/supabase.js` — creates and exports the shared `supabase` client, and handles **current-season** data (`player_period_averages`, `player_game_logs`). It no longer defines the season itself: `CURRENT_SEASON` is an alias for `STATS_SEASON` from `src/config/season.js`, and the fantasy-week anchor comes from `STATS_SEASON_START` in the same file. See "Season rollover" below.
 - `src/api.js` — **all-time historical** data (`alltime_player_info`, `alltime_player_season_averages`, `alltime_player_game_logs`), plus affiliate links/clicks and blog comments/likes. Uses a recurring **two-step query pattern**: filter demographics in `alltime_player_info` to get `player_id`s, then filter the stats table by those IDs (PostgREST can't join arbitrarily here).
 
 The core domain concept throughout is **9-category z-score fantasy analysis** (points, 3pt, rebounds, assists, steals, blocks, FG%, FT%, turnovers). Team strength = summing per-player z-scores per category.
+
+### Season rollover is gradual — there is no single CURRENT_SEASON
+
+Each season-dependent value flips when **its own** data is ready, so they are deliberately separate constants. Flipping one must not drag the others.
+
+Front end, `src/config/season.js`:
+- `STATS_SEASON` — the season in `player_period_averages`. Flip once ~15-20 games are played and z-scores mean something (late November). `CURRENT_SEASON` in `utils/supabase.js` is just an alias for it, kept so existing `import { supabase, CURRENT_SEASON }` call sites still work.
+- `STATS_SEASON_START` — Monday of fantasy week 1 for `STATS_SEASON`. Flips **together** with it.
+- `CONTENT_SEASON` — what guides/titles/SEO are written for. Flips early, in draft season. `CURRENT_GUIDE_SEASON` in `guides-content.js` derives from it.
+- `SCHEDULE_SEASON` — what `public/data/*.json` hold.
+
+Edge functions, `supabase/functions/_shared/season.ts` (separate deploy unit, so it is a second file by necessity):
+- `STATS_SEASON` — used by the three stats-reading jobs.
+- `ENTITLEMENT_SEASON` — which season a purchased pass unlocks; leads the stats season by design. Mirrored by `PASS_SEASON` in `src/config/passes.js`.
+
+Changing anything in `_shared/` requires redeploying every function that imports it.
+
+### NBA schedule: one file, generated
+
+`public/data/schedule.json`, `weeks.json` and `playoffs.json` are the only schedule data in the project, produced by `node scripts/build-schedule.js` (ESPN's team-schedule endpoint; NBA.com's CDN blocks non-browser clients). Run it when the NBA publishes the schedule in August, and again in December once the NBA Cup dates are assigned — until then each team has 80 of 82 games. Eight front-end pages fetch these files, and the two projection edge functions fetch the published `schedule.json` over HTTP, so a site deploy updates them too.
 
 ### Auth: two independent layers (account vs. Yahoo integration)
 `src/contexts/AuthContext.jsx` owns both, and they are deliberately separate — do not conflate them:
@@ -54,7 +74,7 @@ Called from the front end with `supabase.functions.invoke('<name>', { body: { ac
 - `yahoo-oauth` — authorize / callback / refresh
 - `yahoo-fantasy-api` — getUserLeagues / getAllTeamsInLeague / getLeagueSettings / getCurrentMatchup / …
 - `fantasy-chat` — OpenAI-backed assistant with RAG over the `knowledge` table (pgvector)
-- `weekly-matchup-projection`, `final-day-matchup-projection`, `yesterday-top-performers`, `promotion-email` — scheduled email jobs; each carries its own `deno.json`, `email-template.html`, and (where scheduled) `schedule.json`
+- `weekly-matchup-projection`, `final-day-matchup-projection`, `yesterday-top-performers`, `promotion-email` — scheduled email jobs; each carries its own `deno.json`, `email-template.html`, and (where scheduled) a cron `schedule.json`. The two projection jobs read the NBA schedule at runtime from `_shared/schedule.ts` (which fetches the site's published `/data/schedule.json`) — they must never bundle their own copy again.
 
 ### SEO + prerendering pipeline
 `src/config/` is the single source of truth: `seo-routes.js` (titles/descriptions/priority per route, `requiresAuth` marks routes excluded from sitemap/prerender), `seo-content.js` (crawlable body copy), `structured-data.js` (JSON-LD + FAQ). After `vite build`, `scripts/prerender.js` reads `dist/index.html` as a template and writes a per-route `dist/<path>/index.html` with baked title/meta/canonical/OG/Twitter tags, an offscreen crawlable SEO block, a `<noscript>` fallback, and JSON-LD. The runtime React components `SEOHead`, `SEOContent`, and `StructuredData` mirror the same config on client navigation using matching element ids, so they replace rather than duplicate the prerendered tags. **Adding a public route means updating `seo-routes.js` (and usually the other two config files) or it won't be prerendered or in the sitemap.**

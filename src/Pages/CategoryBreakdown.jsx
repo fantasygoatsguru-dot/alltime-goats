@@ -20,8 +20,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import YahooConnect from "../components/YahooConnect";
 import { supabase } from "../utils/supabase";
-
-const CURRENT_SEASON = "2025-26";
+import { STATS_SEASON as CURRENT_SEASON } from "../config/season";
 
 const CATEGORIES = [
   { key: "points", label: "PTS", zKey: "points_z" },

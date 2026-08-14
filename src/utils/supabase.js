@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { STATS_SEASON, STATS_SEASON_START } from "../config/season";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
@@ -15,7 +16,10 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
 });
 
-const CURRENT_SEASON = "2025-26";
+// Alias kept so the many `import { supabase, CURRENT_SEASON }` call sites keep
+// working — the value now lives in config/season.js, where it flips on its own
+// schedule (see the note there about the other season constants).
+const CURRENT_SEASON = STATS_SEASON;
 
 export const fetchAllPlayersFromSupabase = async () => {
     try {
@@ -220,7 +224,7 @@ export const fetchWeeklyMatchupResults = async (team1PlayersList, team2PlayersLi
 
         const getWeekFromDate = (dateStr) => {
             const date = new Date(dateStr);
-            const startDate = new Date('2025-10-20');
+            const startDate = new Date(STATS_SEASON_START);
             const diffTime = date - startDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             return Math.floor(diffDays / 7) + 1;
@@ -228,7 +232,7 @@ export const fetchWeeklyMatchupResults = async (team1PlayersList, team2PlayersLi
 
         const getCurrentWeek = () => {
             const now = new Date();
-            const startDate = new Date('2025-10-20');
+            const startDate = new Date(STATS_SEASON_START);
             const diffTime = now - startDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             return Math.floor(diffDays / 7) + 1;

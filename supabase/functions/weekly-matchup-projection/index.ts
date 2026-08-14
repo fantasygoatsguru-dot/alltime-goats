@@ -3,7 +3,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import SCHEDULE_DATA from "./schedule.json" with { type: "json" };
+import { getSchedule } from "../_shared/schedule.ts";
+import { STATS_SEASON } from "../_shared/season.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
@@ -12,7 +13,7 @@ const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const YAHOO_CLIENT_ID = Deno.env.get('YAHOO_CLIENT_ID')!;
 const YAHOO_CLIENT_SECRET = Deno.env.get('YAHOO_CLIENT_SECRET')!;
 const GAME_ID = "466";           
-const CURRENT_SEASON = "2025-26";
+const CURRENT_SEASON = STATS_SEASON;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
@@ -350,12 +351,14 @@ async function calculateDayByDayProjection(matchup: any) {
   let team1TotalStats = { points: 0, threePointers: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0, turnovers: 0, fgMade: 0, fgAttempted: 0, ftMade: 0, ftAttempted: 0 };
   let team2TotalStats = { ...team1TotalStats };
 
+  const schedule = await getSchedule();
+
   for (let i = 0; i < 7; i++) {
     const dayDate = new Date(weekStart);
     dayDate.setDate(weekStart.getDate() + i);
     const dateStr = getEasternDateString(dayDate);
     const isPast = dateStr < todayDateStr;
-    const teamsPlaying = SCHEDULE_DATA[dateStr] || [];
+    const teamsPlaying = schedule[dateStr] || [];
 
     console.log(`[PROJ] ${dateStr}: ${teamsPlaying.length} teams playing`);
 
