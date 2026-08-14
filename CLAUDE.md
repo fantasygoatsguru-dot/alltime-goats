@@ -76,6 +76,10 @@ Called from the front end with `supabase.functions.invoke('<name>', { body: { ac
 - `fantasy-chat` — OpenAI-backed assistant with RAG over the `knowledge` table (pgvector)
 - `weekly-matchup-projection`, `final-day-matchup-projection`, `yesterday-top-performers`, `promotion-email` — scheduled email jobs; each carries its own `deno.json`, `email-template.html`, and (where scheduled) a cron `schedule.json`. The two projection jobs read the NBA schedule at runtime from `_shared/schedule.ts` (which fetches the site's published `/data/schedule.json`) — they must never bundle their own copy again.
 
+### Ads are gated on entitlements
+
+Ad-free browsing is a paid perk, so nothing ad-related may live in `index.html` — a tag there runs before React and cannot be conditioned. `src/config/ads.js` holds the publisher id and slot ids; `src/components/AdSense.jsx` injects the loader at runtime only for visitors without a pass; `src/components/AdSlot.jsx` renders a unit and returns `null` for pass holders (and while entitlements resolve, so a paying user never sees a flash). `useEntitlements().hasAnyPass` is the check — any pass removes ads.
+
 ### SEO + prerendering pipeline
 `src/config/` is the single source of truth: `seo-routes.js` (titles/descriptions/priority per route, `requiresAuth` marks routes excluded from sitemap/prerender), `seo-content.js` (crawlable body copy), `structured-data.js` (JSON-LD + FAQ). After `vite build`, `scripts/prerender.js` reads `dist/index.html` as a template and writes a per-route `dist/<path>/index.html` with baked title/meta/canonical/OG/Twitter tags, an offscreen crawlable SEO block, a `<noscript>` fallback, and JSON-LD. The runtime React components `SEOHead`, `SEOContent`, and `StructuredData` mirror the same config on client navigation using matching element ids, so they replace rather than duplicate the prerendered tags. **Adding a public route means updating `seo-routes.js` (and usually the other two config files) or it won't be prerendered or in the sitemap.**
 

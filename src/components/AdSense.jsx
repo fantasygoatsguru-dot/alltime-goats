@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { useEntitlements } from '../hooks/useEntitlements';
+import { PUBLISHER_ID } from '../config/ads';
 
-// Google AdSense publisher id. Kept here rather than in index.html so the tag
-// can be loaded conditionally — see the note in index.html.
-const PUBLISHER_ID = 'ca-pub-8056587893315589';
 const SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${PUBLISHER_ID}`;
 const SCRIPT_ID = 'adsense-loader';
 
