@@ -25,6 +25,7 @@ import {
 } from '@mui/material';
 import { Logout, ExpandMore, Login, ConfirmationNumberOutlined } from '@mui/icons-material';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import Alltime from '../Pages/Alltime';
 import AlltimeTable from '../Pages/AlltimeTable';
@@ -65,7 +66,7 @@ import AuthModal from './AuthModal';
 const IconWrapper = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const size = isMobile ? 30 : 40;
+  const size = isMobile ? 26 : 28;
   return React.cloneElement(children, {
     style: { width: size, height: size, ...children.props.style },
   });
@@ -215,7 +216,10 @@ const AlltimeLayout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   // Show the full wordmark only when there's comfortable room; between md and lg
   // the desktop nav keeps all items but drops the wordmark text to avoid clipping.
-  const isLarge = useMediaQuery(theme.breakpoints.up('lg'));
+  // A truly centred nav splits the leftover space evenly, so the brand only has
+  // half of it. Goat + wordmark needs ~357px; that much is only available from
+  // ~1440 up. Below it the goat carries the brand and the nav stays centred.
+  const isLarge = useMediaQuery('(min-width:1440px)');
 
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
@@ -640,10 +644,27 @@ const AlltimeLayout = () => {
     setAnchor(e.currentTarget);
   };
 
+  // Clicking a parent used to navigate to its first child, so anyone who
+  // clicked "League" expecting a menu was teleported to /matchup. Click now
+  // toggles the panel; hover still opens it for mouse users. This is also what
+  // makes the menus reachable by keyboard and on touch, where hover never fires.
+  const toggleMenu = (setAnchor, current) => (e) => {
+    e.preventDefault();
+    cancelClose();
+    const wasOpen = Boolean(current);
+    closeAllMenus();
+    if (!wasOpen) setAnchor(e.currentTarget);
+  };
+
   const handleLeagueOpen = openMenu(setLeagueAnchorEl, leagueAnchorEl);
   const handleRankingsOpen = openMenu(setRankingsAnchorEl, rankingsAnchorEl);
   const handleScheduleOpen = openMenu(setScheduleAnchorEl, scheduleAnchorEl);
   const handleAlltimeOpen = openMenu(setAlltimeAnchorEl, alltimeAnchorEl);
+
+  const handleLeagueToggle = toggleMenu(setLeagueAnchorEl, leagueAnchorEl);
+  const handleRankingsToggle = toggleMenu(setRankingsAnchorEl, rankingsAnchorEl);
+  const handleScheduleToggle = toggleMenu(setScheduleAnchorEl, scheduleAnchorEl);
+  const handleAlltimeToggle = toggleMenu(setAlltimeAnchorEl, alltimeAnchorEl);
 
   const renderContent = () => {
     const p = location.pathname;
@@ -680,25 +701,30 @@ const AlltimeLayout = () => {
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#EEEEEE' }}>
       {/* HEADER */}
       <Box sx={{
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
-        borderBottom: '4px solid #4a90e2',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+        background: '#ffffff',
+        borderBottom: '1px solid #e2e6ec',
+        boxShadow: '0 1px 3px rgba(15,35,64,0.06)',
         position: 'relative',
         zIndex: 1300,
       }}>
         <Box sx={{
-          display: 'flex',
+          display: { xs: 'flex', md: 'grid' },
+          gridTemplateColumns: { md: '1fr auto 1fr' },
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: { xs: 'space-between', md: 'initial' },
           px: { xs: 2, sm: 3 },
           py: 2,
           minHeight: 76,
         }}>
-          {/* LEFT: GOAT = MENU on mobile */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0 : 2 }}>
+          {/* LEFT: brand, plus an explicit menu button on mobile */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0.25 : 2, justifySelf: 'start', minWidth: 0 }}>
             <Avatar
               src="https://fqrnmcnvrrujiutstkgb.supabase.co/storage/v1/object/public/avatars/goat_1.svg"
               alt="GOAT"
+              role="button"
+              aria-label={isMobile ? 'Open menu' : 'Fantasy Goats Guru home'}
+              aria-haspopup={isMobile ? 'true' : undefined}
+              aria-expanded={isMobile ? Boolean(mobileMenuAnchor) : undefined}
               onClick={(e) => isMobile ? setMobileMenuAnchor(e.currentTarget) : navigate('/guides')}
               sx={{
                 width: { xs: 50, sm: 56 },
@@ -709,6 +735,12 @@ const AlltimeLayout = () => {
                 '&:active': { transform: 'scale(0.95)' },
               }}
             />
+            {isMobile && (
+              <ArrowDropDownIcon
+                onClick={(e) => setMobileMenuAnchor(e.currentTarget)}
+                sx={{ color: '#9aa4b2', ml: -0.25, cursor: 'pointer' }}
+              />
+            )}
 
             {isLarge && (
               <Tooltip title="Fantasy Goats Guru">
@@ -731,13 +763,13 @@ const AlltimeLayout = () => {
 
           {/* DESKTOP NAV */}
           {!isMobile && (
-            <Box sx={{ display: 'flex', gap: 0.75 }}>
+            <Box sx={{ display: 'flex', gap: 0.75, justifySelf: 'center' }}>
               {navItems.map((item) => {
                 const submenuMap = {
-                  '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: scheduleClose, defaultPath: '/matchup' },
-                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: scheduleClose, defaultPath: '/rankings' },
-                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: scheduleClose, defaultPath: '/nba-playoffs' },
-                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: scheduleClose, defaultPath: '/games' },
+                  '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: scheduleClose, handleToggle: handleLeagueToggle, defaultPath: '/matchup' },
+                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: scheduleClose, handleToggle: handleRankingsToggle, defaultPath: '/rankings' },
+                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: scheduleClose, handleToggle: handleScheduleToggle, defaultPath: '/nba-playoffs' },
+                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: scheduleClose, handleToggle: handleAlltimeToggle, defaultPath: '/games' },
                 };
 
                 const config = submenuMap[item.path];
@@ -758,19 +790,25 @@ const AlltimeLayout = () => {
                   >
                     <Button
                       onMouseEnter={config.handleOpen}
-                      onClick={() => handleNavClick(config.defaultPath)}
+                      onClick={config.handleToggle}
+                      onKeyDown={(e) => { if (e.key === 'Escape') closeAllMenus(); }}
+                      aria-haspopup="true"
+                      aria-expanded={Boolean(config.anchorEl)}
                       startIcon={<IconWrapper>{item.icon}</IconWrapper>}
+                      endIcon={<ArrowDropDownIcon sx={{ ml: -0.5, color: '#9aa4b2' }} />}
                       sx={{
-                        px: { xs: 1.5, md: 2 },
+                        px: { xs: 1, md: 1.25 },
                         py: 1.5,
-                        fontSize: '0.95rem',
+                        minWidth: 0,
+                        fontSize: '0.92rem',
                         fontWeight: isSubmenuActive ? 700 : 600,
-                        color: isSubmenuActive ? '#4a90e2' : '#333',
-                        bgcolor: isSubmenuActive ? 'rgba(74,144,226,0.18)' : 'transparent',
-                        borderRadius: 2.5,
+                        '& .MuiButton-startIcon': { mr: 0.75 },
+                        '& .MuiButton-endIcon': { ml: 0 },
+                        color: isSubmenuActive ? '#0f2340' : '#48505c',
+                        borderRadius: 0,
                         textTransform: 'none',
-                        border: isSubmenuActive ? '2px solid #4a90e2' : '2px solid transparent',
-                        '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
+                        borderBottom: isSubmenuActive ? '2px solid #4a90e2' : '2px solid transparent',
+                        '&:hover': { bgcolor: 'transparent', color: '#0f2340', borderBottom: '2px solid #c9d3e0' },
                       }}
                     >
                       {item.label}
@@ -791,17 +829,24 @@ const AlltimeLayout = () => {
                             onMouseEnter={cancelClose}
                             onMouseLeave={config.handleClose}
                             sx={{
-                              bgcolor: '#fff',
-                              border: '3px solid #4a90e2',
-                              borderRadius: 3,
+                                bgcolor: '#fff',
+                              border: '1px solid #e2e6ec',
+                              borderRadius: 1.5,
                               overflow: 'hidden',
-                              minWidth: 220,
-                              boxShadow: '0 8px 30px rgba(74,144,226,0.3)',
+                              minWidth: 232,
+                              boxShadow: '0 10px 28px rgba(15,35,64,0.12)',
                             }}
                           >
                             <ClickAwayListener onClickAway={config.handleClose}>
                               <Box>
-                                {config.submenu.map((sub) => {
+                                {config.submenu.map((sub, subIndex) => {
+                                  // Free tools first, then a labelled group for
+                                  // the pass-gated ones, so the menu reads as
+                                  // "what I can use now" / "what a pass adds"
+                                  // instead of a flat list dotted with badges.
+                                  const prev = config.submenu[subIndex - 1];
+                                  const startsLeagueGroup =
+                                    sub.requiresAuth && (!prev || !prev.requiresAuth);
                                   // Both Yahoo- and premium-gated tools stay navigable — the
                                   // destination page renders the right gate (Connect Yahoo /
                                   // PremiumGate). Nav never blocks the click.
@@ -815,8 +860,26 @@ const AlltimeLayout = () => {
                                       : '';
 
                                   return (
+                                    <React.Fragment key={sub.path}>
+                                    {startsLeagueGroup && (
+                                      <Box
+                                        sx={{
+                                          px: 2,
+                                          pt: 1.25,
+                                          pb: 0.5,
+                                          mt: 0.5,
+                                          borderTop: '1px solid #eef1f5',
+                                          fontSize: '0.62rem',
+                                          fontWeight: 700,
+                                          letterSpacing: 1.2,
+                                          textTransform: 'uppercase',
+                                          color: '#9aa4b2',
+                                        }}
+                                      >
+                                        Your Yahoo league
+                                      </Box>
+                                    )}
                                     <Tooltip
-                                      key={sub.path}
                                       title={tooltipContent}
                                       placement="right"
                                       arrow
@@ -836,17 +899,10 @@ const AlltimeLayout = () => {
                                           }}
                                         >
                                           <Typography fontWeight={600} fontSize="0.95rem" sx={{ flexGrow: 1 }}>{sub.label}</Typography>
-                                          {needsPremium && (
-                                            <Typography
-                                              variant="caption"
-                                              sx={{ ml: 1.5, color: '#4a90e2', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}
-                                            >
-                                              Pass
-                                            </Typography>
-                                          )}
                                         </MenuItem>
                                       </span>
                                     </Tooltip>
+                                    </React.Fragment>
                                   );
                                 })}
                               </Box>
@@ -892,16 +948,17 @@ const AlltimeLayout = () => {
                         disabled={(item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium)}
                         startIcon={<IconWrapper>{item.icon}</IconWrapper>}
                         sx={{
-                          px: { xs: 1.5, md: 2 },
+                          px: { xs: 1, md: 1.25 },
                           py: 1.5,
-                          fontSize: '0.95rem',
+                          minWidth: 0,
+                          fontSize: '0.92rem',
                           fontWeight: isActive ? 700 : 600,
-                          color: isActive ? '#4a90e2' : '#333',
-                          bgcolor: isActive ? 'rgba(74,144,226,0.18)' : 'transparent',
-                          borderRadius: 2.5,
+                          '& .MuiButton-startIcon': { mr: 0.75 },
+                          color: isActive ? '#0f2340' : '#48505c',
+                          borderRadius: 0,
                           textTransform: 'none',
-                          border: isActive ? '2px solid #4a90e2' : '2px solid transparent',
-                          '&:hover': { bgcolor: 'rgba(74,144,226,0.12)' },
+                          borderBottom: isActive ? '2px solid #4a90e2' : '2px solid transparent',
+                          '&:hover': { bgcolor: 'transparent', color: '#0f2340', borderBottom: '2px solid #c9d3e0' },
                           opacity: (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium) ? 0.5 : 1,
                           cursor: (item.requiresAuth && !isAuthenticated) || (item.requiresPremium && !isPremium) ? 'not-allowed' : 'pointer',
                         }}
@@ -916,7 +973,7 @@ const AlltimeLayout = () => {
           )}
 
           {/* RIGHT: Account + Connect to Yahoo + Profile */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, flexShrink: 0, justifySelf: 'end' }}>
             {!isSignedIn && (
               <Button
                 variant="outlined"
@@ -1140,15 +1197,35 @@ const AlltimeLayout = () => {
                 </MenuItem>
                 <Collapse in={isExpanded} timeout="auto" unmountOnExit>
                   <Box sx={{ bgcolor: 'rgba(0,0,0,0.02)' }}>
-                    {submenu.map((sub) => {
+                    {submenu.map((sub, subIndex) => {
                       // Both Yahoo- and premium-gated tools stay navigable — the
                       // destination page renders the right gate.
                       const isSubActive = location.pathname === sub.path;
-                      const needsPremium = sub.requiresPremium && !isPremium;
+                      const prevSub = submenu[subIndex - 1];
+                      const startsLeagueGroup =
+                        sub.requiresAuth && (!prevSub || !prevSub.requiresAuth);
 
                       return (
+                        <React.Fragment key={sub.path}>
+                        {startsLeagueGroup && (
+                          <Box
+                            sx={{
+                              pl: 7,
+                              pr: 2.5,
+                              pt: 1.5,
+                              pb: 0.75,
+                              borderTop: '1px solid #e8ebef',
+                              fontSize: '0.62rem',
+                              fontWeight: 700,
+                              letterSpacing: 1.2,
+                              textTransform: 'uppercase',
+                              color: '#9aa4b2',
+                            }}
+                          >
+                            Your Yahoo league
+                          </Box>
+                        )}
                         <MenuItem
-                          key={sub.path}
                           onClick={() => handleNavClick(sub.path)}
                           sx={{
                             pl: 7,
@@ -1162,12 +1239,8 @@ const AlltimeLayout = () => {
                           <Typography fontSize="0.9rem" fontWeight={isSubActive ? 600 : 400} sx={{ flexGrow: 1 }}>
                             {sub.label}
                           </Typography>
-                          {needsPremium && (
-                            <Typography variant="caption" sx={{ ml: 1.5, color: '#4a90e2', fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              Pass
-                            </Typography>
-                          )}
                         </MenuItem>
+                        </React.Fragment>
                       );
                     })}
                   </Box>
