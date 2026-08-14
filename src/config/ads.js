@@ -20,6 +20,8 @@ export const AD_SLOTS = {
 // and /pricing: those are where passes get sold, and a pass is worth thousands
 // of ad impressions, so nothing may compete with them. '*' suffix = prefix match.
 export const STICKY_AD_PATHS = [
+  '/rankings', // biggest audience on the site, and free — ads here also give the
+               // pass a visible "remove ads" benefit. Watch pass conversions.
   '/nba-playoffs',
   '/nba-regular-season',
   '/games',
