@@ -54,7 +54,7 @@ const getGameCountStyle = (count, isTotal = false) => {
 
 const NBAPlayoffs = () => {
   const { isAuthenticated } = useAuth();
-  const { leagueTeams, leagueSettings } = useLeague();
+  const { leagueTeams, leagueSettings, isLoadingLeagueData } = useLeague();
 
   const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
@@ -64,7 +64,6 @@ const NBAPlayoffs = () => {
     direction: "desc",
   });
   const [expandedTeams, setExpandedTeams] = useState({});
-  const [isLoadingLeagueData, setIsLoadingLeagueData] = useState(false);
   const [showMyTeamsOnly, setShowMyTeamsOnly] = useState(false);
   const [selectedOpponentTeam, setSelectedOpponentTeam] = useState(null);
   const [teamMenuAnchor, setTeamMenuAnchor] = useState(null);
@@ -97,17 +96,10 @@ const NBAPlayoffs = () => {
     }
   }, [leagueSettings]);
 
-  // ── Track league data loading ────────────────────────────────────
-  useEffect(() => {
-    if (isAuthenticated) {
-      setIsLoadingLeagueData(true);
-      if (leagueTeams && leagueTeams.length > 0) {
-        setIsLoadingLeagueData(false);
-      }
-    } else {
-      setIsLoadingLeagueData(false);
-    }
-  }, [isAuthenticated, leagueTeams]);
+  // League loading comes from the context, which reports when the Yahoo fetch
+  // has SETTLED. Deriving it here from `leagueTeams.length > 0` used to hang the
+  // page forever whenever the fetch legitimately came back empty — e.g. in the
+  // offseason, before a league exists for the new season.
 
   // ── Playoff weeks ────────────────────────────────────────────────
   const playoffWeeks = useMemo(() => {

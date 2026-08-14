@@ -232,6 +232,12 @@ const AlltimeLayout = () => {
   const [currentMatchup, setCurrentMatchup] = useState(null);
   const [yahooConnecting, setYahooConnecting] = useState(false);
   const [loadingLeagues, setLoadingLeagues] = useState(false);
+  // The league whose teams fetch has FINISHED — note "finished", not "returned
+  // something". A user with no Yahoo league for the upcoming season settles with
+  // zero teams, and pages that wait on league data must be able to tell that
+  // apart from "still loading". Keyed by league id so switching leagues reads as
+  // loading immediately, without a frame of stale "settled".
+  const [teamsSettledFor, setTeamsSettledFor] = useState(null);
   const [leagueSettings, setLeagueSettings] = useState(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
@@ -393,6 +399,12 @@ const AlltimeLayout = () => {
     fetchUserProfile();
   }, [user?.userId]);
 
+  // Yahoo league data still in flight. False as soon as it settles — including
+  // when it settles empty (no leagues yet for the new season, or a league with
+  // no teams), which is what stops a consumer from spinning forever.
+  const isLoadingLeagueData =
+    isAuthenticated && (loadingLeagues || (!!selectedLeague && teamsSettledFor !== selectedLeague));
+
   const displayName = userProfile?.name || user?.name || 'User';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
   const isPremium = hasPass('season');
@@ -432,6 +444,8 @@ const AlltimeLayout = () => {
       } catch (err) {
         console.error('Error fetching league teams:', err);
         setLeagueTeams([]);
+      } finally {
+        setTeamsSettledFor(selectedLeague);
       }
     };
     fetchLeagueTeams();
@@ -1216,6 +1230,7 @@ const AlltimeLayout = () => {
             currentMatchup={currentMatchup}
             setCurrentMatchup={setCurrentMatchup}
             leagueSettings={leagueSettings}
+            isLoadingLeagueData={isLoadingLeagueData}
           >
             {renderContent()}
             <SEOContent />
