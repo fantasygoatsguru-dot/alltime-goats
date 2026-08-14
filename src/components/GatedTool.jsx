@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
+import { useLeague } from '../contexts/LeagueContext';
 import { useEntitlements } from '../hooks/useEntitlements';
 import { useToolUsage, FREE_USES_PER_WEEK } from '../hooks/useToolUsage';
 import YahooConnect from './YahooConnect';
@@ -14,18 +15,25 @@ import UsageNudge from './UsageNudge';
 //      gated tools), shown via a nudge banner, then hits PremiumGate.
 const GatedTool = ({ toolId, toolName, children }) => {
   const { isAuthenticated } = useAuth();
+  const { leagueTeams, isLoadingLeagueData } = useLeague();
   const { hasPass } = useEntitlements();
   const { hasQuota, remainingUses, loading: usageLoading, recordUse } = useToolUsage();
   const isPremium = hasPass('season');
   const recordedForRef = useRef(null);
 
+  // A free visit is only spent once the tool can actually show something. It
+  // used to be charged on mount, so a user whose league data was still loading
+  // — or who had no league at all — paid for a page that never rendered.
+  const leagueReady = !isLoadingLeagueData && Array.isArray(leagueTeams) && leagueTeams.length > 0;
+
   useEffect(() => {
     if (!isAuthenticated || isPremium || usageLoading || !hasQuota) return;
+    if (!leagueReady) return;
     if (recordedForRef.current === toolId) return;
     recordedForRef.current = toolId;
     recordUse(toolId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, isPremium, usageLoading, hasQuota, toolId]);
+  }, [isAuthenticated, isPremium, usageLoading, hasQuota, leagueReady, toolId]);
 
   if (!isAuthenticated) {
     return <YahooConnect variant="gate" toolName={toolName} />;
@@ -46,7 +54,11 @@ const GatedTool = ({ toolId, toolName, children }) => {
 
   return (
     <>
-      {!isPremium && <UsageNudge remaining={remainingUses} freeLimit={FREE_USES_PER_WEEK} />}
+      {/* Only nudge once the quota is actually running down. Leading with
+          "5 of 5 free visits left" asks for money before showing any value. */}
+      {!isPremium && leagueReady && remainingUses < FREE_USES_PER_WEEK && (
+        <UsageNudge remaining={remainingUses} freeLimit={FREE_USES_PER_WEEK} />
+      )}
       {children}
     </>
   );

@@ -29,11 +29,13 @@ import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import YahooConnect from "../components/YahooConnect";
+import { getGameCountStyle } from "../utils/gameCountStyle";
+import { CURRENT_GUIDE_SEASON } from "../config/guides-content";
 import { supabase } from "../utils/supabase";
 
 const MyLeaguePlayoffs = () => {
   const { isAuthenticated } = useAuth();
-  const { leagueTeams, leagueSettings } = useLeague();
+  const { leagueTeams, leagueSettings, isLoadingLeagueData } = useLeague();
 
   // ── State ───────────────────────────────────────────────────────
   const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
@@ -85,16 +87,25 @@ const MyLeaguePlayoffs = () => {
     };
   }, []);
 
-  // Track loading state for logged-in data
+  // Track loading state for logged-in data.
+  // "Loading" has to mean the fetch is IN FLIGHT, never "the result was empty".
+  // Deriving it from `leagueTeams.length` spun forever for a Yahoo-connected
+  // user with no league for the season — the offseason case.
   useEffect(() => {
-    if (isAuthenticated) {
-      const hasLeagueTeams = Array.isArray(leagueTeams) && leagueTeams.length > 0;
-      setIsLoadingLoggedInData(!hasLeagueTeams || !playerStatsLoaded);
-    } else {
+    if (!isAuthenticated) {
       setIsLoadingLoggedInData(false);
       setPlayerStatsLoaded(false);
+      return;
     }
-  }, [isAuthenticated, leagueTeams, playerStatsLoaded]);
+    if (isLoadingLeagueData) {
+      setIsLoadingLoggedInData(true);
+      return;
+    }
+    // League fetch has settled. If it came back with no teams there is nothing
+    // left to wait for, so fall through to the empty state below.
+    const hasLeagueTeams = Array.isArray(leagueTeams) && leagueTeams.length > 0;
+    setIsLoadingLoggedInData(hasLeagueTeams && !playerStatsLoaded);
+  }, [isAuthenticated, isLoadingLeagueData, leagueTeams, playerStatsLoaded]);
 
   // ── Load static data ───────────────────────────────────────────
   useEffect(() => {
@@ -691,22 +702,28 @@ const MyLeaguePlayoffs = () => {
                           </Typography>
                         )}
                       </TableCell>
-                      {playoffWeeks.map((w) => (
-                        <TableCell key={w.number} align="center">
-                          <Box>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                              {team.weekData[w.number]?.games ?? 0}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              ({(team.weekData[w.number]?.strength ?? 0).toFixed(1)})
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                      ))}
-                      <TableCell align="center" sx={{ bgcolor: "info.light", color: "white" }}>
+                      {playoffWeeks.map((w) => {
+                        const games = team.weekData[w.number]?.games ?? 0;
+                        const cell = getGameCountStyle(games);
+                        return (
+                          <TableCell key={w.number} align="center" sx={{ ...cell, py: 0.75 }}>
+                            <Box>
+                              <Typography variant="body2" sx={{ fontWeight: cell.fontWeight, color: 'inherit' }}>
+                                {games}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: 'inherit', opacity: 0.75 }}>
+                                ({(team.weekData[w.number]?.strength ?? 0).toFixed(1)})
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                        );
+                      })}
+                      {/* Totals: dark on white, not white on a light tint —
+                          the previous pairing was close to unreadable. */}
+                      <TableCell align="center" sx={{ bgcolor: "info.dark", color: "#fff" }}>
                         <Typography sx={{ fontWeight: 700 }}>{team.totalGames}</Typography>
                       </TableCell>
-                      <TableCell align="center" sx={{ bgcolor: "secondary.light", color: "white" }}>
+                      <TableCell align="center" sx={{ bgcolor: "secondary.dark", color: "#fff" }}>
                         <Typography sx={{ fontWeight: 700 }}>{team.totalStrength}</Typography>
                       </TableCell>
                     </TableRow>
@@ -809,6 +826,18 @@ const MyLeaguePlayoffs = () => {
             </Table>
           </TableContainer>
         </>
+      ) : isAuthenticated ? (
+        // Connected, but Yahoo returned no teams — usually no league exists for
+        // the season yet. Telling them to "connect Yahoo" here is just wrong.
+        <Box sx={{ p: 5, textAlign: 'center', bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 2 }}>
+          <Typography sx={{ fontWeight: 700, color: '#0f2340', fontSize: '1.05rem', mb: 1 }}>
+            No league found for this season
+          </Typography>
+          <Typography sx={{ color: '#5a6472', fontSize: '0.92rem', maxWidth: 460, mx: 'auto' }}>
+            Your Yahoo account is connected, but it has no fantasy basketball league for {CURRENT_GUIDE_SEASON} yet.
+            Once your league drafts, your team&apos;s playoff strength will appear here automatically.
+          </Typography>
+        </Box>
       ) : (
         <YahooConnect variant="gate" toolName="Team Playoff Strength" />
       )}
