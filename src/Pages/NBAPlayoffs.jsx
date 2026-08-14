@@ -726,6 +726,7 @@ const NBAPlayoffs = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
     </Box>
   );
 };

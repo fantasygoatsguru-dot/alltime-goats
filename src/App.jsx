@@ -3,6 +3,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import AdSense from "./components/AdSense";
+import StickyAdBanner from "./components/StickyAdBanner";
 import SEOHead from "./components/SEOHead";
 import StructuredData from "./components/StructuredData";
 import TagManager from "react-gtm-module";
@@ -59,6 +60,7 @@ const App = () => {
         <StructuredData />
         <GoogleAnalytics />
         <AdSense />
+        <StickyAdBanner />
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
             <Route path="/" element={<Navigate to="/guides" replace />} />

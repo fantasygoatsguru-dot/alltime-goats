@@ -13,8 +13,6 @@ import { SLEEPERS, BUSTS } from '../config/sleepers-busts-2026-27';
 import TeamRadar from '../components/TeamRadar';
 import DraftBuilder from '../components/DraftBuilder';
 import { useEntitlements } from '../hooks/useEntitlements';
-import AdSlot from '../components/AdSlot';
-import { AD_SLOTS } from '../config/ads';
 
 function SectionHeading({ id, children }) {
   return (
@@ -154,11 +152,6 @@ export default function Guide() {
                 ))}
               </Box>
             ))}
-
-            {/* After the written sections, before the board — the natural break
-                in the article, and above the fold on nothing. Renders nothing
-                for pass holders. */}
-            <AdSlot slot={AD_SLOTS.guideInline} />
 
             {/* The board: an authored projection or write-up list for rankings
                 guides, the live re-ranked z-score table for punt builds. */}

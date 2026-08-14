@@ -1,2 +1,8 @@
 /ads.txt  https://srv.adstxtmanager.com/19390/fantasygoats.guru  302
+# Legacy URL kept alive only for inbound links. It has no nav entry, and the
+# SPA catch-all below served it the homepage shell — homepage title AND
+# canonical — so Google treated it as a duplicate of "/". Its search queries are
+# playoff-schedule queries, so the signal belongs on /nba-playoffs.
+/playoffs  /nba-playoffs  301
+
 /*        /index.html  200
