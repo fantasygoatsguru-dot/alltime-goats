@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../utils/supabase';
 
-const AuthContext = createContext(null);
+// Exported so a subtree can re-publish a modified copy of this value.
+// components/DemoLeague.jsx is the only consumer that does so — see the note
+// there for why that is safe.
+export const AuthContext = createContext(null);
 
 const USER_STORAGE_KEY = 'yahoo_user_data';
 const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000; // Refresh 5 minutes before expiry
