@@ -15,5 +15,5 @@ export const STATS_SEASON = "2025-26";
 // The season a purchased pass unlocks. Sold ahead of the season it covers, so
 // this leads STATS_SEASON by design. Keep in sync with PASS_SEASON in
 // src/config/passes.js.
-// Used by: polar-webhook, lemonsqueezy-webhook
+// Used by: polar-webhook
 export const ENTITLEMENT_SEASON = "2026-27";
