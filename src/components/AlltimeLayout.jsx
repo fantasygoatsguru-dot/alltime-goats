@@ -211,7 +211,7 @@ const AlltimeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, logout, login, authUser, isSignedIn, signOutAccount } = useAuth();
-  const { hasPass } = useEntitlements();
+  const { hasPass, hasAnyPass } = useEntitlements();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   // Show the full wordmark only when there's comfortable room; between md and lg
@@ -972,8 +972,61 @@ const AlltimeLayout = () => {
             </Box>
           )}
 
-          {/* RIGHT: Account + Connect to Yahoo + Profile */}
+          {/* RIGHT: Passes + Account + Connect to Yahoo + Profile */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, flexShrink: 0, justifySelf: 'end' }}>
+            {/* The passes had no entry point anywhere in the tools — six links
+                existed, all buried in paywalls a free user rarely reaches. Hidden
+                once you own one; the profile menu still links there. */}
+            {!isMobile && !hasAnyPass && (
+              <Button
+                onClick={() => handleNavClick('/pricing')}
+                sx={{
+                  height: 38,
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: location.pathname === '/pricing' ? '#0f2340' : '#48505c',
+                  textTransform: 'none',
+                  borderRadius: 0,
+                  px: 1,
+                  minWidth: 0,
+                  borderBottom: location.pathname === '/pricing' ? '2px solid #4a90e2' : '2px solid transparent',
+                  '&:hover': { bgcolor: 'transparent', color: '#0f2340', borderBottom: '2px solid #c9d3e0' },
+                }}
+              >
+                Passes
+              </Button>
+            )}
+            {/* Yahoo is a data-source integration, not a login, so connecting it
+                must not require a Goats account first. The action previously
+                lived only in the profile menu, which does not render until you
+                are signed in or already connected — leaving a new visitor with
+                no way in from the header. */}
+            {!isAuthenticated && (
+              <Tooltip title="Connect your Yahoo league — no account needed">
+                <Button
+                  variant="outlined"
+                  onClick={handleYahooConnect}
+                  disabled={yahooConnecting}
+                  startIcon={yahooConnecting
+                    ? <CircularProgress size={14} color="inherit" />
+                    : <SportsBasketballIcon sx={{ fontSize: '1rem' }} />}
+                  sx={{
+                    height: 38,
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    color: '#48505c',
+                    borderColor: '#d7dde5',
+                    textTransform: 'none',
+                    borderRadius: 3,
+                    whiteSpace: 'nowrap',
+                    px: { xs: 1.25, lg: 2 },
+                    '&:hover': { borderColor: '#4a90e2', color: '#0f2340', bgcolor: 'rgba(74,144,226,0.06)' },
+                  }}
+                >
+                  {isLarge ? 'Connect Yahoo' : 'Yahoo'}
+                </Button>
+              </Tooltip>
+            )}
             {!isSignedIn && (
               <Button
                 variant="outlined"
@@ -1120,6 +1173,32 @@ const AlltimeLayout = () => {
                   <Typography variant="caption" color="text.secondary">{authUser.email}</Typography>
                 )}
               </Box>
+            </MenuItem>
+          )}
+
+          {!isAuthenticated && (
+            <MenuItem
+              onClick={() => { setMobileMenuAnchor(null); handleYahooConnect(); }}
+              disabled={yahooConnecting}
+              sx={{ py: 2, px: 2.5, gap: 2.5 }}
+            >
+              <SportsBasketballIcon sx={{ color: '#4a90e2' }} />
+              <Typography fontWeight={600} fontSize="0.95rem">Connect Yahoo league</Typography>
+            </MenuItem>
+          )}
+
+          {!hasAnyPass && (
+            <MenuItem
+              onClick={() => handleNavClick('/pricing')}
+              sx={{
+                py: 2,
+                px: 2.5,
+                gap: 2.5,
+                bgcolor: location.pathname === '/pricing' ? 'rgba(74,144,226,0.10)' : 'transparent',
+              }}
+            >
+              <ConfirmationNumberOutlined sx={{ color: '#4a90e2' }} />
+              <Typography fontWeight={600} fontSize="0.95rem">Passes</Typography>
             </MenuItem>
           )}
           <Divider />

@@ -1,24 +1,52 @@
-import React from 'react';
-import { Container, Grid, Card, CardContent, CardActions, Typography, Button, Box, Chip } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Container, Grid, Card, CardContent, CardActions, Typography, Button, Box, Chip, Alert, CircularProgress } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { PASSES, buildCheckoutUrl } from '../config/passes';
+import { setPendingPass, takePendingPass } from '../utils/pendingPurchase';
 
 const ACCENT = '#4a90e2';
 
 const Pricing = ({ onRequireSignIn }) => {
-  const { authUser, isSignedIn } = useAuth();
+  const { authUser, isSignedIn, authLoading } = useAuth();
+  const [resuming, setResuming] = useState(false);
+
+  const goToCheckout = (pass, user) => {
+    window.location.href = buildCheckoutUrl(pass.checkoutUrl, {
+      authUserId: user.id,
+      email: user.email,
+    });
+  };
 
   const handleBuy = (pass) => {
     if (!isSignedIn) {
+      // Both sign-in methods navigate away from the site, so remember the pass
+      // before handing off — otherwise the intent is lost and the customer has
+      // to notice and press Buy a second time on their way back.
+      setPendingPass(pass.id);
       onRequireSignIn?.();
       return;
     }
-    window.location.href = buildCheckoutUrl(pass.checkoutUrl, {
-      authUserId: authUser.id,
-      email: authUser.email,
-    });
+    goToCheckout(pass, authUser);
   };
+
+  // Picks the purchase back up after the sign-in round-trip. Google and the
+  // magic link both return to this path (see redirectTo/emailRedirectTo in
+  // AuthContext), so by the time the session resolves we are mounted again and
+  // can send them straight on to Polar. Waits for authLoading so a restoring
+  // session isn't mistaken for a signed-out one.
+  useEffect(() => {
+    if (authLoading || !isSignedIn || !authUser?.id) return;
+
+    const passId = takePendingPass();
+    if (!passId) return;
+
+    const pass = PASSES.find((p) => p.id === passId);
+    if (!pass) return; // Pass was retired since they clicked; drop it quietly.
+
+    setResuming(true);
+    goToCheckout(pass, authUser);
+  }, [authLoading, isSignedIn, authUser]);
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
@@ -30,6 +58,16 @@ const Pricing = ({ onRequireSignIn }) => {
           Draft-day prep, in-season tools, or both — pick what fits your season.
         </Typography>
       </Box>
+
+      {resuming && (
+        <Alert
+          icon={<CircularProgress size={18} />}
+          severity="info"
+          sx={{ mb: 3, alignItems: 'center' }}
+        >
+          Signed in — taking you to checkout…
+        </Alert>
+      )}
 
       <Grid container spacing={2.5} alignItems="stretch">
         {PASSES.map((pass) => (
