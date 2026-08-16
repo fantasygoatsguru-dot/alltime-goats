@@ -13,6 +13,8 @@ import { SLEEPERS, BUSTS } from '../config/sleepers-busts-2026-27';
 import TeamRadar from '../components/TeamRadar';
 import DraftBuilder from '../components/DraftBuilder';
 import { useEntitlements } from '../hooks/useEntitlements';
+import AdSlot from '../components/AdSlot';
+import { AD_SLOTS } from '../config/ads';
 
 function SectionHeading({ id, children }) {
   return (
@@ -152,6 +154,16 @@ export default function Guide() {
                 ))}
               </Box>
             ))}
+
+            {/* In-content unit, between the intro prose and the board. Free
+                guides only: on a premium guide a non-payer is looking at the
+                locked teaser and an upsell, and an ad next to our own pass
+                pitch competes with it — the same reason config/ads.js keeps
+                ads off /pricing. (A premium guide the reader HAS unlocked
+                needs no check: AdSlot already renders null for pass holders.)
+                AdSlot also returns null while entitlements resolve, so a
+                paying reader never sees a flash. */}
+            {!guide.isPremium && <AdSlot slot={AD_SLOTS.guideInline} />}
 
             {/* The board: an authored projection or write-up list for rankings
                 guides, the live re-ranked z-score table for punt builds. */}
