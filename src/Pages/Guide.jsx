@@ -36,6 +36,20 @@ function SectionHeading({ id, children }) {
   );
 }
 
+// One in-article unit, plus the rule about where guide ads are allowed — kept
+// in one place so the three call sites below cannot drift apart.
+//
+// Free guides only. On a premium guide a non-payer is looking at the locked
+// teaser and an upsell, and an ad beside our own pass pitch competes with it —
+// the same reason config/ads.js keeps ads off /pricing. A premium guide the
+// reader HAS unlocked needs no check here: AdSlot already renders null for
+// pass holders, and null while entitlements resolve, so nobody who paid ever
+// sees a flash of ads.
+function GuideAd({ guide }) {
+  if (guide.isPremium) return null;
+  return <AdSlot slot={AD_SLOTS.guideInArticle} layout="in-article" />;
+}
+
 export default function Guide() {
   const { slug } = useParams();
   const guide = guideBySlug[slug];
@@ -144,7 +158,7 @@ export default function Guide() {
       <Container maxWidth="xl" sx={{ pt: { xs: 3, md: 5 } }}>
           {/* Body — full width now that the TOC is gone */}
           <Box>
-            {sections.map((s) => (
+            {sections.map((s, idx) => (
               <Box key={s.id}>
                 <SectionHeading id={s.id}>{s.heading}</SectionHeading>
                 {s.body.map((para, i) => (
@@ -152,18 +166,16 @@ export default function Guide() {
                     {para}
                   </Typography>
                 ))}
+                {/* Break in the prose. Free guides run 3-4 sections, so this
+                    lands once, roughly halfway down — never against the
+                    opening section, where it would be the first thing a reader
+                    arriving from search meets. */}
+                {idx === 1 && idx < sections.length - 1 && <GuideAd guide={guide} />}
               </Box>
             ))}
 
-            {/* In-content unit, between the intro prose and the board. Free
-                guides only: on a premium guide a non-payer is looking at the
-                locked teaser and an upsell, and an ad next to our own pass
-                pitch competes with it — the same reason config/ads.js keeps
-                ads off /pricing. (A premium guide the reader HAS unlocked
-                needs no check: AdSlot already renders null for pass holders.)
-                AdSlot also returns null while entitlements resolve, so a
-                paying reader never sees a flash. */}
-            {!guide.isPremium && <AdSlot slot={AD_SLOTS.guideInline} />}
+            {/* Between the prose and the board. */}
+            <GuideAd guide={guide} />
 
             {/* The board: an authored projection or write-up list for rankings
                 guides, the live re-ranked z-score table for punt builds. */}
@@ -333,6 +345,7 @@ export default function Guide() {
             {/* FAQ */}
             {guide.faqs && (
               <>
+                <GuideAd guide={guide} />
                 <SectionHeading id="faq">FAQ</SectionHeading>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   {guide.faqs.map((f, i) => (

@@ -26,10 +26,16 @@ import { useEntitlements } from '../hooks/useEntitlements';
 export default function AdSlot({
   slot,
   format = 'auto',
+  layout,
   fullWidthResponsive = true,
   minHeight = 100,
   sx = {},
 }) {
+  // In-article and in-feed units are "fluid": AdSense picks the shape from the
+  // surrounding content, so they take data-ad-layout instead of a size, and
+  // must NOT carry data-full-width-responsive or a min-height — either one
+  // fights the layout AdSense chose.
+  const fluid = Boolean(layout) || format === 'fluid';
   const { hasAnyPass, loading } = useEntitlements();
   const { pathname } = useLocation();
   const insRef = useRef(null);
@@ -71,11 +77,13 @@ export default function AdSlot({
       <ins
         ref={insRef}
         className="adsbygoogle"
-        style={{ display: 'block', minHeight }}
+        style={fluid ? { display: 'block', textAlign: 'center' } : { display: 'block', minHeight }}
         data-ad-client={PUBLISHER_ID}
         data-ad-slot={slot}
-        data-ad-format={format}
-        data-full-width-responsive={String(fullWidthResponsive)}
+        data-ad-format={fluid ? 'fluid' : format}
+        {...(fluid
+          ? { 'data-ad-layout': layout }
+          : { 'data-full-width-responsive': String(fullWidthResponsive) })}
         {/* Marks requests from `npm run dev` as test traffic. AdSense does not
             serve real ads to localhost anyway, and this keeps your own dev
             loads from counting as impressions against the account. */
