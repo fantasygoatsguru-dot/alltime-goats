@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import Clarity from "./components/Clarity";
 import AdSense from "./components/AdSense";
 import StickyAdBanner from "./components/StickyAdBanner";
 import SEOHead from "./components/SEOHead";
@@ -59,6 +60,7 @@ const App = () => {
         <SEOHead />
         <StructuredData />
         <GoogleAnalytics />
+        <Clarity />
         <AdSense />
         <StickyAdBanner />
         <Box sx={{ flexGrow: 1 }}>

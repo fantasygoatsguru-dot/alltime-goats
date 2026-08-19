@@ -5,9 +5,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- CookieYes consent banner (load early so it can govern analytics scripts) -->
-    <script id="cookieyes" type="text/javascript"
-        src="https://cdn-cookieyes.com/client_data/35615ef45c430a703d592100b6c02c6a/script.js"></script>
+    <!-- Consent CMP: Google Privacy & Messaging (Funding Choices), which ships
+         with the AdSense account. It replaced CookieYes, whose banner was
+         worldwide-only on the free plan and whose script auto-blocking listed
+         "googletagmanager.com/gtag/js" under a category that defaulted to
+         denied — so gtag never loaded for any visitor who did not click Accept,
+         and GA4 was reporting the banner's accept rate rather than traffic. It
+         also blocked fundingchoicesmessages.google.com, i.e. the CMP that
+         AdSense needs in order to serve ads in the EEA at all.
+
+         Google's message is region-scoped in the AdSense dashboard, so only
+         EEA/UK and US-state visitors are asked. Unlike the ad tag (see below)
+         this one belongs in <head>: consent governs analytics as well as ads,
+         so it must load for EVERY visitor, pass holders included. Do not move
+         it behind an entitlement check. -->
+    <script async src="https://fundingchoicesmessages.google.com/i/pub-8056587893315589?ers=1"></script>
+    <script>
+        (function () {
+            function signalGooglefcPresent() {
+                if (!window.frames['googlefcPresent']) {
+                    if (document.body) {
+                        const iframe = document.createElement('iframe');
+                        iframe.style = 'width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px';
+                        iframe.style.display = 'none';
+                        iframe.name = 'googlefcPresent';
+                        document.body.appendChild(iframe);
+                    } else {
+                        setTimeout(signalGooglefcPresent, 0);
+                    }
+                }
+            }
+            signalGooglefcPresent();
+        })();
+    </script>
 
     <!-- Title Tag (SEO + Branding) -->
     <title>Fantasy Goats Guru | Fantasy League History & Legends</title>
@@ -74,28 +104,55 @@
          kept in sync on navigation by the <StructuredData /> component. Source
          of truth: src/config/structured-data.js. Do not hardcode schema here. -->
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HVGGQV3NEZ"></script>
-    <!-- AdSense is NOT loaded here on purpose. A tag in <head> runs before React
-         and would show ads to paying users (and bake into every prerendered
-         page). It is injected at runtime, only for visitors without a pass, by
-         src/components/AdSense.jsx. Publisher id lives there too. -->
+    <!-- Google Analytics.
 
+         The consent defaults MUST be queued before gtag.js is fetched, so this
+         inline block comes first. Region-scoped defaults are how we get the
+         geo-targeting the old CMP charged for: EEA/UK/Switzerland default to
+         denied and wait for the CMP's update, everywhere else defaults to
+         granted so GA4 counts those visitors without asking them anything.
+         Region-specific defaults win over the blanket one regardless of who is
+         listed first, which is why the blanket "granted" can safely follow. -->
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
+
+        gtag('consent', 'default', {
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            analytics_storage: 'denied',
+            wait_for_update: 500,
+            region: [
+                'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
+                'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK',
+                'SI', 'ES', 'SE',            // EU
+                'IS', 'LI', 'NO',            // rest of the EEA
+                'GB',                        // UK GDPR
+                'CH'                         // nFADP
+            ]
+        });
+        gtag('consent', 'default', {
+            ad_storage: 'granted',
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            analytics_storage: 'granted'
+        });
+
         gtag('js', new Date());
         gtag('config', 'G-HVGGQV3NEZ');
     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HVGGQV3NEZ"></script>
 
-    <!-- Microsoft Clarity -->
-    <script type="text/javascript">
-        (function (c, l, a, r, i, t, y) {
-            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
-            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
-            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-        })(window, document, "clarity", "script", "xqju77r5i1");
-    </script>
+    <!-- AdSense is NOT loaded here on purpose. A tag in <head> runs before React
+         and would show ads to paying users (and bake into every prerendered
+         page). It is injected at runtime, only for visitors without a pass, by
+         src/components/AdSense.jsx. Publisher id lives there too.
+
+         Microsoft Clarity is not loaded here either, for a different reason: it
+         has to wait for a consent answer. It lives in
+         src/components/Clarity.jsx — see the note there. -->
+
 </head>
 
 <body>
