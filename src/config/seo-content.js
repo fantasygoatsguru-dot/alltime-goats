@@ -1,3 +1,52 @@
+import { SLEEPERS, BUSTS } from './sleepers-busts-2026-27.js';
+import { guideBySlug } from './guides-content.js';
+
+// Crawlable roster blocks for the sleepers and busts guides.
+//
+// Those two pages rank for "fantasy basketball sleepers" and "fantasy
+// basketball busts" — queries whose whole intent is *which players*. The lists
+// render client-side from <PlayerNotes>, so until this existed the served HTML
+// carried an essay about the concept and not one player name, and both pages
+// sat around position 17 while the top 150 (which has an exact-match title to
+// lean on) ranked 7. This puts the names, prices and arguments into the
+// prerendered block that scripts/prerender.js bakes into each route.
+//
+// It emits ONLY what a logged-out visitor reads, never a locked remainder:
+// showing a crawler content a visitor cannot see is cloaking. freeLimit is read
+// from guides-content.js rather than copied, so the two can never disagree —
+// both lists are currently ungated there, which means the whole list ships.
+const esc = (s = '') =>
+  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const rosterBlock = (slug, players) => {
+  const guide = guideBySlug[slug];
+  const notes = guide?.playerNotes;
+  if (!notes) return '';
+
+  // Mirrors <PlayerNotes>: a null/absent freeLimit means the list is ungated,
+  // so every entry is free and the whole list belongs in the crawlable block.
+  const free = Number.isFinite(notes.freeLimit)
+    ? players.slice(0, notes.freeLimit)
+    : players;
+  const locked = players.length - free.length;
+
+  const items = free
+    .map(
+      (p) =>
+        `<li><strong>${esc(p.name)}</strong>${p.team ? ` (${esc(p.team)})` : ''}` +
+        `${p.tag ? ` — ${esc(p.tag)}` : ''}. ${esc(p.note)}</li>`
+    )
+    .join('\n        ');
+
+  return `
+      <h2>${esc(notes.heading)}</h2>
+      <p>${esc(notes.lead)}</p>
+      <ul>
+        ${items}
+      </ul>
+      ${locked > 0 ? `<p>${locked} more, with the full write-up on each, come with a Draft Pass.</p>` : ''}`;
+};
+
 export const SEO_CONTENT = {
   '/': {
     title: 'Master Your Fantasy Basketball League',
@@ -207,6 +256,7 @@ export const SEO_CONTENT = {
       <p>Each sleeper below carries the full case for why the price is wrong, plus his real per-game line from last season. Per-minute production is the most reliable predictor of what happens when minutes arrive, which is why efficient young bigs and high-steal guards on crowded rosters dominate this kind of list.</p>
 
       <p>Draft two or three sleepers in the last five rounds rather than reaching for them early — the discount is the entire point. Cross-reference with the <a href="/guides/top-150">top 150 rankings</a> to see where each player sits on the main board, check the <a href="/guides/busts">busts list</a> for the picks to avoid at the same cost, and use the <a href="/rankings">rankings tool</a> to track their production once the season starts.</p>
+    ${rosterBlock('sleepers', SLEEPERS)}
     `,
     keywords: ['fantasy basketball sleepers', 'fantasy basketball sleepers 2026-27', 'undervalued fantasy basketball players', 'late round picks', 'fantasy basketball breakouts', 'draft value picks']
   },
@@ -221,6 +271,7 @@ export const SEO_CONTENT = {
       <p>Read this list as a price list rather than a blacklist. Several of these players are excellent picks two or three rounds later than they are going, and a few become outright bargains inside the right build — a player whose only flaw is free throw percentage stops being a bust the moment you decide to punt that category.</p>
 
       <p>Every entry names the specific column that gives the value back, along with the player's actual production from last season. Pair it with the <a href="/guides/top-150">projected top 150</a> to see where each player belongs instead, the <a href="/guides/sleepers">sleepers list</a> for the picks worth making at that cost, and the punt <a href="/guides">strategy guides</a> for the builds that turn these flaws into features.</p>
+    ${rosterBlock('busts', BUSTS)}
     `,
     keywords: ['fantasy basketball busts', 'fantasy basketball busts 2026-27', 'players to avoid fantasy basketball', 'overvalued players', 'fantasy basketball draft mistakes', 'adp value']
   },

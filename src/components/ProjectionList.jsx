@@ -34,6 +34,13 @@ function RoundHeader({ round, lastPick }) {
  *
  * Rows past `freeLimit` are blurred behind an unlock prompt, the same freemium
  * teaser the punt boards use.
+ *
+ * `renderInterstitial` is an optional node factory dropped between rounds — the
+ * caller uses it for an ad. It is deliberately a prop rather than an import:
+ * this component knows where its natural breaks are, and the guide page knows
+ * what is allowed to go in one. The round boundary is the right seam because
+ * it already carries a rule and a header, so an insert there reads as a break
+ * in the list rather than an interruption of it.
  */
 export default function ProjectionList({
   players = PLAYERS,
@@ -42,6 +49,7 @@ export default function ProjectionList({
   freeLimit = 48, // four full rounds
   previewRows = 3,
   unlocked = false,
+  renderInterstitial,
 }) {
   const { statsFor, loading } = usePriorSeasonStats(priorSeason);
 
@@ -71,11 +79,14 @@ export default function ProjectionList({
 
   return (
     <Box>
-      {grouped.map(({ round, players: roundPlayers }) => {
+      {grouped.map(({ round, players: roundPlayers }, gi) => {
         const free = roundPlayers.filter((p) => p.rank <= visibleTo);
         if (!free.length) return null;
         return (
           <Box key={round.id}>
+            {/* Between rounds only — never above the first, which would put an
+                ad between the board's own lead paragraph and its first pick. */}
+            {gi > 0 && renderInterstitial?.(gi)}
             <RoundHeader round={round} lastPick={players.length} />
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {free.map((p) => (

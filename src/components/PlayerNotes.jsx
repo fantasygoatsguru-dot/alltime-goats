@@ -12,15 +12,24 @@ import PlayerNoteCard from './PlayerNoteCard';
  * an accent colour that carries the verdict (green for buy, red for avoid).
  *
  * Entries past `freeLimit` are blurred behind the usual unlock prompt.
+ *
+ * `renderInterstitial` is an optional node factory dropped every
+ * `interstitialEvery` cards — the caller uses it for an ad. There is no round
+ * structure to hang it on here, so it goes on a straight count. Six, not four:
+ * these lists were ungated for draft season and went from 6 cards to 15, and at
+ * four the sleepers guide carried five ad units on the page we are actively
+ * trying to rank. Six gives it two, roughly one per two screens.
  */
 export default function PlayerNotes({
   players = [],
   accent = '#2e9e53',
   priorSeason = PRIOR_SEASON,
-  freeLimit = 6,
+  freeLimit = null,
   previewRows = 2,
   unlocked = false,
   lockedLabel = 'the rest of the list',
+  renderInterstitial,
+  interstitialEvery = 6,
 }) {
   const { statsFor, loading } = usePriorSeasonStats(priorSeason);
 
@@ -32,15 +41,22 @@ export default function PlayerNotes({
     );
   }
 
-  const free = unlocked ? players : players.slice(0, freeLimit);
-  const lockedPreview = unlocked ? [] : players.slice(freeLimit, freeLimit + previewRows);
-  const remaining = players.length - freeLimit;
+  // A null/absent freeLimit means the list is ungated — every entry is free and
+  // no unlock prompt is drawn. That is the state the sleepers and busts guides
+  // ship in; see the note on their playerNotes in config/guides-content.js.
+  const gated = !unlocked && Number.isFinite(freeLimit);
+  const free = gated ? players.slice(0, freeLimit) : players;
+  const lockedPreview = gated ? players.slice(freeLimit, freeLimit + previewRows) : [];
+  const remaining = gated ? players.length - freeLimit : 0;
 
   return (
     <Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {free.map((p) => (
-          <PlayerNoteCard key={p.name} player={p} prior={statsFor(p.name)} accent={accent} />
+        {free.map((p, i) => (
+          <React.Fragment key={p.name}>
+            {i > 0 && i % interstitialEvery === 0 && renderInterstitial?.(i)}
+            <PlayerNoteCard player={p} prior={statsFor(p.name)} accent={accent} />
+          </React.Fragment>
         ))}
       </Box>
 

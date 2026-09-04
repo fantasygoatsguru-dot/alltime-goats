@@ -312,7 +312,14 @@ export const guides = [
     playerNotes: {
       source: 'sleepers',
       accent: '#2e9e53',
-      freeLimit: 6,
+      // Ungated on purpose. Draft season is the only six weeks these
+      // queries exist, and "fantasy basketball sleepers"/"busts" are
+      // list intents — a partial list ranks like a partial list. These
+      // two are the top of the funnel; the pass is paid for by the top
+      // 150 board and the punt guides. null means no gate at all, which
+      // also opens the whole list to the crawlable block in
+      // seo-content.js. previewRows is unused while freeLimit is null.
+      freeLimit: null,
       previewRows: 2,
       heading: 'The sleepers',
       lead:
@@ -377,7 +384,14 @@ export const guides = [
     playerNotes: {
       source: 'busts',
       accent: '#c0392b',
-      freeLimit: 5,
+      // Ungated on purpose. Draft season is the only six weeks these
+      // queries exist, and "fantasy basketball sleepers"/"busts" are
+      // list intents — a partial list ranks like a partial list. These
+      // two are the top of the funnel; the pass is paid for by the top
+      // 150 board and the punt guides. null means no gate at all, which
+      // also opens the whole list to the crawlable block in
+      // seo-content.js. previewRows is unused while freeLimit is null.
+      freeLimit: null,
       previewRows: 2,
       heading: 'The busts',
       lead:

@@ -37,7 +37,10 @@ function SectionHeading({ id, children }) {
 }
 
 // One in-article unit, plus the rule about where guide ads are allowed — kept
-// in one place so the three call sites below cannot drift apart.
+// in one place so the call sites below cannot drift apart. It is also handed to
+// ProjectionList / PlayerNotes as their `renderInterstitial`, which is what
+// spaces ads through the board: the board is most of a long guide's height, so
+// ads placed only around it leave everything below the fold empty.
 //
 // Free guides only. On a premium guide a non-payer is looking at the locked
 // teaser and an upsell, and an ad beside our own pass pitch competes with it —
@@ -158,7 +161,7 @@ export default function Guide() {
       <Container maxWidth="xl" sx={{ pt: { xs: 3, md: 5 } }}>
           {/* Body — full width now that the TOC is gone */}
           <Box>
-            {sections.map((s, idx) => (
+            {sections.map((s) => (
               <Box key={s.id}>
                 <SectionHeading id={s.id}>{s.heading}</SectionHeading>
                 {s.body.map((para, i) => (
@@ -166,15 +169,13 @@ export default function Guide() {
                     {para}
                   </Typography>
                 ))}
-                {/* Break in the prose. Free guides run 3-4 sections, so this
-                    lands once, roughly halfway down — never against the
-                    opening section, where it would be the first thing a reader
-                    arriving from search meets. */}
-                {idx === 1 && idx < sections.length - 1 && <GuideAd guide={guide} />}
               </Box>
             ))}
 
-            {/* Between the prose and the board. */}
+            {/* First unit, at the seam between the prose and the board. Nothing
+                is placed inside the prose: free guides run only 3-4 short
+                sections, so an in-prose unit landed barely a screen above this
+                one and both read as a single block of ads at the top. */}
             <GuideAd guide={guide} />
 
             {/* The board: an authored projection or write-up list for rankings
@@ -186,6 +187,7 @@ export default function Guide() {
                   {guide.playerNotes.lead}
                 </Typography>
                 <PlayerNotes
+                  renderInterstitial={() => <GuideAd guide={guide} />}
                   players={guide.playerNotes.source === 'busts' ? BUSTS : SLEEPERS}
                   accent={guide.playerNotes.accent}
                   freeLimit={guide.playerNotes.freeLimit}
@@ -203,6 +205,7 @@ export default function Guide() {
                   behind the rankings tool — the evidence the projection is arguing with.
                 </Typography>
                 <ProjectionList
+                  renderInterstitial={() => <GuideAd guide={guide} />}
                   freeLimit={guide.projection.freeLimit}
                   previewRows={guide.projection.previewRows}
                   unlocked={unlocked}
@@ -230,6 +233,7 @@ export default function Guide() {
             {/* Round-by-round mock draft */}
             {guide.roundTargets && (
               <>
+                <GuideAd guide={guide} />
                 <SectionHeading id="mock-draft">Round-by-round draft</SectionHeading>
                 <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
                   Draft your own punt-{punt?.name.toLowerCase()} team. Add any players you like — as many per
@@ -271,6 +275,7 @@ export default function Guide() {
             {/* Example teams — premium teaser */}
             {guide.exampleTeams && (
               <>
+                <GuideAd guide={guide} />
                 <SectionHeading id="examples">Example teams</SectionHeading>
 
                 {guide.isPremium && !unlocked ? (
