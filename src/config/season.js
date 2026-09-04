@@ -16,6 +16,15 @@
 // pass unlocks) lives there and in PASS_SEASON in ./passes.js.
 
 // The season whose stats the app reads and displays.
+//
+// ⚠️ FLIP THIS (and STATS_SEASON in supabase/functions/_shared/season.ts, which
+// is a separate deploy unit) around late November 2026, once ~15-20 games of
+// 2026-27 are played and z-scores mean something. Until then the daily pipeline
+// reconciles a finished season and correctly writes nothing — that is expected,
+// not a fault. Flipping the edge-function copy requires redeploying every
+// function that imports it: retrieve-nba-stats, calculate-player-averages,
+// update-nba-stats, weekly-matchup-projection, final-day-matchup-projection,
+// yesterday-top-performers.
 export const STATS_SEASON = '2025-26';
 
 // Monday of fantasy week 1 for STATS_SEASON. Flips together with STATS_SEASON —
