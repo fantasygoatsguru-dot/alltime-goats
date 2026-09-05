@@ -691,7 +691,7 @@ const AlltimeLayout = () => {
     if (p === '/posts') return <Posts />;
     if (p.startsWith('/post/')) return <Post />;
     if (p === '/guides' || p === '/guides/') return <Guides />;
-    if (p.startsWith('/guides/')) return <Guide />;
+    if (p.startsWith("/guides/")) return <Guide onRequireSignIn={() => setAuthModalOpen(true)} />;
     if (p === '/pricing') return <Pricing onRequireSignIn={() => setAuthModalOpen(true)} />;
     if (p === '/purchase-success') return <PurchaseSuccess />;
     return <Matchup />;

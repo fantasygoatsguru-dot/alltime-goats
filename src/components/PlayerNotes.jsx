@@ -28,6 +28,11 @@ export default function PlayerNotes({
   previewRows = 2,
   unlocked = false,
   lockedLabel = 'the rest of the list',
+  // What opens the remainder: a paid Draft Pass, or just a free account. The
+  // prompt has to name the right one — telling a reader to buy something they
+  // can have for free is the most expensive copy error on the page.
+  unlockWith = 'pass',
+  onRequireSignIn,
   renderInterstitial,
   interstitialEvery = 6,
 }) {
@@ -85,15 +90,26 @@ export default function PlayerNotes({
               {remaining} more, with the full pass on each
             </Typography>
             <Typography sx={{ color: '#667', fontSize: '0.85rem', textAlign: 'center', maxWidth: 380 }}>
-              The first {freeLimit} are free. A Draft Pass unlocks {lockedLabel}.
+              {unlockWith === 'login'
+                ? `The first ${freeLimit} are free to everyone. A free account unlocks ${lockedLabel} — no payment.`
+                : `The first ${freeLimit} are free. A Draft Pass unlocks ${lockedLabel}.`}
             </Typography>
-            <Button
-              component={RouterLink}
-              to="/pricing"
-              sx={{ mt: 0.5, textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
-            >
-              Unlock the full list
-            </Button>
+            {unlockWith === 'login' ? (
+              <Button
+                onClick={() => onRequireSignIn?.()}
+                sx={{ mt: 0.5, textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
+              >
+                Sign in to read the rest — free
+              </Button>
+            ) : (
+              <Button
+                component={RouterLink}
+                to="/pricing"
+                sx={{ mt: 0.5, textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
+              >
+                Unlock the full list
+              </Button>
+            )}
           </Box>
         </Box>
       )}

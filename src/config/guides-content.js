@@ -318,6 +318,15 @@ export const guides = [
     season: CURRENT_GUIDE_SEASON,
     difficulty: 'Intermediate',
     isPremium: false,
+    // Freemium: six entries for anyone, all fifteen for anyone with an account.
+    // Moved off the Draft Pass for 2026-27 because the punt guides now carry
+    // the pass as originally intended (see PLANNED_GUIDES), and because these
+    // two pages were the wrong thing to sell — they draw the draft-season
+    // search intent ("fantasy basketball sleepers") but were converting nobody
+    // at 1.5s average engagement. As a login gate they buy the one thing the
+    // funnel is actually short of: accounts, created before the purchase
+    // moment rather than during it.
+    requiresLogin: true,
     tagline:
       'Fifteen players whose projected 9-category value sits well above what they will cost you on draft day.',
     strengths: [],
@@ -398,6 +407,8 @@ export const guides = [
     season: CURRENT_GUIDE_SEASON,
     difficulty: 'Intermediate',
     isPremium: false,
+    // Freemium, same reasoning as the sleepers list above.
+    requiresLogin: true,
     tagline:
       'Twelve players who will not return their draft price in 9-cat — and exactly which column gives the value back.',
     strengths: [],
@@ -494,18 +505,32 @@ export const PLANNED_GUIDES = [
 // from the paywall eventually lies about it:
 //
 //   'free'    nothing is held back — the whole guide renders for everyone
+//   'login'   the whole guide renders, but only once you have an account
 //   'partial' the page opens and then stops; the rest needs a Draft Pass
 //   'premium' the guide is behind the pass outright
 //
 // The rule that matters: "Free" is reserved for guides where it is true of the
 // entire page. A guide showing you the first six of fifteen is not free, and
-// labelling it that way spends trust to save a word.
+// labelling it that way spends trust to save a word. 'login' costs no money but
+// it is still a gate, so it gets its own badge rather than borrowing "Free".
+//
+// Order is significant: a guide flagged both premium and requiresLogin is a
+// paid guide — money is the higher bar, and quoting the lower one would promise
+// access the reader will not get.
 export function guideAccess(guide) {
   if (guide.isPremium) return 'premium';
+  if (guide.requiresLogin) return 'login';
   const limits = [guide.playerNotes, guide.projection, guide.board]
     .filter(Boolean)
     .map((x) => x.freeLimit);
   return limits.some((n) => Number.isFinite(n)) ? 'partial' : 'free';
+}
+
+// What actually opens a given guide. Kept next to guideAccess() so the tier and
+// the key that unlocks it cannot drift: a 'login' guide must never be gated on
+// a pass, and a paid guide must never open on a bare sign-in.
+export function isGuideUnlocked(guide, { isSignedIn, hasDraftPass }) {
+  return guideAccess(guide) === 'login' ? Boolean(isSignedIn) : Boolean(hasDraftPass);
 }
 
 // Badge copy and colour per access level, kept here so the hub cards and the
@@ -523,6 +548,10 @@ const DRAFT_PASS_BADGE = { label: 'Draft Pass', color: '#2f80ed', locked: true }
 
 export const ACCESS_BADGE = {
   free: { label: 'Free', color: '#27ae60', locked: false },
+  // Teal rather than the plain-free green, so a reader can tell at a glance on
+  // the hub which cards open on a click and which want an account first. Still
+  // says "Free", because it is — the account is the price, and it is not money.
+  login: { label: 'Free — sign in', color: '#16a085', locked: true },
   partial: DRAFT_PASS_BADGE,
   premium: DRAFT_PASS_BADGE,
 };

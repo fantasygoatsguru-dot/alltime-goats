@@ -17,20 +17,25 @@ export const PASSES = [
     price: 15,
     tagline: 'Win your draft',
     description:
-      'The draft prep that is not on the free boards: every sleeper and every bust case, with the full nine-category argument on each — and no ads anywhere on the site.',
+      'The punt builds in full: for each one, a draft board re-ranked with that category out of the maths, the players to target round by round, and the rosters that show what the finished team looks like.',
     // Keep this list to what a buyer actually receives TODAY, and nothing else.
-    // It once promised tiers and projections on the strength of punt guides
-    // that were never written (PLANNED_GUIDES in config/guides-content.js).
     //
-    // It is a short list, and deliberately so: the projected top 150 and the
-    // punt-blocks board are ungated, which is the right call for draft-season
-    // acquisition but leaves this pass resting on two lists and the ad removal.
-    // Each punt guide that ships is the fix — add it here as it lands.
+    // For 2026-27 the sleepers and busts lists moved OFF this pass and behind a
+    // free account (requiresLogin in config/guides-content.js), so they must not
+    // be sold here — a features list naming something the reader can have for
+    // nothing is the fastest way to make the whole list untrustworthy.
+    //
+    // That leaves the punt guides carrying the pass, which was always the plan.
+    // The honest state of it: punt-blocks and the projected top 150 stay free
+    // and indexable for draft-season acquisition, and every OTHER punt build is
+    // what is being bought. That list is only as good as how many of
+    // PLANNED_GUIDES actually ship — if a build is not written by draft season,
+    // this description is writing a cheque the pass cannot cash.
     features: [
-      'Every sleeper, with the case on each',
-      'Every bust, and the category that gives the value back',
+      'Every punt build, each with its own re-ranked draft board',
+      'Round-by-round draft targets, with the case for every player',
+      'The archetypes and example rosters behind each build',
       'Ad-free browsing',
-      'New punt guides included as they ship',
     ],
     checkoutUrl: 'https://buy.polar.sh/polar_cl_w4Wddss5tVDYzdMLzwGLB4zAilHsr8BAwy2312OP8NL',
   },

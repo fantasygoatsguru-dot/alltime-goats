@@ -1,5 +1,5 @@
 import { SLEEPERS, BUSTS } from './sleepers-busts-2026-27.js';
-import { guideBySlug } from './guides-content.js';
+import { guideBySlug, guideAccess } from './guides-content.js';
 
 // Crawlable roster blocks for the sleepers and busts guides.
 //
@@ -17,6 +17,15 @@ import { guideBySlug } from './guides-content.js';
 // both lists are currently ungated there, which means the whole list ships.
 const esc = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// The crawlable block has to name the right key. These lists moved from the
+// Draft Pass to a free account for 2026-27, and a served line still promising
+// "come with a Draft Pass" would be quoting a price that no longer applies —
+// read off guideAccess() rather than hard-coded, so it follows the gate.
+const unlockPhrase = (slug) =>
+  guideAccess(guideBySlug[slug]) === 'login'
+    ? 'come with a free account'
+    : 'come with a Draft Pass';
 
 const rosterBlock = (slug, players) => {
   const guide = guideBySlug[slug];
@@ -44,7 +53,7 @@ const rosterBlock = (slug, players) => {
       <ul>
         ${items}
       </ul>
-      ${locked > 0 ? `<p>${locked} more, with the full pass on each, come with a Draft Pass.</p>` : ''}`;
+      ${locked > 0 ? `<p>${locked} more, with the full case on each, ${unlockPhrase(slug)}.</p>` : ''}`;
 };
 
 export const SEO_CONTENT = {

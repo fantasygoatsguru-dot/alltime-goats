@@ -3,7 +3,7 @@ import { useParams, Link as RouterLink } from 'react-router-dom';
 import { Box, Typography, Container, Chip, Button, Divider } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
-import { guideBySlug, categoryByKey, guideAccess, ACCESS_BADGE } from '../config/guides-content';
+import { guideBySlug, categoryByKey, guideAccess, isGuideUnlocked, ACCESS_BADGE } from '../config/guides-content';
 import CategoryStrip from '../components/CategoryStrip';
 import RankingTable from '../components/RankingTable';
 import ProjectionList from '../components/ProjectionList';
@@ -13,6 +13,7 @@ import { SLEEPERS, BUSTS } from '../config/sleepers-busts-2026-27';
 import TeamRadar from '../components/TeamRadar';
 import DraftBuilder from '../components/DraftBuilder';
 import { useEntitlements } from '../hooks/useEntitlements';
+import { useAuth } from '../contexts/AuthContext';
 import AdSlot from '../components/AdSlot';
 import { AD_SLOTS } from '../config/ads';
 
@@ -48,8 +49,8 @@ function SectionHeading({ id, children }) {
 // reader HAS unlocked needs no check here: AdSlot already renders null for
 // pass holders, and null while entitlements resolve, so nobody who paid ever
 // sees a flash of ads.
-function GuideAd({ guide }) {
-  if (guide.isPremium) return null;
+function GuideAd({ guide, gateVisible }) {
+  if (guide.isPremium || gateVisible) return null;
   return <AdSlot slot={AD_SLOTS.guideInArticle} layout="in-article" />;
 }
 
@@ -107,11 +108,19 @@ function Paywall({ guide, hiddenSections }) {
   );
 }
 
-export default function Guide() {
+export default function Guide({ onRequireSignIn }) {
   const { slug } = useParams();
   const guide = guideBySlug[slug];
   const { hasPass } = useEntitlements();
-  const unlocked = hasPass('draft');
+  // ⚠️ isSignedIn is the Supabase account, NOT isAuthenticated (which means
+  // "Yahoo is connected"). A login-gated guide must open for anyone with an
+  // account, whether or not they have ever touched Yahoo.
+  const { isSignedIn } = useAuth();
+  // Which key opens this guide is decided in guides-content.js, so a tier and
+  // its unlock condition cannot drift apart here.
+  const unlocked = guide
+    ? isGuideUnlocked(guide, { isSignedIn, hasDraftPass: hasPass('draft') })
+    : false;
 
   if (!guide) {
     return (
@@ -123,7 +132,11 @@ export default function Guide() {
   }
 
   const punt = categoryByKey[guide.puntKey];
-  const badge = ACCESS_BADGE[guideAccess(guide)];
+  const access = guideAccess(guide);
+  const badge = ACCESS_BADGE[access];
+  // A gate is on screen — either the sign-in ask or the pass pitch. Used to keep
+  // ads away from it, on the same reasoning GuideAd already applies to premium.
+  const gateVisible = access !== 'free' && !unlocked;
   const sections = guide.sections || [];
   const board = guide.board || {};
 
@@ -181,7 +194,7 @@ export default function Guide() {
             {guide.tagline}
           </Typography>
 
-          {guide.isPremium && !unlocked && (
+          {access === 'premium' && !unlocked && (
             <Button
               component={RouterLink}
               to="/pricing"
@@ -189,6 +202,16 @@ export default function Guide() {
               sx={{ mb: 3, textTransform: 'none', fontWeight: 700, bgcolor: '#2f80ed', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#256fd0' } }}
             >
               Unlock with Draft Pass
+            </Button>
+          )}
+
+          {access === 'login' && !unlocked && (
+            <Button
+              onClick={() => onRequireSignIn?.()}
+              startIcon={<LockOutlinedIcon sx={{ fontSize: '1rem !important' }} />}
+              sx={{ mb: 3, textTransform: 'none', fontWeight: 700, bgcolor: '#16a085', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#12856f' } }}
+            >
+              Sign in to read it all — free
             </Button>
           )}
 
@@ -246,7 +269,7 @@ export default function Guide() {
                 is placed inside the prose: free guides run only 3-4 short
                 sections, so an in-prose unit landed barely a screen above this
                 one and both read as a single block of ads at the top. */}
-            <GuideAd guide={guide} />
+            <GuideAd guide={guide} gateVisible={gateVisible} />
 
             {/* The board: an authored projection or write-up list for rankings
                 guides, the live re-ranked z-score table for punt builds. */}
@@ -257,13 +280,15 @@ export default function Guide() {
                   {guide.playerNotes.lead}
                 </Typography>
                 <PlayerNotes
-                  renderInterstitial={() => <GuideAd guide={guide} />}
+                  renderInterstitial={() => <GuideAd guide={guide} gateVisible={gateVisible} />}
                   players={guide.playerNotes.source === 'busts' ? BUSTS : SLEEPERS}
                   accent={guide.playerNotes.accent}
                   freeLimit={guide.playerNotes.freeLimit}
                   previewRows={guide.playerNotes.previewRows}
                   lockedLabel={guide.playerNotes.source === 'busts' ? 'every bust case' : 'every sleeper'}
                   unlocked={unlocked}
+                  unlockWith={access === 'login' ? 'login' : 'pass'}
+                  onRequireSignIn={onRequireSignIn}
                 />
               </>
             ) : guide.projection ? (
@@ -275,7 +300,7 @@ export default function Guide() {
                   behind the rankings tool — the evidence the projection is arguing with.
                 </Typography>
                 <ProjectionList
-                  renderInterstitial={() => <GuideAd guide={guide} />}
+                  renderInterstitial={() => <GuideAd guide={guide} gateVisible={gateVisible} />}
                   freeLimit={guide.projection.freeLimit}
                   previewRows={guide.projection.previewRows}
                   unlocked={unlocked}
@@ -304,7 +329,7 @@ export default function Guide() {
             {/* Round-by-round mock draft — the core of a paid punt guide. */}
             {guide.roundTargets && !locked && (
               <>
-                <GuideAd guide={guide} />
+                <GuideAd guide={guide} gateVisible={gateVisible} />
                 <SectionHeading id="mock-draft">Round-by-round draft</SectionHeading>
                 <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
                   Draft your own punt-{punt?.name.toLowerCase()} team. Add any players you like — as many per
@@ -346,7 +371,7 @@ export default function Guide() {
             {/* Example teams — premium teaser */}
             {guide.exampleTeams && (
               <>
-                <GuideAd guide={guide} />
+                <GuideAd guide={guide} gateVisible={gateVisible} />
                 <SectionHeading id="examples">Example teams</SectionHeading>
 
                 {guide.isPremium && !unlocked ? (
@@ -421,7 +446,7 @@ export default function Guide() {
             {/* FAQ */}
             {guide.faqs && (
               <>
-                <GuideAd guide={guide} />
+                <GuideAd guide={guide} gateVisible={gateVisible} />
                 <SectionHeading id="faq">FAQ</SectionHeading>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   {guide.faqs.map((f, i) => (
