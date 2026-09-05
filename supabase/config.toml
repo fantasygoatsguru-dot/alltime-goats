@@ -149,3 +149,12 @@ enabled = true
 # inside the function via Standard Webhooks signature verification.
 verify_jwt = false
 entrypoint = "./functions/polar-webhook/index.ts"
+
+[functions.unsubscribe]
+enabled = true
+# Reached from a link in an email, so the caller is either a mail provider's
+# one-click robot or a recipient who is by definition not signed in. Auth is
+# the unguessable per-recipient token in the URL, checked inside the function.
+verify_jwt = false
+import_map = "./functions/unsubscribe/deno.json"
+entrypoint = "./functions/unsubscribe/index.ts"

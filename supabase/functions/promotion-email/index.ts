@@ -11,6 +11,13 @@ const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+// Where the unsubscribe link points. The `unsubscribe` edge function is public
+// (verify_jwt = false) because it is reached from an email, not from a session.
+const UNSUBSCRIBE_ENDPOINT = `${supabaseUrl}/functions/v1/unsubscribe`;
+
+const buildUnsubscribeUrl = (token: string) =>
+  `${UNSUBSCRIBE_ENDPOINT}?t=${encodeURIComponent(token)}&l=promotions`;
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -28,7 +35,7 @@ try {
 }
 
 // ───── Helper functions ─────
-const sendEmail = async (to: string, subject: string, html: string) => {
+const sendEmail = async (to: string, subject: string, html: string, unsubscribeUrl: string) => {
   try {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -41,6 +48,14 @@ const sendEmail = async (to: string, subject: string, html: string) => {
         to: [to],
         subject,
         html,
+        // Gmail and Yahoo both require one-click unsubscribe from bulk senders,
+        // and this list is 3,567 Gmail and 2,307 Yahoo addresses. Without these
+        // headers the recipient's only exit is the spam button, which is the
+        // complaint rate that gets a sending domain throttled.
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
       }),
     });
 
@@ -75,7 +90,7 @@ serve(async (req) => {
     // Select up to 30 eligible users
     const { data: eligibleUsers, error: selectError } = await supabase
       .from('mailing_list')
-      .select('email, manager_nickname')
+      .select('email, manager_nickname, unsubscribe_token')
       .eq('avoid_promotions', false)
       .eq('promotion_sent', false)
       .order('email', { descending: true })
@@ -108,14 +123,28 @@ serve(async (req) => {
 
     // Send emails sequentially with throttling (max 2/sec)
     for (const user of eligibleUsers) {
-      const { email, manager_nickname } = user;
+      const { email, manager_nickname, unsubscribe_token } = user;
 
       console.log(`[PROCESS] Processing ${email}...`);
+
+      // No token means no way out of the list, so this row must not be mailed.
+      // The column is NOT NULL, so this only fires if the migration hasn't been
+      // pushed yet — in which case failing loudly beats sending mail nobody can
+      // unsubscribe from.
+      if (!unsubscribe_token) {
+        console.error(`[SKIP] No unsubscribe token for ${email} — not sending`);
+        results.failed++;
+        results.errors.push(`No unsubscribe token for ${email}`);
+        continue;
+      }
+
+      const unsubscribeUrl = buildUnsubscribeUrl(unsubscribe_token);
 
       const emailSent = await sendEmail(
         email,
         'Fantasy Goats Guru – your Yahoo fantasy basketball secret sauce',
-        EMAIL_TEMPLATE
+        EMAIL_TEMPLATE.replaceAll('${unsubscribe_url}', unsubscribeUrl),
+        unsubscribeUrl
       );
 
       if (emailSent) {

@@ -17,6 +17,14 @@ const CURRENT_SEASON = STATS_SEASON;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+// Where the unsubscribe link points. The `unsubscribe` edge function is public
+// (verify_jwt = false) because it is reached from an email, not from a session.
+const UNSUBSCRIBE_ENDPOINT = `${supabaseUrl}/functions/v1/unsubscribe`;
+
+const buildUnsubscribeUrl = (token: string) =>
+  `${UNSUBSCRIBE_ENDPOINT}?t=${encodeURIComponent(token)}&l=projections`;
+
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -50,7 +58,7 @@ function renderTemplate(tmpl: string, data: Record<string, any>) {
 }
 
 // ───── Resend helper ─────
-const sendEmail = async (to: string, subject: string, html: string) => {
+const sendEmail = async (to: string, subject: string, html: string, unsubscribeUrl: string) => {
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -58,7 +66,18 @@ const sendEmail = async (to: string, subject: string, html: string) => {
         'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from: `Fantasy Goats Guru <${resendSenderEmail}>`, to: [to], subject, html }),
+      body: JSON.stringify({
+        from: `Fantasy Goats Guru <${resendSenderEmail}>`,
+        to: [to],
+        subject,
+        html,
+        // Gmail and Yahoo require one-click unsubscribe from bulk senders.
+        // Without these headers the recipient's only exit is the spam button.
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+      }),
     });
     if (!r.ok) { console.error('Resend error:', await r.text()); return false; }
     console.log('Email sent to', to);
@@ -502,7 +521,7 @@ function createEmptyDayByDayProjection(matchup: any, weekStart: Date) {
 }
 
 // Generate email HTML with day-by-day breakdown
-function generateEmailHTML(userName: string, projection: any): string {
+function generateEmailHTML(userName: string, projection: any, unsubscribeUrl: string): string {
   // Category breakdown for totals
   const t1FgPct = projection.team1TotalStats.fgAttempted > 0 ? (projection.team1TotalStats.fgMade / projection.team1TotalStats.fgAttempted) * 100 : 0;
   const t2FgPct = projection.team2TotalStats.fgAttempted > 0 ? (projection.team2TotalStats.fgMade / projection.team2TotalStats.fgAttempted) * 100 : 0;
@@ -606,6 +625,7 @@ function generateEmailHTML(userName: string, projection: any): string {
     team2_score: projection.team2Score,
     category_breakdown: categoryBreakdown,
     daily_breakdown: dailyBreakdown,
+    unsubscribe_url: unsubscribeUrl,
   });
 }
 // ───── Main handler (only the loop changes) ─────
@@ -616,7 +636,7 @@ serve(async (req) => {
     console.log('=== Weekly Matchup Projection ===');
     const { data: profiles, error } = await supabase
     .from('user_profiles')
-    .select('user_id, name, email')
+    .select('user_id, name, email, unsubscribe_token')
     .eq('send_weekly_projections', true)
     .not('email', 'ilike', '%yahoo%');
   
@@ -680,13 +700,23 @@ serve(async (req) => {
         console.log(`[MATCHUP] matchup: ${JSON.stringify(matchup)}`);
         const projection = await calculateDayByDayProjection(matchup);
         console.log(`[MATCHUP] projection: ${JSON.stringify(projection)}`);
-        const html = generateEmailHTML(p.name ?? 'Manager', projection);
+        // No token means no way out of the list, so this recipient must not be
+        // mailed. The column is NOT NULL, so this only fires if the migration
+        // hasn't been pushed — failing loudly beats sending unsubscribable mail.
+        if (!p.unsubscribe_token) {
+          console.error(`[SKIP] No unsubscribe token for ${p.email} — not sending`);
+          fail++;
+          continue;
+        }
+        const unsubscribeUrl = buildUnsubscribeUrl(p.unsubscribe_token);
+
+        const html = generateEmailHTML(p.name ?? 'Manager', projection, unsubscribeUrl);
         console.log(`[MATCHUP] html: ${html}`);
-        
+
         // Rate limit before sending email
         await waitForRateLimit();
-        
-        const sent = await sendEmail(p.email, `Weekly Projection: ${projection.team1} vs ${projection.team2}`, html);
+
+        const sent = await sendEmail(p.email, `Weekly Projection: ${projection.team1} vs ${projection.team2}`, html, unsubscribeUrl);
         
         // Record timestamp after sending (success or failure)
         emailTimestamps.push(Date.now());

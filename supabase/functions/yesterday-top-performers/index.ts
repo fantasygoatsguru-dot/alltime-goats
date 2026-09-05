@@ -16,6 +16,14 @@ const CURRENT_SEASON = STATS_SEASON;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+// Where the unsubscribe link points. The `unsubscribe` edge function is public
+// (verify_jwt = false) because it is reached from an email, not from a session.
+const UNSUBSCRIBE_ENDPOINT = `${supabaseUrl}/functions/v1/unsubscribe`;
+
+const buildUnsubscribeUrl = (token: string) =>
+  `${UNSUBSCRIBE_ENDPOINT}?t=${encodeURIComponent(token)}&l=news`;
+
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -47,7 +55,7 @@ function renderTemplate(tmpl: string, data: Record<string, any>) {
   }, tmpl);
 }
 
-const sendEmail = async (to: string, subject: string, html: string) => {
+const sendEmail = async (to: string, subject: string, html: string, unsubscribeUrl: string) => {
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -55,7 +63,18 @@ const sendEmail = async (to: string, subject: string, html: string) => {
         'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from: `Fantasy Goats Guru <${resendSenderEmail}>`, to: [to], subject, html }),
+      body: JSON.stringify({
+        from: `Fantasy Goats Guru <${resendSenderEmail}>`,
+        to: [to],
+        subject,
+        html,
+        // Gmail and Yahoo require one-click unsubscribe from bulk senders.
+        // Without these headers the recipient's only exit is the spam button.
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+      }),
     });
     if (!r.ok) { console.error('Resend error:', await r.text()); return false; }
     console.log('Email sent to', to);
@@ -409,7 +428,7 @@ serve(async (req) => {
 
     const { data: profiles } = await supabase
       .from('user_profiles')
-      .select('user_id, name, email')
+      .select('user_id, name, email, unsubscribe_token')
       .eq('send_news', true);
 
     if (!profiles?.length) return new Response('No users', { headers: corsHeaders });
@@ -431,15 +450,26 @@ serve(async (req) => {
         const topUserPlayer = userPerformers[0];
         const subject = `${topUserPlayer.playerName} had the #${topUserPlayer.rank} line of the night! 🔥`;
 
+        // No token means no way out of the list, so this recipient must not be
+        // mailed. The column is NOT NULL, so this only fires if the migration
+        // hasn't been pushed — failing loudly beats sending unsubscribable mail.
+        if (!profile.unsubscribe_token) {
+          console.error(`[SKIP] No unsubscribe token for ${profile.email} — not sending`);
+          results.push({ email: profile.email, sent: false });
+          continue;
+        }
+        const unsubscribeUrl = buildUnsubscribeUrl(profile.unsubscribe_token);
+
         const html = renderTemplate(EMAIL_TEMPLATE, {
           user_name: profile.name || 'Manager',
           game_date: new Date(latestDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
           user_players_highlight: buildUserPlayersHighlight(top10, userNbaIds),
           top_performers_table: buildTopPerformersTable(top10, userNbaIds),
           affiliate_links_section: buildAffiliateLinksSection(affiliateLinks),
+          unsubscribe_url: unsubscribeUrl,
         });
 
-        const sent = await sendEmail(profile.email, subject, html);
+        const sent = await sendEmail(profile.email, subject, html, unsubscribeUrl);
         results.push({ email: profile.email, sent });
       } catch (err) {
         console.error(err);
