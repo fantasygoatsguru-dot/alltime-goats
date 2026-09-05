@@ -29,7 +29,16 @@ export const seoRoutes = [
     description: 'Compare fantasy basketball teams and players head-to-head. Analyze weekly matchups, evaluate trades, and predict category winners with advanced statistics.',
     changefreq: 'daily',
     priority: 0.9,
-    requiresAuth: true, // Not in sitemap
+    // Indexable. Yahoo is an *enhancement* here, not a gate: Matchup.jsx has no
+    // early return on isAuthenticated — it renders <YahooConnectionSection> as
+    // an inline prompt and the page works without it, exactly like /rankings.
+    // It was flagged requiresAuth, which kept the site's single most-visited
+    // page (7.7k views) out of the sitemap and out of the prerender, so it
+    // passed no internal link equity to anything.
+    //
+    // The genuinely gated routes below keep the flag: /my-league-*, /playoffs
+    // and /chat need a connected league to render anything, and /profile and
+    // /purchase-success are private by nature.
   },
   {
     path: '/season-games',
@@ -130,7 +139,7 @@ export const seoRoutes = [
   {
     path: '/guides',
     title: 'Fantasy Basketball Strategy Guides 2026-27 | Rankings & Punt Strategy',
-    description: 'Fantasy basketball strategy guides for 2026-27: a projected top 150, sleepers and busts, and the punt blocks build with a live re-ranked z-score draft board.',
+    description: 'Fantasy basketball strategy guides for 2026-27: a projected top 150, sleepers and busts, and punt builds for blocks and FT% with live re-ranked z-score draft boards.',
     changefreq: 'weekly',
     priority: 0.8,
   },
@@ -154,6 +163,13 @@ export const seoRoutes = [
     description: 'Twelve fantasy basketball busts for 2026-27 — the players whose 9-category production will not cover their draft price, and exactly which category gives the value back.',
     changefreq: 'weekly',
     priority: 0.8,
+  },
+  {
+    path: '/guides/punt-ft',
+    title: 'Punt FT% Strategy 2026-27 | Live Draft Board | Fantasy Goats Guru',
+    description: 'The complete punt FT% build for 2026-27 fantasy basketball: why conceding the line buys you the best big men in the league, and a live draft board re-ranked with free throw percentage removed.',
+    changefreq: 'weekly',
+    priority: 0.7,
   },
   {
     path: '/guides/punt-blocks',

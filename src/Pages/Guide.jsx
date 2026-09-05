@@ -53,6 +53,60 @@ function GuideAd({ guide }) {
   return <AdSlot slot={AD_SLOTS.guideInArticle} layout="in-article" />;
 }
 
+// What a reader gets for the pass, stated plainly and counted off the guide's
+// own config rather than hand-written per page — a list that drifts from what
+// is actually behind it is worse than no list.
+function Paywall({ guide, hiddenSections }) {
+  const rounds = guide.roundTargets?.length || 0;
+  const picks = (guide.roundTargets || []).reduce((n, r) => n + r.candidates.length, 0);
+
+  const items = [
+    hiddenSections > 0 && `${hiddenSections} more section${hiddenSections === 1 ? '' : 's'} of strategy`,
+    rounds > 0 && `${rounds} rounds of draft targets — ${picks} players, with the case for each`,
+    guide.buildingBlocks && 'The archetypes the build is assembled from',
+    guide.exampleTeams && 'Two full example rosters, with the live category radar',
+    'The complete re-ranked draft board',
+  ].filter(Boolean);
+
+  return (
+    <Box
+      sx={{
+        mt: 4,
+        p: { xs: 2.5, md: 3.5 },
+        bgcolor: '#fff',
+        border: '1px solid #e6e9ee',
+        borderRadius: 2.5,
+        borderTop: '4px solid #2f80ed',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+        <LockOutlinedIcon sx={{ color: '#2f80ed', fontSize: 20 }} />
+        <Typography sx={{ fontWeight: 900, color: '#0f2340', fontSize: '1.15rem' }}>
+          The rest of this build
+        </Typography>
+      </Box>
+      <Typography sx={{ color: '#5a6472', fontSize: '0.95rem', lineHeight: 1.6, mb: 2 }}>
+        You have read the strategy. The part that wins the draft — who to take, and when — comes with a
+        Draft Pass.
+      </Typography>
+      <Box component="ul" sx={{ m: 0, mb: 2.5, pl: 2.5, color: '#2c3440' }}>
+        {items.map((t) => (
+          <Typography component="li" key={t} sx={{ fontSize: '0.95rem', lineHeight: 1.9 }}>
+            {t}
+          </Typography>
+        ))}
+      </Box>
+      <Button
+        component={RouterLink}
+        to="/pricing"
+        sx={{ textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
+      >
+        Unlock with Draft Pass
+      </Button>
+    </Box>
+  );
+}
+
 export default function Guide() {
   const { slug } = useParams();
   const guide = guideBySlug[slug];
@@ -72,6 +126,16 @@ export default function Guide() {
   const badge = ACCESS_BADGE[guideAccess(guide)];
   const sections = guide.sections || [];
   const board = guide.board || {};
+
+  // A premium guide shows its opening section(s) to everyone and holds the rest
+  // back. Everything the reader is actually buying — the remaining prose, the
+  // round-by-round targets, the building blocks and the example rosters — is
+  // behind this flag; the board gates itself through board.freeLimit, and the
+  // FAQs stay public on purpose because structured-data.js emits them as FAQ
+  // JSON-LD, so hiding them while serving them to crawlers would be cloaking.
+  const locked = Boolean(guide.isPremium) && !unlocked;
+  const visibleSections = locked ? sections.slice(0, guide.freeSections ?? 1) : sections;
+  const hiddenSections = sections.length - visibleSections.length;
 
   return (
     <Box sx={{ bgcolor: '#f5f6f8', minHeight: '100vh', pb: 10 }}>
@@ -165,7 +229,7 @@ export default function Guide() {
       <Container maxWidth="xl" sx={{ pt: { xs: 3, md: 5 } }}>
           {/* Body — full width now that the TOC is gone */}
           <Box>
-            {sections.map((s) => (
+            {visibleSections.map((s) => (
               <Box key={s.id}>
                 <SectionHeading id={s.id}>{s.heading}</SectionHeading>
                 {s.body.map((para, i) => (
@@ -175,6 +239,8 @@ export default function Guide() {
                 ))}
               </Box>
             ))}
+
+            {locked && <Paywall guide={guide} hiddenSections={hiddenSections} />}
 
             {/* First unit, at the seam between the prose and the board. Nothing
                 is placed inside the prose: free guides run only 3-4 short
@@ -235,8 +301,8 @@ export default function Guide() {
               </>
             )}
 
-            {/* Round-by-round mock draft */}
-            {guide.roundTargets && (
+            {/* Round-by-round mock draft — the core of a paid punt guide. */}
+            {guide.roundTargets && !locked && (
               <>
                 <GuideAd guide={guide} />
                 <SectionHeading id="mock-draft">Round-by-round draft</SectionHeading>
@@ -250,7 +316,7 @@ export default function Guide() {
             )}
 
             {/* Building blocks */}
-            {guide.buildingBlocks && (
+            {guide.buildingBlocks && !locked && (
               <>
                 <SectionHeading id="blocks">{guide.buildingBlocksHeading || 'First-round building blocks'}</SectionHeading>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>

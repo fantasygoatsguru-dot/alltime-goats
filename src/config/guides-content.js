@@ -1,6 +1,7 @@
 // Explicit .js extension: scripts/prerender.js reaches this file under plain
 // Node ESM (via structured-data.js), which does not resolve extensionless paths.
 import { CONTENT_SEASON } from './season.js';
+import { PUNT_GUIDES } from './punt-guides-2026-27.js';
 
 // Editorial content for the Guides section.
 // The STATS are never authored here — they come live from the z-score engine
@@ -34,8 +35,11 @@ export const CURRENT_GUIDE_SEASON = CONTENT_SEASON;
 // ---------------------------------------------------------------------------
 // GUIDES
 // ---------------------------------------------------------------------------
-// Only `punt-blocks` is written out in full — it's the sample. The rest are
-// light stubs so you can see how the hub groups and lists them.
+// The four rankings/reference guides are written out below. `punt-blocks` is
+// the free, indexable punt build and doubles as the shape every other punt
+// guide follows; the written premium builds live in punt-guides-2026-27.js and
+// are spread in at the foot of the array. Builds not yet written are in
+// PLANNED_GUIDES and deliberately render nowhere.
 
 export const guides = [
   {
@@ -456,6 +460,11 @@ export const guides = [
       },
     ],
   },
+
+  // Written punt builds, one file per season — see config/punt-guides-2026-27.js.
+  // They live outside this file because each runs 200+ lines and six of them
+  // would bury the four rankings guides above.
+  ...PUNT_GUIDES,
 ];
 
 // ---------------------------------------------------------------------------
@@ -475,7 +484,6 @@ export const guides = [
 export const PLANNED_GUIDES = [
   { slug: 'punt-assists',    type: 'punt', puntKey: 'ast', title: 'Punt Assists',    season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Lean into bigs and low-usage wings.', strengths: ['blk', 'reb', 'fg'], weaknesses: ['ast', 'to'] },
   { slug: 'punt-fg',         type: 'punt', puntKey: 'fg',  title: 'Punt FG%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'The volume-scorer build. Fire away.',  strengths: ['pts', '3pm', 'ast', 'stl'], weaknesses: ['fg'] },
-  { slug: 'punt-ft',         type: 'punt', puntKey: 'ft',  title: 'Punt FT%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'Stack the bigs, dominate the paint.',  strengths: ['blk', 'reb', 'fg'], weaknesses: ['ft'] },
   { slug: 'punt-threes',     type: 'punt', puntKey: '3pm', title: 'Punt Threes',      season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Old-school bigs and slashers.',        strengths: ['blk', 'reb', 'fg', 'pts'], weaknesses: ['3pm'] },
   { slug: 'punt-points',     type: 'punt', puntKey: 'pts', title: 'Punt Points',      season: CURRENT_GUIDE_SEASON, difficulty: 'Advanced',     isPremium: true,  tagline: 'Specialists over scorers.',            strengths: ['stl', 'blk', 'fg', 'ft'], weaknesses: ['pts'] },
   { slug: 'punt-steals',     type: 'punt', puntKey: 'stl', title: 'Punt Steals',      season: CURRENT_GUIDE_SEASON, difficulty: 'Advanced',     isPremium: true,  tagline: 'Ignore the noisiest category.',        strengths: ['pts', 'reb', 'blk', 'fg'], weaknesses: ['stl'] },
@@ -502,10 +510,21 @@ export function guideAccess(guide) {
 
 // Badge copy and colour per access level, kept here so the hub cards and the
 // guide hero cannot drift apart.
+//
+// Two badges, not three. 'partial' and 'premium' differ in how much of a page
+// is held back, but from the reader's side they are the same thing — one $15
+// Draft Pass opens both — so giving them separate labels only invites the
+// question of what "Premium" is and whether it costs extra.
+//
+// Blue, not red or amber. This badge is the first thing a reader sees on a
+// guide they might buy, and it should read as an invitation to click rather
+// than a warning not to. It is the same blue as the primary CTA buttons.
+const DRAFT_PASS_BADGE = { label: 'Draft Pass', color: '#2f80ed', locked: true };
+
 export const ACCESS_BADGE = {
   free: { label: 'Free', color: '#27ae60', locked: false },
-  partial: { label: 'Draft Pass', color: '#e0a800', locked: true },
-  premium: { label: 'Premium', color: '#c0392b', locked: true },
+  partial: DRAFT_PASS_BADGE,
+  premium: DRAFT_PASS_BADGE,
 };
 
 export const guideBySlug = Object.fromEntries(guides.map((g) => [g.slug, g]));

@@ -69,7 +69,7 @@ export const SEO_CONTENT = {
       
       <p>Unlike simple per-game averages, our fantasy basketball rankings account for statistical rarity and category scarcity. A player averaging 2.5 blocks per game provides more fantasy value than one averaging 2.5 assists because blocks are much harder to find. Our Z-score methodology captures these nuances to give you true fantasy basketball player values.</p>
       
-      <p>Use our punt strategy analyzer to see how player rankings change when you punt specific categories. Punting turnovers and field goal percentage, for example, dramatically increases the value of high-usage guards. Punting assists and threes elevates big men who dominate rebounds, blocks, and percentages. Understanding these dynamics is crucial for winning fantasy basketball leagues.</p>
+      <p>Use our punt strategy analyzer to see how player rankings change when you punt specific categories. Punting turnovers and field goal percentage dramatically increases the value of high-usage guards, while conceding free throw percentage elevates the big men who dominate rebounds, blocks and field goal percentage — the <a href="/guides/punt-ft">punt FT% build</a>. Going the other way, the <a href="/guides/punt-blocks">punt blocks build</a> walks away from the scarcest category on the board and loads up on guards and wings instead. Each guide carries a live draft board re-ranked with that column removed, and every build is listed in the <a href="/guides">strategy guides</a>.</p>
       
       <p>Our rankings update regularly throughout the season, with options to view season-long stats or recent performance over 7, 30, or 60 days. This helps you identify trending players, spot buy-low opportunities, and avoid selling high on players experiencing hot streaks. Filter by position and team to find the perfect waiver wire additions for your roster construction. Check <a href="/season-games">top season performances</a> to see which players are on fire.</p>
       
@@ -214,6 +214,8 @@ export const SEO_CONTENT = {
       <p>Use our head-to-head comparison tools to evaluate trade proposals objectively. Compare the combined statistical output of players on each side of the trade across all nine categories. Factor in schedule considerations, injury risk, and category needs to determine whether a trade improves your team.</p>
       
       <p>Our matchup analysis integrates with Yahoo Fantasy Basketball to provide personalized insights based on your actual league and team. See exactly how you match up against your opponent this week and get strategic recommendations for maximizing your chances of winning your head-to-head matchup.</p>
+
+      <p>Most weekly matchups are decided by roster construction rather than by streaming. If you keep losing the same two categories, you are not unlucky — you are built that way, and the fix is a build that concedes one column on purpose. Start with the <a href="/guides/top-150">projected top 150</a> for raw nine-category value, then read the <a href="/guides/punt-ft">punt FT% build</a> or the <a href="/guides/punt-blocks">punt blocks build</a> to see how a board re-ranks once a category comes out of the maths. Track the results with the <a href="/rankings">rankings tool</a> and plan the weeks ahead with the <a href="/nba-regular-season">schedule grid</a>.</p>
     `,
     keywords: ['matchup analyzer', 'fantasy basketball matchup', 'team comparison', 'head-to-head fantasy', 'trade analyzer', 'player comparison']
   },
@@ -227,7 +229,7 @@ export const SEO_CONTENT = {
 
       <p>Draft prep runs deeper than a ranking list. Our <a href="/guides/sleepers">fantasy basketball sleepers</a> page identifies the players whose projected value sits above their draft cost, and the <a href="/guides/busts">busts</a> page names the players whose nine-category production will not cover the round they are going in — usually because of a free throw percentage, an empty scoring average, or a games-played history the consensus is ignoring.</p>
 
-      <p>Punt strategy is the other half of draft prep: conceding a single category on purpose reshapes your entire board. Give up blocks and elite guards climb; give up free throw percentage and the best rebounding centers in the league stay available rounds later than they should. The <a href="/guides/punt-blocks">punt blocks guide</a> is the worked example, and it carries a live draft board that re-ranks every player with blocks removed from the math, so you draft off real numbers rather than a static list. Further punt builds land through draft season.</p>
+      <p>Punt strategy is the other half of draft prep: conceding a single category on purpose reshapes your entire board. Give up blocks and elite guards climb; give up free throw percentage and the best rebounding centers in the league stay available rounds later than they should. The <a href="/guides/punt-blocks">punt blocks guide</a> is the free worked example and the <a href="/guides/punt-ft">punt FT% guide</a> is the big-man build that beats it in most drafts, and each carries a live draft board that re-ranks every player with the punted column removed from the math, so you draft off real numbers rather than a static list. Further punt builds land through draft season.</p>
     `,
     keywords: ['fantasy basketball strategy', 'fantasy basketball guides', 'punt strategy', 'fantasy basketball draft strategy', '9-cat fantasy basketball', 'category leagues']
   },
@@ -241,7 +243,7 @@ export const SEO_CONTENT = {
 
       <p>Rankings are built from last season's nine-category production and then adjusted for age and trajectory, expected role and minutes, availability history, and the way a player's shape gains or loses value in category leagues. Turnovers count here, so high-usage playmakers fall. Free throw percentage is weighted by volume, so a poor shooter taking six attempts a night is penalized far more than the raw number suggests. Blocks and steals are the scarcest columns on the board, so the players who supply them rank ahead of higher scorers who do not.</p>
 
-      <p>Use the top 150 as your draft-day baseline for the first three or four rounds, then switch to the punt guide that matches your roster. Pair it with our <a href="/guides/sleepers">sleepers</a> and <a href="/guides/busts">busts</a> lists for the players priced wrong in either direction, and with the <a href="/rankings">rankings tool</a> to track how the projections hold up once games start.</p>
+      <p>Use the top 150 as your draft-day baseline for the first three or four rounds, then switch to the punt guide that matches the roster you actually ended up with — the <a href="/guides/punt-ft">punt FT% build</a> if you drifted toward bigs, the <a href="/guides/punt-blocks">punt blocks build</a> if you drifted toward guards and wings. Pair it with our <a href="/guides/sleepers">sleepers</a> and <a href="/guides/busts">busts</a> lists for the players priced wrong in either direction, and with the <a href="/rankings">rankings tool</a> to track how the projections hold up once games start.</p>
     `,
     keywords: ['top 150 fantasy basketball', 'fantasy basketball rankings 2026-27', 'fantasy basketball draft rankings', '9-cat rankings', 'z-score rankings', 'fantasy basketball projections']
   },
@@ -274,6 +276,27 @@ export const SEO_CONTENT = {
     ${rosterBlock('busts', BUSTS)}
     `,
     keywords: ['fantasy basketball busts', 'fantasy basketball busts 2026-27', 'players to avoid fantasy basketball', 'overvalued players', 'fantasy basketball draft mistakes', 'adp value']
+  },
+
+  '/guides/punt-ft': {
+    title: 'Punt FT% Strategy 2026-27',
+    // A premium guide, so this block carries ONLY what a signed-out reader sees
+    // on the page: the opening strategy section and the public FAQs. The round
+    // targets, building blocks and example rosters are behind the Draft Pass
+    // and must never appear here — serving a crawler content a visitor cannot
+    // read is cloaking, and it would also give the paid build away for free.
+    content: `
+      <p>Punting free throw percentage is the most forgiving build in nine-category fantasy basketball, and the one most managers back into by accident. The players who wreck your free throw percentage are almost without exception the players who win you blocks, rebounds and field goal percentage — those traits travel together in one body type, and the market prices that body type with a discount attached for the line. Decide in advance that you do not care about the line and you are the only manager in the room drafting those players at full value.</p>
+
+      <p>It is also the cheapest punt to commit to, because free throw percentage is the category most easily ruined by a single roster spot. One big taking nine attempts a night at 65 percent can drag a whole team under water, which means most managers spend the middle rounds carefully avoiding a group of players you are free to collect.</p>
+
+      <p>Conceding the line hands you three categories almost automatically. Blocks and rebounds are the scarcest counting stats on the board and they concentrate in exactly the players you can now draft, and field goal percentage comes with them because a center who cannot shoot from the line usually scores from two feet. Points are the quiet fourth: efficient bigs score more than their reputation suggests, and none of it costs you anything in a build that has already written off free throws.</p>
+
+      <p>The trap is thinking the build is only centers. A roster of nothing but bigs wins blocks, rebounds and field goal percentage by a mile and then loses threes, assists and steals by the same margin. Treat threes and assists as categories you have to buy on purpose in the middle rounds — a punt build that concedes free throws is strong, one that concedes free throws, threes and assists has punted three categories and cannot win.</p>
+
+      <p>The live draft board on this page re-ranks every player with free throw percentage struck out of the Z-score total. Start from the <a href="/guides/top-150">pure top 150</a> to see what each player costs in raw value, compare with the <a href="/guides/punt-blocks">punt blocks build</a> for the opposite approach, and use the <a href="/rankings">rankings tool</a> to run the same re-rank on any category.</p>
+    `,
+    keywords: ['punt ft', 'punt free throw percentage', 'punt ft% fantasy basketball', 'fantasy basketball punt build', '9-cat punt strategy', 'big man fantasy basketball draft']
   },
 
   '/guides/punt-blocks': {
