@@ -51,6 +51,13 @@ export const guides = [
     strengths: ['ast', 'stl', '3pm', 'ft'],
     weaknesses: ['blk', 'reb', 'fg'],
 
+    // The live re-ranked board, ungated like the rest of this guide. minGames
+    // overrides the component default of 0, which lets a player ride twenty hot
+    // games into the top 50 — on the guide that has to prove the board works at
+    // all, that noise is the whole impression. freeLimit null means every row
+    // renders, so the Free badge on this page is the literal truth.
+    board: { minGames: 30, freeLimit: null, previewRows: 4 },
+
     sections: [
       {
         id: 'strategy',
@@ -229,8 +236,12 @@ export const guides = [
     // This guide renders the authored projection (config/top-150-2026-27.js)
     // instead of a live board — the season hasn't been played, so there are no
     // z-scores to sort. `projection` switches Guide.jsx to <ProjectionList>.
+    // Ungated: all 150 render, and the badge on this guide reads "Free"
+    // because that is now true of the whole page. A gate here made the board a
+    // teaser wearing a Free badge, which is the one thing a draft-season lead
+    // magnet cannot afford to be. previewRows is unused while freeLimit is null.
     projection: {
-      freeLimit: 48, // four full rounds free, then the paywall
+      freeLimit: null,
       previewRows: 3,
     },
 
@@ -312,14 +323,21 @@ export const guides = [
     playerNotes: {
       source: 'sleepers',
       accent: '#2e9e53',
-      // Ungated on purpose. Draft season is the only six weeks these
-      // queries exist, and "fantasy basketball sleepers"/"busts" are
-      // list intents — a partial list ranks like a partial list. These
-      // two are the top of the funnel; the pass is paid for by the top
-      // 150 board and the punt guides. null means no gate at all, which
-      // also opens the whole list to the crawlable block in
-      // seo-content.js. previewRows is unused while freeLimit is null.
-      freeLimit: null,
+      // Gated at 6 of 15 from the 2026-27 draft season on.
+      //
+      // These were ungated while the plan was for the punt guides to carry the
+      // pass. They are not written yet (see PLANNED_GUIDES at the foot of this
+      // file), so the pass was selling the back half of the top 150 and little
+      // else — which is not $15 of anything. Six free entries keeps the page a
+      // real list for "fantasy basketball sleepers" (the same ~40% free share
+      // the top 150 ranks at position 7 on) while the remaining nine become a
+      // reason to buy.
+      //
+      // rosterBlock() in seo-content.js reads this number rather than copying
+      // it, so the crawlable block ships exactly the six a logged-out visitor
+      // sees, plus the "9 more with a Draft Pass" line. Never hand a crawler
+      // the locked remainder — that is cloaking.
+      freeLimit: 6,
       previewRows: 2,
       heading: 'The sleepers',
       lead:
@@ -384,14 +402,13 @@ export const guides = [
     playerNotes: {
       source: 'busts',
       accent: '#c0392b',
-      // Ungated on purpose. Draft season is the only six weeks these
-      // queries exist, and "fantasy basketball sleepers"/"busts" are
-      // list intents — a partial list ranks like a partial list. These
-      // two are the top of the funnel; the pass is paid for by the top
-      // 150 board and the punt guides. null means no gate at all, which
-      // also opens the whole list to the crawlable block in
-      // seo-content.js. previewRows is unused while freeLimit is null.
-      freeLimit: null,
+      // Gated at 5 of 12 from the 2026-27 draft season on — same reasoning as
+      // the sleepers list above: the punt guides that were meant to carry the
+      // pass do not exist yet. Five free entries keeps the page a real list for
+      // "fantasy basketball busts"; the other seven come with the pass, and
+      // rosterBlock() in seo-content.js mirrors the split into the crawlable
+      // HTML automatically.
+      freeLimit: 5,
       previewRows: 2,
       heading: 'The busts',
       lead:
@@ -439,8 +456,23 @@ export const guides = [
       },
     ],
   },
+];
 
-  // ---- Stubs (not written out) --------------------------------------------
+// ---------------------------------------------------------------------------
+// PLANNED — deliberately NOT in `guides`, so nothing renders and nothing links
+// here.
+// ---------------------------------------------------------------------------
+// These six were listed on /guides with a Premium lock badge while holding no
+// prose, no board and no example teams — a paywall in front of an empty page,
+// on the most-searched build in 9-cat (punt FT) among others. Unlisting them is
+// not a demotion of the plan; it is refusing to sell what is not written.
+//
+// To ship one: move its entry into `guides` above, fill it out to the shape of
+// punt-blocks (sections, buildingBlocks, roundTargets, exampleTeams, faqs), and
+// add the route to config/seo-routes.js and the crawlable copy to
+// config/seo-content.js — none of the six are in either file, so even as
+// teasers they were invisible to search.
+export const PLANNED_GUIDES = [
   { slug: 'punt-assists',    type: 'punt', puntKey: 'ast', title: 'Punt Assists',    season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Lean into bigs and low-usage wings.', strengths: ['blk', 'reb', 'fg'], weaknesses: ['ast', 'to'] },
   { slug: 'punt-fg',         type: 'punt', puntKey: 'fg',  title: 'Punt FG%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'The volume-scorer build. Fire away.',  strengths: ['pts', '3pm', 'ast', 'stl'], weaknesses: ['fg'] },
   { slug: 'punt-ft',         type: 'punt', puntKey: 'ft',  title: 'Punt FT%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'Stack the bigs, dominate the paint.',  strengths: ['blk', 'reb', 'fg'], weaknesses: ['ft'] },
@@ -449,9 +481,37 @@ export const guides = [
   { slug: 'punt-steals',     type: 'punt', puntKey: 'stl', title: 'Punt Steals',      season: CURRENT_GUIDE_SEASON, difficulty: 'Advanced',     isPremium: true,  tagline: 'Ignore the noisiest category.',        strengths: ['pts', 'reb', 'blk', 'fg'], weaknesses: ['stl'] },
 ];
 
+// How much of a guide a signed-out visitor actually gets. DERIVED from the
+// gating rather than hand-set, because a badge that is maintained separately
+// from the paywall eventually lies about it:
+//
+//   'free'    nothing is held back — the whole guide renders for everyone
+//   'partial' the page opens and then stops; the rest needs a Draft Pass
+//   'premium' the guide is behind the pass outright
+//
+// The rule that matters: "Free" is reserved for guides where it is true of the
+// entire page. A guide showing you the first six of fifteen is not free, and
+// labelling it that way spends trust to save a word.
+export function guideAccess(guide) {
+  if (guide.isPremium) return 'premium';
+  const limits = [guide.playerNotes, guide.projection, guide.board]
+    .filter(Boolean)
+    .map((x) => x.freeLimit);
+  return limits.some((n) => Number.isFinite(n)) ? 'partial' : 'free';
+}
+
+// Badge copy and colour per access level, kept here so the hub cards and the
+// guide hero cannot drift apart.
+export const ACCESS_BADGE = {
+  free: { label: 'Free', color: '#27ae60', locked: false },
+  partial: { label: 'Draft Pass', color: '#e0a800', locked: true },
+  premium: { label: 'Premium', color: '#c0392b', locked: true },
+};
+
 export const guideBySlug = Object.fromEntries(guides.map((g) => [g.slug, g]));
 
-// Grouping for the hub page.
+// Grouping for the hub page. Both groups read from `guides`, so a guide appears
+// on the hub only once it is actually written — PLANNED_GUIDES cannot leak in.
 export const guideGroups = [
   {
     id: 'rankings',
@@ -463,7 +523,8 @@ export const guideGroups = [
   {
     id: 'punt',
     title: 'Punt Guides',
-    blurb: 'One winning strategy per category. Give up one column, dominate the rest.',
+    blurb:
+      'Give up one column on purpose and dominate the rest. Each build comes with a live draft board re-ranked with that category removed.',
     guides: guides.filter((g) => g.type === 'punt'),
   },
 ];

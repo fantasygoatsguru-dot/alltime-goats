@@ -16,12 +16,21 @@ export const PASSES = [
     name: 'Draft Pass',
     price: 15,
     tagline: 'Win your draft',
-    description: 'Draft-day prep: expert rankings, tiers, and projections to build a championship roster from pick one.',
+    description:
+      'The draft prep that is not on the free boards: every sleeper and every bust case, with the full nine-category argument on each — and no ads anywhere on the site.',
+    // Keep this list to what a buyer actually receives TODAY, and nothing else.
+    // It once promised tiers and projections on the strength of punt guides
+    // that were never written (PLANNED_GUIDES in config/guides-content.js).
+    //
+    // It is a short list, and deliberately so: the projected top 150 and the
+    // punt-blocks board are ungated, which is the right call for draft-season
+    // acquisition but leaves this pass resting on two lists and the ad removal.
+    // Each punt guide that ships is the fix — add it here as it lands.
     features: [
-      'Full 9-cat z-score player rankings',
-      'Tiered draft board',
-      'Season-long player projections',
+      'Every sleeper, with the case on each',
+      'Every bust, and the category that gives the value back',
       'Ad-free browsing',
+      'New punt guides included as they ship',
     ],
     checkoutUrl: 'https://buy.polar.sh/polar_cl_w4Wddss5tVDYzdMLzwGLB4zAilHsr8BAwy2312OP8NL',
   },
@@ -51,6 +60,7 @@ export const PASSES = [
       'Everything in Season Pass',
       'Ad-free browsing',
       'Save $10 vs. buying separately',
+      'New punt guides included as they ship',
     ],
     checkoutUrl: 'https://buy.polar.sh/polar_cl_Fnd1vxC3zzI15aW4TPZbB0SGtZXeVC551fFWV3YAJ7H',
     highlight: true,

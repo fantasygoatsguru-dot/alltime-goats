@@ -82,7 +82,7 @@ export default function PlayerNotes({
           >
             <LockOutlinedIcon sx={{ color: '#0f2340', fontSize: 28 }} />
             <Typography sx={{ fontWeight: 800, color: '#0f2340', fontSize: '1.02rem', textAlign: 'center' }}>
-              {remaining} more, with the full write-up on each
+              {remaining} more, with the full pass on each
             </Typography>
             <Typography sx={{ color: '#667', fontSize: '0.85rem', textAlign: 'center', maxWidth: 380 }}>
               The first {freeLimit} are free. A Draft Pass unlocks {lockedLabel}.

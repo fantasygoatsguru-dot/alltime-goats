@@ -129,8 +129,8 @@ export const seoRoutes = [
   },
   {
     path: '/guides',
-    title: 'Fantasy Basketball Strategy Guides 2026-27 | Rankings & Punt Builds',
-    description: 'Fantasy basketball strategy guides for 2026-27: a pure top 150 ranking plus every punt build, each paired with a live, re-ranked z-score draft board.',
+    title: 'Fantasy Basketball Strategy Guides 2026-27 | Rankings & Punt Strategy',
+    description: 'Fantasy basketball strategy guides for 2026-27: a projected top 150, sleepers and busts, and the punt blocks build with a live re-ranked z-score draft board.',
     changefreq: 'weekly',
     priority: 0.8,
   },
@@ -179,7 +179,7 @@ export const seoRoutes = [
   {
     path: '/pricing',
     title: 'Draft Pass, Season Pass & Combo | Fantasy Goats Guru Premium',
-    description: 'Unlock premium fantasy basketball tools with a Draft Pass, Season Pass, or Combo bundle. Weekly matchup projections, head-to-head breakdowns, team strength analysis, and draft-day rankings.',
+    description: 'Unlock premium fantasy basketball tools with a Draft Pass, Season Pass, or Combo bundle. Weekly matchup projections, head-to-head breakdowns, team strength analysis, and every sleeper and bust case for 2026-27.',
     changefreq: 'monthly',
     priority: 0.8,
   },

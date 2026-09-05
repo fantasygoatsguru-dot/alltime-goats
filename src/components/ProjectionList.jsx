@@ -33,7 +33,9 @@ function RoundHeader({ round, lastPick }) {
  * into rounds of a 12-team draft.
  *
  * Rows past `freeLimit` are blurred behind an unlock prompt, the same freemium
- * teaser the punt boards use.
+ * teaser the punt boards use. A null/absent `freeLimit` means no gate at all —
+ * the whole board renders and no prompt appears, which is what a guide badged
+ * "Free" has to mean.
  *
  * `renderInterstitial` is an optional node factory dropped between rounds — the
  * caller uses it for an ad. It is deliberately a prop rather than an import:
@@ -74,8 +76,9 @@ export default function ProjectionList({
     );
   }
 
-  const visibleTo = unlocked ? players.length : freeLimit;
-  const lockedPreview = unlocked ? [] : players.slice(freeLimit, freeLimit + previewRows);
+  const gated = !unlocked && Number.isFinite(freeLimit);
+  const visibleTo = gated ? freeLimit : players.length;
+  const lockedPreview = gated ? players.slice(freeLimit, freeLimit + previewRows) : [];
 
   return (
     <Box>

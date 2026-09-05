@@ -2,7 +2,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Typography, Container, Chip } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { guideGroups, CURRENT_GUIDE_SEASON } from '../config/guides-content';
+import { guideGroups, CURRENT_GUIDE_SEASON, guideAccess, ACCESS_BADGE } from '../config/guides-content';
 import CategoryStrip from '../components/CategoryStrip';
 
 const difficultyColor = {
@@ -10,6 +10,23 @@ const difficultyColor = {
   Intermediate: '#e0a800',
   Advanced: '#c0392b',
 };
+
+// One badge, driven by guideAccess(), so a card can only ever claim what the
+// page actually does. "Free" appears solely on guides with no gate anywhere in
+// them; a guide that shows the opening and then asks is badged with the thing
+// that opens it.
+function AccessChip({ guide }) {
+  const badge = ACCESS_BADGE[guideAccess(guide)];
+  return (
+    <Chip
+      icon={badge.locked ? <LockOutlinedIcon sx={{ fontSize: '0.9rem !important' }} /> : undefined}
+      label={badge.label}
+      size="small"
+      sx={{ bgcolor: badge.color, color: '#fff', fontWeight: 700, fontSize: '0.68rem', height: 22,
+            '& .MuiChip-icon': { color: '#fff' } }}
+    />
+  );
+}
 
 function GuideCard({ guide }) {
   return (
@@ -39,20 +56,7 @@ function GuideCard({ guide }) {
         >
           {guide.title}
         </Typography>
-        {guide.isPremium ? (
-          <Chip
-            icon={<LockOutlinedIcon sx={{ fontSize: '0.9rem !important' }} />}
-            label="Premium"
-            size="small"
-            sx={{ bgcolor: '#0f2340', color: '#fff', fontWeight: 700, fontSize: '0.68rem', height: 22 }}
-          />
-        ) : (
-          <Chip
-            label="Free"
-            size="small"
-            sx={{ bgcolor: '#27ae60', color: '#fff', fontWeight: 700, fontSize: '0.68rem', height: 22 }}
-          />
-        )}
+        <AccessChip guide={guide} />
       </Box>
 
       <Typography sx={{ color: '#5a6472', fontSize: '0.86rem', lineHeight: 1.45, minHeight: 38 }}>

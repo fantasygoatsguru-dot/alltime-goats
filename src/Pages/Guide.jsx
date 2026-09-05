@@ -3,7 +3,7 @@ import { useParams, Link as RouterLink } from 'react-router-dom';
 import { Box, Typography, Container, Chip, Button, Divider } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
-import { guideBySlug, categoryByKey } from '../config/guides-content';
+import { guideBySlug, categoryByKey, guideAccess, ACCESS_BADGE } from '../config/guides-content';
 import CategoryStrip from '../components/CategoryStrip';
 import RankingTable from '../components/RankingTable';
 import ProjectionList from '../components/ProjectionList';
@@ -69,6 +69,7 @@ export default function Guide() {
   }
 
   const punt = categoryByKey[guide.puntKey];
+  const badge = ACCESS_BADGE[guideAccess(guide)];
   const sections = guide.sections || [];
   const board = guide.board || {};
 
@@ -96,11 +97,14 @@ export default function Guide() {
               size="small"
               sx={{ bgcolor: 'rgba(255,255,255,0.14)', color: '#fff', fontWeight: 700, fontSize: '0.7rem' }}
             />
+            {/* Same derived badge as the hub cards — see guideAccess() in
+                config/guides-content.js. "Free" means the whole page, not the
+                part of it you can see before the ask. */}
             <Chip
-              label={guide.isPremium ? 'Premium' : 'Free'}
+              label={badge.label}
               size="small"
-              icon={guide.isPremium ? <LockOutlinedIcon sx={{ fontSize: '0.85rem !important', color: '#fff !important' }} /> : undefined}
-              sx={{ bgcolor: guide.isPremium ? '#c0392b' : '#27ae60', color: '#fff', fontWeight: 700, fontSize: '0.7rem' }}
+              icon={badge.locked ? <LockOutlinedIcon sx={{ fontSize: '0.85rem !important', color: '#fff !important' }} /> : undefined}
+              sx={{ bgcolor: badge.color, color: '#fff', fontWeight: 700, fontSize: '0.7rem' }}
             />
           </Box>
 
@@ -226,6 +230,7 @@ export default function Guide() {
                   minGames={board.minGames}
                   freeLimit={board.freeLimit}
                   previewRows={board.previewRows}
+                  unlocked={unlocked}
                 />
               </>
             )}

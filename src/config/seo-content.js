@@ -44,7 +44,7 @@ const rosterBlock = (slug, players) => {
       <ul>
         ${items}
       </ul>
-      ${locked > 0 ? `<p>${locked} more, with the full write-up on each, come with a Draft Pass.</p>` : ''}`;
+      ${locked > 0 ? `<p>${locked} more, with the full pass on each, come with a Draft Pass.</p>` : ''}`;
 };
 
 export const SEO_CONTENT = {
@@ -221,13 +221,13 @@ export const SEO_CONTENT = {
   '/guides': {
     title: 'Fantasy Basketball Strategy Guides 2026-27',
     content: `
-      <p>Every fantasy basketball draft comes down to two decisions: who is actually worth the pick, and which categories you are willing to lose. Our 2026-27 guides cover both. Start with the <a href="/guides/top-150">pure top 150 rankings</a> — projected nine-category value with no punt applied — then move to the punt guide that matches the roster you end up with.</p>
+      <p>Every fantasy basketball draft comes down to two decisions: who is actually worth the pick, and which categories you are willing to lose. Our 2026-27 guides cover both. Start with the <a href="/guides/top-150">pure top 150 rankings</a> — projected nine-category value with no punt applied — then move to the punt build that matches the roster you end up with.</p>
 
       <p>The guides are built on Z-score analysis across all nine standard categories: points, three-pointers, rebounds, assists, steals, blocks, field goal percentage, free throw percentage and turnovers. That is the same engine behind our <a href="/rankings">fantasy basketball rankings</a>, so a player's value in a guide and his value in the tool always agree.</p>
 
       <p>Draft prep runs deeper than a ranking list. Our <a href="/guides/sleepers">fantasy basketball sleepers</a> page identifies the players whose projected value sits above their draft cost, and the <a href="/guides/busts">busts</a> page names the players whose nine-category production will not cover the round they are going in — usually because of a free throw percentage, an empty scoring average, or a games-played history the consensus is ignoring.</p>
 
-      <p>Punt strategy guides explain how conceding a single category reshapes your entire board. Punt blocks and elite guards climb; punt free throw percentage and the best rebounding centers in the league become available rounds later than they should be. Each punt guide carries a live draft board that re-ranks every player with the punted column removed from the math, so you are drafting off real numbers rather than a static list.</p>
+      <p>Punt strategy is the other half of draft prep: conceding a single category on purpose reshapes your entire board. Give up blocks and elite guards climb; give up free throw percentage and the best rebounding centers in the league stay available rounds later than they should. The <a href="/guides/punt-blocks">punt blocks guide</a> is the worked example, and it carries a live draft board that re-ranks every player with blocks removed from the math, so you draft off real numbers rather than a static list. Further punt builds land through draft season.</p>
     `,
     keywords: ['fantasy basketball strategy', 'fantasy basketball guides', 'punt strategy', 'fantasy basketball draft strategy', '9-cat fantasy basketball', 'category leagues']
   },

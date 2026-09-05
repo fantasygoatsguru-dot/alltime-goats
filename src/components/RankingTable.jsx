@@ -41,7 +41,12 @@ const zBackground = (value) => {
  * players who would otherwise ride a hot twenty games into the top 50.
  *
  * Free rows render fully; rows past `freeLimit` are blurred behind an unlock
- * prompt (the freemium teaser — purely visual here, real gating comes later).
+ * prompt. `unlocked` (the caller's Draft Pass check — Guide.jsx passes
+ * useEntitlements().hasPass('draft')) drops the gate entirely and renders all
+ * `limit` rows, the same contract <ProjectionList> and <PlayerNotes> use.
+ * Without it this table showed a pass holder the same blurred teaser as a
+ * stranger, and told everyone the fix was "a Goats account" — a gate that did
+ * not exist and would not have unlocked anything if it had.
  */
 export default function RankingTable({
   puntKey = null,
@@ -50,6 +55,7 @@ export default function RankingTable({
   minGames = 0,
   freeLimit = 20,
   previewRows = 4,
+  unlocked = false,
 }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,8 +124,13 @@ export default function RankingTable({
     );
   }
 
-  const freeRows = ranked.slice(0, freeLimit);
-  const lockedRows = ranked.slice(freeLimit, freeLimit + previewRows);
+  // A pass holder sees the whole board, and so does everyone else when the
+  // caller passes no `freeLimit` — a null/absent limit means no gate at all,
+  // matching <ProjectionList> and <PlayerNotes>. Otherwise: `freeLimit` rows
+  // and a blurred peek at the next few.
+  const gated = !unlocked && Number.isFinite(freeLimit);
+  const freeRows = gated ? ranked.slice(0, freeLimit) : ranked;
+  const lockedRows = gated ? ranked.slice(freeLimit, freeLimit + previewRows) : [];
 
   const headCellSx = {
     bgcolor: '#0f2340',
@@ -224,7 +235,12 @@ export default function RankingTable({
                           <TableBody>{lockedRows.map((p) => renderRow(p, true))}</TableBody>
                         </Table>
                       </Box>
+                      {/* The whole overlay is the CTA. It used to be inert
+                          text, so the one place a reader is actively wanting
+                          more rows offered nowhere to go. */}
                       <Box
+                        component={RouterLink}
+                        to="/pricing"
                         sx={{
                           position: 'absolute',
                           inset: 0,
@@ -233,8 +249,14 @@ export default function RankingTable({
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: 1,
+                          textDecoration: 'none',
                           background:
                             'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.92) 60%)',
+                          transition: 'background .18s ease',
+                          '&:hover': {
+                            background:
+                              'linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.97) 60%)',
+                          },
                         }}
                       >
                         <LockOutlinedIcon sx={{ color: '#0f2340', fontSize: 22 }} />
@@ -242,7 +264,7 @@ export default function RankingTable({
                           {punt ? `See the full ${punt.name.toLowerCase()}-adjusted board` : 'See the full board'}
                         </Typography>
                         <Typography sx={{ color: '#667', fontSize: '0.78rem' }}>
-                          Top {freeLimit} free · unlock all {limit} with a Goats account
+                          Top {freeLimit} free · unlock all {limit} with a Draft Pass
                         </Typography>
                       </Box>
                     </Box>
