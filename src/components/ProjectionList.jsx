@@ -5,6 +5,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { ROUNDS, PLAYERS, PRIOR_SEASON } from '../config/top-150-2026-27';
 import { usePriorSeasonStats } from '../hooks/usePriorSeasonStats';
 import PlayerNoteCard from './PlayerNoteCard';
+import { GATED_CLASS } from '../config/guides-content';
 
 function RoundHeader({ round, lastPick }) {
   return (
@@ -102,7 +103,7 @@ export default function ProjectionList({
 
       {/* Everything past the free limit — blurred behind the unlock prompt. */}
       {lockedPreview.length > 0 && (
-        <Box sx={{ position: 'relative', mt: 1.5 }}>
+        <Box className={GATED_CLASS} sx={{ position: 'relative', mt: 1.5 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
             {lockedPreview.map((p) => (
               <PlayerNoteCard key={p.rank} player={p} prior={statsFor(p.name)} />

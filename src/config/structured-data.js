@@ -7,7 +7,7 @@
 // action, so they must never be added back.
 
 import { getSEODataByPath } from './seo-routes.js';
-import { guides } from './guides-content.js';
+import { guides, guideAccess, GATED_SELECTOR } from './guides-content.js';
 
 const BASE = 'https://fantasygoats.guru';
 const LOGO =
@@ -144,6 +144,54 @@ const buildBreadcrumb = (clean) => {
   };
 };
 
+// Guide pages by route, so the paywall markup below can read a guide's tier.
+const GUIDE_BY_PATH = Object.fromEntries(guides.map((g) => [`/guides/${g.slug}`, g]));
+
+// Paywalled-content markup, per Google's spec for subscription AND registration
+// walls: the page declares that part of it is gated and points at that part by
+// class, which is how a truncated page is read as deliberate rather than as
+// thin content — and how showing a crawler the full block would be judged as
+// cloaking rather than assumed to be it.
+//
+// WebPage rather than Article on purpose. Google accepts any CreativeWork
+// subtype here, and Article would be the better semantic fit, but Article
+// expects author and datePublished — fields that cannot be filled honestly
+// while the guides carry no byline. Emitting it half-populated buys Search
+// Console warnings and no rich result. Worth revisiting as Article the day a
+// real author name goes on these pages.
+//
+// The gating is CLIENT-side, so a crawler is always in the logged-out state and
+// sees exactly the free portion this markup describes. That is the whole point:
+// seo-content.js serves only what a signed-out visitor reads, and this tells
+// Google the remainder is behind a gate rather than missing.
+const buildGuideWebPage = (clean, guide, title, description) => {
+  const access = guideAccess(guide);
+  const isFree = access === 'free';
+
+  const page = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
+    description,
+    url: `${BASE}${clean}`,
+    isAccessibleForFree: isFree,
+    publisher: { '@type': 'Organization', name: 'Fantasy Goats Guru', url: BASE },
+  };
+
+  // One selector covers every gated region on the page — the locked list
+  // remainder, the blurred board rows and the pass pitch all carry the same
+  // class — so a single hasPart is correct here rather than an array.
+  if (!isFree) {
+    page.hasPart = {
+      '@type': 'WebPageElement',
+      isAccessibleForFree: false,
+      cssSelector: GATED_SELECTOR,
+    };
+  }
+
+  return page;
+};
+
 const buildFaqPage = (faq) => ({
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -166,6 +214,9 @@ export const getStructuredData = (pathname) => {
   if (clean === '/') schemas.push(website);
   schemas.push(buildWebApplication(clean, title, description));
   if (clean !== '/') schemas.push(buildBreadcrumb(clean));
+
+  const guide = GUIDE_BY_PATH[clean];
+  if (guide) schemas.push(buildGuideWebPage(clean, guide, title, description));
 
   const faq = getFaq(clean);
   if (faq) schemas.push(buildFaqPage(faq));

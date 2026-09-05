@@ -533,6 +533,16 @@ export function isGuideUnlocked(guide, { isSignedIn, hasDraftPass }) {
   return guideAccess(guide) === 'login' ? Boolean(isSignedIn) : Boolean(hasDraftPass);
 }
 
+// The class every gated region on a guide carries, and the selector quoted to
+// Google in the paywalled-content markup (structured-data.js). It lives here
+// rather than in either consumer because it has to mean the same thing in two
+// places at once: if the DOM and the JSON-LD disagree about which part of the
+// page is gated, the markup stops describing the page and starts misreporting
+// it. Google accepts ONLY `.class` selectors here, so this must stay a bare
+// class name with no element or attribute qualifiers.
+export const GATED_CLASS = 'fgg-gated';
+export const GATED_SELECTOR = `.${GATED_CLASS}`;
+
 // Badge copy and colour per access level, kept here so the hub cards and the
 // guide hero cannot drift apart.
 //

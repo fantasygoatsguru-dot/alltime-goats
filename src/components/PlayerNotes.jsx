@@ -5,6 +5,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { PRIOR_SEASON } from '../config/top-150-2026-27';
 import { usePriorSeasonStats } from '../hooks/usePriorSeasonStats';
 import PlayerNoteCard from './PlayerNoteCard';
+import { GATED_CLASS } from '../config/guides-content';
 
 /**
  * An unranked list of player write-ups — the sleepers and busts guides. Same
@@ -47,8 +48,9 @@ export default function PlayerNotes({
   }
 
   // A null/absent freeLimit means the list is ungated — every entry is free and
-  // no unlock prompt is drawn. That is the state the sleepers and busts guides
-  // ship in; see the note on their playerNotes in config/guides-content.js.
+  // no unlock prompt is drawn. The sleepers and busts guides do NOT ship that
+  // way: both set a freeLimit (6 and 5) and are unlocked by a free account
+  // rather than by the pass. See their playerNotes in config/guides-content.js.
   const gated = !unlocked && Number.isFinite(freeLimit);
   const free = gated ? players.slice(0, freeLimit) : players;
   const lockedPreview = gated ? players.slice(freeLimit, freeLimit + previewRows) : [];
@@ -66,7 +68,7 @@ export default function PlayerNotes({
       </Box>
 
       {lockedPreview.length > 0 && (
-        <Box sx={{ position: 'relative', mt: 1.5 }}>
+        <Box className={GATED_CLASS} sx={{ position: 'relative', mt: 1.5 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
             {lockedPreview.map((p) => (
               <PlayerNoteCard key={p.name} player={p} prior={statsFor(p.name)} accent={accent} />

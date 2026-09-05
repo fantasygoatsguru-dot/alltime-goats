@@ -15,6 +15,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
 import { CATEGORIES, categoryByKey } from '../config/guides-content';
+import { GATED_CLASS } from '../config/guides-content';
 
 // Same colour ramp the Rankings tool uses, so the numbers read identically
 // across the app.
@@ -229,7 +230,7 @@ export default function RankingTable({
               {lockedRows.length > 0 && (
                 <TableRow>
                   <TableCell colSpan={4 + CATEGORIES.length} sx={{ p: 0, position: 'relative' }}>
-                    <Box sx={{ position: 'relative' }}>
+                    <Box className={GATED_CLASS} sx={{ position: 'relative' }}>
                       <Box sx={{ filter: 'blur(4px)', pointerEvents: 'none', userSelect: 'none', opacity: 0.6 }}>
                         <Table size="small" sx={{ minWidth: 720 }}>
                           <TableBody>{lockedRows.map((p) => renderRow(p, true))}</TableBody>

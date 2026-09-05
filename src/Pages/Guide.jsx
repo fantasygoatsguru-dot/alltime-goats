@@ -3,7 +3,7 @@ import { useParams, Link as RouterLink } from 'react-router-dom';
 import { Box, Typography, Container, Chip, Button, Divider } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
-import { guideBySlug, categoryByKey, guideAccess, isGuideUnlocked, ACCESS_BADGE } from '../config/guides-content';
+import { guideBySlug, categoryByKey, guideAccess, isGuideUnlocked, ACCESS_BADGE, GATED_CLASS } from '../config/guides-content';
 import CategoryStrip from '../components/CategoryStrip';
 import RankingTable from '../components/RankingTable';
 import ProjectionList from '../components/ProjectionList';
@@ -71,6 +71,7 @@ function Paywall({ guide, hiddenSections }) {
 
   return (
     <Box
+      className={GATED_CLASS}
       sx={{
         mt: 4,
         p: { xs: 2.5, md: 3.5 },
@@ -376,7 +377,7 @@ export default function Guide({ onRequireSignIn }) {
 
                 {guide.isPremium && !unlocked ? (
                   // Premium guides keep the roster blueprints gated until a Draft Pass is purchased.
-                  <Box sx={{ position: 'relative' }}>
+                  <Box className={GATED_CLASS} sx={{ position: 'relative' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
                       {guide.exampleTeams.map((t, i) => (
                         <Box key={i} sx={{ p: 2.5, bgcolor: '#fff', border: '1px solid #e6e9ee', borderRadius: 2 }}>
