@@ -5,7 +5,7 @@ import seoRoutes, { getPublicRoutes } from '../src/config/seo-routes.js';
 import { getSEOContent } from '../src/config/seo-content.js';
 import { getStructuredData, getFaq } from '../src/config/structured-data.js';
 import { guideBySlug } from '../src/config/guides-content.js';
-import { PLAYERS as TOP150, ROUNDS as TOP150_ROUNDS } from '../src/config/top-150-2026-27.js';
+import { PLAYERS as TOP150, ROUNDS as TOP150_ROUNDS, YAHOO_MARKET_DATE } from '../src/config/top-150-2026-27.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,10 +120,11 @@ const guideBodyHtml = (routePath) => {
     return out.join('\n');
   }
 
-  // The authored top-150 board. Ungated since the 2026-27 draft season, and the
+  // The authored 2026-27 projected top-150 board.
   // single largest piece of unique writing on the site.
   if (guide.projection && !Number.isFinite(guide.projection.freeLimit)) {
     out.push(`<h2>The projected top 150 for ${esc(guide.season)}</h2>`);
+    out.push(`<p>Historical stat claims use corrected 2025-26 season data. Yahoo ADP and public pre-rank are a draft-market snapshot from ${esc(YAHOO_MARKET_DATE)}; the order projects 2026-27 value.</p>`);
     for (const round of TOP150_ROUNDS) {
       const players = TOP150.filter((pl) => pl.rank >= round.from && pl.rank <= round.to);
       if (!players.length) continue;
@@ -131,7 +132,7 @@ const guideBodyHtml = (routePath) => {
       out.push(`<p>${esc(round.blurb)}</p>`);
       out.push(
         `<ul>${players
-          .map((pl) => `<li><strong>${pl.rank}. ${esc(pl.name)}</strong>. ${esc(pl.note)}</li>`)
+          .map((pl) => `<li><strong>${pl.rank}. ${esc(pl.name)} (${esc(pl.team)})</strong>${Number.isFinite(pl.yahooAdp) ? ` — Yahoo ADP ${pl.yahooAdp.toFixed(1)}` : ''}${Number.isFinite(pl.yahooPreRank) ? `, pre-rank ${pl.yahooPreRank}` : ''}. ${esc(pl.note)}</li>`)
           .join('')}</ul>`
       );
     }

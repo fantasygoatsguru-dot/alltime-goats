@@ -8,7 +8,7 @@ import CategoryStrip from '../components/CategoryStrip';
 import RankingTable from '../components/RankingTable';
 import ProjectionList from '../components/ProjectionList';
 import PlayerNotes from '../components/PlayerNotes';
-import { PRIOR_SEASON } from '../config/top-150-2026-27';
+import { PRIOR_SEASON, YAHOO_MARKET_DATE } from '../config/top-150-2026-27';
 import { SLEEPERS, BUSTS } from '../config/sleepers-busts-2026-27';
 import TeamRadar from '../components/TeamRadar';
 import DraftBuilder from '../components/DraftBuilder';
@@ -294,11 +294,16 @@ export default function Guide({ onRequireSignIn }) {
               </>
             ) : guide.projection ? (
               <>
-                <SectionHeading id="board">The projected top 150</SectionHeading>
+                <SectionHeading id="board">Projected Top 150 for {guide.season}</SectionHeading>
                 <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
-                  Ranked for {guide.season}, one write-up per player explaining the placement. The stat line under
-                  each name is that player's actual {PRIOR_SEASON} production, pulled live from the same database
-                  behind the rankings tool — the evidence the projection is arguing with.
+                  These 2026–27 ranks use corrected {PRIOR_SEASON} production, then account for role, team,
+                  age and availability. The stat pills show actual {PRIOR_SEASON} results; ADP and pre-rank
+                  are Yahoo draft-market snapshots from {YAHOO_MARKET_DATE}. Check the{' '}
+                  <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis" target="_blank" rel="noopener noreferrer">current Yahoo ADP</a>
+                  {' '}and{' '}
+                  <a href="https://basketball.fantasysports.yahoo.com/nba/public_prerank" target="_blank" rel="noopener noreferrer">public pre-rank</a>
+                  {' '}before your draft. Team changes are checked against the{' '}
+                  <a href="https://www.nba.com/news/nba-offseason-deals-2026" target="_blank" rel="noopener noreferrer">NBA offseason deals tracker</a>.
                 </Typography>
                 <ProjectionList
                   renderInterstitial={() => <GuideAd guide={guide} gateVisible={gateVisible} />}

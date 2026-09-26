@@ -28,9 +28,9 @@ function RoundHeader({ round, lastPick }) {
 }
 
 /**
- * The projected top 150 — an authored ranking (see config/top-150-2026-27.js)
- * with one paragraph per player explaining the placement, shown alongside that
- * player's actual prior-season line pulled live from the database and grouped
+ * The projected 2026-27 top 150 — an authored projection anchored in the
+ * corrected 2025-26 production, with each player's actual prior-season line
+ * pulled live from the database and grouped
  * into rounds of a 12-team draft.
  *
  * Rows past `freeLimit` are blurred behind an unlock prompt, the same freemium

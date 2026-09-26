@@ -224,7 +224,7 @@ export const SEO_CONTENT = {
       
       <p>Our matchup analysis integrates with Yahoo Fantasy Basketball to provide personalized insights based on your actual league and team. See exactly how you match up against your opponent this week and get strategic recommendations for maximizing your chances of winning your head-to-head matchup.</p>
 
-      <p>Most weekly matchups are decided by roster construction rather than by streaming. If you keep losing the same two categories, you are not unlucky — you are built that way, and the fix is a build that concedes one column on purpose. Start with the <a href="/guides/top-150">projected top 150</a> for raw nine-category value, then read the <a href="/guides/punt-ft">punt FT% build</a> or the <a href="/guides/punt-blocks">punt blocks build</a> to see how a board re-ranks once a category comes out of the maths. Track the results with the <a href="/rankings">rankings tool</a> and plan the weeks ahead with the <a href="/nba-regular-season">schedule grid</a>.</p>
+      <p>Most weekly matchups are decided by roster construction rather than by streaming. If you keep losing the same two categories, you are not unlucky — you are built that way, and the fix is a build that concedes one column on purpose. Use the <a href="/guides/top-150">2026-27 projected top 150</a>, refreshed with corrected 2025-26 results, then read the <a href="/guides/punt-ft">punt FT% build</a> or the <a href="/guides/punt-blocks">punt blocks build</a> to see how a board re-ranks once a category comes out of the maths. Track the results with the <a href="/rankings">rankings tool</a> and plan the weeks ahead with the <a href="/nba-regular-season">schedule grid</a>.</p>
     `,
     keywords: ['matchup analyzer', 'fantasy basketball matchup', 'team comparison', 'head-to-head fantasy', 'trade analyzer', 'player comparison']
   },
@@ -232,7 +232,7 @@ export const SEO_CONTENT = {
   '/guides': {
     title: 'Fantasy Basketball Strategy Guides 2026-27',
     content: `
-      <p>Every fantasy basketball draft comes down to two decisions: who is actually worth the pick, and which categories you are willing to lose. Our 2026-27 guides cover both. Start with the <a href="/guides/top-150">pure top 150 rankings</a> — projected nine-category value with no punt applied — then move to the punt build that matches the roster you end up with.</p>
+      <p>Every fantasy basketball draft comes down to two decisions: who is actually worth the pick, and which categories you are willing to lose. Our 2026-27 guides cover both. Start with the <a href="/guides/top-150">projected top 150, refreshed with corrected 2025-26 results</a>, then move to the punt build that matches the roster you end up with.</p>
 
       <p>The guides are built on Z-score analysis across all nine standard categories: points, three-pointers, rebounds, assists, steals, blocks, field goal percentage, free throw percentage and turnovers. That is the same engine behind our <a href="/rankings">fantasy basketball rankings</a>, so a player's value in a guide and his value in the tool always agree.</p>
 
@@ -244,17 +244,17 @@ export const SEO_CONTENT = {
   },
 
   '/guides/top-150': {
-    title: 'Top 150 Fantasy Basketball Rankings 2026-27',
+    title: '2026-27 Fantasy Basketball Top 150 Projections',
     content: `
-      <p>Our projected top 150 fantasy basketball rankings for 2026-27 weight all nine categories equally — no punt, no positional adjustment, no name recognition. Every player carries a written explanation of why he is ranked where he is, alongside his actual per-game production from last season so you can see exactly what the projection is arguing with.</p>
+      <p>This 2026-27 fantasy basketball top 150 is a forward-looking projection refreshed with corrected 2025-26 nine-category production from our player_period_averages data. The order also considers current Yahoo draft prices, expected role, team changes and availability.</p>
 
-      <p>The list is grouped into rounds of a twelve-team draft, which is how it is actually used. Round one covers the multi-category anchors whose value gap over the field is the largest on the board. The middle rounds are where builds get decided, as most available players lean hard toward either big-man categories or guard categories. The late rounds are specialists: one or two elite columns attached to several negative ones.</p>
+      <p>The list is grouped into twelve-player rounds for easier scanning. For players who appeared in 2025-26, each card shows the actual stat line and games played alongside the separate Yahoo ADP and public pre-rank snapshot from September 26, 2026. Injury-returning players without a season line use earlier evidence in their notes.</p>
 
-      <p>Rankings are built from last season's nine-category production and then adjusted for age and trajectory, expected role and minutes, availability history, and the way a player's shape gains or loses value in category leagues. Turnovers count here, so high-usage playmakers fall. Free throw percentage is weighted by volume, so a poor shooter taking six attempts a night is penalized far more than the raw number suggests. Blocks and steals are the scarcest columns on the board, so the players who supply them rank ahead of higher scorers who do not.</p>
+      <p>The historical baseline combines points, threes, rebounds, assists, steals, blocks, shooting-percentage impact and turnovers into nine-category value. Shooting impact accounts for attempts. The projected order also adjusts for expected availability, so it is not simply last season's per-game rank.</p>
 
-      <p>Use the top 150 as your draft-day baseline for the first three or four rounds, then switch to the punt guide that matches the roster you actually ended up with — the <a href="/guides/punt-ft">punt FT% build</a> if you drifted toward bigs, the <a href="/guides/punt-blocks">punt blocks build</a> if you drifted toward guards and wings. Pair it with our <a href="/guides/sleepers">sleepers</a> and <a href="/guides/busts">busts</a> lists for the players priced wrong in either direction, and with the <a href="/rankings">rankings tool</a> to track how the projections hold up once games start.</p>
+      <p>Use the order as a draft-day starting point and compare it with the <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/public_prerank">public pre-rank</a>. Pair the projections with our <a href="/guides/sleepers">sleepers</a>, <a href="/guides/busts">busts</a> and <a href="/guides">punt strategy guides</a>.</p>
     `,
-    keywords: ['top 150 fantasy basketball', 'fantasy basketball rankings 2026-27', 'fantasy basketball draft rankings', '9-cat rankings', 'z-score rankings', 'fantasy basketball projections']
+    keywords: ['top 150 fantasy basketball 2026-27', 'fantasy basketball projections', '9-cat rankings', 'z-score rankings', 'fantasy basketball player values']
   },
 
   '/guides/sleepers': {
@@ -266,7 +266,7 @@ export const SEO_CONTENT = {
 
       <p>Each sleeper below carries the full case for why the price is wrong, plus his real per-game line from last season. Per-minute production is the most reliable predictor of what happens when minutes arrive, which is why efficient young bigs and high-steal guards on crowded rosters dominate this kind of list.</p>
 
-      <p>Draft two or three sleepers in the last five rounds rather than reaching for them early — the discount is the entire point. Cross-reference with the <a href="/guides/top-150">top 150 rankings</a> to see where each player sits on the main board, check the <a href="/guides/busts">busts list</a> for the picks to avoid at the same cost, and use the <a href="/rankings">rankings tool</a> to track their production once the season starts.</p>
+      <p>Draft two or three sleepers in the last five rounds rather than reaching for them early — the discount is the entire point. Compare each player with the <a href="/guides/top-150">2026-27 projected top 150</a>, refreshed with corrected 2025-26 category value, check the <a href="/guides/busts">busts list</a> for the picks to avoid at the same cost, and use the <a href="/rankings">rankings tool</a> to track their production once the season starts.</p>
     ${rosterBlock('sleepers', SLEEPERS)}
     `,
     keywords: ['fantasy basketball sleepers', 'fantasy basketball sleepers 2026-27', 'undervalued fantasy basketball players', 'late round picks', 'fantasy basketball breakouts', 'draft value picks']
@@ -281,7 +281,7 @@ export const SEO_CONTENT = {
 
       <p>Read this list as a price list rather than a blacklist. Several of these players are excellent picks two or three rounds later than they are going, and a few become outright bargains inside the right build — a player whose only flaw is free throw percentage stops being a bust the moment you decide to punt that category.</p>
 
-      <p>Every entry names the specific column that gives the value back, along with the player's actual production from last season. Pair it with the <a href="/guides/top-150">projected top 150</a> to see where each player belongs instead, the <a href="/guides/sleepers">sleepers list</a> for the picks worth making at that cost, and the punt <a href="/guides">strategy guides</a> for the builds that turn these flaws into features.</p>
+      <p>Every entry names the specific column that gives the value back, along with the player's actual production from last season. Pair it with the <a href="/guides/top-150">2026-27 projected top 150, refreshed with corrected 2025-26 stats</a>, the <a href="/guides/sleepers">sleepers list</a> for the picks worth making at that cost, and the punt <a href="/guides">strategy guides</a> for the builds that turn these flaws into features.</p>
     ${rosterBlock('busts', BUSTS)}
     `,
     keywords: ['fantasy basketball busts', 'fantasy basketball busts 2026-27', 'players to avoid fantasy basketball', 'overvalued players', 'fantasy basketball draft mistakes', 'adp value']
@@ -303,7 +303,7 @@ export const SEO_CONTENT = {
 
       <p>The trap is thinking the build is only centers. A roster of nothing but bigs wins blocks, rebounds and field goal percentage by a mile and then loses threes, assists and steals by the same margin. Treat threes and assists as categories you have to buy on purpose in the middle rounds — a punt build that concedes free throws is strong, one that concedes free throws, threes and assists has punted three categories and cannot win.</p>
 
-      <p>The live draft board on this page re-ranks every player with free throw percentage struck out of the Z-score total. Start from the <a href="/guides/top-150">pure top 150</a> to see what each player costs in raw value, compare with the <a href="/guides/punt-blocks">punt blocks build</a> for the opposite approach, and use the <a href="/rankings">rankings tool</a> to run the same re-rank on any category.</p>
+      <p>The live draft board on this page re-ranks every player with free throw percentage struck out of the Z-score total. Compare it with the <a href="/guides/top-150">2026-27 projected top 150</a> to see how removing FT% changes the category-value order, compare with the <a href="/guides/punt-blocks">punt blocks build</a> for the opposite approach, and use the <a href="/rankings">rankings tool</a> to run the same re-rank on any category.</p>
     `,
     keywords: ['punt ft', 'punt free throw percentage', 'punt ft% fantasy basketball', 'fantasy basketball punt build', '9-cat punt strategy', 'big man fantasy basketball draft']
   },
@@ -317,7 +317,7 @@ export const SEO_CONTENT = {
 
       <p>Because you are ignoring the rarest category, your personal board gets deeper rather than shallower. Elite shot blockers slide down while high-usage guards and do-everything wings climb, and the live draft board on this page re-ranks every player in the league with blocks removed from the Z-score total so you can draft straight off it.</p>
 
-      <p>Punt blocks is a classic nine-category build and it has only gotten stronger as elite rim protection has become rarer. Start from the <a href="/guides/top-150">pure top 150</a> to understand what each player costs in raw value, then use this board to see how that value changes once blocks come out of the math. The same re-ranking is available for every category in the <a href="/rankings">rankings tool</a>.</p>
+      <p>Punt blocks is a classic nine-category build and it has only gotten stronger as elite rim protection has become rarer. Compare this board with the <a href="/guides/top-150">2026-27 projected top 150</a> to see how removing blocks changes the category-value order. The same re-ranking is available for every category in the <a href="/rankings">rankings tool</a>.</p>
     `,
     keywords: ['punt blocks', 'punt strategy fantasy basketball', 'fantasy basketball punt build', '9-cat punt blocks', 'fantasy basketball draft strategy', 'category punting']
   }
@@ -329,4 +329,3 @@ export const getSEOContent = (pathname) => {
 };
 
 export default SEO_CONTENT;
-

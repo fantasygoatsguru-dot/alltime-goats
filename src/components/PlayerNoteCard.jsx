@@ -129,6 +129,16 @@ export default function PlayerNoteCard({ player, prior, accent = '#0f2340' }) {
           )}
         </Box>
 
+        {player.rank && (Number.isFinite(player.yahooAdp) || Number.isFinite(player.yahooPreRank)) && (
+          <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.6, mb: 1.25 }}>
+            <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, color: '#78828f', mr: 0.3 }}>
+              Yahoo draft market
+            </Typography>
+            {Number.isFinite(player.yahooAdp) && <StatPill label="ADP" value={player.yahooAdp.toFixed(1)} muted />}
+            {Number.isFinite(player.yahooPreRank) && <StatPill label="PRE-RANK" value={player.yahooPreRank} muted />}
+          </Box>
+        )}
+
         <Typography sx={{ color: '#2c3440', fontSize: '0.94rem', lineHeight: 1.6 }}>{player.note}</Typography>
       </Box>
     </Box>

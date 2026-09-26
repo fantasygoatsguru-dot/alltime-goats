@@ -139,14 +139,14 @@ export const seoRoutes = [
   {
     path: '/guides',
     title: 'Fantasy Basketball Strategy Guides 2026-27 | Rankings & Punt Strategy',
-    description: 'Fantasy basketball strategy guides for 2026-27: a projected top 150, sleepers and busts, and punt builds for blocks and FT% with live re-ranked z-score draft boards.',
+    description: 'Fantasy basketball strategy guides for 2026-27, with a projected top 150 refreshed against corrected 2025-26 stats, sleepers and busts, and punt builds with live re-ranked boards.',
     changefreq: 'weekly',
     priority: 0.8,
   },
   {
     path: '/guides/top-150',
-    title: 'Top 150 Fantasy Basketball Rankings 2026-27 | Pure 9-Cat Projections',
-    description: 'Projected top 150 fantasy basketball rankings for 2026-27 — pure 9-category value with no punt, tiered by round, with a written breakdown of why every single player is ranked where he is.',
+    title: 'Top 150 Fantasy Basketball Rankings 2026-27 | 9-Cat Projections',
+    description: '2026-27 fantasy basketball top 150 projections refreshed with corrected 2025-26 nine-category stats, with player stat lines, games played and category contributions.',
     changefreq: 'weekly',
     priority: 0.9,
   },
@@ -245,4 +245,3 @@ export const getPublicRoutes = () => {
 
 // Export default for easier import
 export default seoRoutes;
-

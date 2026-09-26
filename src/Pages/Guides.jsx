@@ -120,7 +120,7 @@ export default function Guides() {
             Build a winner one category at a time.
           </Typography>
           <Typography sx={{ color: '#b9c4d6', fontSize: '1rem', maxWidth: 560, mx: 'auto', lineHeight: 1.5 }}>
-            Start from the unpunted top 150, then pick a build. Every guide is paired with a live
+            Start with the projected 2026-27 top 150, refreshed with corrected 2025-26 stats, then pick a build. Every guide is paired with a live
             draft board straight from the z-score engine.
           </Typography>
         </Container>

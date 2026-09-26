@@ -233,13 +233,13 @@ export const guides = [
     difficulty: 'Beginner',
     isPremium: false, // free & indexable — the draft-season lead magnet
     tagline:
-      'Projected 9-category value for 2026-27. No punt, no positional fudging — 150 players, each with the reasoning behind his rank.',
+      '2026-27 9-category projections refreshed with corrected 2025-26 results. No punt, no positional fudging — 150 players, each with the reasoning behind his rank.',
     strengths: [],
     weaknesses: [],
 
-    // This guide renders the authored projection (config/top-150-2026-27.js)
-    // instead of a live board — the season hasn't been played, so there are no
-    // z-scores to sort. `projection` switches Guide.jsx to <ProjectionList>.
+    // This guide renders the 2026-27 projection (config/top-150-2026-27.js),
+    // refreshed against corrected 2025-26 results. `projection` switches
+    // Guide.jsx to <ProjectionList>.
     // Ungated: all 150 render, and the badge on this guide reads "Free"
     // because that is now true of the whole page. A gate here made the board a
     // teaser wearing a Free badge, which is the one thing a draft-season lead
@@ -254,7 +254,7 @@ export const guides = [
         id: 'strategy',
         heading: 'What this ranking is',
         body: [
-          "Every other guide in this section throws a category away on purpose. This one throws nothing away. All nine categories — points, threes, rebounds, assists, steals, blocks, field-goal percentage, free-throw percentage and turnovers — are weighted equally, and a player's rank is a projection of how much total z-score he will add to a roster this season. No positional adjustment, no name recognition, no punt.",
+          "Every other guide in this section throws a category away on purpose. This one counts all nine: points, threes, rebounds, assists, steals, blocks, field-goal percentage, free-throw percentage and turnovers. The order projects 2026-27 category value from corrected past production and current player context. It is an editorial ranking, not a simulated 2026-27 stat line.",
           "That makes it the honest baseline. A top 150 tells you what each player is worth before you have committed to a build, which is exactly the information you need in the opening rounds when your team still has no identity. Once you know what everyone costs in raw value, choosing to give a category away becomes a decision you make with your eyes open rather than one the draft makes for you.",
         ],
       },
@@ -262,17 +262,17 @@ export const guides = [
         id: 'method',
         heading: 'How the projection was built',
         body: [
-          "Every rank starts from last season's actual nine-category production — the line you can see underneath each player below, pulled live from the same database that powers the rankings tool. That is the evidence. The projection then adjusts it for the four things a raw stat line cannot capture: age and trajectory, expected role and minutes, availability history, and the specific way a player's shape gains or loses value in a nine-category league.",
-          "The last of those is why this list looks different from the consensus. Turnovers count here, so high-usage playmakers fall. Free-throw percentage counts on volume, so a 60-percent big taking five attempts a night is penalised far more than the box score suggests. And blocks and steals are the scarcest columns on the board, so the players who supply them are ranked ahead of higher scorers who do not.",
-          "Availability is treated as part of the projection rather than a footnote. A player who produces a top-ten line in fifty games is ranked as what he is — a partial season of excellent production — not as a top-ten player with an asterisk. That is why several famous names sit twenty or thirty spots below where their per-game rate would put them.",
+          "The baseline is corrected 2025-26 nine-category production from the same database that powers the rankings tool. I combined that value with Yahoo's standard public pre-rank, projected-season rank, current ADP and the previous 2026-27 projection. I then adjusted the order for minutes, usage, age, injury recovery and verified team moves. Yahoo prices help show the market; they are not forecasts of fantasy value.",
+          "Field-goal and free-throw impact use makes and attempts, not percentage alone. Turnovers count too, so a high-volume creator can be valuable in points and assists while costing you a category. Each player's note names the season behind its exact numbers; the rank itself is the forward-looking call.",
+          "Availability changes the order. A strong per-game line in a short season can still make a good pick, but the cost of missed games belongs in the draft decision. Players without a 2025-26 line use their earlier production with a larger uncertainty discount.",
         ],
       },
       {
         id: 'draft',
         heading: 'How to actually use it on draft day',
         body: [
-          "For the first three or four rounds, take the best available player on this board and do not overthink it. Early picks are about raw value; no punt build is strong enough to justify reaching past a materially better player in round two.",
-          "From the middle rounds on, the list stops being a script and becomes a filter. Look at the roster you have accumulated, find the one or two categories you are already losing, and start reading for players who reinforce your strengths rather than patch your holes. That drift is how nearly every good team ends up in a punt — you do not choose it in advance, you notice it happening and commit.",
+          "Compare this projected rank with Yahoo ADP and pre-rank. A large gap can reveal a useful price, but check the player note before treating it as a bargain: health, a new team or a role change may explain the difference. ADP can move during camp, so the linked Yahoo pages are the source for the current draft room.",
+          "As your roster takes shape, use category fit alongside the overall order. A slightly lower-ranked player who supplies a category you can realistically win may help more than a duplicate source of points or threes.",
           "The moment you know which category you are conceding, switch to the matching punt guide. Its board re-ranks the entire league with that column removed from the maths, and the ordering changes more than you would expect — that reshuffle is your real draft board for the rest of the night. Several players ranked in the eighties here are top-40 assets inside the right build, and the write-ups below say so where it applies.",
         ],
       },
@@ -280,8 +280,8 @@ export const guides = [
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          "It is a projection of a season that has not been played, so treat it as a starting point with reasoning attached, not a verdict. Three gaps are worth naming outright. Offseason moves are not fully reflected — each player carries his last known team, and a trade or signing that changes a usage rate should move him on your own board. Rookies are excluded entirely: with no prior season to project from, ranking them would be guesswork dressed up as analysis, so slot this year's class in yourself.",
-          "And injury returns are the widest error bars on the list. Players coming back from a lost season appear without a prior-season line, ranked on what they were before plus a discount for the unknown. If the reports out of camp are good, move them up aggressively — that is where the biggest edges in a draft usually sit.",
+          "Team assignments and transaction notes were refreshed against NBA transaction reporting and Yahoo rosters on September 26, 2026. Later camp moves, depth-chart decisions and ADP shifts can change a projection quickly, so check the linked market pages when you draft. The incoming 2026 rookie class is excluded because there is no NBA category baseline yet.",
+          "Injury returns have the widest range of outcomes. Tyrese Haliburton, Kyrie Irving and Damian Lillard have no 2025-26 season line here; their notes use verified 2024-25 numbers and identify the recovery risk. A blank prior-season stat row does not mean a zero projection.",
         ],
       },
     ],
@@ -289,15 +289,15 @@ export const guides = [
     faqs: [
       {
         q: 'Are these projections or last season\'s rankings?',
-        a: 'Projections. The 2026-27 season has not been played, so the ranks are a judgement call built on last season\'s production, age and trajectory, expected role, and availability history. Each player\'s actual prior-season line is shown underneath his write-up so you can see exactly what the projection is arguing with.',
+        a: 'Projections for 2026-27. Corrected 2025-26 numbers are the historical baseline, while Yahoo draft prices and roster context inform forward-looking adjustments. The stat pills show actual prior-season results, not projected 2026-27 averages.',
       },
       {
         q: 'Should I just draft straight down this list?',
-        a: 'For the first three or four rounds, yes. After that, fit beats raw value — once your roster leans a certain way, reinforcing your strong categories is worth more than adding a slightly better player who spreads your production thinner.',
+        a: 'Use the order as a value baseline, then compare it with Yahoo ADP, your available players and the categories your roster needs. A projected bargain only matters if he is still available at that price.',
       },
       {
         q: 'Why is a big scorer ranked below a player who averages far fewer points?',
-        a: 'Because points are the least scarce category in 9-cat. A player who supplies steals, blocks or an elite percentage is helping in a column where the gap between good and average is much wider, and volume scorers usually give some of it back in turnovers and field-goal percentage.',
+        a: 'All nine categories count. A scorer may give value back through turnovers or shooting impact, while another player can add steals, blocks or efficient volume. The ranking weighs the whole category profile and expected availability.',
       },
       {
         q: 'Does this work for 8-cat leagues?',
@@ -305,7 +305,7 @@ export const guides = [
       },
       {
         q: 'Why are there no rookies?',
-        a: 'Because there is nothing to project from. A first-year player has no prior nine-category production, so ranking him would be guesswork presented as analysis. Slot this year\'s class into the list yourself once you have seen the preseason roles.',
+        a: 'The incoming 2026 class has no NBA nine-category baseline yet. This edition covers established NBA players, including players who were rookies in 2025-26; evaluate the new class separately once preseason roles are clear.',
       },
     ],
   },
@@ -386,7 +386,7 @@ export const guides = [
     faqs: [
       {
         q: 'How are these different from the top 150?',
-        a: 'The top 150 ranks everyone on projected value. This list is specifically about the gap between that value and draft cost — several of these players appear on the main board too, just far higher than the market has them.',
+        a: 'The top 150 projects 2026-27 value using corrected 2025-26 results as its statistical baseline. This list is about the gap between projected value and draft cost; a player may appear in both, but the lists answer different questions.',
       },
       {
         q: 'How many sleepers should I actually draft?',
@@ -575,7 +575,7 @@ export const guideGroups = [
     id: 'rankings',
     title: 'Rankings & Draft Prep',
     blurb:
-      'The unpunted baseline for 2026-27 — projected 9-category value, plus the players priced wrong in both directions.',
+      '2026-27 9-category projections based on corrected 2025-26 results, plus sleepers and busts whose projected value differs from draft cost.',
     guides: guides.filter((g) => g.type === 'rankings'),
   },
   {
