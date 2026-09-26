@@ -16,6 +16,7 @@
  * Usage:
  *   node scripts/build-schedule.js                # 2026-27 season
  *   node scripts/build-schedule.js --season 2028  # ESPN season year = end year
+ *   node scripts/build-schedule.js --from-existing # reindex local schedule.json
  *   node scripts/build-schedule.js --dry-run      # print the summary, write nothing
  */
 
@@ -31,6 +32,15 @@ const args = process.argv.slice(2);
 const seasonArg = args.indexOf('--season');
 const SEASON_YEAR = seasonArg !== -1 ? Number(args[seasonArg + 1]) : 2027;
 const DRY_RUN = args.includes('--dry-run');
+const FROM_EXISTING = args.includes('--from-existing');
+
+// Yahoo's official game-week calendar, not gaps in the NBA game schedule,
+// determines the fantasy week numbers. Both the NBA Cup and All-Star period
+// are two-week matchups in 2026-27. Update this from Yahoo's /nba/gamedates
+// before building a different season rather than guessing from empty dates.
+const YAHOO_TWO_WEEK_STARTS = {
+  2027: ['2026-11-30', '2027-02-15'],
+};
 
 // ESPN team id → the tricode used everywhere else in this app. ESPN spells six
 // of them differently (NY, GS, SA, NO, UTAH, WSH), so this is not a passthrough.
@@ -46,14 +56,12 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 // playoffs.json must contain every week the playoff pages can look up, not just
 // the "real" championship weeks. NBAPlayoffs / LeaguePlayoffs / MyLeaguePlayoffs
-// offer championship start weeks 19-21 (or take one from the Yahoo league
-// settings) and then render start, start+1, start+2 — a week missing from this
-// file is silently dropped from that view, so an under-inclusive file shows two
-// weeks where the user asked for three.
+// offer playoff start weeks from the Yahoo calendar (or take one from the
+// user's league settings). A missing week must not silently shorten the view.
 //
-// The last seven weeks covers every reachable week in both a 24-week season
-// (18-24) and a 25-week one (19-25).
-const PLAYOFF_WINDOW_WEEKS = 7;
+// The final six weeks cover playoff starts from Week 18 onward. Week 17 is
+// Yahoo's All-Star matchup and belongs in the full schedule, not this view.
+const PLAYOFF_WINDOW_WEEKS = 6;
 
 const easternDate = (iso) => {
   // en-CA gives YYYY-MM-DD directly.
@@ -110,24 +118,36 @@ async function fetchTeam(espnId, tricode) {
 
 async function main() {
   const seasonLabel = `${SEASON_YEAR - 1}-${String(SEASON_YEAR).slice(2)}`;
-  console.log(`Building NBA ${seasonLabel} schedule from ESPN…\n`);
+  const twoWeekStarts = YAHOO_TWO_WEEK_STARTS[SEASON_YEAR];
+  if (!twoWeekStarts) {
+    throw new Error(`Yahoo game-week boundaries for ${seasonLabel} are not configured; check Yahoo /nba/gamedates`);
+  }
+  console.log(`Building NBA ${seasonLabel} schedule from ${FROM_EXISTING ? 'local schedule.json' : 'ESPN'}…\n`);
 
   const byDate = new Map(); // date → Set(tricode)
   const perTeam = {};
   const oddTipoffs = [];
 
-  for (const [espnId, tricode] of Object.entries(TEAMS)) {
-    const games = await fetchTeam(espnId, tricode);
-    perTeam[tricode] = games.length;
-    for (const g of games) {
-      if (!byDate.has(g.date)) byDate.set(g.date, new Set());
-      byDate.get(g.date).add(tricode);
-      // A tip before noon Eastern means ESPN has a placeholder time, which is
-      // the one case where the calendar date could be wrong.
-      if (g.hour < 12) oddTipoffs.push(`${g.date} ${g.name}`);
+  if (FROM_EXISTING) {
+    const existing = JSON.parse(fs.readFileSync(path.join(OUT_DIR, 'schedule.json'), 'utf8'));
+    for (const [date, teams] of Object.entries(existing)) {
+      byDate.set(date, new Set(teams));
+      for (const team of teams) perTeam[team] = (perTeam[team] || 0) + 1;
     }
-    process.stdout.write(`  ${tricode} ${String(games.length).padStart(2)} games\r`);
-    await new Promise((r) => setTimeout(r, 120)); // be polite
+  } else {
+    for (const [espnId, tricode] of Object.entries(TEAMS)) {
+      const games = await fetchTeam(espnId, tricode);
+      perTeam[tricode] = games.length;
+      for (const g of games) {
+        if (!byDate.has(g.date)) byDate.set(g.date, new Set());
+        byDate.get(g.date).add(tricode);
+        // A tip before noon Eastern means ESPN has a placeholder time, which is
+        // the one case where the calendar date could be wrong.
+        if (g.hour < 12) oddTipoffs.push(`${g.date} ${g.name}`);
+      }
+      process.stdout.write(`  ${tricode} ${String(games.length).padStart(2)} games\r`);
+      await new Promise((r) => setTimeout(r, 120)); // be polite
+    }
   }
 
   const dates = [...byDate.keys()].sort();
@@ -145,40 +165,16 @@ async function main() {
     rawWeeks.push({ start, end: addDays(start, 6) });
   }
 
-  // The All-Star break. Fantasy platforms do not give the stub week it creates
-  // its own number: Yahoo (and Hashtag Basketball, verified against their 2026-27
-  // grid) absorbs the week the break BEGINS in into the preceding week, so that
-  // week runs 14 days and every later week number shifts down by one.
-  //
-  // Getting this wrong is invisible in a schedule grid but silently breaks the
-  // playoff pages, where a league's championship weeks are given by number: a
-  // one-off numbering means the wrong dates and the wrong game counts.
-  // Only February gaps count. Until the NBA Cup bracket is set in December, the
-  // dates held for its knockout rounds sit empty and form the LONGEST hole in
-  // the calendar — an unqualified "longest gap" search picks that instead and
-  // merges two December weeks. The All-Star break is always mid-February.
-  const gameDays = new Set(dates);
-  let gap = { start: null, len: 0 };
-  let run = { start: null, len: 0 };
-  for (let d = dates[0]; d <= dates[dates.length - 1]; d = addDays(d, 1)) {
-    if (gameDays.has(d)) {
-      run = { start: null, len: 0 };
-    } else {
-      run = { start: run.start ?? d, len: run.len + 1 };
-      if (run.len > gap.len && run.start.slice(5, 7) === '02') gap = { ...run };
+  for (const start of twoWeekStarts) {
+    const i = rawWeeks.findIndex((wk) => wk.start === start);
+    if (i < 0 || !rawWeeks[i + 1] || rawWeeks[i + 1].start !== addDays(start, 7)) {
+      throw new Error(`Cannot merge Yahoo's two-week period beginning ${start}`);
     }
+    rawWeeks[i].end = rawWeeks[i + 1].end;
+    rawWeeks.splice(i + 1, 1);
   }
-
-  const ALL_STAR_MIN_GAP = 4; // days without games — longer than any normal lull
-  let mergedWeek = null;
-  if (gap.len >= ALL_STAR_MIN_GAP) {
-    const i = rawWeeks.findIndex((wk) => gap.start >= wk.start && gap.start <= wk.end);
-    if (i > 0) {
-      mergedWeek = { from: `${rawWeeks[i - 1].start}`, to: `${rawWeeks[i].end}`, index: i };
-      rawWeeks[i - 1].end = rawWeeks[i].end;
-      rawWeeks.splice(i, 1);
-    }
-  }
+  // Yahoo starts Week 1 on opening night, not on the preceding Monday.
+  rawWeeks[0].start = dates[0];
 
   const weeks = {};
   rawWeeks.forEach((wk, i) => {
@@ -197,14 +193,10 @@ async function main() {
   console.log(`  games per team: ${counts.join(' / ')}`);
   console.log(`  season: ${dates[0]} → ${dates[dates.length - 1]} (${dates.length} game days)`);
   console.log(`  weeks:  ${lastWeek} (${weeks[1].start} → ${weeks[lastWeek].end})`);
-  if (mergedWeek) {
-    console.log(
-      `  All-Star break ${gap.start} (+${gap.len}d): weeks ${mergedWeek.index} and ${mergedWeek.index + 1} ` +
-        `merged into W${mergedWeek.index} (${weeks[mergedWeek.index].label}) — later weeks shift down one`
-    );
-  } else {
-    console.log(`  no All-Star merge (longest gap ${gap.len} day(s))`);
-  }
+  console.log(`  Yahoo two-week periods: ${twoWeekStarts.map((start) => {
+    const week = Object.entries(weeks).find(([, value]) => value.start === start);
+    return `W${week[0]} ${week[1].label}`;
+  }).join('; ')}`);
   console.log(`  playoff-eligible weeks in playoffs.json: ${playoffStart}–${lastWeek}`);
 
   if (counts.some((c) => c !== 82)) {

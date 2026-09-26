@@ -34,9 +34,9 @@ export const STATS_SEASON = '2025-26';
 // ⚠️ When you flip this to 2026-27, fix getWeekFromDate/getCurrentWeek in
 // utils/supabase.js too. They compute a week as floor(daysSinceAnchor / 7) + 1,
 // which assumes every week is 7 days. That holds for 2025-26 but NOT for
-// 2026-27: Yahoo merges the All-Star-break stub into a single 14-day W17
-// (8-21 Feb 2027), so from W18 on those helpers would run one week ahead of
-// public/data/weeks.json. Read the week boundaries from weeks.json instead.
+// 2026-27: Yahoo has two 14-day matchups, NBA Cup W7 (Nov 30-Dec 13) and
+// All-Star W17 (Feb 15-28). From W8 onward, fixed seven-day math is wrong;
+// read the week boundaries from public/data/weeks.json instead.
 export const STATS_SEASON_START = '2025-10-20';
 
 // The season the guides, page titles and SEO copy are written for.

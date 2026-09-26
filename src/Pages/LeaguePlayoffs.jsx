@@ -31,13 +31,14 @@ import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase } from "../utils/supabase";
+import { DEFAULT_PLAYOFF_START_WEEK, playoffRoundCount, playoffStartOptions, playoffWeeksFor } from "../utils/playoffCalendar";
 
 const LeaguePlayoffs = () => {
   const { isAuthenticated } = useAuth();
   const { leagueTeams, leagueSettings } = useLeague();
 
   // ── State ───────────────────────────────────────────────────────
-  const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
+  const [playoffStartWeek, setPlayoffStartWeek] = useState(DEFAULT_PLAYOFF_START_WEEK);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
   const [playoffsData, setPlayoffsData] = useState(null);
   const [playerStats, setPlayerStats] = useState({});
@@ -130,10 +131,11 @@ const LeaguePlayoffs = () => {
 
   // ── Update playoff start week from league settings ──────────────
   useEffect(() => {
-    if (leagueSettings?.playoffStartWeek) {
-      setPlayoffStartWeek(parseInt(leagueSettings.playoffStartWeek, 10));
+    const leagueWeek = Number(leagueSettings?.playoffStartWeek);
+    if (playoffStartOptions(playoffsData?.weeks, playoffRoundCount(leagueSettings?.playoffTeams)).includes(leagueWeek)) {
+      setPlayoffStartWeek(leagueWeek);
     }
-  }, [leagueSettings]);
+  }, [leagueSettings, playoffsData]);
 
   // ── Initialize disabled players (lowest z-score if over roster limit) ──────────────────
   useEffect(() => {
@@ -288,28 +290,8 @@ const LeaguePlayoffs = () => {
 
   // ── Playoff weeks (defensive) ───────────────────────────────────
   const playoffWeeks = useMemo(() => {
-    if (!playoffsData || typeof playoffStartWeek !== "number") return [];
-
-    const weeks = [];
-    for (let i = 0; i < 3; i++) {
-      const weekNum = playoffStartWeek + i;
-      const weekData = playoffsData.weeks?.[weekNum];
-
-      if (
-        weekData &&
-        typeof weekData === "object" &&
-        weekData.start &&
-        weekData.end &&
-        weekData.label
-      ) {
-        weeks.push({
-          number: weekNum,
-          ...weekData,
-        });
-      }
-    }
-    return weeks;
-  }, [playoffsData, playoffStartWeek]);
+    return playoffWeeksFor(playoffsData?.weeks, playoffStartWeek, playoffRoundCount(leagueSettings?.playoffTeams));
+  }, [playoffsData, playoffStartWeek, leagueSettings?.playoffTeams]);
 
   // ── NBA team games ─────────────────────────────────────────────
   const nbaTeamGames = useMemo(() => {
@@ -538,8 +520,8 @@ const LeaguePlayoffs = () => {
             label="Playoff Start Week"
             onChange={handleWeekSelect}
           >
-            {[19, 20, 21, 22].map((n) => {
-              const isLeagueDefault = leagueSettings?.playoffStartWeek === n;
+            {playoffStartOptions(playoffsData?.weeks, playoffRoundCount(leagueSettings?.playoffTeams)).map((n) => {
+              const isLeagueDefault = Number(leagueSettings?.playoffStartWeek) === n;
               return (
                 <MenuItem key={n} value={n}>
                   W{n} ({playoffsData.weeks?.[n]?.label ?? ""})

@@ -32,13 +32,14 @@ import YahooConnect from "../components/YahooConnect";
 import { getGameCountStyle } from "../utils/gameCountStyle";
 import { CURRENT_GUIDE_SEASON } from "../config/guides-content";
 import { supabase } from "../utils/supabase";
+import { DEFAULT_PLAYOFF_START_WEEK, playoffRoundCount, playoffStartOptions, playoffWeeksFor } from "../utils/playoffCalendar";
 
 const MyLeaguePlayoffs = () => {
   const { isAuthenticated } = useAuth();
   const { leagueTeams, leagueSettings, isLoadingLeagueData } = useLeague();
 
   // ── State ───────────────────────────────────────────────────────
-  const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
+  const [playoffStartWeek, setPlayoffStartWeek] = useState(DEFAULT_PLAYOFF_START_WEEK);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
   const [playoffsData, setPlayoffsData] = useState(null);
   const [playerStats, setPlayerStats] = useState({});
@@ -129,10 +130,11 @@ const MyLeaguePlayoffs = () => {
 
   // ── Update playoff start week from league settings ──────────────
   useEffect(() => {
-    if (leagueSettings?.playoffStartWeek) {
-      setPlayoffStartWeek(parseInt(leagueSettings.playoffStartWeek, 10));
+    const leagueWeek = Number(leagueSettings?.playoffStartWeek);
+    if (playoffStartOptions(playoffsData?.weeks, playoffRoundCount(leagueSettings?.playoffTeams)).includes(leagueWeek)) {
+      setPlayoffStartWeek(leagueWeek);
     }
-  }, [leagueSettings]);
+  }, [leagueSettings, playoffsData]);
 
   // ── Initialize disabled players (lowest z-score if over roster limit) ──────────────────
   useEffect(() => {
@@ -276,28 +278,8 @@ const MyLeaguePlayoffs = () => {
 
   // ── Playoff weeks ───────────────────────────────────────────────
   const playoffWeeks = useMemo(() => {
-    if (!playoffsData || typeof playoffStartWeek !== "number") return [];
-
-    const weeks = [];
-    for (let i = 0; i < 3; i++) {
-      const weekNum = playoffStartWeek + i;
-      const weekData = playoffsData.weeks?.[weekNum];
-
-      if (
-        weekData &&
-        typeof weekData === "object" &&
-        weekData.start &&
-        weekData.end &&
-        weekData.label
-      ) {
-        weeks.push({
-          number: weekNum,
-          ...weekData,
-        });
-      }
-    }
-    return weeks;
-  }, [playoffsData, playoffStartWeek]);
+    return playoffWeeksFor(playoffsData?.weeks, playoffStartWeek, playoffRoundCount(leagueSettings?.playoffTeams));
+  }, [playoffsData, playoffStartWeek, leagueSettings?.playoffTeams]);
 
   // ── Fantasy team data ──────────────────────────────────────────
   const fantasyTeamData = useMemo(() => {
@@ -499,8 +481,8 @@ const MyLeaguePlayoffs = () => {
             label="Playoff Start Week"
             onChange={handleWeekSelect}
           >
-            {[19, 20, 21, 22].map((n) => {
-              const isLeagueDefault = leagueSettings?.playoffStartWeek === n;
+            {playoffStartOptions(playoffsData?.weeks, playoffRoundCount(leagueSettings?.playoffTeams)).map((n) => {
+              const isLeagueDefault = Number(leagueSettings?.playoffStartWeek) === n;
               return (
                 <MenuItem key={n} value={n}>
                   W{n} ({playoffsData.weeks?.[n]?.label ?? ""})
@@ -846,4 +828,3 @@ const MyLeaguePlayoffs = () => {
 };
 
 export default MyLeaguePlayoffs;
-

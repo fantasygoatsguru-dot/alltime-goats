@@ -28,6 +28,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase } from "../utils/supabase";
+import { DEFAULT_PLAYOFF_START_WEEK, playoffRoundCount, playoffStartOptions, playoffWeeksFor } from "../utils/playoffCalendar";
 
 const YAHOO_BLUE = "#4a90e2";
 const YAHOO_BLUE_LIGHT = "#80deea";
@@ -56,7 +57,7 @@ const NBAPlayoffs = () => {
   const { isAuthenticated } = useAuth();
   const { leagueTeams, leagueSettings, isLoadingLeagueData } = useLeague();
 
-  const [playoffStartWeek, setPlayoffStartWeek] = useState(19);
+  const [playoffStartWeek, setPlayoffStartWeek] = useState(DEFAULT_PLAYOFF_START_WEEK);
   const [nbaTeamSchedule, setNbaTeamSchedule] = useState({});
   const [playoffsData, setPlayoffsData] = useState(null);
   const [sortConfig, setSortConfig] = useState({
@@ -91,10 +92,11 @@ const NBAPlayoffs = () => {
 
   // ── Update playoff start week from league settings ──────────────
   useEffect(() => {
-    if (leagueSettings?.playoffStartWeek) {
-      setPlayoffStartWeek(parseInt(leagueSettings.playoffStartWeek, 10));
+    const leagueWeek = Number(leagueSettings?.playoffStartWeek);
+    if (playoffStartOptions(playoffsData?.weeks, playoffRoundCount(leagueSettings?.playoffTeams)).includes(leagueWeek)) {
+      setPlayoffStartWeek(leagueWeek);
     }
-  }, [leagueSettings]);
+  }, [leagueSettings, playoffsData]);
 
   // League loading comes from the context, which reports when the Yahoo fetch
   // has SETTLED. Deriving it here from `leagueTeams.length > 0` used to hang the
@@ -103,14 +105,8 @@ const NBAPlayoffs = () => {
 
   // ── Playoff weeks ────────────────────────────────────────────────
   const playoffWeeks = useMemo(() => {
-    if (!playoffsData) return [];
-    return [playoffStartWeek, playoffStartWeek + 1, playoffStartWeek + 2]
-      .map((num) => {
-        const week = playoffsData.weeks?.[num];
-        return week ? { number: num, ...week } : null;
-      })
-      .filter(Boolean);
-  }, [playoffsData, playoffStartWeek]);
+    return playoffWeeksFor(playoffsData?.weeks, playoffStartWeek, playoffRoundCount(leagueSettings?.playoffTeams));
+  }, [playoffsData, playoffStartWeek, leagueSettings?.playoffTeams]);
 
   const parseEasternDate = (dateStr) =>
     new Date(dateStr + "T00:00:00-05:00");
@@ -338,17 +334,17 @@ const NBAPlayoffs = () => {
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 }, flexWrap: "wrap" }}>
         <FormControl sx={{ minWidth: { xs: 180, sm: 220 } }}>
-          <InputLabel>Championship Start Week</InputLabel>
+          <InputLabel>Playoff Start Week</InputLabel>
           <Select
             value={playoffStartWeek}
-            label="Championship Start Week"
+            label="Playoff Start Week"
             onChange={(e) => setPlayoffStartWeek(+e.target.value)}
           >
-            {[19, 20, 21, 22].map((n) => {
-              const isLeagueDefault = leagueSettings?.playoffStartWeek === n;
+            {playoffStartOptions(playoffsData?.weeks, playoffRoundCount(leagueSettings?.playoffTeams)).map((n) => {
+              const isLeagueDefault = Number(leagueSettings?.playoffStartWeek) === n;
               return (
                 <MenuItem key={n} value={n}>
-                  Week {n}
+                  Week {n} ({playoffsData.weeks[n].label})
                   {isLeagueDefault && (
                     <Chip
                       label="League Setting"
