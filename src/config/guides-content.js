@@ -328,7 +328,7 @@ export const guides = [
     // moment rather than during it.
     requiresLogin: true,
     tagline:
-      'Fifteen players whose projected 9-category value sits well above what they will cost you on draft day.',
+      'Fifteen players whose 2026-27 draft ranks beat their September Yahoo ADP, from early guards to late category values.',
     strengths: [],
     weaknesses: [],
 
@@ -354,7 +354,7 @@ export const guides = [
       previewRows: 2,
       heading: 'The sleepers',
       lead:
-        "Each name below costs less than it should, with the argument and last season's real line attached. Prices are the range these players typically go in a twelve-team league — adjust to what you actually see on the clock.",
+        "Each name has a projected rank ahead of Yahoo ADP in the September 26 snapshot. The cards show ADP, Yahoo pre-rank, our rank and the corrected 2025-26 line; check the live draft room before acting.",
     },
 
     sections: [
@@ -362,23 +362,23 @@ export const guides = [
         id: 'strategy',
         heading: 'What a sleeper actually is',
         body: [
-          "A sleeper is not a player nobody has heard of. It is a player whose projected nine-category value sits materially above what he will cost you, and in category leagues that gap almost always comes from the same three places: minutes that are about to grow, a scarce category supplied cheaply, or production the market is still discounting as a fluke.",
-          "The second of those is the one most drafters underrate. Points are everywhere; blocks, steals and free-throw percentage are not. A bench big who blocks 1.9 shots in 21 minutes moves a category you cannot otherwise buy after round eight, and he does it at no draft cost. That is a bigger edge than a mid-round scorer who adds four points a night to a column you were already winning.",
+          "A sleeper is a player whose projected value exceeds the price at which Yahoo drafts are taking him. That can happen in round two as easily as round ten. The comparison here is between our 2026-27 rank, Yahoo ADP and Yahoo's public pre-rank; last season's category line and current role explain whether the gap is worth buying.",
+          "Some gaps reflect healthy skepticism about missed games or a crowded rotation. Others persist because draft rooms lag behind a player's changed role or overlook categories such as steals, blocks and low turnovers. The notes identify the risk instead of treating every gap as a guaranteed bargain.",
         ],
       },
       {
         id: 'draft',
         heading: 'How to use this list',
         body: [
-          "Do not reach. The entire point of a sleeper is the discount, and taking one two rounds early destroys the thing that made him valuable. Keep the list open as a queue: when your pick arrives and nobody on the main board is clearly better, take the sleeper whose best category is the one your roster is closest to losing.",
-          "Expect a third of them to miss. Sleeper picks are cheap precisely because they carry role risk, and a list where every name hits is a list that was too conservative to be useful. The correct way to hold them is loosely — draft two or three, give them until Thanksgiving, and drop the ones whose minutes never arrived.",
+          "Target the Yahoo price shown on each card, adjusting to your room. Jamal Murray and Austin Reaves are early-round value calls; Jalen Suggs and Reed Sheppard are later category bets. Reaching to our rank erases much of the edge. Compare the player's best categories with the roster you have already built.",
+          "Spread role and injury risk across your picks. A roster can carry one health gamble more easily than several, and a late-round breakout candidate is easier to replace if the minutes never arrive. Revisit the case during camp when rotations become clearer.",
         ],
       },
       {
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          "It is a projection of a season that has not been played, and the biggest single input to a sleeper — the depth chart he is standing in — is also the thing most likely to change between now and opening night. A signing or a trade can erase any of these cases overnight, so check the current roster before you draft, and treat the price ranges as approximations rather than market data.",
+          "The Yahoo ADP and pre-rank values are a September 26, 2026 snapshot, not live prices. Camp injuries, trades and role decisions can close a value gap quickly. The 2025-26 stat line is historical evidence; our rank is a forward projection.",
         ],
       },
     ],
@@ -390,11 +390,11 @@ export const guides = [
       },
       {
         q: 'How many sleepers should I actually draft?',
-        a: 'Two or three in the last five rounds. They are lottery tickets with good odds, not roster foundations, and a team built mostly out of them has no floor.',
+        a: 'Take value where your room offers it. Several names here are early-round targets, while later options carry more role risk. Avoid stacking multiple injury or minutes bets in the same draft.',
       },
       {
-        q: 'Why are there so many bench players here?',
-        a: 'Because per-minute production is the most reliable predictor of what happens when minutes arrive, and it is systematically underpriced. A player producing at a top-40 rate in 22 minutes is one rotation change from being a top-40 player.',
+        q: 'Why does Yahoo pre-rank sometimes disagree with ADP?',
+        a: 'Pre-rank is Yahoo’s ordering; ADP measures where people actually draft. When the two diverge, the price you can usually pay is ADP, while pre-rank helps reveal what the platform already recognizes.',
       },
     ],
   },
@@ -410,7 +410,7 @@ export const guides = [
     // Freemium, same reasoning as the sleepers list above.
     requiresLogin: true,
     tagline:
-      'Twelve players who will not return their draft price in 9-cat — and exactly which column gives the value back.',
+      'Twelve 2026-27 nine-category price fades where Yahoo ADP sits ahead of our projected rank, even after build fit.',
     strengths: [],
     weaknesses: [],
 
@@ -427,7 +427,7 @@ export const guides = [
       previewRows: 2,
       heading: 'The busts',
       lead:
-        "Every player below is good at basketball. That is not the question — the question is whether the nine-category production justifies the pick, and for each of these it does not at the price listed.",
+        "These are price objections, not predictions that good NBA players will fail. Each card compares September Yahoo ADP and pre-rank with our 2026-27 rank, then explains the category, role or availability risk behind the gap.",
     },
 
     sections: [
@@ -435,23 +435,23 @@ export const guides = [
         id: 'strategy',
         heading: 'What "bust" means here',
         body: [
-          "It does not mean the player will be bad. It means his nine-category value will not cover what you paid, which is a different claim and a much more common one. Almost every name below will look perfectly good in a box score and still cost you the round you spent on him.",
-          "Three patterns account for nearly all of them. The first is the hidden negative: a free-throw or field-goal percentage bad enough, on enough volume, to hand back most of what the player wins elsewhere. The second is the empty average — scoring volume with no rebounds, assists or defensive stats attached, which reads as stardom and grades as a fourth-rounder. The third is availability: elite per-game production over 40 games is not elite production, and a draft price does not come with a refund for the missing nights.",
+          "A bust here is a player whose current draft price requires a better 2026-27 outcome than we are willing to project. The list includes stars who may still produce excellent stretches. The question is whether those stretches cover the pick you must spend to acquire them.",
+          "These cases are driven by different risks: a high-volume percentage penalty, a new team with less available usage, a thin category line, or too few recent games to support the market price. Some players already receive a punt-friendly rank on our Top 150 and are still going too early on Yahoo.",
         ],
       },
       {
         id: 'draft',
         heading: 'How to use this list',
         body: [
-          "Read it as a price list, not a blacklist. Several of these players are excellent picks two or three rounds later than they are going, and a few are outright bargains inside the right build — the write-ups say which. The mistake is not owning them; it is paying the consensus price for them.",
-          "The exception worth internalising is the punt case. A player whose only real flaw is free-throw percentage stops being a bust the moment you decide to concede that column, and the same is true for field-goal percentage. If you are committed to a build, take the matching punt guide's board over this list — it re-ranks these players with the offending column removed.",
+          "Read the tag as the round where the price becomes easier to defend in a standard twelve-team league. A bust at Yahoo ADP can be a useful pick if your room lets him fall. Check the card's Yahoo pre-rank as well: it can differ sharply from where managers actually draft.",
+          "A punt can help, but it does not fix missed games or a lost role. Our Top 150 already prices selected punt-dependent players for a likely build; the bust call is based on Yahoo ADP being higher still. Use the matching punt guide when you know your team's category plan.",
         ],
       },
       {
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          "Draft prices move, and a player who is a bust at pick 20 is a fine pick at pick 40. The ranges here are estimates of where these players typically go in a twelve-team league, not live market data — if the room lets one of them fall far enough, the objection disappears. Offseason moves and camp reports can also change a usage projection completely, so check both before you cross a name off.",
+          "Yahoo ADP and pre-rank are a September 26, 2026 snapshot, not live market data. A falling ADP can erase a bust case, while camp news can change a role or health assumption. The cards show corrected 2025-26 results beneath forward-looking analysis.",
         ],
       },
     ],
@@ -459,15 +459,15 @@ export const guides = [
     faqs: [
       {
         q: 'Are you saying these players are bad?',
-        a: 'No. Every one of them is a good NBA player and several are stars. The claim is narrower: at their current draft price, the nine-category production does not pay for the pick.',
+        a: 'No. The claim is about value at the September Yahoo ADP. A player can have a strong season and still return less than the pick costs.',
       },
       {
-        q: 'Why do so many of these have free-throw percentage problems?',
-        a: 'Because free-throw percentage is weighted by volume, and a poor shooter who takes six attempts a night does far more damage than the raw percentage suggests. It is the most commonly underestimated negative in category leagues.',
+        q: 'Why can a punt-friendly player still be a bust?',
+        a: 'The Top 150 already prices selected specialists for their likely punt build. A player remains a bust candidate when Yahoo ADP is higher than that favorable rank or when health and role risks still make the price too aggressive.',
       },
       {
         q: 'What if one of these players falls to me late?',
-        a: 'Take him. Every bust case here is a price objection, and the price falling is the fix. The write-ups name the round where each becomes reasonable value.',
+        a: 'Compare his new price with the wait-until round and your roster fit. Every bust case here is a price objection, so a large enough fall can make him a good pick.',
       },
     ],
   },
