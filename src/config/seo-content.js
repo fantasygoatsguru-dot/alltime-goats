@@ -14,7 +14,7 @@ import { guideBySlug, guideAccess } from './guides-content.js';
 // It emits ONLY what a logged-out visitor reads, never a locked remainder:
 // showing a crawler content a visitor cannot see is cloaking. freeLimit is read
 // from guides-content.js rather than copied, so the two can never disagree —
-// both lists are currently ungated there, which means the whole list ships.
+// both lists currently have a free preview and a free-account remainder.
 const esc = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -43,7 +43,10 @@ const rosterBlock = (slug, players) => {
     .map(
       (p) =>
         `<li><strong>${esc(p.name)}</strong>${p.team ? ` (${esc(p.team)})` : ''}` +
-        `${p.tag ? ` — ${esc(p.tag)}` : ''}. ${esc(p.note)}</li>`
+        `${p.tag ? ` — ${esc(p.tag)}` : ''}` +
+        `${Number.isFinite(p.yahooAdp) ? `; Yahoo ADP ${p.yahooAdp.toFixed(1)}` : ''}` +
+        `${Number.isFinite(p.yahooPreRank) ? `; Yahoo pre-rank ${p.yahooPreRank}` : ''}` +
+        `${Number.isFinite(p.boardRank) ? `; our rank ${p.boardRank}` : ''}. ${esc(p.note)}</li>`
     )
     .join('\n        ');
 
@@ -260,13 +263,11 @@ export const SEO_CONTENT = {
   '/guides/sleepers': {
     title: 'Fantasy Basketball Sleepers 2026-27',
     content: `
-      <p>A fantasy basketball sleeper is not a player nobody has heard of. It is a player whose projected nine-category value sits materially above what he will cost you on draft day, and that gap almost always comes from one of three places: minutes that are about to grow, a scarce category supplied cheaply, or production the market is still discounting as a fluke.</p>
+      <p>These 2026-27 sleepers are players whose projected draft rank sits ahead of where Yahoo managers have been selecting them. The comparison uses Yahoo ADP and public pre-rank from September 26, 2026, and the corrected 2025-26 season line beneath each player note. A sleeper can be a second-round guard or a late category specialist; the value comes from the price gap.</p>
 
-      <p>Category scarcity is the most underrated of the three. Points are everywhere; blocks, steals and free throw percentage are not. A bench center blocking nearly two shots in twenty minutes moves a category you cannot otherwise buy after round eight, and he does it at almost no draft cost — a bigger edge than a mid-round scorer adding four points a night to a column you were already winning.</p>
+      <p>Some discounts reflect missed games or a changing depth chart. Others come from a category line the market has yet to price fully, such as steals with assists or blocks from a guard. Each write-up explains the upside and the risk that could close the gap.</p>
 
-      <p>Each sleeper below carries the full case for why the price is wrong, plus his real per-game line from last season. Per-minute production is the most reliable predictor of what happens when minutes arrive, which is why efficient young bigs and high-steal guards on crowded rosters dominate this kind of list.</p>
-
-      <p>Draft two or three sleepers in the last five rounds rather than reaching for them early — the discount is the entire point. Compare each player with the <a href="/guides/top-150">2026-27 projected top 150</a>, refreshed with corrected 2025-26 category value, check the <a href="/guides/busts">busts list</a> for the picks to avoid at the same cost, and use the <a href="/rankings">rankings tool</a> to track their production once the season starts.</p>
+      <p>Compare the <a href="/guides/top-150">2026-27 Top 150</a> with the current <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">Yahoo ADP</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/public_prerank">public pre-rank</a> when you draft. Do not reach all the way to our projected rank and give back the discount. Pair these targets with the <a href="/guides/busts">busts list</a> and your roster's category needs.</p>
     ${rosterBlock('sleepers', SLEEPERS)}
     `,
     keywords: ['fantasy basketball sleepers', 'fantasy basketball sleepers 2026-27', 'undervalued fantasy basketball players', 'late round picks', 'fantasy basketball breakouts', 'draft value picks']
@@ -275,13 +276,11 @@ export const SEO_CONTENT = {
   '/guides/busts': {
     title: 'Fantasy Basketball Busts 2026-27',
     content: `
-      <p>A fantasy basketball bust is rarely a bad player. It is a good player whose nine-category production will not cover what you paid for him, which is a different claim and a far more common one. Almost every name on this list will look fine in a box score and still cost you the round you spent on him.</p>
+      <p>These bust calls are objections to a draft price. They compare our 2026-27 nine-category ranking with Yahoo ADP and public pre-rank from September 26, 2026. The cards also show each player's corrected 2025-26 line, so the historical evidence stays separate from the forward projection.</p>
 
-      <p>Three patterns account for nearly all of them. The first is the hidden negative — a free throw or field goal percentage bad enough, on enough volume, to hand back most of what the player wins elsewhere. The second is the empty average: scoring volume with no rebounds, assists or defensive stats attached, which reads as stardom and grades as a fourth-round profile. The third is availability, because elite per-game production across forty games is not elite production, and a draft pick does not come with a refund for the missing nights.</p>
+      <p>A pick can be overpriced because a new teammate changes his usage, because a percentage penalty is larger than the box score suggests, or because a short recent season makes the healthy projection too expensive. Several players here already receive a favorable punt-build price in our <a href="/guides/top-150">Top 150</a> and still go too early in Yahoo drafts.</p>
 
-      <p>Read this list as a price list rather than a blacklist. Several of these players are excellent picks two or three rounds later than they are going, and a few become outright bargains inside the right build — a player whose only flaw is free throw percentage stops being a bust the moment you decide to punt that category.</p>
-
-      <p>Every entry names the specific column that gives the value back, along with the player's actual production from last season. Pair it with the <a href="/guides/top-150">2026-27 projected top 150, refreshed with corrected 2025-26 stats</a>, the <a href="/guides/sleepers">sleepers list</a> for the picks worth making at that cost, and the punt <a href="/guides">strategy guides</a> for the builds that turn these flaws into features.</p>
+      <p>Use the wait-until round on each card as a price guide in a twelve-team league, not a ban on drafting the player. Check the <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> before your draft; a fall can erase the objection. The <a href="/guides/sleepers">sleepers list</a> highlights better buys, and the <a href="/guides">punt guides</a> help decide whether a category weakness fits your team.</p>
     ${rosterBlock('busts', BUSTS)}
     `,
     keywords: ['fantasy basketball busts', 'fantasy basketball busts 2026-27', 'players to avoid fantasy basketball', 'overvalued players', 'fantasy basketball draft mistakes', 'adp value']

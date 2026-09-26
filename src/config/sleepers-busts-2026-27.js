@@ -17,7 +17,7 @@ export const SLEEPERS = [
   {
     name: 'Trey Murphy III', team: 'NOP', tag: 'Round 3–4 target',
     yahooAdp: 40.1, yahooPreRank: 21, boardRank: 24,
-    note: "Murphy is going near the fourth-round turn even though his 21.5 points, 3.2 threes and 1.5 steals solve three scarce categories at once. He also shot 47.0% from the field and 88.6% from the line, making him easier to pair with a high-usage guard than most volume shooters. New Orleans has other scorers, but this line did not depend on one injured teammate absorbing all the shots. Yahoo ranks him 21st before the draft; the ADP near 40 is the opportunity.",
+    note: "Murphy is going near the fourth-round turn even though his 21.5 points, 3.2 threes and 1.5 steals solve three scarce categories at once. He also shot 47.0% from the field and 88.6% from the line, making him easier to pair with a high-usage guard than most volume shooters. His 5.7 rebounds give him a little more insulation when the three-point shot is quiet. Yahoo ranks him 21st before the draft; the ADP near 40 is the opportunity.",
   },
   {
     name: 'Derrick White', team: 'BOS', tag: 'Round 4 target',
@@ -42,7 +42,7 @@ export const SLEEPERS = [
   {
     name: 'Onyeka Okongwu', team: 'ATL', tag: 'Round 5 target',
     yahooAdp: 54.7, yahooPreRank: 36, boardRank: 37,
-    note: "Okongwu's 1.9 threes, 7.6 rebounds, 1.1 steals and 1.1 blocks give a center production that usually requires two roster slots. He played 74 games, so this is a real season-long role rather than a short stretch of per-minute promise. His 75.7% free throws and 48.0% FG keep him from being a percentage anchor, but the category coverage is worth more than a fifth-round pick. Yahoo pre-ranks him 36th; the draft room is still buying the old backup label.",
+    note: "Okongwu's 1.9 threes, 7.6 rebounds, 1.1 steals and 1.1 blocks give you a combination that usually requires two roster slots. He played 74 games, so this is a real season-long role rather than a short stretch of per-minute promise. His 75.7% free throws and 48.0% FG keep him from being a percentage anchor, but the category coverage is worth more than a fifth-round pick. Yahoo pre-ranks him 36th; the draft room is still buying the old backup label.",
   },
   {
     name: 'Desmond Bane', team: 'ORL', tag: 'Round 5 target',
