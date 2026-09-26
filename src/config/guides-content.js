@@ -227,13 +227,13 @@ export const guides = [
   {
     slug: 'top-150',
     type: 'rankings',
-    puntKey: null, // no punt — every category counts, hence "pure"
+    puntKey: null, // general draft board; punt-dependent players use their likely build price
     title: 'Top 150',
     season: CURRENT_GUIDE_SEASON,
     difficulty: 'Beginner',
     isPremium: false, // free & indexable — the draft-season lead magnet
     tagline:
-      '2026-27 9-category projections refreshed with corrected 2025-26 results. No punt, no positional fudging — 150 players, each with the reasoning behind his rank.',
+      '2026-27 nine-category draft ranks refreshed with corrected 2025-26 results. Punt-dependent players are priced for the build most likely to draft them.',
     strengths: [],
     weaknesses: [],
 
@@ -254,15 +254,15 @@ export const guides = [
         id: 'strategy',
         heading: 'What this ranking is',
         body: [
-          "Every other guide in this section throws a category away on purpose. This one counts all nine: points, threes, rebounds, assists, steals, blocks, field-goal percentage, free-throw percentage and turnovers. The order projects 2026-27 category value from corrected past production and current player context. It is an editorial ranking, not a simulated 2026-27 stat line.",
-          "That makes it the honest baseline. A top 150 tells you what each player is worth before you have committed to a build, which is exactly the information you need in the opening rounds when your team still has no identity. Once you know what everyone costs in raw value, choosing to give a category away becomes a decision you make with your eyes open rather than one the draft makes for you.",
+          "This is a nine-category draft board: points, threes, rebounds, assists, steals, blocks, field-goal percentage, free-throw percentage and turnovers all matter. Most players are placed for their projected overall value. For a player whose realistic drafter will punt a category, the rank reflects what that build can pay. The order is an editorial 2026-27 projection, not a simulated stat line.",
+          "Giannis is the clearest example. His free throws pull down a balanced nine-category valuation, but a manager drafting him in the first round is almost certainly building around that weakness. Read his rank as a punt-FT% price. The player notes identify similar cases and explain when a balanced roster should wait longer.",
         ],
       },
       {
         id: 'method',
         heading: 'How the projection was built',
         body: [
-          "The baseline is corrected 2025-26 nine-category production from the same database that powers the rankings tool. I combined that value with Yahoo's standard public pre-rank, projected-season rank, current ADP and the previous 2026-27 projection. I then adjusted the order for minutes, usage, age, injury recovery and verified team moves. Yahoo prices help show the market; they are not forecasts of fantasy value.",
+          "The baseline is corrected 2025-26 nine-category production from the same database that powers the rankings tool. I combined that value with Yahoo's standard public pre-rank, projected-season rank, current ADP and the previous 2026-27 projection. I then adjusted for minutes, usage, age, injury recovery, verified team moves and the best realistic punt fit for build-dependent players. Yahoo prices show the market; they are not forecasts of fantasy value.",
           "Field-goal and free-throw impact use makes and attempts, not percentage alone. Turnovers count too, so a high-volume creator can be valuable in points and assists while costing you a category. Each player's note names the season behind its exact numbers; the rank itself is the forward-looking call.",
           "Availability changes the order. A strong per-game line in a short season can still make a good pick, but the cost of missed games belongs in the draft decision. Players without a 2025-26 line use their earlier production with a larger uncertainty discount.",
         ],
@@ -272,8 +272,8 @@ export const guides = [
         heading: 'How to actually use it on draft day',
         body: [
           "Compare this projected rank with Yahoo ADP and pre-rank. A large gap can reveal a useful price, but check the player note before treating it as a bargain: health, a new team or a role change may explain the difference. ADP can move during camp, so the linked Yahoo pages are the source for the current draft room.",
-          "As your roster takes shape, use category fit alongside the overall order. A slightly lower-ranked player who supplies a category you can realistically win may help more than a duplicate source of points or threes.",
-          "The moment you know which category you are conceding, switch to the matching punt guide. Its board re-ranks the entire league with that column removed from the maths, and the ordering changes more than you would expect — that reshuffle is your real draft board for the rest of the night. Several players ranked in the eighties here are top-40 assets inside the right build, and the write-ups below say so where it applies.",
+          "As your roster takes shape, use category fit alongside the order. A punt-dependent player may be placed at his best-build price here; take him later if you are trying to win the category he gives away. A slightly lower-ranked player who supplies a category you can realistically win may help more than a duplicate source of points or threes.",
+          "Once you know which category you are conceding, use the matching punt guide for the rest of the board. It removes that category from every player's calculation, which is more precise than this single list's selected build adjustments.",
         ],
       },
       {
@@ -293,11 +293,11 @@ export const guides = [
       },
       {
         q: 'Should I just draft straight down this list?',
-        a: 'Use the order as a value baseline, then compare it with Yahoo ADP, your available players and the categories your roster needs. A projected bargain only matters if he is still available at that price.',
+        a: 'Use the order with Yahoo ADP and your roster needs. Punt-dependent players are placed at a price their best build can justify; take them later if you are trying to win the category they give away.',
       },
       {
         q: 'Why is a big scorer ranked below a player who averages far fewer points?',
-        a: 'All nine categories count. A scorer may give value back through turnovers or shooting impact, while another player can add steals, blocks or efficient volume. The ranking weighs the whole category profile and expected availability.',
+        a: 'The ranking weighs the whole category profile, expected availability and, for build-dependent players, the price a likely punt team can justify. A scorer may give value back through turnovers or shooting impact, while another player adds steals, blocks or efficient volume.',
       },
       {
         q: 'Does this work for 8-cat leagues?',

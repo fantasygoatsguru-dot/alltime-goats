@@ -239,6 +239,10 @@ export default function Guide({ onRequireSignIn }) {
                     <strong style={{ color: '#8fb4ff' }}>value against draft price</strong>, scored across all nine
                     categories.
                   </>
+                ) : guide.slug === 'top-150' ? (
+                  <>
+                    <strong style={{ color: '#8fb4ff' }}>nine-category draft value</strong>, with punt-dependent players priced for their best build.
+                  </>
                 ) : (
                   <>
                     no punt, all <strong style={{ color: '#8fb4ff' }}>nine categories</strong> weighted equally.
