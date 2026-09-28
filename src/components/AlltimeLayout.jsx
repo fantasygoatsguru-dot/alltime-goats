@@ -60,6 +60,8 @@ import { LeagueProvider } from '../contexts/LeagueContext';
 import { supabase } from '../utils/supabase';
 import ReassuringLoader from './ReassuringLoader';
 import SEOContent from './SEOContent';
+import AdSlot from './AdSlot';
+import { AD_SLOTS, DISPLAY_AD_PATHS } from '../config/ads';
 import AuthModal from './AuthModal';
 
 // === ICON WRAPPER FOR RESPONSIVE SIZING ===
@@ -412,6 +414,11 @@ const AlltimeLayout = () => {
   const displayName = userProfile?.name || user?.name || 'User';
   const displayPicture = userProfile?.profile_picture || user?.profilePicture;
   const isPremium = hasPass('season');
+  const showDisplayAd = DISPLAY_AD_PATHS.some((path) =>
+    path.endsWith('*')
+      ? location.pathname.startsWith(path.slice(0, -1))
+      : location.pathname === path
+  );
 
   useEffect(() => {
     const fetchUserLeagues = async () => {
@@ -1384,6 +1391,11 @@ const AlltimeLayout = () => {
             leagueSettings={leagueSettings}
             isLoadingLeagueData={isLoadingLeagueData}
           >
+            {showDisplayAd && (
+              <Container maxWidth="lg">
+                <AdSlot slot={AD_SLOTS.siteDisplay} format="horizontal" minHeight={90} sx={{ my: 2 }} />
+              </Container>
+            )}
             {renderContent()}
             <SEOContent />
           </LeagueProvider>

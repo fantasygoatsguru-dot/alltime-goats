@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, Button, CircularProgress, Chip } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { Box, Typography, CircularProgress, Chip } from '@mui/material';
 import { ROUNDS, PLAYERS, PRIOR_SEASON } from '../config/top-150-2026-27';
 import { usePriorSeasonStats } from '../hooks/usePriorSeasonStats';
 import PlayerNoteCard from './PlayerNoteCard';
-import { GATED_CLASS } from '../config/guides-content';
 
 function RoundHeader({ round, lastPick }) {
   return (
@@ -32,9 +30,6 @@ function RoundHeader({ round, lastPick }) {
  * pulled live from the database and grouped
  * into rounds of a 12-team draft.
  *
- * Rows past `freeLimit` are omitted for signed-out readers. A free account
- * unlocks the full board.
- *
  * `renderInterstitial` is an optional node factory dropped between rounds — the
  * caller uses it for an ad. It is deliberately a prop rather than an import:
  * this component knows where its natural breaks are, and the guide page knows
@@ -46,9 +41,6 @@ export default function ProjectionList({
   players = PLAYERS,
   rounds = ROUNDS,
   priorSeason = PRIOR_SEASON,
-  freeLimit = 50,
-  unlocked = false,
-  onRequireSignIn,
   renderInterstitial,
 }) {
   const { statsFor, loading } = usePriorSeasonStats(priorSeason);
@@ -74,47 +66,21 @@ export default function ProjectionList({
     );
   }
 
-  const gated = !unlocked && Number.isFinite(freeLimit);
-  const visibleTo = gated ? freeLimit : players.length;
-  const remaining = gated ? players.filter((p) => p.rank > freeLimit).length : 0;
-
   return (
     <Box>
-      {grouped.map(({ round, players: roundPlayers }, gi) => {
-        const free = roundPlayers.filter((p) => p.rank <= visibleTo);
-        if (!free.length) return null;
-        return (
-          <Box key={round.id}>
-            {/* Between rounds only — never above the first, which would put an
-                ad between the board's own lead paragraph and its first pick. */}
-            {gi > 0 && renderInterstitial?.(gi)}
-            <RoundHeader round={round} lastPick={visibleTo} />
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              {free.map((p) => (
-                <PlayerNoteCard key={p.rank} player={p} prior={statsFor(p.name)} />
-              ))}
-            </Box>
+      {grouped.map(({ round, players: roundPlayers }, gi) => (
+        <Box key={round.id}>
+          {/* Between rounds only — never above the first, which would put an
+              ad between the board's own lead paragraph and its first pick. */}
+          {gi > 0 && renderInterstitial?.(gi)}
+          <RoundHeader round={round} lastPick={players.length} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {roundPlayers.map((p) => (
+              <PlayerNoteCard key={p.rank} player={p} prior={statsFor(p.name)} />
+            ))}
           </Box>
-        );
-      })}
-
-      {remaining > 0 && (
-        <Box className={GATED_CLASS} sx={{ mt: 3, py: 4, px: 3, textAlign: 'center', bgcolor: '#fff', borderRadius: 2, border: '1px solid #dfe5ee' }}>
-          <LockOutlinedIcon sx={{ color: '#0f2340', fontSize: 28, mb: 1 }} />
-          <Typography sx={{ fontWeight: 800, color: '#0f2340', fontSize: '1.02rem' }}>
-            {remaining} more ranks, with a write-up for every player
-          </Typography>
-          <Typography sx={{ color: '#667', fontSize: '0.85rem', mt: 1 }}>
-            The top {freeLimit} are public. Sign in with a free account to see the full Top 150.
-          </Typography>
-          <Button
-            onClick={() => onRequireSignIn?.()}
-            sx={{ mt: 2, textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
-          >
-            Sign in to see all 150 — free
-          </Button>
         </Box>
-      )}
+      ))}
     </Box>
   );
 }

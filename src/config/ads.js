@@ -18,7 +18,7 @@ export const AD_SLOTS = {
   // serve any number of positions. Split it only if you want per-position
   // numbers in AdSense reporting, which needs one unit per position.
   guideInArticle: '3231344124',
-  stickyBottom: '9841609221', // "sticky-bottom"  — the anchored bottom banner
+  siteDisplay: '9841609221', // Existing "sticky-bottom" display unit, now placed in page flow
 
   // "guide-inline-1" — the plain display block that used to sit mid-guide,
   // replaced by guideInArticle above. Kept only so the id is documented if it
@@ -27,13 +27,10 @@ export const AD_SLOTS = {
   guideInline: '2980687407',
 };
 
-// Pages the sticky banner may appear on. Deliberately excludes the Yahoo tools
-// and /pricing: those are where passes get sold, and a pass is worth thousands
-// of ad impressions, so nothing may compete with them. '*' suffix = prefix match.
-export const STICKY_AD_PATHS = [
-  '/guides',   // the landing page ('/' redirects here) and the only ad on it —
-               // exact match on purpose, since the individual guides carry
-               // their own in-article units and do not need a banner too.
+// Pages with one in-flow display ad. Keep the Yahoo tools and /pricing clear
+// so the ad does not compete with those flows. '*' suffix = prefix match.
+export const DISPLAY_AD_PATHS = [
+  '/guides',
   '/rankings', // biggest audience on the site, and free — ads here also give the
                // pass a visible "remove ads" benefit. Watch pass conversions.
   '/nba-playoffs',

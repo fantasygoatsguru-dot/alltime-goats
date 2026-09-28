@@ -26,8 +26,8 @@ export const PASSES = [
     // nothing is the fastest way to make the whole list untrustworthy.
     //
     // That leaves the punt guides carrying the pass, which was always the plan.
-    // The projected 2026-27 Top 150 opens after a free sign-in; it is not part
-    // of this pass. The punt guides are what buyers receive. That list is only
+    // The projected 2026-27 Top 150 is public and is not part of this pass.
+    // The punt guides are what buyers receive. That list is only
     // as good as how many of
     // PLANNED_GUIDES actually ship — if a build is not written by draft season,
     // this description is writing a cheque the pass cannot cash.

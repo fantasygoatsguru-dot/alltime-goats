@@ -120,15 +120,12 @@ const guideBodyHtml = (routePath) => {
     return out.join('\n');
   }
 
-  // Prerender only the ranks a signed-out reader can see.
+  // The complete public Top 150 is included in the crawlable page.
   if (guide.projection) {
-    const freeLimit = Number.isFinite(guide.projection.freeLimit)
-      ? guide.projection.freeLimit
-      : TOP150.length;
     out.push(`<h2>The projected top 150 for ${esc(guide.season)}</h2>`);
     out.push(`<p>Historical stat claims use corrected 2025-26 season data. Yahoo ADP and public pre-rank are a draft-market snapshot from ${esc(YAHOO_MARKET_DATE)}; the order projects 2026-27 value.</p>`);
     for (const round of TOP150_ROUNDS) {
-      const players = TOP150.filter((pl) => pl.rank >= round.from && pl.rank <= round.to && pl.rank <= freeLimit);
+      const players = TOP150.filter((pl) => pl.rank >= round.from && pl.rank <= round.to);
       if (!players.length) continue;
       out.push(`<h3>${esc(round.name)}</h3>`);
       out.push(`<p>${esc(round.blurb)}</p>`);
@@ -137,9 +134,6 @@ const guideBodyHtml = (routePath) => {
           .map((pl) => `<li><strong>${pl.rank}. ${esc(pl.name)} (${esc(pl.team)})</strong>${Number.isFinite(pl.yahooAdp) ? ` — Yahoo ADP ${pl.yahooAdp.toFixed(1)}` : ''}${Number.isFinite(pl.yahooPreRank) ? `, pre-rank ${pl.yahooPreRank}` : ''}. ${esc(pl.note)}</li>`)
           .join('')}</ul>`
       );
-    }
-    if (freeLimit < TOP150.length) {
-      out.push(`<p>The remaining ${TOP150.length - freeLimit} ranks and player write-ups are available with a free account.</p>`);
     }
   }
 

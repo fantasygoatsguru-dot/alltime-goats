@@ -440,7 +440,6 @@ export const guides = [
     season: CURRENT_GUIDE_SEASON,
     difficulty: 'Beginner',
     isPremium: false,
-    requiresLogin: true,
     tagline:
       '2026-27 nine-category draft ranks refreshed with corrected 2025-26 results. Punt-dependent players are priced for the build most likely to draft them.',
     strengths: [],
@@ -449,10 +448,8 @@ export const guides = [
     // This guide renders the 2026-27 projection (config/top-150-2026-27.js),
     // refreshed against corrected 2025-26 results. `projection` switches
     // Guide.jsx to <ProjectionList>.
-    // The first 50 ranks are public; a free account opens the remaining 100.
-    projection: {
-      freeLimit: 50,
-    },
+    // All 150 ranks and write-ups are public.
+    projection: {},
 
     sections: [
       {
@@ -543,13 +540,8 @@ export const guides = [
       accent: '#2e9e53',
       // Gated at 6 of 15 from the 2026-27 draft season on.
       //
-      // These were ungated while the plan was for the punt guides to carry the
-      // pass. They are not written yet (see PLANNED_GUIDES at the foot of this
-      // file), so the pass was selling the back half of the top 150 and little
-      // else — which is not $15 of anything. Six free entries keeps the page a
-      // real list for "fantasy basketball sleepers" (the same ~40% free share
-      // the top 150 ranks at position 7 on) while the remaining nine become a
-      // reason to buy.
+      // Six public entries make this a useful list; a free account opens the
+      // remaining nine write-ups.
       //
       // rosterBlock() in seo-content.js reads this number rather than copying
       // it, so the crawlable block ships exactly the six a logged-out visitor

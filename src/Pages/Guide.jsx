@@ -43,14 +43,10 @@ function SectionHeading({ id, children }) {
 // spaces ads through the board: the board is most of a long guide's height, so
 // ads placed only around it leave everything below the fold empty.
 //
-// Free guides only. On a premium guide a non-payer is looking at the locked
-// teaser and an upsell, and an ad beside our own pass pitch competes with it —
-// the same reason config/ads.js keeps ads off /pricing. A premium guide the
-// reader HAS unlocked needs no check here: AdSlot already renders null for
-// pass holders, and null while entitlements resolve, so nobody who paid ever
-// sees a flash of ads.
-function GuideAd({ guide, gateVisible }) {
-  if (guide.isPremium || gateVisible) return null;
+// Keep paid guides free of ads, while showing ads beside the public content in
+// guides that only require a free sign-in to finish reading.
+function GuideAd({ guide }) {
+  if (guide.isPremium) return null;
   return <AdSlot slot={AD_SLOTS.guideInArticle} layout="in-article" />;
 }
 
@@ -135,9 +131,6 @@ export default function Guide({ onRequireSignIn }) {
   const punt = categoryByKey[guide.puntKey];
   const access = guideAccess(guide);
   const badge = ACCESS_BADGE[access];
-  // A gate is on screen — either the sign-in ask or the pass pitch. Used to keep
-  // ads away from it, on the same reasoning GuideAd already applies to premium.
-  const gateVisible = access !== 'free' && !unlocked;
   const sections = guide.sections || [];
   const board = guide.board || {};
 
@@ -274,7 +267,7 @@ export default function Guide({ onRequireSignIn }) {
                 is placed inside the prose: free guides run only 3-4 short
                 sections, so an in-prose unit landed barely a screen above this
                 one and both read as a single block of ads at the top. */}
-            <GuideAd guide={guide} gateVisible={gateVisible} />
+            <GuideAd guide={guide} />
 
             {/* The board: an authored projection or write-up list for rankings
                 guides, the live re-ranked z-score table for punt builds. */}
@@ -285,7 +278,7 @@ export default function Guide({ onRequireSignIn }) {
                   {guide.playerNotes.lead}
                 </Typography>
                 <PlayerNotes
-                  renderInterstitial={() => <GuideAd guide={guide} gateVisible={gateVisible} />}
+                  renderInterstitial={() => <GuideAd guide={guide} />}
                   players={guide.playerNotes.source === 'busts' ? BUSTS : SLEEPERS}
                   accent={guide.playerNotes.accent}
                   freeLimit={guide.playerNotes.freeLimit}
@@ -309,11 +302,11 @@ export default function Guide({ onRequireSignIn }) {
                   {' '}before your draft. Team changes are checked against the{' '}
                   <a href="https://www.nba.com/news/nba-offseason-deals-2026" target="_blank" rel="noopener noreferrer">NBA offseason deals tracker</a>.
                 </Typography>
+                {/* Space ads about two rounds apart across the full list. */}
                 <ProjectionList
-                  renderInterstitial={() => <GuideAd guide={guide} gateVisible={gateVisible} />}
-                  freeLimit={guide.projection.freeLimit}
-                  unlocked={unlocked}
-                  onRequireSignIn={onRequireSignIn}
+                  renderInterstitial={(roundIndex) =>
+                    roundIndex % 2 === 0 ? <GuideAd guide={guide} /> : null
+                  }
                 />
               </>
             ) : (
@@ -339,7 +332,7 @@ export default function Guide({ onRequireSignIn }) {
             {/* Round-by-round mock draft — the core of a paid punt guide. */}
             {guide.roundTargets && !locked && (
               <>
-                <GuideAd guide={guide} gateVisible={gateVisible} />
+                <GuideAd guide={guide} />
                 <SectionHeading id="mock-draft">Round-by-round draft</SectionHeading>
                 <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
                   Draft your own punt-{punt?.name.toLowerCase()} team. Add any players you like — as many per
@@ -381,7 +374,7 @@ export default function Guide({ onRequireSignIn }) {
             {/* Example teams — premium teaser */}
             {guide.exampleTeams && (
               <>
-                <GuideAd guide={guide} gateVisible={gateVisible} />
+                <GuideAd guide={guide} />
                 <SectionHeading id="examples">Example teams</SectionHeading>
 
                 {guide.isPremium && !unlocked ? (
@@ -456,7 +449,7 @@ export default function Guide({ onRequireSignIn }) {
             {/* FAQ */}
             {guide.faqs && (
               <>
-                <GuideAd guide={guide} gateVisible={gateVisible} />
+                <GuideAd guide={guide} />
                 <SectionHeading id="faq">FAQ</SectionHeading>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   {guide.faqs.map((f, i) => (

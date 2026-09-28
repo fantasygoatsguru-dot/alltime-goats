@@ -4,7 +4,6 @@ import AlltimeLayout from "./components/AlltimeLayout";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 import Clarity from "./components/Clarity";
 import AdSense from "./components/AdSense";
-import StickyAdBanner from "./components/StickyAdBanner";
 import SEOHead from "./components/SEOHead";
 import StructuredData from "./components/StructuredData";
 import TagManager from "react-gtm-module";
@@ -62,7 +61,6 @@ const App = () => {
         <GoogleAnalytics />
         <Clarity />
         <AdSense />
-        <StickyAdBanner />
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
             <Route path="/" element={<Navigate to="/guides" replace />} />

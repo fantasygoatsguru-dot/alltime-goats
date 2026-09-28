@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { PUBLISHER_ID } from '../config/ads';
@@ -40,6 +40,7 @@ export default function AdSlot({
   const { pathname } = useLocation();
   const insRef = useRef(null);
   const pushedFor = useRef(null);
+  const [unfilled, setUnfilled] = useState(false);
 
   useEffect(() => {
     if (loading || hasAnyPass || !slot) return;
@@ -57,10 +58,23 @@ export default function AdSlot({
     }
   }, [loading, hasAnyPass, slot, pathname]);
 
+  useEffect(() => {
+    if (loading || hasAnyPass || !slot) return;
+    const ins = insRef.current;
+    if (!ins) return;
+
+    setUnfilled(false);
+    const update = () => setUnfilled(ins.getAttribute('data-ad-status') === 'unfilled');
+    const observer = new MutationObserver(update);
+    observer.observe(ins, { attributes: true, attributeFilter: ['data-ad-status'] });
+    update();
+    return () => observer.disconnect();
+  }, [loading, hasAnyPass, slot, pathname]);
+
   if (loading || hasAnyPass || !slot) return null;
 
   return (
-    <Box key={pathname} sx={{ my: 3, textAlign: 'center', ...sx }}>
+    <Box key={pathname} sx={{ my: 3, textAlign: 'center', ...sx, ...(unfilled ? { display: 'none' } : {}) }}>
       <Typography
         component="span"
         sx={{
