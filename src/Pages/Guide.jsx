@@ -312,8 +312,8 @@ export default function Guide({ onRequireSignIn }) {
                 <ProjectionList
                   renderInterstitial={() => <GuideAd guide={guide} gateVisible={gateVisible} />}
                   freeLimit={guide.projection.freeLimit}
-                  previewRows={guide.projection.previewRows}
                   unlocked={unlocked}
+                  onRequireSignIn={onRequireSignIn}
                 />
               </>
             ) : (

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box, Typography, Button, CircularProgress, Chip } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { Link as RouterLink } from 'react-router-dom';
 import { ROUNDS, PLAYERS, PRIOR_SEASON } from '../config/top-150-2026-27';
 import { usePriorSeasonStats } from '../hooks/usePriorSeasonStats';
 import PlayerNoteCard from './PlayerNoteCard';
@@ -33,10 +32,8 @@ function RoundHeader({ round, lastPick }) {
  * pulled live from the database and grouped
  * into rounds of a 12-team draft.
  *
- * Rows past `freeLimit` are blurred behind an unlock prompt, the same freemium
- * teaser the punt boards use. A null/absent `freeLimit` means no gate at all —
- * the whole board renders and no prompt appears, which is what a guide badged
- * "Free" has to mean.
+ * Rows past `freeLimit` are omitted for signed-out readers. A free account
+ * unlocks the full board.
  *
  * `renderInterstitial` is an optional node factory dropped between rounds — the
  * caller uses it for an ad. It is deliberately a prop rather than an import:
@@ -49,9 +46,9 @@ export default function ProjectionList({
   players = PLAYERS,
   rounds = ROUNDS,
   priorSeason = PRIOR_SEASON,
-  freeLimit = 48, // four full rounds
-  previewRows = 3,
+  freeLimit = 50,
   unlocked = false,
+  onRequireSignIn,
   renderInterstitial,
 }) {
   const { statsFor, loading } = usePriorSeasonStats(priorSeason);
@@ -79,7 +76,7 @@ export default function ProjectionList({
 
   const gated = !unlocked && Number.isFinite(freeLimit);
   const visibleTo = gated ? freeLimit : players.length;
-  const lockedPreview = gated ? players.slice(freeLimit, freeLimit + previewRows) : [];
+  const remaining = gated ? players.filter((p) => p.rank > freeLimit).length : 0;
 
   return (
     <Box>
@@ -91,7 +88,7 @@ export default function ProjectionList({
             {/* Between rounds only — never above the first, which would put an
                 ad between the board's own lead paragraph and its first pick. */}
             {gi > 0 && renderInterstitial?.(gi)}
-            <RoundHeader round={round} lastPick={players.length} />
+            <RoundHeader round={round} lastPick={visibleTo} />
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {free.map((p) => (
                 <PlayerNoteCard key={p.rank} player={p} prior={statsFor(p.name)} />
@@ -101,43 +98,21 @@ export default function ProjectionList({
         );
       })}
 
-      {/* Everything past the free limit — blurred behind the unlock prompt. */}
-      {lockedPreview.length > 0 && (
-        <Box className={GATED_CLASS} sx={{ position: 'relative', mt: 1.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
-            {lockedPreview.map((p) => (
-              <PlayerNoteCard key={p.rank} player={p} prior={statsFor(p.name)} />
-            ))}
-          </Box>
-          <Box
-            sx={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1.25,
-              background: 'linear-gradient(180deg, rgba(245,246,248,0.45) 0%, rgba(245,246,248,0.96) 65%)',
-              borderRadius: 2,
-            }}
+      {remaining > 0 && (
+        <Box className={GATED_CLASS} sx={{ mt: 3, py: 4, px: 3, textAlign: 'center', bgcolor: '#fff', borderRadius: 2, border: '1px solid #dfe5ee' }}>
+          <LockOutlinedIcon sx={{ color: '#0f2340', fontSize: 28, mb: 1 }} />
+          <Typography sx={{ fontWeight: 800, color: '#0f2340', fontSize: '1.02rem' }}>
+            {remaining} more ranks, with a write-up for every player
+          </Typography>
+          <Typography sx={{ color: '#667', fontSize: '0.85rem', mt: 1 }}>
+            The top {freeLimit} are public. Sign in with a free account to see the full Top 150.
+          </Typography>
+          <Button
+            onClick={() => onRequireSignIn?.()}
+            sx={{ mt: 2, textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
           >
-            <LockOutlinedIcon sx={{ color: '#0f2340', fontSize: 28 }} />
-            <Typography sx={{ fontWeight: 800, color: '#0f2340', fontSize: '1.02rem', textAlign: 'center' }}>
-              Picks {freeLimit + 1}–{players.length}, with the write-up on every player
-            </Typography>
-            <Typography sx={{ color: '#667', fontSize: '0.85rem', textAlign: 'center', maxWidth: 380 }}>
-              The first {freeLimit} — four full rounds — are free. The rest of the board, where drafts are actually
-              won, comes with a Draft Pass.
-            </Typography>
-            <Button
-              component={RouterLink}
-              to="/pricing"
-              sx={{ mt: 0.5, textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
-            >
-              Unlock the full 150
-            </Button>
-          </Box>
+            Sign in to see all 150 — free
+          </Button>
         </Box>
       )}
     </Box>

@@ -178,9 +178,8 @@ const buildGuideWebPage = (clean, guide, title, description) => {
     publisher: { '@type': 'Organization', name: 'Fantasy Goats Guru', url: BASE },
   };
 
-  // One selector covers every gated region on the page — the locked list
-  // remainder, the blurred board rows and the pass pitch all carry the same
-  // class — so a single hasPart is correct here rather than an array.
+  // One selector covers each guide's gated region, whether access requires a
+  // free account or a Draft Pass.
   if (!isFree) {
     page.hasPart = {
       '@type': 'WebPageElement',

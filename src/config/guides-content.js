@@ -439,7 +439,8 @@ export const guides = [
     title: 'Top 150',
     season: CURRENT_GUIDE_SEASON,
     difficulty: 'Beginner',
-    isPremium: false, // free & indexable — the draft-season lead magnet
+    isPremium: false,
+    requiresLogin: true,
     tagline:
       '2026-27 nine-category draft ranks refreshed with corrected 2025-26 results. Punt-dependent players are priced for the build most likely to draft them.',
     strengths: [],
@@ -448,13 +449,9 @@ export const guides = [
     // This guide renders the 2026-27 projection (config/top-150-2026-27.js),
     // refreshed against corrected 2025-26 results. `projection` switches
     // Guide.jsx to <ProjectionList>.
-    // Ungated: all 150 render, and the badge on this guide reads "Free"
-    // because that is now true of the whole page. A gate here made the board a
-    // teaser wearing a Free badge, which is the one thing a draft-season lead
-    // magnet cannot afford to be. previewRows is unused while freeLimit is null.
+    // The first 50 ranks are public; a free account opens the remaining 100.
     projection: {
-      freeLimit: null,
-      previewRows: 3,
+      freeLimit: 50,
     },
 
     sections: [
