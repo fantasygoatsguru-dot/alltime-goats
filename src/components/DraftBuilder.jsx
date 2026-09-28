@@ -41,7 +41,7 @@ const norm = (s) =>
  * a live radar and written analysis respond to the selected roster using real
  * current-season z-scores.
  *
- * rounds: [{ round, candidates: [{ name, note }] }]
+ * rounds: [{ round, candidates: [{ name, note, yahooAdp, yahooPreRank }] }]
  */
 export default function DraftBuilder({ rounds = [], puntKey }) {
   const [rows, setRows] = useState([]);
@@ -229,6 +229,12 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
                         <Typography sx={{ fontWeight: 800, color: '#0f2340', fontSize: '1.02rem' }}>
                           {c.name}
                         </Typography>
+                        {(Number.isFinite(c.yahooAdp) || Number.isFinite(c.yahooPreRank)) && (
+                          <Typography sx={{ ml: 'auto', color: '#78828f', fontSize: '0.72rem', fontWeight: 700, textAlign: 'right' }}>
+                            {Number.isFinite(c.yahooAdp) ? `Yahoo ADP ${c.yahooAdp.toFixed(1)}` : 'Yahoo ADP unavailable'}
+                            {Number.isFinite(c.yahooPreRank) ? ` · pre-rank ${c.yahooPreRank}` : ''}
+                          </Typography>
+                        )}
                       </Box>
                       <Typography sx={{ color: '#3a4451', fontSize: '0.92rem', lineHeight: 1.6 }}>
                         {c.note}

@@ -229,7 +229,7 @@ export default function Guide({ onRequireSignIn }) {
             <SportsBasketballIcon sx={{ fontSize: 16, color: '#d9534f' }} />
             {punt ? (
               <span>
-                Punting <strong style={{ color: '#ff8a80', textDecoration: 'line-through' }}>{punt.name}</strong> — everything below is re-ranked with it removed.
+                Punting <strong style={{ color: '#ff8a80', textDecoration: 'line-through' }}>{punt.name}</strong> — the stat board removes it; draft targets account for {guide.season} roles and prices.
               </span>
             ) : (
               <span>

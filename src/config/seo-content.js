@@ -289,20 +289,18 @@ export const SEO_CONTENT = {
   '/guides/punt-ft': {
     title: 'Punt FT% Strategy 2026-27',
     // A premium guide, so this block carries ONLY what a signed-out reader sees
-    // on the page: the opening strategy section and the public FAQs. The round
+    // on the page: the first two strategy sections and the public FAQs. The round
     // targets, building blocks and example rosters are behind the Draft Pass
     // and must never appear here — serving a crawler content a visitor cannot
     // read is cloaking, and it would also give the paid build away for free.
     content: `
-      <p>Punting free throw percentage is the most forgiving build in nine-category fantasy basketball, and the one most managers back into by accident. The players who wreck your free throw percentage are almost without exception the players who win you blocks, rebounds and field goal percentage — those traits travel together in one body type, and the market prices that body type with a discount attached for the line. Decide in advance that you do not care about the line and you are the only manager in the room drafting those players at full value.</p>
+      <p>Punt FT% starts with a player whose volume at the line makes a balanced roster difficult. Giannis Antetokounmpo is the clearest 2026-27 example: in 2025-26 he averaged 27.6 points on 62.4% shooting while making 65.0% of 9.9 free throws. His move to Miami creates a new frontcourt partnership with Bam Adebayo, so the exact usage split remains a projection.</p>
 
-      <p>It is also the cheapest punt to commit to, because free throw percentage is the category most easily ruined by a single roster spot. One big taking nine attempts a night at 65 percent can drag a whole team under water, which means most managers spend the middle rounds carefully avoiding a group of players you are free to collect.</p>
+      <p>The build can make rebounds, field-goal percentage and blocks easier to win, but none is automatic. Giannis and Zion Williamson bring efficient scoring without many threes; Alperen Sengun brings 6.2 assists from center; Mobley and Clingan offer more rim protection. Pick the frontcourt profile that covers what your first selection did not.</p>
 
-      <p>Conceding the line hands you three categories almost automatically. Blocks and rebounds are the scarcest counting stats on the board and they concentrate in exactly the players you can now draft, and field goal percentage comes with them because a center who cannot shoot from the line usually scores from two feet. Points are the quiet fourth: efficient bigs score more than their reputation suggests, and none of it costs you anything in a build that has already written off free throws.</p>
+      <p>Threes are the pressure point, followed by assists and sometimes steals. A roster full of low-three bigs can give away several categories at once, while Giannis, Sengun and another high-usage creator can create a turnover problem. Spend meaningful draft capital on shooting and passing before the late rounds.</p>
 
-      <p>The trap is thinking the build is only centers. A roster of nothing but bigs wins blocks, rebounds and field goal percentage by a mile and then loses threes, assists and steals by the same margin. Treat threes and assists as categories you have to buy on purpose in the middle rounds — a punt build that concedes free throws is strong, one that concedes free throws, threes and assists has punted three categories and cannot win.</p>
-
-      <p>The live draft board on this page re-ranks every player with free throw percentage struck out of the Z-score total. Compare it with the <a href="/guides/top-150">2026-27 projected top 150</a> to see how removing FT% changes the category-value order, compare with the <a href="/guides/punt-blocks">punt blocks build</a> for the opposite approach, and use the <a href="/rankings">rankings tool</a> to run the same re-rank on any category.</p>
+      <p>The live table removes FT% from corrected 2025-26 production. It is a historical category view, not a 2026-27 projection. Compare it with the <a href="/guides/top-150">projected Top 150</a> and check the <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> before drafting; the guide's round targets use a September 26 market snapshot.</p>
     `,
     keywords: ['punt ft', 'punt free throw percentage', 'punt ft% fantasy basketball', 'fantasy basketball punt build', '9-cat punt strategy', 'big man fantasy basketball draft']
   },
@@ -310,13 +308,11 @@ export const SEO_CONTENT = {
   '/guides/punt-blocks': {
     title: 'Punt Blocks Strategy 2026-27',
     content: `
-      <p>Punting blocks means conceding the scarcest category in fantasy basketball on purpose and building a roster that wins everywhere else. As the NBA has drifted toward the perimeter, quality shot blocking has concentrated into a small group of centers — and those same centers tend to be the players who damage your free throw percentage and turnovers. Walking away from blocks lets you skip that entire aisle of the draft.</p>
+      <p>Punt Blocks is a nine-category build that concentrates on points, threes, assists, steals and free throws. It works when those guard strengths are paired with enough rebounding, FG% and ball security to keep five or more categories competitive. Nikola Jokić is an unusually easy start because his 12.9 rebounds and 10.7 assists cover both sides of the plan.</p>
 
-      <p>The payoff is roster flexibility. Freed from chasing swats, you can load up on skilled guards and wings who win assists, steals, threes and free throw percentage — four categories that travel well together. The trade is real: expect to run below average in rebounds and field goal percentage, because the players who supply those are usually the ones you are passing on.</p>
+      <p>The build's common failure is a guard run that also loses rebounds and field-goal percentage, then lets turnovers become another weak category. Karl-Anthony Towns, Bam Adebayo and rebounding wings such as Josh Hart or Dyson Daniels can help cover the boards. A Luka or Harden start requires later low-turnover choices unless you intend a second punt.</p>
 
-      <p>Because you are ignoring the rarest category, your personal board gets deeper rather than shallower. Elite shot blockers slide down while high-usage guards and do-everything wings climb, and the live draft board on this page re-ranks every player in the league with blocks removed from the Z-score total so you can draft straight off it.</p>
-
-      <p>Punt blocks is a classic nine-category build and it has only gotten stronger as elite rim protection has become rarer. Compare this board with the <a href="/guides/top-150">2026-27 projected top 150</a> to see how removing blocks changes the category-value order. The same re-ranking is available for every category in the <a href="/rankings">rankings tool</a>.</p>
+      <p>The live table removes blocks from corrected 2025-26 production. It shows how players performed in that build last season; health, team and role changes still matter for the 2026-27 draft. Use the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> alongside this historical board. The written round targets use Yahoo's September 26 ADP and pre-rank snapshot.</p>
     `,
     keywords: ['punt blocks', 'punt strategy fantasy basketball', 'fantasy basketball punt build', '9-cat punt blocks', 'fantasy basketball draft strategy', 'category punting']
   }
