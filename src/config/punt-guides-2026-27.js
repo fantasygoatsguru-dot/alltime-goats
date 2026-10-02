@@ -784,4 +784,124 @@ export const PUNT_THREES = {
   ]
 };
 
-export const PUNT_GUIDES = [PUNT_FT, PUNT_ASSISTS, PUNT_FG, PUNT_THREES];
+export const PUNT_POINTS = {
+  slug: 'punt-points',
+  type: 'punt',
+  puntKey: 'pts',
+  title: 'Punt Points',
+  season: CONTENT_SEASON,
+  difficulty: 'Advanced',
+  isPremium: true,
+  tagline: 'Win with playmaking, defense and efficiency without accidentally punting threes or free throws.',
+  strengths: ['reb', 'ast', 'stl', 'blk'],
+  weaknesses: ['pts', '3pm', 'ft'],
+  freeSections: 2,
+  board: { minGames: 30, freeLimit: 20, previewRows: 4 },
+  sections: [
+    {
+      id: 'strategy',
+      heading: 'The strategy',
+      body: [
+        'Punt points removes scoring from a nine-category valuation, not scorers from your roster. Scottie Barnes averaged 7.5 rebounds, 5.9 assists, 1.4 steals and 1.4 blocks in 2025-26; those contributions remain even if his points do not. Derrick White gave 2.7 threes, 5.4 assists and 1.3 blocks from guard. Both profiles help more than their scoring totals suggest, but neither should be taken without regard to price or percentages.',
+        'Do not force a low-scoring specialist in round one. Jokić still provides 12.9 boards, 10.7 assists and 56.9% FG after you remove points, while Wembanyama supplies 11.5 boards, 3.1 blocks and useful threes and FT%. Their scoring is an opportunity cost, not a reason to pass on elite eight-category value. A Johnson-Barnes opening near the turn is another route, but it needs efficient shooting and low-turnover help soon after.'
+      ]
+    },
+    {
+      id: 'correlation',
+      heading: 'Natural strengths & weaknesses',
+      body: [
+        'Rebounds, assists and defensive stats are the aim. Barnes, Amen and Dyson Daniels offer creation and stocks without relying on high scoring, while Holmgren and Clingan add rim protection. FG% and turnovers can also be strengths, but White shot 39.5% from the field and high-usage passers can still turn it over. Judge the whole roster rather than declaring either column won.',
+        'Threes and FT% are the double-punt traps. Amen and Dyson each made 0.3 threes in 2025-26; Dyson shot 61.5% at the line, Clingan 69.2% and Duren 74.7%. Pairing several of them may leave only four or five competitive categories. Buy shooting from White, Bane, Anunoby or Pritchard, and evaluate FT% by attempts rather than percentages alone. A good punt-points roster still needs a credible route to five wins.'
+      ]
+    },
+    {
+      id: 'draft',
+      heading: 'Where the value sits in the draft',
+      body: [
+        'Yahoo ADP from September 26 prices Barnes near 14, Amen near 24, Holmgren near 28, White near 47, Daniels near 63 and Anunoby near 67. Our projected Top 150 has them 15th, 22nd, 23rd, 29th, 33rd and 49th. Daniels is the clearest market gap, but his FT% and threes are real costs; White and Anunoby are safer ways to keep the punt from spreading.',
+        'The live board below removes points from corrected 2025-26 production; it is historical value, not a 2026-27 forecast. The round targets use our forward-looking Top 150, dated Yahoo ADP and Yahoo standard pre-ranks checked October 2. In a 12-team snake, draft turns and local rooms matter more than a neat list of player names.'
+      ]
+    }
+  ],
+  buildingBlocks: [
+    { name: 'Eight-category anchor', note: 'Start with Jokić, Wembanyama or an all-around forward because their remaining categories justify the early price, not because they score little.' },
+    { name: 'Defense and passing', note: 'Barnes, Amen, Daniels and Holmgren give rebounds, assists or stocks without requiring a points chase.' },
+    { name: 'Shooting safeguards', note: 'White, Bane, Anunoby and Pritchard keep threes and FT% in play before adding another non-shooter.' }
+  ],
+  exampleTeams: [
+    {
+      name: 'Jokić with guard defense',
+      color: '#16a085',
+      note: 'From pick one in a 12-team snake, the turns are 1, 24, 25, 48, 49, 72, 73 and 96. These names sit reasonably near those Yahoo prices, although Anunoby and McDaniels must slide a few picks. Jokić and Amen cover passing, Holmgren and Jackson cover blocks, and White and Anunoby protect threes. Amen still makes FT% worth monitoring; the next pick should favor clean shooting over another low-FT center.',
+      roster: ['Nikola Jokić', 'Amen Thompson', 'Chet Holmgren', 'Derrick White', 'Jaren Jackson Jr.', 'OG Anunoby', 'Mikal Bridges', 'Jaden McDaniels']
+    },
+    {
+      name: 'Johnson and Barnes near the turn',
+      color: '#b8860b',
+      note: 'From pick 12, turns fall at 12, 13, 36, 37, 60, 61, 84 and 85. White at 37 is ten picks ahead of Yahoo ADP but eleven later than his standard pre-rank and close to our rank of 29; Bane must slide about seven picks to 60. White, Bane, Anunoby and Pritchard supply shooting around Johnson, Barnes and Duren. Duren and Johnson put pressure on FT%, so resist another weak-line big and check turnovers before the final rounds.',
+      roster: ['Jalen Johnson', 'Scottie Barnes', 'Jalen Duren', 'Derrick White', 'Desmond Bane', 'OG Anunoby', 'Jaden McDaniels', 'Payton Pritchard']
+    }
+  ],
+  roundTargets: [
+    { round: 1, candidates: [
+      { name: 'Nikola Jokić', yahooAdp: 1.9, yahooPreRank: 1, note: 'Our Top 150 ranks Jokić first, essentially his Yahoo price. His 12.9 boards, 10.7 assists and 56.9% FG still justify the first pick after points are removed. Do not call the wasted 27.7 points a discount; use the next turns for blocks and guard defense.' },
+      { name: 'Victor Wembanyama', yahooAdp: 1.6, yahooPreRank: 3, note: 'Wembanyama is second on our board and goes at the very top of Yahoo drafts. His 11.5 boards and 3.1 blocks anchor the build, while his threes and useful FT% make a punt-points roster easier to balance. Even here, passing and steals need help.' },
+      { name: 'Jalen Johnson', yahooAdp: 11.8, yahooPreRank: 16, note: 'Johnson ranks 11th for us and goes near pick 12. His 10.3 rebounds and 7.9 assists give a forward-led start real shape. The 78.8% FT and 3.4 turnovers are not erased by a points punt; pair him with cleaner guards rather than another high-usage passer.' }
+    ] },
+    { round: 2, candidates: [
+      { name: 'Scottie Barnes', yahooAdp: 14.1, yahooPreRank: 21, note: 'Barnes is 15th on our Top 150 versus Yahoo ADP 14. His 7.5 boards, 5.9 assists, 1.4 steals and 1.4 blocks are the point of this build. Only 0.8 threes means the next perimeter pick must shoot; he is a turn option, not a presumed slide to pick 24.' },
+      { name: 'Amen Thompson', yahooAdp: 23.6, yahooPreRank: 10, note: 'Amen is 22nd on our board and Yahoo ADP is near 24, despite a much earlier standard pre-rank. His 7.8 boards, 5.3 assists, 1.5 steals and 53.4% FG fit. His 0.3 threes and VanVleet-related role uncertainty demand a shooter next.' }
+    ] },
+    { round: 3, candidates: [
+      { name: 'Chet Holmgren', yahooAdp: 27.7, yahooPreRank: 19, note: 'Holmgren ranks 23rd for us and is usually gone near pick 28; he is a third-round target only at the opening turn or after a small fall. His 8.9 rebounds, 1.9 blocks and 1.3 threes make him less likely than a pure center to force a second punt.' },
+      { name: 'Jalen Duren', yahooAdp: 36, yahooPreRank: 28, note: 'Duren is 35th on our board and goes near pick 36. His 10.5 rebounds and 65.0% FG fit, but losing his 19.5 points is a significant opportunity cost. With 74.7% FT and no threes, add a guard shooter soon rather than another interior-only player.' }
+    ] },
+    { round: 4, candidates: [
+      { name: 'Derrick White', yahooAdp: 47.1, yahooPreRank: 26, note: 'White is 29th on our board versus Yahoo ADP 47, though his standard pre-rank is 26. His 2.7 threes, 5.4 assists and 1.3 blocks from guard help keep the build broad. The 39.5% FG is a real drag; make sure the frontcourt can absorb it.' },
+      { name: 'Donovan Clingan', yahooAdp: 41.6, yahooPreRank: 29, note: 'Clingan is 34th for us and costs about pick 42. His 11.5 rebounds and 1.7 blocks buy scarce frontcourt categories, but 69.2% FT can erase another win. Only take this route after strong FT% volume and with enough threes already planned.' }
+    ] },
+    { round: 5, candidates: [
+      { name: 'Desmond Bane', yahooAdp: 52.9, yahooPreRank: 44, note: 'Bane ranks 38th on our Top 150 against Yahoo ADP 53. You discard his 20.1 points, but 90.8% FT, 48.3% FG, threes and 82-game availability can protect a defensive core from a second punt. He is a category repair pick, not a pure punt-points bargain.' },
+      { name: 'Jaren Jackson Jr.', yahooAdp: 50.5, yahooPreRank: 54, note: 'Jackson is 43rd on our board and goes around 50. His 1.4 blocks and 1.8 threes are useful together, but 48 games and Utah frontcourt uncertainty limit confidence. Take him when blocks need help without sacrificing shooting.' }
+    ] },
+    { round: 6, candidates: [
+      { name: 'Dyson Daniels', yahooAdp: 62.9, yahooPreRank: 20, note: 'Daniels is 33rd on our Top 150 against Yahoo ADP 63: 2.0 steals, 6.8 boards and 5.9 assists are excellent without points. His 0.3 threes and 61.5% FT can create two more punts, so he needs established shooting and FT% volume.' },
+      { name: 'OG Anunoby', yahooAdp: 66.6, yahooPreRank: 60, note: 'Anunoby ranks 49th for us and goes near pick 67. His 1.6 steals, 2.3 threes, 0.7 blocks and 1.8 turnovers address several needs at once. He is a better sixth-round fit than another non-shooting defender when threes are thin.' },
+      { name: 'Matas Buzelis', yahooAdp: 61.9, yahooPreRank: 34, note: 'Buzelis is 59th on our board versus Yahoo ADP 62. The 2.2 threes and 1.5 blocks are a rare pairing at forward. He is more useful here than a low-point big who adds only rebounds, although his role and efficiency still need monitoring.' }
+    ] },
+    { round: 7, candidates: [
+      { name: 'Mikal Bridges', yahooAdp: 79.6, yahooPreRank: 41, note: 'Bridges is 60th on our board but goes near pick 80. His 1.3 steals, 0.8 blocks, 49.0% FG and low turnovers make an efficient defensive wing. Some threes come with that profile, and 82 games give the pick a sturdier floor than another speculative specialist.' },
+      { name: 'Payton Pritchard', yahooAdp: 79.6, yahooPreRank: 33, note: 'Pritchard ranks 84th for us against Yahoo ADP 80 and an aggressive pre-rank of 33. His 2.7 threes, 5.2 assists and 1.4 turnovers repair common punt-points holes. He is a roster-fit pick near his ADP, not a reason to reach to his Yahoo pre-rank.' }
+    ] },
+    { round: 8, candidates: [
+      { name: 'Jaden McDaniels', yahooAdp: 89.2, yahooPreRank: 43, note: 'McDaniels is 78th on our board at Yahoo ADP 89. He added 1.1 steals and 1.0 blocks with 51.5% FG and 1.4 threes from a wing. His changing Minnesota role is a risk, but he does not bring the FT% damage of a typical late defensive center.' },
+      { name: 'Jabari Smith Jr.', yahooAdp: 94.1, yahooPreRank: 84, note: 'Smith ranks 83rd for us and goes near 94. His 2.3 threes and 6.9 rebounds keep spacing alive at forward. He is a better fit when the roster already has blocks; do not take him expecting a rim-protection fix.' },
+      { name: 'Josh Hart', yahooAdp: 96.3, yahooPreRank: 68, note: 'Hart is 93rd on our board and near pick 96 on Yahoo. His 7.4 rebounds, 4.8 assists and 50.8% FG support a thin backcourt, but 72.0% FT and modest threes make him a conditional fit after the shooting base is secure.' }
+    ] },
+    { round: 9, candidates: [
+      { name: 'Jalen Suggs', yahooAdp: 111.4, yahooPreRank: 89, note: 'Suggs is 72nd on our board against Yahoo ADP 111. His 1.8 steals and 5.5 assists are useful at this price, but 43.5% FG and 57 games make him less clean than the punt might suggest. Take him when steals and assists need help and FG% is already sturdy.' },
+      { name: 'Andrew Wiggins', yahooAdp: 100.7, yahooPreRank: 103, note: 'Wiggins ranks 86th for us and costs about pick 101. A steal, a block and some threes from the wing can fill several gaps without the FT% hit of another center. His changed Miami context limits certainty about minutes and usage.' }
+    ] },
+    { round: 10, candidates: [
+      { name: 'Cason Wallace', yahooAdp: 118.2, yahooPreRank: 76, note: 'Wallace is 103rd on our board against Yahoo ADP 118. His 2.0 steals and 0.9 turnovers are especially useful when points are ignored; 1.3 threes and limited assists mean he complements, rather than replaces, an established creator.' },
+      { name: 'Reed Sheppard', yahooAdp: 120.8, yahooPreRank: 56, note: 'Sheppard is 85th on our board but available around Yahoo ADP 121. His 2.8 threes, 1.5 steals and guard blocks could rescue two weak columns. VanVleet\'s return could shrink his minutes, so treat the price gap as upside rather than certainty.' }
+    ] },
+    { round: 11, candidates: [
+      { name: 'Ayo Dosunmu', yahooAdp: 114.9, yahooPreRank: 96, note: 'Dosunmu is 116th for us and goes near 115. His 51.7% FG, 87.6% FT and 1.4 turnovers are a clean late guard line. Minnesota\'s crowded backcourt threatens minutes; use him for efficiency only if the role survives.' },
+      { name: 'Brandin Podziemski', yahooAdp: 116.8, yahooPreRank: 99, note: 'Podziemski ranks 115th for us against Yahoo ADP 117. He supplied 5.1 rebounds, 3.7 assists and 1.1 steals across 82 games. The broad line is helpful, but he will not single-handedly win threes or blocks.' }
+    ] },
+    { round: 12, candidates: [
+      { name: 'Tre Jones', yahooAdp: 116, yahooPreRank: 156, note: 'Jones is 130th on our Top 150, later than Yahoo ADP 116; he is a target only if he reaches the last turns. His 5.4 assists, 1.4 turnovers, 55.3% FG and 84.1% FT are a clean passing patch. The low threes mean the rest of the guards must shoot.' },
+      { name: 'Neemias Queta', yahooAdp: 115.2, yahooPreRank: 116, note: 'Queta is 138th for us against Yahoo ADP 115, so do not chase him early. His 8.4 rebounds, 1.3 blocks and 65.3% FG offer late frontcourt help if he slips; 70.3% FT and no threes can compound existing weaknesses.' },
+      { name: 'Jay Huff', yahooAdp: null, yahooPreRank: null, note: 'Huff is 125th on our board with no reliable Yahoo ADP in this snapshot. His 1.9 blocks and 1.5 threes are attractive, but Zubac\'s arrival could cut the minutes behind that 2025-26 line. Take him only as a final-pick upside play.' }
+    ] }
+  ],
+  faqs: [
+    { q: 'Does punt points mean drafting only low scorers?', a: 'No. Jokić, Wembanyama and Bane can still earn their picks in the other eight categories. The question is whether their remaining production beats the alternatives at the price.' },
+    { q: 'Can I combine Amen Thompson and Dyson Daniels?', a: 'Their rebounds, assists and steals are appealing, but both made only 0.3 threes and Daniels shot 61.5% FT. Use the pair only with strong shooting and free-throw volume elsewhere.' },
+    { q: 'Which categories are most likely to become accidental punts?', a: 'Threes and FT% are the biggest risks; FG% can also slip with volume-shooting guards. Check attempts, not just rates, and count the whole roster before another specialist.' },
+    { q: 'Does punt points work in eight-category leagues?', a: 'Yes, but removing turnovers makes high-usage passers more attractive and changes the relative value of low-turnover specialists. Recheck the board under your actual settings.' }
+  ]
+};
+
+export const PUNT_GUIDES = [PUNT_FT, PUNT_ASSISTS, PUNT_FG, PUNT_THREES, PUNT_POINTS];
