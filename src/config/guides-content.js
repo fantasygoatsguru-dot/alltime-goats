@@ -687,7 +687,6 @@ export const guides = [
 // To ship one: add its complete config to punt-guides-2026-27.js, remove its
 // planned entry, and add the route and crawlable copy to the SEO config files.
 export const PLANNED_GUIDES = [
-  { slug: 'punt-fg',         type: 'punt', puntKey: 'fg',  title: 'Punt FG%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'The volume-scorer build. Fire away.',  strengths: ['pts', '3pm', 'ast', 'stl'], weaknesses: ['fg'] },
   { slug: 'punt-threes',     type: 'punt', puntKey: '3pm', title: 'Punt Threes',      season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Old-school bigs and slashers.',        strengths: ['blk', 'reb', 'fg', 'pts'], weaknesses: ['3pm'] },
   { slug: 'punt-points',     type: 'punt', puntKey: 'pts', title: 'Punt Points',      season: CURRENT_GUIDE_SEASON, difficulty: 'Advanced',     isPremium: true,  tagline: 'Specialists over scorers.',            strengths: ['stl', 'blk', 'fg', 'ft'], weaknesses: ['pts'] },
   { slug: 'punt-steals',     type: 'punt', puntKey: 'stl', title: 'Punt Steals',      season: CURRENT_GUIDE_SEASON, difficulty: 'Advanced',     isPremium: true,  tagline: 'Ignore the noisiest category.',        strengths: ['pts', 'reb', 'blk', 'fg'], weaknesses: ['stl'] },

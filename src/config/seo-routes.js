@@ -179,6 +179,13 @@ export const seoRoutes = [
     priority: 0.7,
   },
   {
+    path: '/guides/punt-fg',
+    title: 'Punt FG% Strategy 2026-27 | Live Draft Board | Fantasy Goats Guru',
+    description: 'A complete 2026-27 punt FG% guide for 9-cat fantasy basketball: guard-heavy strategy, category safeguards and a live draft board with FG% removed.',
+    changefreq: 'weekly',
+    priority: 0.7,
+  },
+  {
     path: '/guides/punt-blocks',
     title: 'Punt Blocks Strategy 2026-27 | Live Draft Board | Fantasy Goats Guru',
     description: 'The complete punt blocks build for 2026-27 fantasy basketball: strategy, strengths and weaknesses, and a live draft board re-ranked with blocks removed from the z-score total.',
