@@ -1,5 +1,5 @@
-// Punt FT% guide for 2026-27.
-// Historical board: corrected 2025-26 season values with FT% removed.
+// Punt guides for 2026-27.
+// Historical boards: corrected 2025-26 season values with the punted category removed.
 // Editorial round targets: 2026-27 roles and Yahoo ADP/pre-rank snapshot of 2026-09-26.
 // Player names match player_period_averages for the historical line and draft builder.
 
@@ -402,4 +402,132 @@ export const PUNT_FT = {
   ]
 };
 
-export const PUNT_GUIDES = [PUNT_FT];
+export const PUNT_ASSISTS = {
+  slug: 'punt-assists',
+  type: 'punt',
+  puntKey: 'ast',
+  title: 'Punt Assists',
+  season: CONTENT_SEASON,
+  difficulty: 'Intermediate',
+  isPremium: true,
+  tagline: 'Keep the points and defensive stats; stop paying for playmaking you will not use.',
+  strengths: ['pts', 'reb', 'blk', 'to'],
+  weaknesses: ['ast', 'stl', 'ft', '3pm'],
+  freeSections: 2,
+  board: { minGames: 30, freeLimit: 20, previewRows: 4 },
+  sections: [
+    {
+      id: 'strategy',
+      heading: 'The strategy',
+      body: [
+        'Punt assists is a nine-category plan for a roster whose best players score, rebound, defend and finish possessions without creating many shots for teammates. Victor Wembanyama is the cleanest opening: his 2025-26 line included 25.0 points, 11.5 rebounds and 3.1 blocks, but only 3.1 assists. Removing assists makes that already elite combination easier to build around; his first-pick price is justified by the full line, not by a supposed punt discount.',
+        'The next picks should buy points and threes from wings while preserving enough FG%, FT% and steals to win at least five of the eight remaining categories. Anthony Edwards is another plausible first-round start, with 28.8 points and 3.4 threes, but his 79.6% free throws on volume and ordinary block production make his follow-up picks very different from Wembanyama\'s.'
+      ]
+    },
+    {
+      id: 'correlation',
+      heading: 'Natural strengths & weaknesses',
+      body: [
+        'Centers and finishing forwards make rebounds, FG% and blocks accessible, while low-usage wings can keep turnovers down. That is a menu of possible strengths, not a promise that every punt-assists team wins all four. An Edwards start still needs blocks and boards; a Wembanyama-Clingan start has plenty of both but must buy perimeter scoring and steals elsewhere.',
+        'The danger is drifting into a second punt. Traditional centers often give little in threes, and some also damage FT%. Gobert\'s 52.6% free throws make him an expensive fit if you still intend to win the line; Clingan\'s 69.2% is a smaller but real cost. Use shooting wings such as Murphy or Porter for threes, and defenders such as Anunoby or Wallace for steals. Low assists alone do not make a player a target: the other eight categories must justify his draft price.'
+      ]
+    },
+    {
+      id: 'draft',
+      heading: 'Where the value sits in the draft',
+      body: [
+        'Yahoo\'s September 26 snapshot puts Wembanyama near pick two and Edwards near pick eight. Towns and Durant usually cost a second-round pick; Holmgren and Kawhi are third-round prices. Use the first three picks to establish points and either defensive big-man production or efficient shooting. Murphy, Porter and later three-point wings can fill the opposite side, but they cannot rescue a roster that has already given away FT% and steals.',
+        'The board below removes assists from corrected 2025-26 production; it records last season rather than projecting 2026-27. The round targets use the dated Yahoo ADP and pre-rank snapshot, then account for role and availability. Treat the round labels as a draft queue, especially after pick 100 where the market is tightly packed.'
+      ]
+    }
+  ],
+  buildingBlocks: [
+    { name: 'An anchor with real category weight', note: 'Wembanyama supplies blocks and boards; Edwards supplies points and threes. Draft the complement, not a copy of the first pick.' },
+    { name: 'Scoring without an assist premium', note: 'Use wings such as Murphy, Porter and Powell for points and threes after securing the frontcourt.' },
+    { name: 'Protected percentages and steals', note: 'Check FT% attempts and FG% volume, then add a genuine steals source before the late rounds.' }
+  ],
+  exampleTeams: [
+    {
+      name: 'Wembanyama with shooting wings',
+      color: '#2f80ed',
+      note: 'A roughly one-per-round eight-pick start by Yahoo price. Wembanyama and Holmgren carry blocks, while Murphy, Bane and Durant supply threes and points. Anunoby adds steals and Bridges keeps turnovers modest. Recheck steals and rebounds before filling the last roster spots; two elite shot blockers do not settle every category.',
+      roster: ['Victor Wembanyama', 'Kevin Durant', 'Chet Holmgren', 'Trey Murphy III', 'Desmond Bane', 'OG Anunoby', 'Mikal Bridges', 'Norman Powell']
+    },
+    {
+      name: 'Edwards with a defensive frontcourt',
+      color: '#16a085',
+      note: 'Edwards, Kawhi and Porter carry scoring while Towns, Clingan and Buzelis buy back boards and blocks. McDaniels adds steals and efficient wing shooting. Clingan\'s free throws and the health of Kawhi and Porter are the constraints; avoid another poor-FT big until the team radar says the line is safe.',
+      roster: ['Anthony Edwards', 'Karl-Anthony Towns', 'Kawhi Leonard', 'Donovan Clingan', 'Michael Porter Jr.', 'Matas Buzelis', 'Mikal Bridges', 'Jaden McDaniels']
+    }
+  ],
+  roundTargets: [
+    { round: 1, candidates: [
+      { name: 'Victor Wembanyama', yahooAdp: 1.6, yahooPreRank: 3, note: 'The 3.1 blocks, 11.5 boards and 25.0 points make Wembanyama a first-pick anchor even before the assist punt. His 3.1 assists become unused value, but the real benefit is freedom to take later scorers who do not pass. Add threes and steals around him.' },
+      { name: 'Anthony Edwards', yahooAdp: 8.3, yahooPreRank: 6, note: 'Edwards gives 28.8 points and 3.4 threes without asking you to win assists. His 79.6% FT on volume can still hurt, so buy a strong free-throw source and a blocker in the next two rounds.' },
+      { name: 'Jayson Tatum', yahooAdp: 9.8, yahooPreRank: 14, note: 'Ten rebounds and 2.9 threes in his 16-game return show a useful forward shape for this build. The post-Achilles sample is short; draft for the broader scoring and shooting possibility while pricing in uncertain availability.' }
+    ] },
+    { round: 2, candidates: [
+      { name: 'Karl-Anthony Towns', yahooAdp: 15, yahooPreRank: 13, note: 'Towns offers 11.9 boards, threes and 85.8% free throws from a center slot. He is especially helpful after Edwards because he repairs frontcourt production without turning FT% into a second punt. His 2.5 turnovers are the tradeoff.' },
+      { name: 'Kevin Durant', yahooAdp: 16.9, yahooPreRank: 27, note: 'Durant scored 26.0 points on 52.0% shooting and 87.4% free throws across 78 games. That is a strong percentages partner for Wembanyama or Edwards; add steals and rebounding next rather than expecting Durant to carry either.' },
+      { name: 'Stephen Curry', yahooAdp: 23.9, yahooPreRank: 11, note: 'Curry supplies elite threes and FT% without requiring a team to chase his passing. Forty-three games last season make the late-second price a health bet. Pair him with a reliable rebounder and do not count on full-season volume.' }
+    ] },
+    { round: 3, candidates: [
+      { name: 'Chet Holmgren', yahooAdp: 27.7, yahooPreRank: 19, note: 'His 1.9 blocks, 8.9 rebounds and 1.3 threes give you the defensive big who does not erase spacing. The 1.7 assists no longer hold the line back; his minutes in Oklahoma City still limit the volume ceiling.' },
+      { name: 'Kawhi Leonard', yahooAdp: 29.3, yahooPreRank: 15, note: 'Kawhi brought 27.5 points and 1.8 steals in 65 games, solving two columns a big-heavy opening can miss. His Toronto role after the September trade is new, and age makes another 65-game season uncertain.' },
+      { name: 'Jaylen Brown', yahooAdp: 27.5, yahooPreRank: 95, note: 'Brown\'s 28.5 points and 6.9 boards are useful from a wing once assists disappear. Philadelphia has more mouths to feed than last year\'s Boston lineup; treat the old scoring rate as a ceiling, not a settled forecast.' }
+    ] },
+    { round: 4, candidates: [
+      { name: 'Trey Murphy III', yahooAdp: 40.1, yahooPreRank: 21, note: 'Murphy made 3.2 threes, scored 21.5 points and added 1.5 steals. He is the clean perimeter complement to an early Wembanyama or Clingan pick, though his strong FT% should be preserved rather than wasted beside several poor-FT centers.' },
+      { name: 'Lauri Markkanen', yahooAdp: 38.7, yahooPreRank: 18, note: 'Markkanen gives 26.6 points, useful threes and 89.6% free throws while his 2.1 assists stop mattering. Forty-two games and Utah\'s changed frontcourt make this a price-sensitive upside pick; do not rely on him alone for scoring volume.' },
+      { name: 'Donovan Clingan', yahooAdp: 41.6, yahooPreRank: 29, note: 'Clingan\'s 11.5 rebounds and 1.7 blocks over 77 games can secure the frontcourt early. His 69.2% free throws and modest points mean he works best after a strong shooting and scoring start, not beside another FT% drag.' }
+    ] },
+    { round: 5, candidates: [
+      { name: 'Jaren Jackson Jr.', yahooAdp: 50.5, yahooPreRank: 54, note: 'Jackson offers blocks and scoring from a forward slot, a useful bridge when early picks bought threes. His 1.4 blocks were below his old peak, and Utah\'s frontcourt is crowded; do not pay for a return to his best defensive season.' },
+      { name: 'Michael Porter Jr.', yahooAdp: 59.6, yahooPreRank: 55, note: 'Porter supplied 24.2 points, 3.4 threes and 7.1 boards in Brooklyn, with only three assists to give away. Fifty-two games and a changing Nets frontcourt make the fifth-round cost attractive but far from certain.' },
+      { name: 'Nickeil Alexander-Walker', yahooAdp: 60.1, yahooPreRank: 24, note: 'His 20.8 points, 3.2 threes and 90.2% free throws over 81 games can balance a big-heavy start. He is a better fit when your first four picks already bought rebounds and blocks; draft the scoring role rather than expecting lead-guard assists.' }
+    ] },
+    { round: 6, candidates: [
+      { name: 'Desmond Bane', yahooAdp: 52.9, yahooPreRank: 44, note: 'Bane played 82 games, scored 20.1 points and shot 90.2% at the line. A team carrying Clingan\'s FT% can use him to protect that category; he adds threes without forcing another high-turnover creator.' },
+      { name: 'Matas Buzelis', yahooAdp: 61.9, yahooPreRank: 34, note: 'The 2.2 threes and 1.5 blocks are a rare forward combination. His next step depends on Chicago\'s role distribution, so buy the existing shooting-and-block profile and treat a scoring leap as upside.' },
+      { name: 'OG Anunoby', yahooAdp: 66.6, yahooPreRank: 60, note: 'Anunoby adds 1.6 steals and 2.3 threes without needing the ball. He fills a common punt-assists hole after a center-heavy start, with 67 games providing a sturdier availability base than several other wings in this range.' }
+    ] },
+    { round: 7, candidates: [
+      { name: 'Naz Reid', yahooAdp: 62.5, yahooPreRank: 53, note: 'Reid brings threes, rebounds and blocks from the frontcourt. Charlotte offers a new route to minutes, but his precise role is still uncertain; use him when your roster needs spacing and defense from the same slot.' },
+      { name: 'Mikal Bridges', yahooAdp: 79.6, yahooPreRank: 41, note: 'Bridges played all 82 games, shot 49.0% and contributed threes, steals and low turnovers. The 14.4 points do not make him a scorer to build around, but his clean wing line complements higher-volume early picks.' },
+      { name: 'Kel\'el Ware', yahooAdp: 73.2, yahooPreRank: 51, note: 'Ware posted nine rebounds, 1.1 blocks and 1.2 threes. Milwaukee\'s rotation after the Giannis trade is a projection, so this is a bet on a useful category mix rather than guaranteed extra minutes.' }
+    ] },
+    { round: 8, candidates: [
+      { name: 'Jaden McDaniels', yahooAdp: 89.2, yahooPreRank: 43, note: 'McDaniels gave 1.1 steals, 1.0 blocks and 51.5% shooting while contributing 14.8 points. He is a clean wing defender after an Edwards start; Minnesota\'s new guard rotation could change his shots.' },
+      { name: 'Norman Powell', yahooAdp: 92.4, yahooPreRank: 115, note: 'Powell\'s 21.7 points and 2.7 threes are unusually available at this price, and the light assists cost nothing here. Chicago is a new scoring context, so draft him to finish an established team rather than to carry its first offensive category.' },
+      { name: 'Jabari Smith Jr.', yahooAdp: 94.1, yahooPreRank: 84, note: 'Smith made 2.3 threes and grabbed 6.9 boards over 77 games. He fits when early scorers left the forward slots thin on rebounding; Houston\'s crowded frontcourt limits how much more to project.' }
+    ] },
+    { round: 9, candidates: [
+      { name: 'Andrew Wiggins', yahooAdp: 100.7, yahooPreRank: 103, note: 'Wiggins gives two threes, a steal and a block from the wing. His 47.5% shooting is manageable beside an efficient big, but Giannis\' arrival in Miami makes the old scoring share uncertain.' },
+      { name: 'Myles Turner', yahooAdp: 100.3, yahooPreRank: 109, note: 'Turner still supplied 2.1 threes and 1.6 blocks, a rare late-center pair. His 44.0% FG and 5.3 rebounds are real costs; take him after FG% and boards are secure, not as a substitute for them.' },
+      { name: 'Toumani Camara', yahooAdp: 110.1, yahooPreRank: 98, note: 'Camara played 82 games and made 2.6 threes with 5.1 rebounds. His 70.7% free throws can pull down an otherwise clean punt-assists build, so check attempts and roster impact before paying for the shooting.' }
+    ] },
+    { round: 10, candidates: [
+      { name: 'Cason Wallace', yahooAdp: 118.2, yahooPreRank: 76, note: 'Two steals and just 0.9 turnovers make Wallace useful when the first nine picks already secured points. His 8.6 points cannot rescue offense, but the 2.6 assists are no longer a reason to pass on him.' },
+      { name: 'Saddiq Bey', yahooAdp: 120.1, yahooPreRank: 108, note: 'Bey gave 17.7 points, 2.1 threes, 5.6 boards and 0.9 turnovers in 72 games. Limited defensive stats mean he belongs on a roster that already has steals and blocks.' },
+      { name: 'Devin Vassell', yahooAdp: 116.5, yahooPreRank: 122, note: 'Vassell made 2.5 threes with fewer than one turnover per game, useful final shooting without a playmaking premium. His thin steals mean the category needs another source earlier.' }
+    ] },
+    { round: 11, candidates: [
+      { name: 'P.J. Washington', yahooAdp: 115.8, yahooPreRank: 178, note: 'Washington adds seven boards, a steal and a block from forward, useful defensive insurance after several shooting wings. His 45.0% FG is a poor fit if your first centers were already inefficient.' },
+      { name: 'Julian Champagnie', yahooAdp: 110.9, yahooPreRank: 128, note: 'Champagnie supplied 2.4 threes and 5.8 boards in 82 games with modest usage. He is a late shooting-and-rebounding piece; the clustered Yahoo market can push him a round earlier.' },
+      { name: 'Neemias Queta', yahooAdp: 115.2, yahooPreRank: 116, note: 'Queta shot 65.3% with 8.4 boards and 1.3 blocks over 76 games. His zero threes and 70.3% FT create pressure elsewhere, so take him only if shooting and the line can absorb it.' }
+    ] },
+    { round: 12, candidates: [
+      { name: 'Moses Moody', yahooAdp: null, yahooPreRank: null, note: 'Moody made 2.5 threes with 0.9 turnovers and little creation, exactly the clean wing shape this build can use. His 60 games and Golden State\'s crowded rotation make him an end-of-draft option, not a volume guarantee.' },
+      { name: 'Jay Huff', yahooAdp: null, yahooPreRank: null, note: 'Huff paired 1.9 blocks with 1.5 threes across 82 games. Indiana\'s addition of Zubac threatens his minutes, so take him only when the late price and your block need justify that role risk.' },
+      { name: 'Dillon Brooks', yahooAdp: 114.9, yahooPreRank: 171, note: 'Brooks scored 20.2 points and made 2.3 threes with only 1.8 assists, but 43.5% shooting can undo the benefit. Draft him after a strong FG% base and only if you still need points.' }
+    ] }
+  ],
+  faqs: [
+    { q: 'Does punt assists mean I should draft only bigs?', a: 'No. A big-heavy team can lose threes, steals and FT%. Use low-assist scoring wings and defenders to keep those columns competitive.' },
+    { q: 'Should I avoid every good passer?', a: 'No. Wembanyama and Towns remain valuable even when some assists are discarded. Pay for the categories a player still wins; do not spend an early pick mainly for passing.' },
+    { q: 'What is the most common second punt?', a: 'FT% is the main risk when several traditional centers are paired. Threes or steals can also slip away if every later pick is another rebounder.' },
+    { q: 'Does this work in eight-category leagues?', a: 'Yes, but turnovers disappear, taking away one of the natural benefits of low-usage players. Recheck the seven remaining category strengths before assuming the same targets are discounted.' }
+  ]
+};
+
+export const PUNT_GUIDES = [PUNT_FT, PUNT_ASSISTS];

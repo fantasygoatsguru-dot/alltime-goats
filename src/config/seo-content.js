@@ -81,7 +81,7 @@ export const SEO_CONTENT = {
       
       <p>Unlike simple per-game averages, our fantasy basketball rankings account for statistical rarity and category scarcity. A player averaging 2.5 blocks per game provides more fantasy value than one averaging 2.5 assists because blocks are much harder to find. Our Z-score methodology captures these nuances to give you true fantasy basketball player values.</p>
       
-      <p>Use our punt strategy analyzer to see how player rankings change when you punt specific categories. Punting turnovers and field goal percentage dramatically increases the value of high-usage guards, while conceding free throw percentage elevates the big men who dominate rebounds, blocks and field goal percentage — the <a href="/guides/punt-ft">punt FT% build</a>. Going the other way, the <a href="/guides/punt-blocks">punt blocks build</a> walks away from the scarcest category on the board and loads up on guards and wings instead. Each guide carries a live draft board re-ranked with that column removed, and every build is listed in the <a href="/guides">strategy guides</a>.</p>
+      <p>Use our punt strategy analyzer to see how player rankings change when you punt specific categories. Conceding free throw percentage elevates the big men who dominate rebounds, blocks and field goal percentage — the <a href="/guides/punt-ft">punt FT% build</a>. The <a href="/guides/punt-blocks">punt blocks build</a> leans into guards and wings, while the <a href="/guides/punt-assists">punt assists build</a> emphasizes scoring and defense without paying for playmaking. Each guide carries a live draft board re-ranked with that column removed, and every build is listed in the <a href="/guides">strategy guides</a>.</p>
       
       <p>Our rankings update regularly throughout the season, with options to view season-long stats or recent performance over 7, 30, or 60 days. This helps you identify trending players, spot buy-low opportunities, and avoid selling high on players experiencing hot streaks. Filter by position and team to find the perfect waiver wire additions for your roster construction. Check <a href="/season-games">top season performances</a> to see which players are on fire.</p>
       
@@ -227,7 +227,7 @@ export const SEO_CONTENT = {
       
       <p>Our matchup analysis integrates with Yahoo Fantasy Basketball to provide personalized insights based on your actual league and team. See exactly how you match up against your opponent this week and get strategic recommendations for maximizing your chances of winning your head-to-head matchup.</p>
 
-      <p>Most weekly matchups are decided by roster construction rather than by streaming. If you keep losing the same two categories, you are not unlucky — you are built that way, and the fix is a build that concedes one column on purpose. Use the <a href="/guides/top-150">2026-27 projected top 150</a>, refreshed with corrected 2025-26 results, then read the <a href="/guides/punt-ft">punt FT% build</a> or the <a href="/guides/punt-blocks">punt blocks build</a> to see how a board re-ranks once a category comes out of the maths. Track the results with the <a href="/rankings">rankings tool</a> and plan the weeks ahead with the <a href="/nba-regular-season">schedule grid</a>.</p>
+      <p>Most weekly matchups are decided by roster construction rather than by streaming. If you keep losing the same two categories, you are not unlucky — you are built that way, and the fix is a build that concedes one column on purpose. Use the <a href="/guides/top-150">2026-27 projected top 150</a>, refreshed with corrected 2025-26 results, then read the <a href="/guides/punt-ft">punt FT% build</a>, <a href="/guides/punt-blocks">punt blocks build</a> or <a href="/guides/punt-assists">punt assists build</a> to see how a board re-ranks once a category comes out of the maths. Track the results with the <a href="/rankings">rankings tool</a> and plan the weeks ahead with the <a href="/nba-regular-season">schedule grid</a>.</p>
     `,
     keywords: ['matchup analyzer', 'fantasy basketball matchup', 'team comparison', 'head-to-head fantasy', 'trade analyzer', 'player comparison']
   },
@@ -241,7 +241,7 @@ export const SEO_CONTENT = {
 
       <p>Draft prep runs deeper than a ranking list. Our <a href="/guides/sleepers">fantasy basketball sleepers</a> page identifies the players whose projected value sits above their draft cost, and the <a href="/guides/busts">busts</a> page names the players whose nine-category production will not cover the round they are going in — usually because of a free throw percentage, an empty scoring average, or a games-played history the consensus is ignoring.</p>
 
-      <p>Punt strategy is the other half of draft prep: conceding a single category on purpose reshapes your entire board. Give up blocks and elite guards climb; give up free throw percentage and the best rebounding centers in the league stay available rounds later than they should. The <a href="/guides/punt-blocks">punt blocks guide</a> is the free worked example and the <a href="/guides/punt-ft">punt FT% guide</a> is the big-man build that beats it in most drafts, and each carries a live draft board that re-ranks every player with the punted column removed from the math, so you draft off real numbers rather than a static list. Further punt builds land through draft season.</p>
+      <p>Punt strategy is the other half of draft prep: conceding a single category on purpose reshapes your entire board. Give up blocks and elite guards climb; give up free throw percentage and rebounding centers rise; give up assists and scoring wings gain appeal. The <a href="/guides/punt-blocks">punt blocks guide</a> is the free worked example. The <a href="/guides/punt-ft">punt FT% guide</a> and <a href="/guides/punt-assists">punt assists guide</a> cover two different ways to build around frontcourt production. Each has a live draft board with the punted column removed from the math.</p>
     `,
     keywords: ['fantasy basketball strategy', 'fantasy basketball guides', 'punt strategy', 'fantasy basketball draft strategy', '9-cat fantasy basketball', 'category leagues']
   },
@@ -315,6 +315,18 @@ export const SEO_CONTENT = {
       <p>The live table removes blocks from corrected 2025-26 production. It shows how players performed in that build last season; health, team and role changes still matter for the 2026-27 draft. Use the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> alongside this historical board. The written round targets use Yahoo's September 26 ADP and pre-rank snapshot.</p>
     `,
     keywords: ['punt blocks', 'punt strategy fantasy basketball', 'fantasy basketball punt build', '9-cat punt blocks', 'fantasy basketball draft strategy', 'category punting']
+  },
+
+  '/guides/punt-assists': {
+    title: 'Punt Assists Strategy 2026-27',
+    content: `
+      <p>Punt assists is a nine-category build for scorers, rebounders and defenders who do not need to create many shots for teammates. Victor Wembanyama is a natural anchor: his corrected 2025-26 line included 25.0 points, 11.5 rebounds and 3.1 blocks, while his 3.1 assists no longer affect the board. Anthony Edwards offers a scoring-and-threes opening, but needs more frontcourt support.</p>
+
+      <p>Keep FT%, threes and steals in view when selecting bigs. A run of poor free-throw centers can turn this into a second punt; a run of finishers can leave too few threes. Trey Murphy III, OG Anunoby and other shooting or defensive wings can fill those gaps without requiring assists to pay back their cost.</p>
+
+      <p>The live table removes assists from corrected 2025-26 production, so it describes last season rather than forecasting 2026-27. Use the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> alongside the historical board. Written round targets use Yahoo's September 26 ADP and pre-rank snapshot.</p>
+    `,
+    keywords: ['punt assists', 'punt assists fantasy basketball', '9-cat punt assists', 'fantasy basketball draft strategy', 'punt assists draft board']
   }
 };
 

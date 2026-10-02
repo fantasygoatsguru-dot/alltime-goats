@@ -172,6 +172,13 @@ export const seoRoutes = [
     priority: 0.7,
   },
   {
+    path: '/guides/punt-assists',
+    title: 'Punt Assists Strategy 2026-27 | Live Draft Board | Fantasy Goats Guru',
+    description: 'Build a 2026-27 punt assists team around scoring, defense and efficient wings. Draft targets, example teams and a live board with assists removed.',
+    changefreq: 'weekly',
+    priority: 0.7,
+  },
+  {
     path: '/guides/punt-blocks',
     title: 'Punt Blocks Strategy 2026-27 | Live Draft Board | Fantasy Goats Guru',
     description: 'The complete punt blocks build for 2026-27 fantasy basketball: strategy, strengths and weaknesses, and a live draft board re-ranked with blocks removed from the z-score total.',

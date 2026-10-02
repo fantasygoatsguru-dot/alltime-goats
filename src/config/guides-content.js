@@ -670,7 +670,7 @@ export const guides = [
   },
 
   // Written punt builds, one file per season — see config/punt-guides-2026-27.js.
-  // They live outside this file because each runs 200+ lines and six of them
+  // They live outside this file because each runs 200+ lines and several of them
   // would bury the four rankings guides above.
   ...PUNT_GUIDES,
 ];
@@ -679,18 +679,14 @@ export const guides = [
 // PLANNED — deliberately NOT in `guides`, so nothing renders and nothing links
 // here.
 // ---------------------------------------------------------------------------
-// These six were listed on /guides with a Premium lock badge while holding no
+// These builds were listed on /guides with a Premium lock badge while holding no
 // prose, no board and no example teams — a paywall in front of an empty page,
 // on the most-searched build in 9-cat (punt FT) among others. Unlisting them is
 // not a demotion of the plan; it is refusing to sell what is not written.
 //
-// To ship one: move its entry into `guides` above, fill it out to the shape of
-// punt-blocks (sections, buildingBlocks, roundTargets, exampleTeams, faqs), and
-// add the route to config/seo-routes.js and the crawlable copy to
-// config/seo-content.js — none of the six are in either file, so even as
-// teasers they were invisible to search.
+// To ship one: add its complete config to punt-guides-2026-27.js, remove its
+// planned entry, and add the route and crawlable copy to the SEO config files.
 export const PLANNED_GUIDES = [
-  { slug: 'punt-assists',    type: 'punt', puntKey: 'ast', title: 'Punt Assists',    season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Lean into bigs and low-usage wings.', strengths: ['blk', 'reb', 'fg'], weaknesses: ['ast', 'to'] },
   { slug: 'punt-fg',         type: 'punt', puntKey: 'fg',  title: 'Punt FG%',         season: CURRENT_GUIDE_SEASON, difficulty: 'Beginner',     isPremium: true,  tagline: 'The volume-scorer build. Fire away.',  strengths: ['pts', '3pm', 'ast', 'stl'], weaknesses: ['fg'] },
   { slug: 'punt-threes',     type: 'punt', puntKey: '3pm', title: 'Punt Threes',      season: CURRENT_GUIDE_SEASON, difficulty: 'Intermediate', isPremium: true,  tagline: 'Old-school bigs and slashers.',        strengths: ['blk', 'reb', 'fg', 'pts'], weaknesses: ['3pm'] },
   { slug: 'punt-points',     type: 'punt', puntKey: 'pts', title: 'Punt Points',      season: CURRENT_GUIDE_SEASON, difficulty: 'Advanced',     isPremium: true,  tagline: 'Specialists over scorers.',            strengths: ['stl', 'blk', 'fg', 'ft'], weaknesses: ['pts'] },
