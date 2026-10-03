@@ -434,130 +434,407 @@ export const PUNT_FT = {
 };
 
 export const PUNT_ASSISTS = {
-  slug: 'punt-assists',
-  type: 'punt',
-  puntKey: 'ast',
-  title: 'Punt Assists',
-  season: CONTENT_SEASON,
-  difficulty: 'Intermediate',
-  isPremium: true,
-  tagline: 'Keep the points and defensive stats; stop paying for playmaking you will not use.',
-  strengths: ['pts', 'reb', 'blk', 'to'],
-  weaknesses: ['ast', 'stl', 'ft', '3pm'],
-  freeSections: 2,
-  board: { minGames: 30, freeLimit: 20, previewRows: 4 },
-  sections: [
+  "slug": "punt-assists",
+  "type": "punt",
+  "puntKey": "ast",
+  "title": "Punt Assists",
+  "season": CONTENT_SEASON,
+  "difficulty": "Intermediate",
+  "isPremium": true,
+  "tagline": "Build around finishers, protect both percentages, and leave the playmaking premium to someone else.",
+  "strengths": [
+    "pts",
+    "reb",
+    "blk",
+    "to"
+  ],
+  "weaknesses": [
+    "ast",
+    "stl",
+    "ft",
+    "3pm"
+  ],
+  "freeSections": 2,
+  "board": {
+    "minGames": 30,
+    "freeLimit": 20,
+    "previewRows": 4
+  },
+  "sections": [
     {
-      id: 'strategy',
-      heading: 'The strategy',
-      body: [
-        'Punt assists is a nine-category plan for a roster whose best players score, rebound, defend and finish possessions without creating many shots for teammates. Victor Wembanyama is the cleanest opening: his 2025-26 line included 25.0 points, 11.5 rebounds and 3.1 blocks, but only 3.1 assists. Removing assists makes that already elite combination easier to build around; his first-pick price is justified by the full line, not by a supposed punt discount.',
-        'The next picks should buy points and threes from wings while preserving enough FG%, FT% and steals to win at least five of the eight remaining categories. Anthony Edwards is another plausible first-round start, with 28.8 points and 3.4 threes, but his 79.6% free throws on volume and ordinary block production make his follow-up picks very different from Wembanyama\'s.'
+      "id": "strategy",
+      "heading": "What you are actually giving up",
+      "body": [
+        "Punt assists is a head-to-head nine-category plan, not an instruction to draft the players with the fewest assists. You are accepting a likely loss in one category so that the other eight can support a winning roster. The useful targets are players whose scoring, shooting, rebounding or defense justify their price without needing their passing. A high-assist player can still be the right pick; a low-assist player can still be an expensive mistake. In roto, deliberately finishing near the bottom in assists carries a season-long standings cost, so this is a much less comfortable default.",
+        "Wembanyama is the clearest early foundation because his 25.0 points, 11.5 rebounds and 3.1 blocks already cover several jobs. His 82.7% free throws on 7.0 attempts also let you keep competing at the line. The next picks should exploit that freedom: a scorer who adds threes and steals is often more valuable to this particular team than another shot blocker. Edwards starts the same punt from the other direction. His 28.8 points and 3.4 threes are the offense; the next turns need to supply frontcourt production.",
+        "Do not confuse removing assists with removing turnovers. Brown still committed 3.6 per game and Durant 3.2, whereas Markkanen scored 26.6 points with only 1.5. Those differences remain part of the decision. Likewise, a guard such as Curry can fit perfectly because his threes and free throws justify the cost even after his passing is discarded. The aim is to stop paying primarily for creation, not to enforce a rule against guards."
       ]
     },
     {
-      id: 'correlation',
-      heading: 'Natural strengths & weaknesses',
-      body: [
-        'Centers and finishing forwards make rebounds, FG% and blocks accessible, while low-usage wings can keep turnovers down. That is a menu of possible strengths, not a promise that every punt-assists team wins all four. An Edwards start still needs blocks and boards; a Wembanyama-Clingan start has plenty of both but must buy perimeter scoring and steals elsewhere.',
-        'The danger is drifting into a second punt. Traditional centers often give little in threes, and some also damage FT%. Gobert\'s 52.6% free throws make him an expensive fit if you still intend to win the line; Clingan\'s 69.2% is a smaller but real cost. Use shooting wings such as Murphy or Porter for threes, and defenders such as Anunoby or Wallace for steals. Low assists alone do not make a player a target: the other eight categories must justify his draft price.'
+      "id": "correlation",
+      "heading": "Keep one punt from becoming three",
+      "body": [
+        "Rebounds and blocks are accessible through the early bigs, but neither becomes automatic simply because you stop drafting point guards. Towns contributed 11.9 rebounds and only 0.5 blocks; Turner supplied 1.6 blocks but just 5.3 rebounds. FG% needs the same care. Holmgren's 55.7% shooting helps an inefficient perimeter scorer, while Turner's 44.0% does not. Check the actual line rather than assuming every center protects the same categories.",
+        "Free throws are often where the build goes wrong. Edwards shot 79.6% on 7.2 attempts, a larger volume than Clingan's 69.2% on 2.5 attempts. Either can fit with strong shooters; combining several weaknesses without measuring the totals is the problem. Bane's 90.8% on 4.2 attempts or Markkanen's 89.6% on 6.4 provide genuine counterweights. Average made and attempted shots across the roster, not the individual percentages. The same principle applies to FG%, especially when a late scorer takes many more shots than your efficient reserve center.",
+        "Steals and threes need deliberate attention before the late rounds. Murphy supplies both at 1.5 steals and 3.2 threes; Anunoby is another way to keep a big-led opening from becoming one-dimensional. Wallace can repair steals later, but his 8.6 points make that choice harder if the offense is already weak. Low-turnover wings are useful finishing pieces, not substitutes for establishing points early. There is no reward for winning rebounds by a huge margin while conceding assists, steals, threes and free throws."
       ]
     },
     {
-      id: 'draft',
-      heading: 'Where the value sits in the draft',
-      body: [
-        'Yahoo\'s September 26 snapshot puts Wembanyama near pick two and Edwards near pick eight. Towns and Durant usually cost a second-round pick; Holmgren and Kawhi are third-round prices. Use the first three picks to establish points and either defensive big-man production or efficient shooting. Murphy, Porter and later three-point wings can fill the opposite side, but they cannot rescue a roster that has already given away FT% and steals.',
-        'The board below removes assists from corrected 2025-26 production; it records last season rather than projecting 2026-27. The round targets use the dated Yahoo ADP and pre-rank snapshot, then account for role and availability. Treat the round labels as a draft queue, especially after pick 100 where the market is tightly packed.'
+      "id": "draft",
+      "heading": "Draft the complement, not another copy",
+      "body": [
+        "These targets assume a 12-team snake draft. The first three rounds should establish enough scoring and an identifiable frontcourt plan. After Wembanyama, consider efficient offense or shooting rather than reflexively taking the next center. After Edwards, Towns supplies boards and free throws while Holmgren offers stronger FG% and blocks. Kawhi can solve scoring and steals together, but stacking him with other availability risks makes a theoretical category advantage much less dependable.",
+        "The middle rounds are where the market and our rankings differ most usefully. Murphy is 24th for us against ADP 40, Markkanen 20th against 39, and Bane 38th against 53. Those are reasons to have alternatives ready, not reasons to assume all three fall to the same team. Conversely, Brown's ADP near 28 is more expensive than our No. 42 valuation even before accounting for this build's turnover and FT% concerns. Bane belongs in the fifth-round queue and Reid in the sixth; their old placements a round later were too optimistic.",
+        "The live board removes assists from corrected 2025-26 production and is historical, not a 2026-27 projection. The written notes compare that baseline with our projected Top 150, Yahoo ADP saved September 26 and Yahoo standard pre-ranks checked October 3. ADP has not been refreshed to October 3. Pre-rank affects who appears near the top of the draft room and can make a player go well before the older average; it is not another name for ADP.",
+        "After pick 100, choose the missing category rather than following a fixed list. Wallace is a steals purchase, Bey supplies scoring with low turnovers, and Queta is a conditional efficiency-and-rebounding option. Washington, Champagnie, Queta and Brooks are fallbacks only if they slip beyond the prices that make them less appealing on our board. The late round labels describe when we would consider them, not a claim that their ADPs predict they will still be available."
       ]
     }
   ],
-  buildingBlocks: [
-    { name: 'An anchor with real category weight', note: 'Wembanyama supplies blocks and boards; Edwards supplies points and threes. Draft the complement, not a copy of the first pick.' },
-    { name: 'Scoring without an assist premium', note: 'Use wings such as Murphy, Porter and Powell for points and threes after securing the frontcourt.' },
-    { name: 'Protected percentages and steals', note: 'Check FT% attempts and FG% volume, then add a genuine steals source before the late rounds.' }
-  ],
-  exampleTeams: [
+  "buildingBlocks": [
     {
-      name: 'Wembanyama with shooting wings',
-      color: '#2f80ed',
-      note: 'A roughly one-per-round eight-pick start by Yahoo price. Wembanyama and Holmgren carry blocks, while Murphy, Bane and Durant supply threes and points. Anunoby adds steals and Bridges keeps turnovers modest. Recheck steals and rebounds before filling the last roster spots; two elite shot blockers do not settle every category.',
-      roster: ['Victor Wembanyama', 'Kevin Durant', 'Chet Holmgren', 'Trey Murphy III', 'Desmond Bane', 'OG Anunoby', 'Mikal Bridges', 'Norman Powell']
+      "name": "Enough offense to afford specialists",
+      "note": "Secure points before relying on Clingan or Wallace. Markkanen's 26.6 points with 1.5 turnovers illustrate the ideal offensive shape, but his 42 games require a plan for availability too."
     },
     {
-      name: 'Edwards with a defensive frontcourt',
-      color: '#16a085',
-      note: 'Edwards, Kawhi and Porter carry scoring while Towns, Clingan and Buzelis buy back boards and blocks. McDaniels adds steals and efficient wing shooting. Clingan\'s free throws and the health of Kawhi and Porter are the constraints; avoid another poor-FT big until the team radar says the line is safe.',
-      roster: ['Anthony Edwards', 'Karl-Anthony Towns', 'Kawhi Leonard', 'Donovan Clingan', 'Michael Porter Jr.', 'Matas Buzelis', 'Mikal Bridges', 'Jaden McDaniels']
+      "name": "Bigs with different jobs",
+      "note": "Towns brings rebounding and FT% volume; Holmgren brings FG% and blocks. Turner brings threes and blocks without the same rebounding or efficiency. Match the choice to the first picks rather than the position label."
+    },
+    {
+      "name": "A real steals source and weighted percentages",
+      "note": "Murphy and Anunoby can keep steals competitive without dropping threes. Check total makes and attempts before adding another poor foul shooter; a good-looking percentage on one attempt cannot cancel a weakness on seven."
     }
   ],
-  roundTargets: [
-    { round: 1, candidates: [
-      { name: 'Victor Wembanyama', yahooAdp: 1.6, yahooPreRank: 3, note: 'The 3.1 blocks, 11.5 boards and 25.0 points make Wembanyama a first-pick anchor even before the assist punt. His 3.1 assists become unused value, but the real benefit is freedom to take later scorers who do not pass. Add threes and steals around him.' },
-      { name: 'Anthony Edwards', yahooAdp: 8.3, yahooPreRank: 6, note: 'Edwards gives 28.8 points and 3.4 threes without asking you to win assists. His 79.6% FT on volume can still hurt, so buy a strong free-throw source and a blocker in the next two rounds.' },
-      { name: 'Jayson Tatum', yahooAdp: 9.8, yahooPreRank: 14, note: 'Ten rebounds and 2.9 threes in his 16-game return show a useful forward shape for this build. The post-Achilles sample is short; draft for the broader scoring and shooting possibility while pricing in uncertain availability.' }
-    ] },
-    { round: 2, candidates: [
-      { name: 'Karl-Anthony Towns', yahooAdp: 15, yahooPreRank: 13, note: 'Towns offers 11.9 boards, threes and 85.8% free throws from a center slot. He is especially helpful after Edwards because he repairs frontcourt production without turning FT% into a second punt. His 2.5 turnovers are the tradeoff.' },
-      { name: 'Kevin Durant', yahooAdp: 16.9, yahooPreRank: 27, note: 'Durant scored 26.0 points on 52.0% shooting and 87.4% free throws across 78 games. That is a strong percentages partner for Wembanyama or Edwards; add steals and rebounding next rather than expecting Durant to carry either.' },
-      { name: 'Stephen Curry', yahooAdp: 23.9, yahooPreRank: 11, note: 'Curry supplies elite threes and FT% without requiring a team to chase his passing. Forty-three games last season make the late-second price a health bet. Pair him with a reliable rebounder and do not count on full-season volume.' }
-    ] },
-    { round: 3, candidates: [
-      { name: 'Chet Holmgren', yahooAdp: 27.7, yahooPreRank: 19, note: 'His 1.9 blocks, 8.9 rebounds and 1.3 threes give you the defensive big who does not erase spacing. The 1.7 assists no longer hold the line back; his minutes in Oklahoma City still limit the volume ceiling.' },
-      { name: 'Kawhi Leonard', yahooAdp: 29.3, yahooPreRank: 15, note: 'Kawhi brought 27.5 points and 1.8 steals in 65 games, solving two columns a big-heavy opening can miss. His Toronto role after the September trade is new, and age makes another 65-game season uncertain.' },
-      { name: 'Jaylen Brown', yahooAdp: 27.5, yahooPreRank: 95, note: 'Brown\'s 28.5 points and 6.9 boards are useful from a wing once assists disappear. Philadelphia has more mouths to feed than last year\'s Boston lineup; treat the old scoring rate as a ceiling, not a settled forecast.' }
-    ] },
-    { round: 4, candidates: [
-      { name: 'Trey Murphy III', yahooAdp: 40.1, yahooPreRank: 21, note: 'Murphy made 3.2 threes, scored 21.5 points and added 1.5 steals. He is the clean perimeter complement to an early Wembanyama or Clingan pick, though his strong FT% should be preserved rather than wasted beside several poor-FT centers.' },
-      { name: 'Lauri Markkanen', yahooAdp: 38.7, yahooPreRank: 18, note: 'Markkanen gives 26.6 points, useful threes and 89.6% free throws while his 2.1 assists stop mattering. Forty-two games and Utah\'s changed frontcourt make this a price-sensitive upside pick; do not rely on him alone for scoring volume.' },
-      { name: 'Donovan Clingan', yahooAdp: 41.6, yahooPreRank: 29, note: 'Clingan\'s 11.5 rebounds and 1.7 blocks over 77 games can secure the frontcourt early. His 69.2% free throws and modest points mean he works best after a strong shooting and scoring start, not beside another FT% drag.' }
-    ] },
-    { round: 5, candidates: [
-      { name: 'Jaren Jackson Jr.', yahooAdp: 50.5, yahooPreRank: 54, note: 'Jackson offers blocks and scoring from a forward slot, a useful bridge when early picks bought threes. His 1.4 blocks were below his old peak, and Utah\'s frontcourt is crowded; do not pay for a return to his best defensive season.' },
-      { name: 'Michael Porter Jr.', yahooAdp: 59.6, yahooPreRank: 55, note: 'Porter supplied 24.2 points, 3.4 threes and 7.1 boards in Brooklyn, with only three assists to give away. Fifty-two games and a changing Nets frontcourt make the fifth-round cost attractive but far from certain.' },
-      { name: 'Nickeil Alexander-Walker', yahooAdp: 60.1, yahooPreRank: 24, note: 'His 20.8 points, 3.2 threes and 90.2% free throws over 81 games can balance a big-heavy start. He is a better fit when your first four picks already bought rebounds and blocks; draft the scoring role rather than expecting lead-guard assists.' }
-    ] },
-    { round: 6, candidates: [
-      { name: 'Desmond Bane', yahooAdp: 52.9, yahooPreRank: 44, note: 'Bane played 82 games, scored 20.1 points and shot 90.2% at the line. A team carrying Clingan\'s FT% can use him to protect that category; he adds threes without forcing another high-turnover creator.' },
-      { name: 'Matas Buzelis', yahooAdp: 61.9, yahooPreRank: 34, note: 'The 2.2 threes and 1.5 blocks are a rare forward combination. His next step depends on Chicago\'s role distribution, so buy the existing shooting-and-block profile and treat a scoring leap as upside.' },
-      { name: 'OG Anunoby', yahooAdp: 66.6, yahooPreRank: 60, note: 'Anunoby adds 1.6 steals and 2.3 threes without needing the ball. He fills a common punt-assists hole after a center-heavy start, with 67 games providing a sturdier availability base than several other wings in this range.' }
-    ] },
-    { round: 7, candidates: [
-      { name: 'Naz Reid', yahooAdp: 62.5, yahooPreRank: 53, note: 'Reid brings threes, rebounds and blocks from the frontcourt. Charlotte offers a new route to minutes, but his precise role is still uncertain; use him when your roster needs spacing and defense from the same slot.' },
-      { name: 'Mikal Bridges', yahooAdp: 79.6, yahooPreRank: 41, note: 'Bridges played all 82 games, shot 49.0% and contributed threes, steals and low turnovers. The 14.4 points do not make him a scorer to build around, but his clean wing line complements higher-volume early picks.' },
-      { name: 'Kel\'el Ware', yahooAdp: 73.2, yahooPreRank: 51, note: 'Ware posted nine rebounds, 1.1 blocks and 1.2 threes. Milwaukee\'s rotation after the Giannis trade is a projection, so this is a bet on a useful category mix rather than guaranteed extra minutes.' }
-    ] },
-    { round: 8, candidates: [
-      { name: 'Jaden McDaniels', yahooAdp: 89.2, yahooPreRank: 43, note: 'McDaniels gave 1.1 steals, 1.0 blocks and 51.5% shooting while contributing 14.8 points. He is a clean wing defender after an Edwards start; Minnesota\'s new guard rotation could change his shots.' },
-      { name: 'Norman Powell', yahooAdp: 92.4, yahooPreRank: 115, note: 'Powell\'s 21.7 points and 2.7 threes are unusually available at this price, and the light assists cost nothing here. Chicago is a new scoring context, so draft him to finish an established team rather than to carry its first offensive category.' },
-      { name: 'Jabari Smith Jr.', yahooAdp: 94.1, yahooPreRank: 84, note: 'Smith made 2.3 threes and grabbed 6.9 boards over 77 games. He fits when early scorers left the forward slots thin on rebounding; Houston\'s crowded frontcourt limits how much more to project.' }
-    ] },
-    { round: 9, candidates: [
-      { name: 'Andrew Wiggins', yahooAdp: 100.7, yahooPreRank: 103, note: 'Wiggins gives two threes, a steal and a block from the wing. His 47.5% shooting is manageable beside an efficient big, but Giannis\' arrival in Miami makes the old scoring share uncertain.' },
-      { name: 'Myles Turner', yahooAdp: 100.3, yahooPreRank: 109, note: 'Turner still supplied 2.1 threes and 1.6 blocks, a rare late-center pair. His 44.0% FG and 5.3 rebounds are real costs; take him after FG% and boards are secure, not as a substitute for them.' },
-      { name: 'Toumani Camara', yahooAdp: 110.1, yahooPreRank: 98, note: 'Camara played 82 games and made 2.6 threes with 5.1 rebounds. His 70.7% free throws can pull down an otherwise clean punt-assists build, so check attempts and roster impact before paying for the shooting.' }
-    ] },
-    { round: 10, candidates: [
-      { name: 'Cason Wallace', yahooAdp: 118.2, yahooPreRank: 76, note: 'Two steals and just 0.9 turnovers make Wallace useful when the first nine picks already secured points. His 8.6 points cannot rescue offense, but the 2.6 assists are no longer a reason to pass on him.' },
-      { name: 'Saddiq Bey', yahooAdp: 120.1, yahooPreRank: 108, note: 'Bey gave 17.7 points, 2.1 threes, 5.6 boards and 0.9 turnovers in 72 games. Limited defensive stats mean he belongs on a roster that already has steals and blocks.' },
-      { name: 'Devin Vassell', yahooAdp: 116.5, yahooPreRank: 122, note: 'Vassell made 2.5 threes with fewer than one turnover per game, useful final shooting without a playmaking premium. His thin steals mean the category needs another source earlier.' }
-    ] },
-    { round: 11, candidates: [
-      { name: 'P.J. Washington', yahooAdp: 115.8, yahooPreRank: 178, note: 'Washington adds seven boards, a steal and a block from forward, useful defensive insurance after several shooting wings. His 45.0% FG is a poor fit if your first centers were already inefficient.' },
-      { name: 'Julian Champagnie', yahooAdp: 110.9, yahooPreRank: 128, note: 'Champagnie supplied 2.4 threes and 5.8 boards in 82 games with modest usage. He is a late shooting-and-rebounding piece; the clustered Yahoo market can push him a round earlier.' },
-      { name: 'Neemias Queta', yahooAdp: 115.2, yahooPreRank: 116, note: 'Queta shot 65.3% with 8.4 boards and 1.3 blocks over 76 games. His zero threes and 70.3% FT create pressure elsewhere, so take him only if shooting and the line can absorb it.' }
-    ] },
-    { round: 12, candidates: [
-      { name: 'Moses Moody', yahooAdp: null, yahooPreRank: null, note: 'Moody made 2.5 threes with 0.9 turnovers and little creation, exactly the clean wing shape this build can use. His 60 games and Golden State\'s crowded rotation make him an end-of-draft option, not a volume guarantee.' },
-      { name: 'Jay Huff', yahooAdp: null, yahooPreRank: null, note: 'Huff paired 1.9 blocks with 1.5 threes across 82 games. Indiana\'s addition of Zubac threatens his minutes, so take him only when the late price and your block need justify that role risk.' },
-      { name: 'Dillon Brooks', yahooAdp: 114.9, yahooPreRank: 171, note: 'Brooks scored 20.2 points and made 2.3 threes with only 1.8 assists, but 43.5% shooting can undo the benefit. Draft him after a strong FG% base and only if you still need points.' }
-    ] }
+  "exampleTeams": [
+    {
+      "name": "Pick two: Wembanyama, then perimeter offense",
+      "color": "#2f80ed",
+      "note": "An illustrative eight-pick start at slots 2, 23, 26, 47, 50, 71, 74 and 95. Curry around his ADP is plausible but not assured with a pre-rank of 12; Murphy must slip roughly seven picks past ADP and Anunoby about four. If either goes earlier, use the same category brief rather than assume the roster is guaranteed. Summing each player's 2025-26 per-game line gives 163.1 points, 19.8 threes, 46.4 rebounds, 9.3 steals, 7.9 blocks and 15.4 turnovers, with attempt-weighted 49.0% FG and 85.3% FT. These are equal-games illustrations, not weekly forecasts or proof of category wins. Rebounding is the clearer remaining need than more blocks. Curry's 43 games and Wembanyama's 64 make usable depth important despite Bane and Bridges each playing 82.",
+      "roster": [
+        "Victor Wembanyama",
+        "Stephen Curry",
+        "Chet Holmgren",
+        "Trey Murphy III",
+        "Desmond Bane",
+        "OG Anunoby",
+        "Mikal Bridges",
+        "Norman Powell"
+      ]
+    },
+    {
+      "name": "Pick eight: Edwards with complementary bigs",
+      "color": "#16a085",
+      "note": "Slots 8, 17, 32, 41, 56, 65, 80 and 89 give each pick a plausible September 26 ADP range; Towns and Kawhi still need to last a few picks beyond their averages, and Yahoo's higher pre-ranks can prevent that. The eight historical per-game lines total 158.1 points, 17.5 threes, 55.5 rebounds, 8.8 steals, 6.9 blocks and 15.8 turnovers. Aggregate makes divided by attempts give 49.2% FG and 82.8% FT, not an average of eight percentages. Towns and Kawhi help contain Edwards' and Clingan's foul-line costs, but another poor shooter would weaken that balance. Look for steals and FT% support next rather than another rebounding specialist. Edwards played 61 games, Kawhi 65 and Porter 52, so these totals should not be mistaken for guaranteed weekly output.",
+      "roster": [
+        "Anthony Edwards",
+        "Karl-Anthony Towns",
+        "Kawhi Leonard",
+        "Donovan Clingan",
+        "Michael Porter Jr.",
+        "Matas Buzelis",
+        "Mikal Bridges",
+        "Jaden McDaniels"
+      ]
+    }
   ],
-  faqs: [
-    { q: 'Does punt assists mean I should draft only bigs?', a: 'No. A big-heavy team can lose threes, steals and FT%. Use low-assist scoring wings and defenders to keep those columns competitive.' },
-    { q: 'Should I avoid every good passer?', a: 'No. Wembanyama and Towns remain valuable even when some assists are discarded. Pay for the categories a player still wins; do not spend an early pick mainly for passing.' },
-    { q: 'What is the most common second punt?', a: 'FT% is the main risk when several traditional centers are paired. Threes or steals can also slip away if every later pick is another rebounder.' },
-    { q: 'Does this work in eight-category leagues?', a: 'Yes, but turnovers disappear, taking away one of the natural benefits of low-usage players. Recheck the seven remaining category strengths before assuming the same targets are discounted.' }
+  "roundTargets": [
+    {
+      "round": 1,
+      "candidates": [
+        {
+          "name": "Victor Wembanyama",
+          "yahooAdp": 1.6,
+          "yahooPreRank": 3,
+          "note": "The appeal is not simply that you can ignore his assists. Wembanyama gives you enough rim protection to stop drafting every center as a blocks specialist: his 3.1 blocks were more than Holmgren and Clingan supplied individually, alongside 25.0 points and 11.5 rebounds. That freedom matters when the next turns offer shooting wings instead of bigs. His 82.7% free throws on 7.0 attempts also keep the line playable, unlike many rebounding anchors. Our No. 2 ranking and Yahoo's near-second-pick cost leave no hidden discount. You are buying the foundation, then using the punt to widen your later choices. After a 64-game season, dependable perimeter minutes matter more than assembling another collection of high-upside injury bets."
+        },
+        {
+          "name": "Anthony Edwards",
+          "yahooAdp": 8.3,
+          "yahooPreRank": 6,
+          "note": "An Edwards start should look different from a Wembanyama start. You already have 28.8 points and 3.4 threes, but five rebounds and 0.8 blocks do not remove the need for a frontcourt. Towns can supply the boards without making free throws worse; Holmgren is the better next step if blocks and FG% are the priority. The important catch is Edwards' 79.6% on 7.2 free-throw attempts. That volume matters considerably more than a reserve center missing an occasional foul shot. His 61 games also make the old durability reputation a poor substitute for planning. Near pick eight, he is a sensible scoring anchor, not permission to ignore percentages because assists have disappeared."
+        },
+        {
+          "name": "Jayson Tatum",
+          "yahooAdp": 9.8,
+          "yahooPreRank": 14,
+          "note": "Tatum is a recovery bet first and a punt-assists fit second. Ten rebounds and 2.9 threes from a forward are attractive, but the same 16-game return produced 41.1% shooting on 17.9 attempts. Removing assists does nothing to erase that field-goal damage. Nor should such a short post-Achilles sample become the forecast for an entire season. Brown's departure gives Tatum room to reclaim a larger offensive role; how efficiently and consistently he handles it is the question. Our board places him 13th against an ADP near ten, so I would rather take him around the turn than move him ahead of Edwards for this build. Follow with efficiency and reliable production rather than another recovery story."
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "candidates": [
+        {
+          "name": "Karl-Anthony Towns",
+          "yahooAdp": 15,
+          "yahooPreRank": 11,
+          "note": "Towns lets an Edwards-led team catch up in rebounds without sacrificing the foul line. His 11.9 boards came with 85.8% free throws on 5.5 attempts, a genuinely useful contribution rather than a good percentage on negligible volume. There is a reason to choose him over Clingan even if you intend to ignore assists: Towns also brings 20.1 points and 1.5 threes. What he does not bring is a defensive anchor's block total. Half a block per game leaves that job for Holmgren, Buzelis or another later pick. At roughly pick 15 he costs slightly more than our No. 17 valuation, so the category fit should be doing real work. Do not pay that price merely because he qualifies at center."
+        },
+        {
+          "name": "Kevin Durant",
+          "yahooAdp": 16.9,
+          "yahooPreRank": 27,
+          "note": "If your first pick leaves both shooting percentages vulnerable, Durant is a more convincing repair than another specialist. His 26.0 points came on 52.0% from the field and 87.4% at the line, with enough attempts in both categories to influence the team result. That is why discarding his 4.8 assists does not make him a bad selection here. There are still costs: 3.2 turnovers are not low, and 0.8 steals leave defense to someone else. Last season's 78 games were encouraging, not protection against age-related absences. His second-round ADP agrees fairly closely with our No. 18 ranking. Take him for efficient scoring, then prefer an Anunoby-type defender over another wing whose main contribution is points."
+        },
+        {
+          "name": "Stephen Curry",
+          "yahooAdp": 23.9,
+          "yahooPreRank": 12,
+          "note": "Curry is the exception to the idea that punt assists means avoiding expensive guards. You are paying for 4.4 threes and 92.2% free throws on 5.1 attempts, not primarily for his 4.7 assists. Those shooting contributions make a later Clingan pick much easier to accommodate and reduce the pressure to find three-point specialists in every round. The decision near the second-round turn is mostly about availability after 43 games, with 3.6 rebounds adding a separate roster constraint. Yahoo's standard pre-rank of 12 may also take him off the board well before his ADP near 24. Our No. 19 valuation supports taking the discount when it exists, not pretending it exists in every room."
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "candidates": [
+        {
+          "name": "Chet Holmgren",
+          "yahooAdp": 27.7,
+          "yahooPreRank": 19,
+          "note": "Holmgren is the cleanest way to add blocks without bringing all of a traditional center's limitations. He shot 55.7%, collected 8.9 rebounds and blocked 1.9 shots, while contributing 1.3 threes. His 79.2% free throws on 4.1 attempts are not a strength, but they are a much smaller problem than building around several genuinely poor shooters. Next to Edwards, he supplies the categories the first pick lacks. Next to Wembanyama, he creates a substantial block base and makes the next perimeter picks more urgent. The 17.1 points explain why you should not keep drafting defensive bigs afterward. Our No. 23 ranking gives him a reasonable case near his third-round ADP without needing to assume a major minutes increase."
+        },
+        {
+          "name": "Kawhi Leonard",
+          "yahooAdp": 29.3,
+          "yahooPreRank": 15,
+          "note": "A big-heavy opening often needs someone who can score efficiently and win steals possessions. Kawhi did both: 27.5 points, 1.8 steals, 50.8% field goals and 88.8% free throws, with only 2.0 turnovers. Few wings combine those contributions, which is why his third-round ADP looks so different from our No. 14 ranking. The September move to Toronto introduces a different offensive setting, and his age makes the 65-game season a baseline to question rather than bank. I like the fit beside a rebounder much more than beside two other availability risks. If he goes near Yahoo's pre-rank of 15, the discount has largely disappeared; at the third-round price, the upside is worth considering."
+        },
+        {
+          "name": "Jaylen Brown",
+          "yahooAdp": 27.5,
+          "yahooPreRank": 95,
+          "note": "Brown is a price warning, not an automatic target just because he scores more than he passes. Last season's 28.5 points and 6.9 rebounds are tempting, but 3.6 turnovers still count against you after assists are removed. So do 79.5% free throws on 7.5 attempts. Pairing him with Edwards would concentrate substantial foul-line weakness in the very players meant to carry your offense. Philadelphia's new collection of scorers also makes a repeat of his Boston workload uncertain. Our No. 42 ranking sits well below his ADP near 28, and this punt does not resolve the reasons for that gap. Let him fall rather than using a third-round pick to force the fit; Holmgren or Kawhi answers a clearer need there."
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "candidates": [
+        {
+          "name": "Trey Murphy III",
+          "yahooAdp": 40.1,
+          "yahooPreRank": 22,
+          "note": "Murphy keeps a center-led team from becoming a collection of rebounds and blocks with no perimeter offense. His 3.2 threes and 1.5 steals address two different shortages, and 21.5 points make him more than a specialist you tolerate to fill them. There is little hidden damage: 88.6% free throws on 3.7 attempts help, while 1.8 turnovers are modest for that offensive contribution. He will not replace an elite rebounder, and 47.0% shooting is not a FG% rescue. The value is in how many wing jobs he handles at once. Our No. 24 ranking is well ahead of his ADP near 40; Yahoo's pre-rank of 22 means waiting until the fourth round can still lose him."
+        },
+        {
+          "name": "Lauri Markkanen",
+          "yahooAdp": 38.7,
+          "yahooPreRank": 18,
+          "note": "Markkanen is one of the clearest examples of why this punt can work: 26.6 points, 2.7 threes and 6.8 rebounds came with just 1.5 turnovers. Removing his 2.1 assists leaves a scorer who does not need lead-guard usage to help your offense. His 89.6% free throws on 6.4 attempts are especially valuable after Edwards or before Clingan. The catch is substantial: he played 42 games, and Utah must distribute touches with Jackson in the frontcourt. Our No. 20 projection reflects the per-game appeal, while an ADP near 39 reflects the risk. I would take that fourth-round opportunity on an otherwise dependable roster, not stack it on top of a Curry-Tatum opening and call the team balanced."
+        },
+        {
+          "name": "Donovan Clingan",
+          "yahooAdp": 41.6,
+          "yahooPreRank": 29,
+          "note": "Clingan makes sense when you have already spent early picks on scoring. He can supply 11.5 rebounds and 1.7 blocks without asking for many possessions, and 1.2 turnovers protect a category this build should at least contest. His 1.1 threes are a welcome extra, not a reason to treat him like an offensive stretch star. The distinction between his two percentages matters: 52.1% shooting is helpful but hardly dominant center efficiency, while 69.2% free throws came on only 2.5 attempts. A strong shooting backcourt can absorb that; adding another poor foul shooter is where the trouble begins. Around pick 42, he is a more useful complement to Edwards and Towns than a third big after Wembanyama and Holmgren."
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "candidates": [
+        {
+          "name": "Desmond Bane",
+          "yahooAdp": 52.9,
+          "yahooPreRank": 44,
+          "note": "Bane is the practical answer when an attractive big has put your free throws under pressure. His 90.8% on 4.2 attempts provides meaningful support, and 48.3% shooting means you are not trading that repair for a new FG% problem. He also played all 82 games, a valuable counterweight to a riskier early selection. The tradeoff is ceiling in individual counting categories: 20.1 points and 2.0 threes help, but he does not shoot like Porter or steal the ball like Kawhi. That is fine when the surrounding picks already carry those jobs. Our No. 38 ranking makes his ADP near 53 appealing; he belongs in the fifth-round plan, not on a list that assumes he survives comfortably into the sixth."
+        },
+        {
+          "name": "Jaren Jackson Jr.",
+          "yahooAdp": 50.5,
+          "yahooPreRank": 54,
+          "note": "Jackson is useful when your first few picks bought points and free throws but left you short of blocks. His 19.4 points, 1.8 threes and 80.3% foul shooting make him easier to accommodate than a low-scoring rim protector. Be careful about buying the reputation instead of the recent line, though: 1.4 blocks and 5.7 rebounds do not make him a frontcourt all by himself. He also played only 48 games before a season-ending knee procedure. Utah's pairing with Markkanen gives him a different setting, not a guaranteed return to his defensive peak. Near his fifth-round ADP, I would use him to add blocks to an established rebounding base rather than expect him to supply both."
+        },
+        {
+          "name": "Michael Porter Jr.",
+          "yahooAdp": 59.6,
+          "yahooPreRank": 55,
+          "note": "Porter can solve the awkward middle-round choice between a three-point shooter and a rebounder. Brooklyn's larger offensive role produced 24.2 points, 3.4 threes and 7.1 boards, enough to help an early defensive-big build without adding another center. That does not make him an efficiency anchor: 46.3% on 18.4 field-goal attempts carries real weight, even though 85.9% free throws are useful. The 52-game season is the larger reason not to treat our No. 40 ranking as guaranteed profit at an ADP near 60. I prefer him when points and rebounds are both missing; Murphy offers more steals, and Bane offers a stronger recent availability record. The punt removes a weakness, not those choices."
+        },
+        {
+          "name": "Nickeil Alexander-Walker",
+          "yahooAdp": 60.1,
+          "yahooPreRank": 24,
+          "note": "Alexander-Walker's Atlanta season gave this build something more useful than another low-assist role player: real perimeter scoring with foul-line support. He averaged 20.8 points and 3.2 threes, shot 90.2% on 3.9 free-throw attempts and added 1.3 steals. That combination can balance an opening built around Holmgren and another rebounder. His 45.9% field-goal shooting and 3.4 boards make him less suitable if efficiency and rebounding are already weak. He played 78 games, a useful contrast with several of the higher-ceiling wings nearby. Our No. 36 valuation supports interest near his ADP of 60, but Yahoo's pre-rank of 24 can make him much more expensive. Do not budget him as a guaranteed fifth-round bargain."
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "candidates": [
+        {
+          "name": "Matas Buzelis",
+          "yahooAdp": 61.9,
+          "yahooPreRank": 34,
+          "note": "Buzelis offers a different route to blocks than drafting another center. His 1.5 blocks came with 2.2 threes and 16.3 points, so a Towns-led frontcourt can add rim protection without giving up all its shooting. Jackson supplied a similar mix at a higher price, although their health and role risks differ. Buzelis is not yet the finished, low-turnover forward this build might ideally want: he shot 46.3% and committed 2.1 turnovers, with only 0.7 steals. Chicago's changed roster leaves room for development, but a larger scoring role should remain upside rather than the purchase price. Our No. 59 ranking is close to his ADP near 62; Yahoo's pre-rank of 34 asks for considerably more improvement."
+        },
+        {
+          "name": "OG Anunoby",
+          "yahooAdp": 66.6,
+          "yahooPreRank": 60,
+          "note": "Anunoby becomes especially valuable after you realize that your excellent centers are contributing fewer steals than expected. His 1.6 steals, 0.7 blocks and 2.3 threes provide defensive coverage without turning the wing spot into an offensive sacrifice. He also shot 48.4%, useful next to a less efficient volume scorer. The limitation is how much offense you can ask him to replace: 16.7 points will not cover for missing an early scoring anchor, and his 82.8% free throws are supportive rather than transformative. At a sixth-round price against our No. 49 ranking, he is a sensible complement to Wembanyama or Holmgren. I would prioritize him over another rebounding specialist when steals are the category keeping the roster from working."
+        },
+        {
+          "name": "Naz Reid",
+          "yahooAdp": 62.5,
+          "yahooPreRank": 52,
+          "note": "Reid's shooting can be useful, but calling him a center does not make him an efficiency pick. Last season's 2.1 threes, 6.2 rebounds and roughly one steal and one block came with 45.6% field goals and 73.2% free throws. The foul-line damage is limited by just 1.6 attempts; the field-goal percentage matters more across 11.3 shots. Charlotte offers a new opportunity, though a larger role does not automatically improve either rate. His ADP near 63 places him in the sixth-round discussion, close to our No. 63 valuation, rather than making him a seventh-round bargain. Choose him when threes and mixed defensive production are missing; Ware is the clearer rebounding choice if your shooting is already covered."
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "candidates": [
+        {
+          "name": "Mikal Bridges",
+          "yahooAdp": 79.6,
+          "yahooPreRank": 41,
+          "note": "Bridges is how a high-usage opening can get some of its turnover advantage back. He averaged only 1.0 giveaway while providing 1.9 threes, 1.3 steals and 0.8 blocks, a useful spread beside scorers who cannot offer the same restraint. His 49.0% shooting helps too. The 82-game season is a reason to prefer him after an injury-risk pick, not a promise that availability repeats. There is also a clear limit: 14.4 points and 3.8 rebounds will not rescue those categories. Our No. 60 ranking makes the seventh-round ADP attractive, but Yahoo's pre-rank of 41 may bring earlier competition. If a room takes him there, look for a cheaper complement rather than paying as though he were a primary scorer."
+        },
+        {
+          "name": "Kel'el Ware",
+          "yahooAdp": 73.2,
+          "yahooPreRank": 51,
+          "note": "Nine rebounds with only 0.8 turnovers is a useful way to finish a frontcourt that already has its scorers. Ware also made 1.2 threes and blocked 1.1 shots, so the contribution is not confined to boards. His 74.0% free throws sound worse than their actual impact: he attempted just 1.2 a game, much easier to absorb than a high-volume poor shooter. The July move to Milwaukee makes the next workload uncertain, especially with Turner another frontcourt option. More minutes could help the counting stats but would also expose more of the foul-line weakness. Around his ADP of 73, slightly later than our No. 66 ranking, I like him as a rebounding supplement rather than the team's only dependable source of blocks."
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "candidates": [
+        {
+          "name": "Jaden McDaniels",
+          "yahooAdp": 89.2,
+          "yahooPreRank": 43,
+          "note": "McDaniels is a useful answer to the team that has enough scorers but still needs defensive stats from a wing. His 1.1 steals and 1.0 blocks came with 51.5% shooting, which separates him from late defenders whose percentages create another repair job. The cost is shooting volume: 1.4 threes are well below Murphy, Anunoby or Powell, and 14.8 points do not replace a featured scorer. Minnesota's addition of LaMelo changes the offensive mix, so I would buy the established defensive profile rather than predict a scoring jump. Our No. 78 ranking supports an eighth-round selection near his ADP of 89. Yahoo's pre-rank of 43 is a very different bet and too aggressive for this particular role."
+        },
+        {
+          "name": "Norman Powell",
+          "yahooAdp": 92.4,
+          "yahooPreRank": 115,
+          "note": "Powell is useful precisely because the late rounds usually make you choose between scoring and an otherwise playable line. His 21.7 points and 2.7 threes came on 47.0% shooting, with 82.7% free throws rather than an obvious percentage punt attached. His 2.5 assists are irrelevant here, but the 3.5 rebounds and 0.2 blocks still explain what teammates must provide. Chicago is a new setting, and 58 games mean last season's scoring rate should not be confused with full-season reliability. At an ADP near 92 against our No. 81 ranking, he can finish the offense after early bigs. If points are already comfortable and defense is not, McDaniels is the more useful selection even with the smaller scoring average."
+        },
+        {
+          "name": "Jabari Smith Jr.",
+          "yahooAdp": 94.1,
+          "yahooPreRank": 84,
+          "note": "Smith is the middle ground between a rebounding center and a pure shooting wing. He contributed 6.9 boards and 2.3 threes, with 0.9 blocks giving a Towns-led roster some extra protection. The 77-game season also provides more recent workload evidence than several similarly priced forwards. Do not mistake that versatility for clean percentages, though: 45.0% shooting on 12.6 attempts and 77.5% free throws do not repair either category. Houston's crowded frontcourt makes a major scoring leap difficult to assume. Near pick 94, he suits a roster that needs boards without losing threes; an already inefficient team should be more interested in McDaniels' shooting or a genuine FG%-positive center."
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "candidates": [
+        {
+          "name": "Andrew Wiggins",
+          "yahooAdp": 100.7,
+          "yahooPreRank": 103,
+          "note": "Wiggins gives a late wing slot enough of everything to matter when your remaining needs are scattered. Two threes, 1.1 steals and 1.0 blocks are useful together, particularly if the early bigs covered rebounds but not steals. His 15.4 points and 47.5% shooting are respectable support rather than something to build the offense around. Giannis' arrival in Miami is a reason to be cautious about projecting more shots, not a reason to erase the defensive contribution. Our No. 86 ranking leaves some room at an ADP near 101. Compared with McDaniels, Wiggins offers more threes but a less favorable field-goal rate; choose according to the actual shortage rather than treating the two defensive wings as interchangeable."
+        },
+        {
+          "name": "Myles Turner",
+          "yahooAdp": 100.3,
+          "yahooPreRank": 108,
+          "note": "Turner is an unusual late center because the threes and blocks are much more helpful than the traditional big-man categories. His 2.1 threes and 1.6 blocks can complete a roster, but 44.0% shooting and 5.3 rebounds can also disappoint a manager who drafts the position instead of the line. The 74.0% free throws on 2.5 attempts add another cost. Milwaukee's changed frontcourt, including Ware, makes it unwise to assume every old minute carries over. At roughly pick 100, he is worth considering if your early rebounders already protect FG% and the line. If those are the holes you still need to fill, taking Turner because you need a center solves the wrong problem."
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "candidates": [
+        {
+          "name": "Toumani Camara",
+          "yahooAdp": 110.1,
+          "yahooPreRank": 97,
+          "note": "Camara's 2.6 threes and 5.1 rebounds give you more than the usual low-usage defensive-wing contribution, and he played all 82 games. The efficiency is where the decision becomes less comfortable. His 70.7% free throws came on just 1.6 attempts, so the percentage alone exaggerates that particular problem; 44.0% field-goal shooting on 10.8 attempts is harder to hide. His 1.1 steals are useful without approaching Wallace's specialist impact. Our No. 104 ranking is close to his ADP near 110, making him a reasonable tenth-round fit rather than a major bargain. Take him when shooting and wing rebounding are the missing pieces, not when your roster needs someone to restore its percentages."
+        },
+        {
+          "name": "Cason Wallace",
+          "yahooAdp": 118.2,
+          "yahooPreRank": 76,
+          "note": "Wallace is the late pick to consider when all those scoring wings have left steals surprisingly ordinary. His 2.0 steals can materially change that category, and 0.9 turnovers keep him from undoing the benefit elsewhere. You must already have enough offense: 8.6 points and 1.3 threes will not patch a scoring deficit, while 43.2% field-goal shooting is another small cost. His 80.9% free throws also came on fewer than one attempt, so he cannot repair the line simply by having a respectable rate. Near pick 118, the specialist case is clear. Yahoo's pre-rank of 76 may push him earlier, where a team still missing points should prefer a fuller offensive contributor."
+        },
+        {
+          "name": "Saddiq Bey",
+          "yahooAdp": 120.1,
+          "yahooPreRank": 109,
+          "note": "Bey is a useful alternative to chasing a late creator whose best category you have already abandoned. He supplied 17.7 points, 2.1 threes and 5.6 rebounds with just 0.9 turnovers, keeping the offense moving without much statistical waste. His 84.1% free throws on 4.1 attempts are also substantial enough to matter, unlike the tidy percentages attached to many low-volume reserves. What you give up is rim protection: 0.1 blocks make him a poor choice if the frontcourt is still incomplete. Our No. 102 ranking leaves room near his ADP of 120. Compared with Powell, he offers less scoring but more rebounding and fewer turnovers, a worthwhile trade when the early rounds already supplied your points."
+        },
+        {
+          "name": "Devin Vassell",
+          "yahooAdp": 116.5,
+          "yahooPreRank": 122,
+          "note": "Vassell can add shooting without the turnover bill that usually accompanies a guard pick. He made 2.5 threes and averaged only 0.9 turnovers, so an already productive offense can use him without trying to turn him into its playmaker. The restraint does not make the whole line efficient: 43.7% from the field on 11.3 attempts remains a cost, and 0.9 steals are not a defensive solution. His 13.9 points also trail the late scoring alternatives. With our No. 121 ranking close to his ADP near 117, this is a needs-based selection rather than a discount to chase. Pick him over Champagnie for more scoring; pick Champagnie if the same roster spot needs to help rebounding."
+        }
+      ]
+    },
+    {
+      "round": 11,
+      "candidates": [
+        {
+          "name": "P.J. Washington",
+          "yahooAdp": 115.8,
+          "yahooPreRank": 178,
+          "note": "Washington is a fallback when rebounds and defensive stats matter more than another shooter. Seven boards, 1.0 steals and 1.1 blocks offer useful coverage from a forward, but the percentages make him a poor default punt-assists target. He shot 45.0% from the field and 68.7% on 3.3 free-throw attempts; pairing him with Clingan can turn a manageable weakness into a second punt. The 56-game season is another reason not to pay for the best possible version of his line. Our No. 124 ranking is below his ADP near 116. I would consider him if he slips into the eleventh round and the roster can absorb both rates, rather than take him early merely because he barely passes."
+        },
+        {
+          "name": "Julian Champagnie",
+          "yahooAdp": 110.9,
+          "yahooPreRank": 128,
+          "note": "Champagnie makes sense after a scoring-heavy opening that still needs rebounding from a wing. He contributed 5.8 boards and 2.4 threes with just 0.8 turnovers, a different late-round balance from Vassell's greater scoring and lighter rebounding. His 82 games are encouraging, but 11.1 points and 43.7% shooting explain why that availability did not turn him into a must-draft player. Nor can 84.4% free throws on 1.6 attempts carry the team at the line. Yahoo's ADP near 111 is ahead of our No. 131 ranking. That makes this an eleventh-round fallback if available, not a recommendation to reach in the tenth for a profile whose usefulness depends heavily on the surrounding roster."
+        },
+        {
+          "name": "Neemias Queta",
+          "yahooAdp": 115.2,
+          "yahooPreRank": 116,
+          "note": "Queta can repair FG% without requiring a high-usage offensive role. His 65.3% shooting came on 6.6 attempts, alongside 8.4 rebounds and 1.3 blocks, which is useful after several perimeter picks. The difference from Ware is spacing: Queta offered essentially no threes, and 70.3% free throws on 2.3 attempts make the surrounding shooters important. Boston's addition of Mitchell Robinson is also a direct reason to question how much of last season's workload repeats. That helps explain why our No. 138 ranking is less enthusiastic than his ADP near 115. Consider him if he slides and traditional center production is your remaining need; do not assume the historical board guarantees the same minutes or use him as a cheap offensive fix."
+        }
+      ]
+    },
+    {
+      "round": 12,
+      "candidates": [
+        {
+          "name": "Moses Moody",
+          "yahooAdp": null,
+          "yahooPreRank": null,
+          "note": "Moody is a final-pick shooting option, not a player to move up just because assists are missing from his line. His 2.5 threes and 0.9 turnovers are useful beside high-usage scorers, and roughly one steal gives him something beyond shooting. But 12.1 points, 3.3 rebounds and 44.1% field goals leave plenty of work to teammates. He played 60 games, and the next rotation still needs to support enough minutes for those threes to matter. Our No. 141 ranking fits an end-of-draft approach; there is no reliable Yahoo ADP in the saved snapshot to justify a precise market claim. If his role looks smaller, use the slot for a player with a clearer path to playing time."
+        },
+        {
+          "name": "Jay Huff",
+          "yahooAdp": null,
+          "yahooPreRank": null,
+          "note": "Huff is appealing if the last roster spot needs blocks without surrendering every three-pointer. He averaged 1.9 blocks and 1.5 threes, an uncommon combination even among more expensive centers. What he did not provide was conventional center volume: 4.0 rebounds and 9.5 points leave him far from a complete frontcourt answer. Indiana now has Zubac, so repeating the workload behind those numbers is the central uncertainty. His 82-game season tells you he was available, not that the next rotation owes him the same opportunity. With no reliable Yahoo ADP in the snapshot, keep him as a final-pick option. A roster that already has Wembanyama and Holmgren is more likely to need a rebounder or steals source."
+        },
+        {
+          "name": "Dillon Brooks",
+          "yahooAdp": 114.9,
+          "yahooPreRank": 171,
+          "note": "Brooks shows why low assists are not enough to qualify as a good pick for this strategy. The attractive 20.2 points and 2.3 threes came with 43.5% shooting on 17.1 attempts, enough volume to pull against the efficient bigs you drafted earlier. His 84.2% free throws help, but only 3.6 rebounds and 0.2 blocks leave the contribution narrow. Our No. 143 ranking is much less optimistic than his ADP near 115, so this is a late fallback rather than someone to chase at market price. If scoring is still short and FG% is well protected, he has a purpose. Otherwise, Bey's boards and lower turnovers or Wallace's steals are more useful ways to finish the roster."
+        }
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "Do I have to avoid every good passer?",
+      "a": "No. Ignore assists when deciding whether the remaining production is worth the price. Curry's threes and free throws can justify a pick without his passing. What you want to avoid is paying a premium mainly for assists, then discovering the player does not provide enough of the categories you still need."
+    },
+    {
+      "q": "Why not just draft centers and low-assist wings?",
+      "a": "Because their weaknesses can overlap. Towns supplies rebounds but few blocks; Turner supplies blocks and threes but weak FG% and modest boards. Shooting wings can still damage FG%, and low assists do not guarantee low turnovers. Build around complementary contributions rather than a position or an assist cutoff."
+    },
+    {
+      "q": "Can I draft Clingan without punting free throws too?",
+      "a": "Yes, provided the rest of the roster supports it. His 69.2% came on 2.5 attempts per game, so high-volume strong shooters can offset the damage. Add the roster's makes and attempts to check the result. Combining him with several other poor shooters is a different decision from absorbing him alone."
+    },
+    {
+      "q": "What changes in eight-category leagues?",
+      "a": "Turnovers disappear, so low-turnover players lose one of their advantages. Markkanen's scoring and shooting remain useful, but the reason to favor a quiet role player over a higher-usage scorer is weaker. Reassess the seven categories left after assists rather than copying this nine-category queue."
+    },
+    {
+      "q": "Are the sample teams weekly projections?",
+      "a": "No. They sum eight players' corrected 2025-26 per-game production, giving each the same number of appearances, and weight percentages by attempts. Actual weekly results depend on schedules, availability, lineup limits and changing roles. The pick sequences demonstrate plausible draft paths, not guaranteed availability or category wins."
+    }
   ]
 };
 

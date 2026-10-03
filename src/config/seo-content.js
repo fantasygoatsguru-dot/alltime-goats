@@ -322,11 +322,13 @@ export const SEO_CONTENT = {
   '/guides/punt-assists': {
     title: 'Punt Assists Strategy 2026-27',
     content: `
-      <p>Punt assists is a nine-category build for scorers, rebounders and defenders who do not need to create many shots for teammates. Victor Wembanyama is a natural anchor: his corrected 2025-26 line included 25.0 points, 11.5 rebounds and 3.1 blocks, while his 3.1 assists no longer affect the board. Anthony Edwards offers a scoring-and-threes opening, but needs more frontcourt support.</p>
+      <p>Punt assists is a head-to-head nine-category strategy, not a rule against drafting guards. Pay for the categories a player still contributes after passing is removed. Wembanyama's 25.0 points, 11.5 rebounds and 3.1 blocks create room to pursue perimeter offense next; Edwards' 28.8 points and 3.4 threes create a different need for frontcourt support. Giving away a category in roto carries a season-long standings cost, so the same plan is less comfortable there.</p>
 
-      <p>Keep FT%, threes and steals in view when selecting bigs. A run of poor free-throw centers can turn this into a second punt; a run of finishers can leave too few threes. Trey Murphy III, OG Anunoby and other shooting or defensive wings can fill those gaps without requiring assists to pay back their cost.</p>
+      <p>Do not assume every center protects the same categories. Towns averaged 11.9 rebounds but only 0.5 blocks; Turner supplied 1.6 blocks alongside 5.3 rebounds and 44.0% shooting. The foul line needs attempt volume too: Edwards' 79.6% on 7.2 attempts affects the roster differently from Clingan's 69.2% on 2.5. Calculate team percentages from total makes and attempts rather than averaging individual rates.</p>
 
-      <p>The live table removes assists from corrected 2025-26 production, so it describes last season rather than forecasting 2026-27. Use the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> alongside the historical board. Written round targets use Yahoo's September 26 ADP and pre-rank snapshot.</p>
+      <p>Steals, threes and turnovers still require deliberate choices. Murphy's 1.5 steals and 3.2 threes can complement an early big, while Anunoby offers another way to avoid overloading on rebounders. Low assists alone do not make a player useful: Brown's 3.6 turnovers remain a cost even in this build. In eight-category leagues, turnovers disappear, reducing the advantage of low-usage options.</p>
+
+      <p>The live table removes assists from corrected 2025-26 production; it is a historical view, not a forecast. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges retain the September 26 ADP snapshot and use Yahoo standard pre-ranks checked October 3. Pre-rank can affect draft-room visibility but is not the same as average draft position.</p>
     `,
     keywords: ['punt assists', 'punt assists fantasy basketball', '9-cat punt assists', 'fantasy basketball draft strategy', 'punt assists draft board']
   },
