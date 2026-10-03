@@ -839,130 +839,414 @@ export const PUNT_ASSISTS = {
 };
 
 export const PUNT_FG = {
-  slug: 'punt-fg',
-  type: 'punt',
-  puntKey: 'fg',
-  title: 'Punt FG%',
-  season: CONTENT_SEASON,
-  difficulty: 'Intermediate',
-  isPremium: true,
-  tagline: 'Turn high-volume guard shooting into points, threes and assists without sacrificing the line or defense.',
-  strengths: ['pts', '3pm', 'ast', 'ft'],
-  weaknesses: ['fg', 'reb', 'blk', 'to'],
-  freeSections: 2,
-  board: { minGames: 30, freeLimit: 20, previewRows: 4 },
-  sections: [
+  "slug": "punt-fg",
+  "type": "punt",
+  "puntKey": "fg",
+  "title": "Punt FG%",
+  "season": CONTENT_SEASON,
+  "difficulty": "Intermediate",
+  "isPremium": true,
+  "tagline": "Buy the offense others discount, then spend deliberately on boards, blocks and the foul line.",
+  "strengths": [
+    "pts",
+    "3pm",
+    "ast",
+    "ft"
+  ],
+  "weaknesses": [
+    "fg",
+    "reb",
+    "blk",
+    "to"
+  ],
+  "freeSections": 2,
+  "board": {
+    "minGames": 30,
+    "freeLimit": 20,
+    "previewRows": 4
+  },
+  "sections": [
     {
-      id: 'strategy',
-      heading: 'The strategy',
-      body: [
-        'Punt FG% gives high-volume shooters a fairer price by removing the damage their misses do to one category. Luka Dončić is a plausible first-round anchor: his corrected 2025-26 line delivered 33.4 points, 4.0 threes, 7.7 rebounds and 8.2 assists, while his 4.0 turnovers still count. The punt does not excuse the rest of the line. It works best when the first pick gives enough scoring and creation to spend later picks on rebounds, blocks and ball security.',
-        'LaMelo Ball shows the percentage discount: 3.8 threes and 7.1 assists came with 40.7% shooting. But Yahoo drafts him near pick 26 while our Top 150 places him 48th, reflecting his new shared backcourt in Minnesota. The punt improves his category fit without making a second-round reach sensible. Look for a price closer to the third round, then add defenders who do not need another high-usage guard spot.'
+      "id": "strategy",
+      "heading": "What removing FG% actually buys you",
+      "body": [
+        "Punt FG% is a head-to-head nine-category strategy for a team whose strengths justify accepting a likely loss in field-goal percentage. It is not a contest to find the league's worst shooters. Removing a category makes Derrick White's misses irrelevant, but it does not make every low-percentage guard valuable or every efficient center wasteful. The draft decision is whether the other eight categories are worth the price. In roto, deliberately finishing near the bottom in one column carries a season-long standings cost, so the same approach is much less forgiving.",
+        "Luka is an obvious starting point because 33.4 points, 4.0 threes, 7.7 rebounds and 8.2 assists give you so much offense in one pick. The more important follow-up question is what he leaves exposed. His 78.0% free throws came on ten attempts per game, and his 4.0 turnovers remain on the scorecard. You cannot assume a guard-led roster wins FT% or that conceding one shooting category gives you permission to ignore another. Maxey offers a different foundation: 89.2% free throws, 1.9 steals and fewer turnovers, but considerably less rebounding.",
+        "White illustrates the direct benefit more clearly than many stars. His 39.5% field-goal shooting on 14.4 attempts is a substantial penalty in a balanced team; here you keep 2.7 threes, 5.4 assists and 1.3 blocks without carrying it. Conversely, Towns and Holmgren can still be excellent choices even though their positive FG% is discarded. Their rebounding or shot blocking may solve a problem another discounted guard only makes worse."
       ]
     },
     {
-      id: 'correlation',
-      heading: 'Natural strengths & weaknesses',
-      body: [
-        'Points, threes, assists and FT% are accessible when early picks favor perimeter scorers. None comes automatically: a low-FG defensive specialist does not replace an elite scorer, and a poor-FT guard can undo the line even if his shooting from the floor no longer matters. Derrick White is especially useful because his 39.5% FG is waived while 2.7 threes, 5.4 assists and 1.3 blocks remain.',
-        'Rebounds and blocks are the structural test. Holmgren or a mid-round Buzelis can add blocks without giving up all your threes; Hart supplies rebounds from a wing. Turner gives 1.6 blocks and 2.1 threes at a late price, but only 5.3 rebounds. The other trap is turnovers: stacking Luka, LaMelo and Harden can make a second punt more likely than eight competitive categories. Check the whole roster before buying another creator.'
+      "id": "correlation",
+      "heading": "The categories that still need work",
+      "body": [
+        "Points, threes and assists are accessible through perimeter scorers, but there is little benefit in dominating all three while conceding rebounds, blocks, turnovers and FG%. Establish enough creation to compete, then use later picks to address the actual gaps. White can supply blocks from a guard slot, Murphy contributes steals without another high-turnover role, and Hart adds wing rebounding. None is a universal answer: White is not an elite scorer, Murphy is not a rim protector, and Hart does little for blocks.",
+        "Rebounds and blocks must be evaluated separately. Towns averaged 11.9 rebounds and only 0.5 blocks; Turner supplied 1.6 blocks but just 5.3 boards. Taking one does not finish the frontcourt. Sarr offers 7.4 rebounds and 2.0 blocks, but his 69.2% free throws on 3.0 attempts introduce another cost. A center who no longer helps your punted percentage can still be worth drafting for those remaining contributions. A stretch center who fails to rebound cannot be assumed to solve the problem merely because he fills the position.",
+        "Free-throw impact depends on attempts as well as accuracy. Curry's 92.2% on 5.1 attempts and Bane's 90.8% on 4.2 provide real support, but Luka's ten attempts mean one good shooter may not settle the category. Compare total makes with total attempts across the roster; averaging individual percentages hides who actually controls the result. Low-volume weakness is different too: Ware's 74.0% came on 1.2 attempts, whereas Washington's 68.7% came on 3.3.",
+        "Turnovers are the other common accidental punt. Harden's 3.5 and Booker's 3.2 remain costs even after their field-goal rates stop mattering. Bridges, Wallace and Bey can add useful categories with roughly one turnover each, but a few careful late picks cannot guarantee they will undo any high-usage opening. In eight-category leagues this constraint disappears, making another creator more attractive. Rebounding, blocks and the foul line still need the same scrutiny."
       ]
     },
     {
-      id: 'draft',
-      heading: 'Where the value sits in the draft',
-      body: [
-        'The September 26 Yahoo ADP puts Luka near pick four, Maxey and Edwards in the first round, Harden near 35 and White near 47. Our Top 150 has Harden 26th and White 29th, so neither belongs in a guide that asks you to wait until round five. Conversely, Trae is 55th on our board at a Yahoo price near 27, and LaMelo is 48th at a Yahoo price near 26; an FG% punt alone is not a reason to pay those second-to-third-round prices.',
-        'The board below removes FG% from corrected 2025-26 production. It records what players produced, not their projected 2026-27 value. The targets use our Top 150 for the forward-looking case, a September 26 Yahoo ADP snapshot for draft cost, and Yahoo standard pre-ranks checked October 2. Round labels describe a price window, not a promise that a player will fall; after pick 100, use your room and roster needs rather than an exact number.'
+      "id": "draft",
+      "heading": "Where to spend, and where to stop chasing guards",
+      "body": [
+        "These targets assume a 12-team snake draft. Use the first three rounds to establish creation and at least a credible frontcourt plan. After Luka, Curry or Reaves can help the foul line while Holmgren supplies blocks. After Maxey, Towns can address rebounding without surrendering FT%. An Edwards start needs more passing than either of those openings. Harden is a better complement there than he is to a team already overloaded with assists and turnovers.",
+        "Compare category fit with the projected Top 150 rather than replacing the ranking with a list of inefficient shooters. White is 29th for us at ADP 47, Murphy 24th at 40 and Bane 38th at 53. Those are useful opportunities if the room allows them. LaMelo's ADP near 26 and Trae's near 27 are much more aggressive than our respective rankings of 48 and 55. Removing FG% improves their fit, but it does not settle the usage, health and remaining-category questions behind those gaps. They are price-sensitive alternatives, not required purchases.",
+        "Miller's ADP of 47 belongs in the fourth-round discussion, alongside White, rather than a plan that assumes both reach the fifth. In the middle rounds, choose the job you have not filled: Sarr or Buzelis for blocks, Porter for scoring with wing rebounds, Anunoby for steals and complementary defense. The late market still offers Turner for blocks and threes, Hart for boards and passing, or Allen for shooting and steals. Those options overlap in price, not in purpose.",
+        "The round targets retain Yahoo ADP saved September 26 and use standard pre-ranks checked October 3; the ADP is not a newly refreshed October 3 average. A high pre-rank can bring earlier draft-room attention even when the older ADP is later. The live punt board removes FG% from corrected 2025-26 production, while the Top 150 is a forward-looking projection. New information can also override an old price: Porziņģis is now a conditional final-pick stash here, not a ninth-round recommendation. Late listings for Washington or players without an ADP are decision thresholds, not promises of availability."
       ]
     }
   ],
-  buildingBlocks: [
-    { name: 'One primary creator', note: 'Secure points, threes and assists without stacking several four-turnover players.' },
-    { name: 'Defense from unusual slots', note: 'White can add blocks from guard; Holmgren, Buzelis or Turner combine rim protection with shooting.' },
-    { name: 'Boards and free throws kept intact', note: 'Add a rebounding wing or center while checking FT% attempts, then monitor turnovers after each creator.' }
-  ],
-  exampleTeams: [
+  "buildingBlocks": [
     {
-      name: 'Luka with out-of-position blocks',
-      color: '#8e44ad',
-      note: 'A 12-team snake path from roughly pick four: the next turns land near 21, 28, 45, 52, 69, 76 and 93. Curry, Holmgren, White and Jackson are plausible at those prices, while Anunoby and Hart need small slips. White and Holmgren supply blocks and Hart adds wing boards. Luka and Curry make turnovers the eighth-category fight; choose low-turnover depth if that column stays close.',
-      roster: ['Luka Dončić', 'Stephen Curry', 'Chet Holmgren', 'Derrick White', 'Jaren Jackson Jr.', 'OG Anunoby', 'Mikal Bridges', 'Josh Hart']
+      "name": "Creation with an explicit FT% plan",
+      "note": "Luka supplies the offensive base but shot 78.0% on ten free throws a game. Maxey starts with stronger FT% and steals; Edwards needs more passing. The same second-round guard is not equally useful after all three."
     },
     {
-      name: 'Maxey with frontcourt balance',
-      color: '#c2185b',
-      note: 'A 12-team snake path from pick nine: Towns, Harden, White, Porter, Buzelis, Bridges and Hart fit the next turns near 16, 33, 40, 57, 64, 81 and 88. White and Harden gain from removing FG%, Towns protects boards and FT%, and Hart adds boards at a free-throw cost. Blocks still need the next pick or a later Turner-type center; Hart around 88 costs slightly more than his Yahoo ADP.',
-      roster: ['Tyrese Maxey', 'Karl-Anthony Towns', 'James Harden', 'Derrick White', 'Michael Porter Jr.', 'Matas Buzelis', 'Mikal Bridges', 'Josh Hart']
+      "name": "Rebounds and blocks treated separately",
+      "note": "Towns' 11.9 boards do not replace Holmgren's rim protection. Turner can add blocks and threes later, but his 5.3 rebounds leave a different hole. Pick the actual category contribution, not just the center eligibility."
+    },
+    {
+      "name": "Support without more high-usage costs",
+      "note": "Anunoby adds steals, Bridges adds mixed defense with low turnovers, and Bane supplies real foul-line volume. These picks can improve the roster more than another inefficient guard whose best categories are already covered."
     }
   ],
-  roundTargets: [
-    { round: 1, candidates: [
-      { name: 'Luka Dončić', yahooAdp: 3.5, yahooPreRank: 5, note: 'The 33.4 points, 4.0 threes, 7.7 boards and 8.2 assists justify the early price; removing FG% makes high-volume nights easier to carry. His 4.0 turnovers still count, so buy ball security and blocks with the next picks rather than another lead guard.' },
-      { name: 'Tyrese Maxey', yahooAdp: 8.8, yahooPreRank: 4, note: 'Maxey posted 28.3 points, 3.1 threes, 6.6 assists and 1.9 steals across 70 games. Philadelphia added LeBron and Jaylen Brown, so the old usage is not a forecast. The FG% punt helps if his shot volume stays high; seek rebounds and blocks next.' },
-      { name: 'Anthony Edwards', yahooAdp: 8.3, yahooPreRank: 6, note: 'Edwards supplies 28.8 points and 3.4 threes, but his 79.6% FT on volume remains a cost even after FG% disappears. Do not mistake a scoring start for a complete punt: draft a strong FT% source and a blocker soon.' }
-    ] },
-    { round: 2, candidates: [
-      { name: 'Karl-Anthony Towns', yahooAdp: 15, yahooPreRank: 11, note: 'Our Top 150 places Towns 17th, close to his Yahoo ADP of 15. His 11.9 rebounds and 85.8% free throws solve two common guard-build problems; giving away his positive FG% is acceptable when you need those scarce categories. His 2.5 turnovers still count.' },
-      { name: 'Stephen Curry', yahooAdp: 23.9, yahooPreRank: 12, note: 'Curry made 4.4 threes and remains a major FT% contributor. Our Top 150 places him 19th, but his 43 games make a late-second price a health bet. Take him after a durable opener and buy rebounds soon.' },
-      { name: 'Austin Reaves', yahooAdp: 22.3, yahooPreRank: 17, note: 'Our Top 150 places Reaves 12th against Yahoo ADP 22. His 22.9 points, 5.5 assists and 86.8% free throws work even though you give away his good 48.7% FG. The 51-game season and new usage beside Luka make a durable, high-stocks third pick important.' }
-    ] },
-    { round: 3, candidates: [
-      { name: 'Chet Holmgren', yahooAdp: 27.7, yahooPreRank: 19, note: 'His 1.9 blocks, 8.9 rebounds and 1.3 threes solve the guard-heavy build\'s hardest pairing. You give away his 55.7% shooting, but the remaining categories still justify the pick; do not force a lower-ranked percentage drag just because it fits the punt more literally.' },
-      { name: 'James Harden', yahooAdp: 35.1, yahooPreRank: 49, note: 'Our Top 150 has Harden 26th, so a third-round Yahoo price is already reasonable before FG% is removed. His 7.9 assists, 3.0 threes and 88.2% free throws suit the build, but 3.5 turnovers and shared Cleveland creation still matter. Use the next pick on defense rather than a third lead guard.' },
-      { name: 'Devin Booker', yahooAdp: 26.9, yahooPreRank: 40, note: 'Booker offers scoring, around six assists and strong free throws. Phoenix added another scorer in Miles Bridges, so usage is not fixed. His balanced skill set is useful here when you still need FT% volume; pair him with blocks rather than yet another perimeter scorer.' }
-    ] },
-    { round: 4, candidates: [
-      { name: 'Derrick White', yahooAdp: 47.1, yahooPreRank: 26, note: 'Our Top 150 puts White 29th, well ahead of his Yahoo ADP. Removing his 39.5% FG while keeping 2.7 threes, 5.4 assists and 1.3 blocks makes a fourth-round pick defensible. Do not plan on getting him in round five.' },
-      { name: 'Trey Murphy III', yahooAdp: 40.1, yahooPreRank: 22, note: 'Our Top 150 has Murphy 24th, well ahead of Yahoo ADP 40. His 3.2 threes, 21.5 points, 1.5 steals and 88.6% free throws justify the fourth-round price even though FG% is not his main weakness. He is a cleaner partner for a poor-FG creator than another high-turnover guard.' },
-      { name: 'Lauri Markkanen', yahooAdp: 38.7, yahooPreRank: 18, note: 'Markkanen gives 26.6 points, threes and 89.6% free throws from forward, with just 1.5 turnovers. Forty-two games and Utah\'s new frontcourt create uncertainty, so pay for the useful scoring-and-FT profile rather than assuming another full-volume season.' }
-    ] },
-    { round: 5, candidates: [
-      { name: 'Brandon Miller', yahooAdp: 46.8, yahooPreRank: 46, note: 'Miller made 3.1 threes and scored 20.2 points despite 43.5% FG. Charlotte\'s changed backcourt could increase his role, but 2.5 turnovers and limited frontcourt stats remain. Select him when threes and points are worth more to your roster than another blocker.' },
-      { name: 'Jaren Jackson Jr.', yahooAdp: 50.5, yahooPreRank: 54, note: 'Jackson\'s 1.4 blocks and 1.8 threes protect both ends of a guard-heavy build. He played 48 games and now shares Utah\'s frontcourt with Markkanen, so use his defensive rate without assuming a return to old minutes or block peaks.' },
-      { name: 'Michael Porter Jr.', yahooAdp: 59.6, yahooPreRank: 55, note: 'Our Top 150 places Porter 40th against a Yahoo ADP near 60. His 24.2 points, 3.4 threes and 7.1 boards offer unusually useful wing rebounding, though 52 games and a changing Brooklyn role keep him a fifth-round health bet.' }
-    ] },
-    { round: 6, candidates: [
-      { name: 'Matas Buzelis', yahooAdp: 61.9, yahooPreRank: 34, note: 'Buzelis supplied 2.2 threes and 1.5 blocks, a rare pairing that prevents the FG% punt from becoming a blocks punt. Chicago\'s larger role is possible rather than guaranteed; value last season\'s category mix first.' },
-      { name: 'OG Anunoby', yahooAdp: 66.6, yahooPreRank: 60, note: 'Our Top 150 places Anunoby 49th. At Yahoo ADP 67, his 1.6 steals, 2.3 threes and 1.8 turnovers help a Luka or Harden team without adding another high-usage guard; take him in the sixth rather than assuming a seventh-round fall.' },
-      { name: 'Alex Sarr', yahooAdp: 71.9, yahooPreRank: 59, note: 'Sarr is 45th on our Top 150 and costs a late sixth by Yahoo ADP. His 2.0 blocks and 16.3 points are useful category repair, but 69.2% free throws and a 48-game season make the exact fit conditional on your FT% base.' }
-    ] },
-    { round: 7, candidates: [
-      { name: 'Mikal Bridges', yahooAdp: 79.6, yahooPreRank: 41, note: 'Our Top 150 has Bridges 60th versus a Yahoo ADP near 80. His 82 games, threes, steals and low turnovers make him a realistic seventh-round stabilizer after a high-usage opening, even though his good FG% is unused.' },
-      { name: 'Kel\'el Ware', yahooAdp: 73.2, yahooPreRank: 51, note: 'Ware\'s nine rebounds, 1.1 blocks and 1.2 threes are an early-seventh frontcourt option if blocks remain thin. Our Top 150 places him 66th; Milwaukee\'s new rotation makes the old minutes less certain.' },
-      { name: 'Paul George', yahooAdp: 80.4, yahooPreRank: 126, note: 'George is 76th on our Top 150 and goes near 80 by Yahoo ADP. His 2.7 threes and 1.7 steals offer wing depth without another point guard, but 37 games and a new Boston role make him an availability bet.' }
-    ] },
-    { round: 8, candidates: [
-      { name: 'Jabari Smith Jr.', yahooAdp: 94.1, yahooPreRank: 84, note: 'Smith supplied 2.3 threes, 6.9 rebounds and 0.9 blocks across 77 games. He brings more boards than a pure shooting wing and more spacing than a traditional center; Houston\'s rotation limits the scoring projection.' },
-      { name: 'Josh Hart', yahooAdp: 96.3, yahooPreRank: 68, note: 'Hart\'s 7.4 boards and 4.8 assists from a wing repair rebounding without another high-turnover creator. Yahoo ADP 96 puts him at the round-eight edge; securing him in the high 80s is a reasonable small reach if boards are scarce. His 72.0% FT still needs covering.' },
-      { name: 'Norman Powell', yahooAdp: 92.4, yahooPreRank: 115, note: 'Our Top 150 has Powell 81st against Yahoo ADP 92. His 21.7 points and 2.7 threes provide late scoring, while light rebounds and assists mean he fits only after the first seven picks secure those categories.' }
-    ] },
-    { round: 9, candidates: [
-      { name: 'Myles Turner', yahooAdp: 100.3, yahooPreRank: 108, note: 'Turner\'s 44.0% FG disappears here, leaving 2.1 threes and 1.6 blocks at center. Our Top 150 places him 88th, so Yahoo ADP 100 looks fair, but his 5.3 boards do not solve rebounding. Pair him with a rebounding wing or big.' },
-      { name: 'Kristaps Porziņģis', yahooAdp: 98.8, yahooPreRank: 148, note: 'Porziņģis offered 1.7 threes and 1.2 blocks with strong free throws from center. Thirty-two games and Golden State\'s health management make this a volatile buy, so the rest of the early roster should be durable.' },
-      { name: 'Andrew Wiggins', yahooAdp: 100.7, yahooPreRank: 103, note: 'Wiggins brings 2.0 threes, 1.1 steals and roughly one block from a wing spot. Our Top 150 places him 86th, close enough to Yahoo ADP 101 to use him as a ninth-round stocks patch; Giannis\' arrival in Miami makes scoring volume uncertain.' }
-    ] },
-    { round: 10, candidates: [
-      { name: 'Grayson Allen', yahooAdp: 116.2, yahooPreRank: 113, note: 'Allen made 3.1 threes with 1.4 steals while shooting 40.3%. This is a real punt-FG% gain at a Yahoo ADP near 116, but his move to Charlotte and a 51-game season create role and availability risk. Use him when boards and blocks are secure.' },
-      { name: 'Cason Wallace', yahooAdp: 118.2, yahooPreRank: 76, note: 'Wallace\'s 2.0 steals and 0.9 turnovers help rescue the ninth category after early creators. He scored only 8.6 points, so he must be a category finisher rather than your last source of offense.' },
-      { name: 'Toumani Camara', yahooAdp: 110.1, yahooPreRank: 97, note: 'Camara made 2.6 threes with 5.1 boards in 82 games. Yahoo ADP near 110 makes him a late-tenth-round wing, and our Top 150 places him 104th. His 70.7% FT makes the pick conditional on strong FT% volume already in place.' }
-    ] },
-    { round: 11, candidates: [
-      { name: 'Reed Sheppard', yahooAdp: 120.8, yahooPreRank: 56, note: 'Sheppard made 2.8 threes with 1.5 steals and 0.7 blocks. VanVleet\'s return could shrink his Houston role; take him for shooting and defense only if the camp rotation supports minutes.' },
-      { name: 'Saddiq Bey', yahooAdp: 120.1, yahooPreRank: 109, note: 'Bey contributed 17.7 points, 2.1 threes, 5.6 boards and just 0.9 turnovers. He is 102nd on our Top 150 versus Yahoo ADP 120, but thin stocks mean you need defenders already in place.' },
-      { name: 'P.J. Washington', yahooAdp: 115.8, yahooPreRank: 178, note: 'Washington adds seven rebounds, 1.0 steals and 1.1 blocks. Our Top 150 places him 124th, close to Yahoo ADP 116; his 45.0% FG no longer hurts, but 68.7% FT still can. Take him only after strong FT% guards.' }
-    ] },
-    { round: 12, candidates: [
-      { name: 'Donte DiVincenzo', yahooAdp: null, yahooPreRank: null, note: 'Three threes and 1.3 steals across 82 games become more appealing once his 40.6% FG is removed. Minnesota\'s new Ball-Edwards backcourt could change minutes, and this Yahoo snapshot has no reliable ADP; take the value only if it reaches your last pick.' },
-      { name: 'Herbert Jones', yahooAdp: null, yahooPreRank: 147, note: 'Jones gave 1.6 steals despite 38.3% shooting. The punt clears that weakness, but 1.4 threes and limited scoring still make him a specialist. Use him only when your final roster needs a steal-rate boost.' },
-      { name: 'Jay Huff', yahooAdp: null, yahooPreRank: null, note: 'Huff paired 1.9 blocks with 1.5 threes in 82 games. Zubac\'s arrival in Indiana threatens his minutes, so this is a final-round block-and-spacing gamble rather than guaranteed frontcourt volume.' }
-    ] }
+  "exampleTeams": [
+    {
+      "name": "Pick four: Luka with shooting and defensive support",
+      "color": "#8e44ad",
+      "note": "An illustrative start at picks 4, 21, 28, 45, 52, 69, 76 and 93. Curry is plausible near his ADP but may go much earlier at pre-rank 12; Holmgren and Anunoby need small slips, and White is not guaranteed to last to 45. Bane replaces another injury-risk big here to strengthen FT% and passing. Summing the eight corrected 2025-26 per-game lines gives 156.7 points, 20.2 threes, 45.1 rebounds, 34.8 assists, 9.6 steals, 6.3 blocks and 16.9 turnovers. Aggregate free-throw makes divided by attempts yield 83.3%, showing that even Curry and Bane do not make Luka's volume irrelevant. These equal-games totals are not weekly forecasts or proof of category wins. Rebounding is still the clearest need, with blocks worth reinforcing too. Avoid solving that through several poor foul shooters, and account for Curry's 43 games rather than assuming this lineup is always available.",
+      "roster": [
+        "Luka Dončić",
+        "Stephen Curry",
+        "Chet Holmgren",
+        "Derrick White",
+        "Desmond Bane",
+        "OG Anunoby",
+        "Mikal Bridges",
+        "Josh Hart"
+      ]
+    },
+    {
+      "name": "Pick nine: Maxey with boards and a second creator",
+      "color": "#c2185b",
+      "note": "Picks 9, 16, 33, 40, 57, 64, 81 and 88 produce a plausible September 26 ADP path. Towns and Bridges need only small slips; taking White at 40 and Hart at 88 means drafting them before their averages, not assuming bargains everywhere. The historical per-game totals are 154.9 points, 19.4 threes, 49.2 rebounds, 36.5 assists, 9.2 steals, 5.7 blocks and 17.5 turnovers, with attempt-weighted 85.7% FT. Compared with the Luka example, the lineup buys more boards and foul-line support but has less rim protection. A later Turner-type pick answers the block need better than another shooting guard, provided his remaining FT% cost fits. These are equal-appearance illustrations, not projected weekly results; Porter's 52 games and Philadelphia's changed offense are reasons to stress-test the attractive totals.",
+      "roster": [
+        "Tyrese Maxey",
+        "Karl-Anthony Towns",
+        "James Harden",
+        "Derrick White",
+        "Michael Porter Jr.",
+        "Matas Buzelis",
+        "Mikal Bridges",
+        "Josh Hart"
+      ]
+    }
   ],
-  faqs: [
-    { q: 'Does punt FG% mean I should draft only inefficient guards?', a: 'No. A positive-FG player can still be the right pick if he supplies scarce rebounds, blocks or low turnovers. The punt removes a penalty; it does not erase your other seven or eight needs.' },
-    { q: 'Can I win turnovers with Luka or Harden?', a: 'Possibly, but it takes low-turnover wings and careful choices after the first creator. Stacking several high-usage guards makes a second punt much more likely.' },
-    { q: 'Which other categories are most at risk?', a: 'Rebounds and blocks are the usual structural gaps. FT% can also slip if you solve them with poor free-throw centers, so check both rate and attempt volume.' },
-    { q: 'Does this work in eight-category leagues?', a: 'Yes. Without turnovers, high-usage guards get an extra lift, but rebounds and blocks still need deliberate draft capital.' }
+  "roundTargets": [
+    {
+      "round": 1,
+      "candidates": [
+        {
+          "name": "Luka Dončić",
+          "yahooAdp": 3.5,
+          "yahooPreRank": 5,
+          "note": "Luka lets you spend the next rounds fixing the roster rather than searching for its offense. His 33.4 points, 4.0 threes and 8.2 assists cover the guard categories, while 7.7 rebounds give you a head start on a weakness most perimeter builds must address later. The punt is not a free pass for the rest of the line, though. He shot 78.0% on ten free-throw attempts and committed 4.0 turnovers, so taking several more high-usage players can leave you conceding three categories instead of one. Our No. 4 ranking matches his early draft cost. Follow him with real foul-line volume and a plan for blocks, not another scorer simply because you no longer care about misses."
+        },
+        {
+          "name": "Tyrese Maxey",
+          "yahooAdp": 8.8,
+          "yahooPreRank": 4,
+          "note": "Maxey offers a cleaner foul-line and turnover foundation than Luka, although he gives you much less rebounding. His 28.3 points and 6.6 assists came with 89.2% free throws on 6.0 attempts and 2.4 turnovers. The 1.9 steals are another important distinction: you are not spending a first-round pick on offense and leaving every defensive category for later. Philadelphia's additions of LeBron and Brown make another season with the same shot and creation volume uncertain. Our No. 9 ranking accounts for that more conservatively than Yahoo's pre-rank of four. Near his ADP of nine, I like him as a foundation for Towns or Holmgren next; another expensive guard should address a specific shortage rather than duplicate what is already strong."
+        },
+        {
+          "name": "Anthony Edwards",
+          "yahooAdp": 8.3,
+          "yahooPreRank": 6,
+          "note": "Edwards is a scoring anchor who can work in this build, not a player whose biggest weakness disappears when you remove FG%. He actually shot 48.9% while supplying 28.8 points and 3.4 threes. The remaining issue is 79.6% free throws on 7.2 attempts, with only 3.7 assists compared with the best early creators. That makes Harden a more useful offensive complement than another scorer with little passing, provided you also budget for rebounds and blocks. His 61 games are a further reason to avoid treating the opening pick as automatic availability. Our No. 6 valuation supports interest around his ADP of eight, but the follow-up picks must protect the line and establish assists."
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "candidates": [
+        {
+          "name": "Karl-Anthony Towns",
+          "yahooAdp": 15,
+          "yahooPreRank": 11,
+          "note": "Towns is worth considering even though his positive FG% goes unused. Finding 11.9 rebounds without a large free-throw penalty is difficult, and his 85.8% on 5.5 attempts can support a guard-led roster rather than drag against it. The 1.5 threes help you keep shooting while finally spending an early pick on size. What he cannot do is cover the whole frontcourt: 0.5 blocks leave that job to someone else. White, Buzelis or Turner becomes more important after a Towns selection, not less. His ADP near 15 is slightly ahead of our No. 17 ranking, so take him because rebounding and the foul line need him, not because every punt-FG% team must draft a particular center."
+        },
+        {
+          "name": "Stephen Curry",
+          "yahooAdp": 23.9,
+          "yahooPreRank": 12,
+          "note": "Curry gives you enough three-point volume to consider non-shooters later without immediately losing the category. His 4.4 threes came with 26.5 points and 92.2% free throws on 5.1 attempts, especially useful after Luka's heavy foul-line volume. He does not solve everything a guard-led opening needs: 4.7 assists are helpful rather than dominant, 3.6 rebounds leave work for the frontcourt, and 2.8 turnovers still count. The 43-game season is the main reason to be selective about the next risks. Our No. 19 valuation supports a late-second selection, but Yahoo's pre-rank of 12 may erase that opportunity. If he goes earlier, do not abandon your rebounding plan trying to reproduce his shooting with several more guards."
+        },
+        {
+          "name": "Austin Reaves",
+          "yahooAdp": 22.3,
+          "yahooPreRank": 17,
+          "note": "Reaves belongs here because foul-line volume and creation still matter even when his good field-goal shooting does not. He supplied 22.9 points, 5.5 assists and 86.8% free throws on 7.1 attempts, enough volume to provide meaningful support after Luka. LeBron's departure creates a route to more offensive responsibility, which is part of the case behind our No. 12 projection against an ADP near 22. It remains a projection: Reaves played 51 games, and 2.9 turnovers already accompanied the smaller role. His 2.3 threes and 0.4 blocks also make him a different purchase from Curry or White. Take the second-round opportunity if it fits, then look for defense and rebounding rather than another bet on expanding usage."
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "candidates": [
+        {
+          "name": "Chet Holmgren",
+          "yahooAdp": 27.7,
+          "yahooPreRank": 19,
+          "note": "Passing on Holmgren because he shoots too well misunderstands the punt. The reason to take him is 8.9 rebounds, 1.9 blocks and 1.3 threes with only 1.6 turnovers, a combination that lets the next roster spot remain a wing or guard. His 55.7% FG is value you give up, but the remaining categories can still be more useful than another inefficient scorer's. Be realistic about the foul line: 79.2% on 4.1 attempts is not a category repair after Luka or Edwards. At a third-round price against our No. 23 ranking, he is a sensible defensive anchor if strong FT% volume is already in place. Next to Towns he covers a different job; next to another elite blocker he may be less urgent."
+        },
+        {
+          "name": "James Harden",
+          "yahooAdp": 35.1,
+          "yahooPreRank": 49,
+          "note": "Harden is most useful when the first picks have supplied scoring but not enough passing or free-throw volume. His 7.9 assists, 3.0 threes and 88.2% free throws on 7.4 attempts answer those needs directly, and removing his 43.2% shooting makes the line much easier to use. The question is whether your roster can afford 3.5 turnovers on top of what it already has. After Edwards, Harden fills a real creation gap; after Luka and another high-usage guard, he may strengthen categories you already lead while exposing turnovers further. Cleveland's shared backcourt also makes unchanged usage an assumption. Our No. 26 ranking supports a third-round pick near ADP 35, not a rule to draft him regardless of the opening."
+        },
+        {
+          "name": "Devin Booker",
+          "yahooAdp": 26.9,
+          "yahooPreRank": 40,
+          "note": "Booker's strongest contribution here may be his trips to the line, not his jump shooting. He made 87.3% of 8.1 free-throw attempts while averaging 26.1 points and 6.0 assists. That is substantial FT% support for an Edwards or Luka start, even though 1.9 threes are fewer than you might expect from an expensive scoring guard. The defensive cost remains: 0.8 steals and 0.3 blocks put pressure on the next picks, while 3.2 turnovers make another ball-dominant teammate less attractive. Phoenix has added scoring around him, so the prior usage is a baseline rather than a guarantee. Near his ADP of 27 and our No. 28 ranking, choose him for points, passing and the line, then stop postponing defense."
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "candidates": [
+        {
+          "name": "Derrick White",
+          "yahooAdp": 47.1,
+          "yahooPreRank": 26,
+          "note": "White is one of the strongest reasons to consider this punt in the first place. His 39.5% shooting came on 14.4 attempts, a substantial cost that disappears entirely here. You keep 2.7 threes, 5.4 assists and 1.3 blocks, which is especially valuable after Towns leaves you short of rim protection. Just 1.7 turnovers also distinguish him from another lead guard. Tatum's return and Boston's new lineup may change the offensive workload, so do not assume last season's passing carries over unchanged. The defensive mix is the more distinctive reason to buy. Our No. 29 ranking already sits above an ADP near 47; Yahoo's pre-rank of 26 means even a fourth-round plan needs an alternative."
+        },
+        {
+          "name": "Trey Murphy III",
+          "yahooAdp": 40.1,
+          "yahooPreRank": 22,
+          "note": "Murphy prevents a productive backcourt from becoming a one-dimensional roster. His 3.2 threes and 21.5 points maintain the offense while 1.5 steals add something many scoring guards do not provide. There is also useful foul-line volume: 88.6% on 3.7 attempts, with only 1.8 turnovers. You do not need to care about his 47.0% FG to see why that line works. The decision against White is about what remains missing. Murphy supplies more scoring and steals; White supplies passing and much more shot blocking. Our No. 24 ranking makes an ADP near 40 attractive, although his pre-rank of 22 can bring earlier competition. If blocks are still empty, do not keep choosing wings just because each is good value in isolation."
+        },
+        {
+          "name": "Lauri Markkanen",
+          "yahooAdp": 38.7,
+          "yahooPreRank": 18,
+          "note": "Markkanen lets you add high-volume offense without automatically giving up more turnovers. He scored 26.6 points and made 2.7 threes with only 1.5 giveaways, while 89.6% free throws on 6.4 attempts provide the kind of support Luka needs. His 6.8 rebounds are useful from a forward, but 0.5 blocks mean he is not a replacement for a defensive center. Utah's partnership with Jackson changes the offensive context, and 42 games remain the strongest argument against treating the per-game line as a season-long promise. Our No. 20 ranking leaves obvious upside at an ADP near 39. I prefer that risk after a steadier opening, rather than pairing every discounted injury gamble and hoping the aggregate line survives."
+        },
+        {
+          "name": "Brandon Miller",
+          "yahooAdp": 46.8,
+          "yahooPreRank": 46,
+          "note": "Miller is a more natural fit once the 43.5% shooting on 16.1 attempts no longer damages a category. His 20.2 points and 3.1 threes remain, together with 89.2% free throws on 3.4 attempts. Charlotte's changes leave room for more responsibility, but 3.3 assists and 2.5 turnovers show why a scoring opportunity should not be mistaken for polished lead creation. Murphy offers more steals and fewer turnovers; Miller is the alternative when the former is gone and you still need perimeter offense. Our No. 41 ranking supports the range, but an ADP of 47 puts him in the fourth round of a 12-team league. Waiting until the fifth is a favorable fall, not the default plan."
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "candidates": [
+        {
+          "name": "Desmond Bane",
+          "yahooAdp": 52.9,
+          "yahooPreRank": 44,
+          "note": "Bane is the addition I would make when a theoretically excellent punt-FG% roster still looks ordinary at the foul line. He shot 90.8% on 4.2 attempts and played all 82 games, a helpful combination after Luka or a riskier Curry selection. You also get 20.1 points and 4.1 assists without another three-plus-turnover guard. Giving away his 48.3% field-goal shooting is acceptable if the remaining production is what the team needs. The comparison with Jackson is instructive: Bane supports free throws and passing, while Jackson adds blocks. Neither choice fixes every hole. Our No. 38 valuation makes Bane appealing near his fifth-round ADP of 53, especially when the early frontcourt already includes a genuine shot blocker."
+        },
+        {
+          "name": "Jaren Jackson Jr.",
+          "yahooAdp": 50.5,
+          "yahooPreRank": 54,
+          "note": "Jackson is the middle-round option for a backcourt that needs blocks but cannot accommodate a center who makes no threes. He supplied 1.4 blocks, 1.8 threes and 19.4 points, while 80.3% free throws on 4.2 attempts are easier to carry than Sarr's rate. That does not make him an all-purpose frontcourt solution: 5.7 rebounds are modest and 2.2 turnovers are not especially light. His 48-game season and knee surgery also warrant more than a generic health disclaimer. At roughly pick 51, you are buying a useful category combination, not a guaranteed return to his old block peak. After Towns he supplies something missing; after Holmgren, assess whether rebounding or FT% support is the more urgent purchase."
+        },
+        {
+          "name": "Michael Porter Jr.",
+          "yahooAdp": 59.6,
+          "yahooPreRank": 55,
+          "note": "Porter's 7.1 rebounds are what make him especially useful to a punt-FG% team that has spent several early picks on guards. They come alongside 24.2 points and 3.4 threes, so adding boards does not require sacrificing the categories you intended to win. His 46.3% shooting on 18.4 attempts no longer needs balancing, although 2.3 turnovers and just 0.3 blocks remain part of the price. Brooklyn's changed offense introduces another usage question after a 52-game season. Our No. 40 ranking makes his ADP near 60 interesting, but I would not use him as the only answer to a frontcourt shortage. He repairs wing rebounding; a team still missing blocks needs a different next pick."
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "candidates": [
+        {
+          "name": "Matas Buzelis",
+          "yahooAdp": 61.9,
+          "yahooPreRank": 34,
+          "note": "Buzelis keeps you from having to choose between a shooter and a blocker with the same middle-round pick. His 2.2 threes and 1.5 blocks fit a guard-led opening, while 5.8 rebounds provide some frontcourt volume. Once 46.3% FG is removed, the concerns move elsewhere: 78.6% free throws on 3.1 attempts and 2.1 turnovers are not the clean supporting line of a low-usage veteran. Chicago may offer more opportunity, but that does not guarantee more efficient or mistake-free offense. Around his ADP of 62, close to our No. 59 valuation, the existing mix is enough to consider. Yahoo's pre-rank of 34 asks you to pay for much more of the improvement before it happens."
+        },
+        {
+          "name": "OG Anunoby",
+          "yahooAdp": 66.6,
+          "yahooPreRank": 60,
+          "note": "Anunoby is a good way to stop buying the same guard categories over and over. He adds 1.6 steals, 0.7 blocks and 2.3 threes with only 1.8 turnovers, useful next to Luka or Harden without requiring another major creation role. His 5.2 rebounds are supportive, though not enough to replace a rebounding big, and 82.8% free throws do not make him a rescue for a weak line. The appeal is the balance across categories you can still win. Our No. 49 ranking is comfortably ahead of his ADP near 67. After a scoring-heavy start, I would prioritize this defensive profile over another low-FG gunner whose points and threes merely extend an existing advantage."
+        },
+        {
+          "name": "Alex Sarr",
+          "yahooAdp": 71.9,
+          "yahooPreRank": 59,
+          "note": "Sarr is a useful reminder that solving blocks can create a different percentage problem. His 2.0 blocks and 7.4 rebounds offer a meaningful frontcourt contribution at a later price than Holmgren, and 16.3 points keep the offensive cost manageable. But his 69.2% free throws came on 3.0 attempts, which still count even if field-goal shooting does not. After Maxey and Harden, that may be affordable; after Luka and another poor foul shooter, it deserves much more caution. He also played 48 games. Our No. 45 projection leaves room at an ADP near 72, but the right question is whether his extra blocks are worth more to your team than Jackson's better foul shooting and greater three-point output."
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "candidates": [
+        {
+          "name": "Mikal Bridges",
+          "yahooAdp": 79.6,
+          "yahooPreRank": 41,
+          "note": "Bridges helps a high-usage team without asking for another high-usage role. His 1.0 turnover per game is a useful contrast to the three or four attached to many early guards, and you still get 1.9 threes, 1.3 steals and 0.8 blocks. Playing all 82 games is another reason to consider him after an availability gamble. The sacrifices are scoring and rebounding: 14.4 points and 3.8 boards will not repair those columns. His strong FG% is irrelevant here, but the defensive spread is not. Near ADP 80 against our No. 60 ranking, he fits a seventh-round plan. Yahoo's pre-rank of 41 may force a different choice; do not pay a primary-scorer price for a complementary line."
+        },
+        {
+          "name": "Kel'el Ware",
+          "yahooAdp": 73.2,
+          "yahooPreRank": 51,
+          "note": "Ware brings the rebounding volume that several stretch centers on this list do not. Nine boards came with 1.1 blocks, 1.2 threes and only 0.8 turnovers, useful when the first half of the draft has been dominated by guards. His 74.0% free throws were limited to 1.2 attempts, so the actual damage is smaller than the rate alone suggests. More minutes could change that balance as well as improve the counting stats. Milwaukee's new frontcourt makes the workload a projection, not something the old line settles. Near his ADP of 73, slightly later than our No. 66 ranking, choose him for boards and low turnovers; Turner is the stronger blocks-and-threes option if rebounding is already covered."
+        },
+        {
+          "name": "Paul George",
+          "yahooAdp": 80.4,
+          "yahooPreRank": 126,
+          "note": "George is tempting because his 2.7 threes and 1.7 steals resemble a much more expensive wing's contribution. Removing 43.9% FG makes those strengths easier to use, and 1.7 turnovers are manageable beside demanding creators. The question is how often that line reaches your active roster after a 37-game season. Boston is a new setting, not proof that the availability or workload improves. Our No. 76 ranking is close to his ADP near 80, so there is no need to describe the name as a huge market discount. Take him if the roster can afford a health bet and needs both shooting and steals; after several risky early picks, Bridges is the more defensible recent-workload choice."
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "candidates": [
+        {
+          "name": "Jabari Smith Jr.",
+          "yahooAdp": 94.1,
+          "yahooPreRank": 84,
+          "note": "Smith gives a guard-heavy roster more boards without forcing it to surrender another shooting slot. His 6.9 rebounds and 2.3 threes came with 0.9 blocks, useful secondary rim protection rather than enough to anchor the category. The 45.0% field-goal rate disappears here, but 77.5% free throws on 2.7 attempts remain a small cost. He played 77 games, offering a firmer recent workload than several higher-ceiling frontcourt options. Houston's rotation makes a large scoring increase uncertain, so buy the combination already demonstrated. Near ADP 94 against our No. 83 ranking, he is a reasonable eighth-round complement when boards and threes are both short. If blocks alone are the problem, Turner is more directly suited to it."
+        },
+        {
+          "name": "Josh Hart",
+          "yahooAdp": 96.3,
+          "yahooPreRank": 68,
+          "note": "Hart can rescue rebounding without using a center spot or giving up all your passing. His 7.4 boards and 4.8 assists are the reason to consider him after several scoring guards; 1.9 turnovers are a much smaller addition than another primary creator's. You do discard his 50.8% field-goal shooting, but that need not outweigh a genuine roster need. The remaining weaknesses are specific: 12.0 points, 1.5 threes and 0.3 blocks will not complete the offense or rim protection. His 72.0% free throws came on only 1.9 attempts, a manageable cost for a strong foul-shooting team. Around the eighth-round turn he is a needs-based pick, not a bargain to force, with our No. 93 ranking close to ADP 96."
+        },
+        {
+          "name": "Norman Powell",
+          "yahooAdp": 92.4,
+          "yahooPreRank": 115,
+          "note": "Powell is the late scoring option when earlier frontcourt picks have left points less secure than the punt's reputation suggests. His 21.7 points and 2.7 threes supply real offense without the turnovers of another lead guard. Chicago is a new context, and 58 games mean you should separate that scoring rate from a guaranteed season-long return. There is also less supporting production than many wings offer: 3.5 rebounds, 2.5 assists and 0.2 blocks leave those jobs elsewhere. His 82.7% free throws are usable but not the elite rate you might want after Luka. Our No. 81 ranking supports interest near ADP 92; take him to solve an actual scoring shortage, not simply because late points look cheap."
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "candidates": [
+        {
+          "name": "Myles Turner",
+          "yahooAdp": 100.3,
+          "yahooPreRank": 108,
+          "note": "Turner gains a clearer purpose when his 44.0% shooting no longer needs repair. You keep 2.1 threes and 1.6 blocks, a useful way to protect rim defense without undoing the shooting assembled in the early rounds. That is only half a center's job, though: 5.3 rebounds will not rescue a roster full of guards, and 74.0% free throws on 2.5 attempts remain a cost. Milwaukee's changed rotation also means the old workload is not assured. Near ADP 100 against our No. 88 ranking, he fits a team with a Towns or Hart-type rebounder already in place. A team that needs boards more than blocks should not draft him just because his FG% looks like a perfect punt fit."
+        },
+        {
+          "name": "Andrew Wiggins",
+          "yahooAdp": 100.7,
+          "yahooPreRank": 103,
+          "note": "Wiggins is useful when a late pick needs to improve several defensive categories rather than maximize one offensive number. His 1.1 steals and 1.0 blocks came with 2.0 threes, giving a guard-heavy roster more coverage without adding another creator's turnover total. Giannis' arrival changes Miami's shot distribution, so the 15.4 points should not be treated as the floor for a growing role. The shooting percentages are not the selling point: FG% is discarded, and 78.4% free throws on 2.4 attempts are a small remaining weakness. Our No. 86 ranking gives him a case around ADP 101. Choose him over a pure scorer when blocks and steals are still close enough to swing."
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "candidates": [
+        {
+          "name": "Grayson Allen",
+          "yahooAdp": 116.2,
+          "yahooPreRank": 113,
+          "note": "Allen is one of the late players whose fit changes materially when field-goal percentage disappears. His 40.3% shooting came on 13.1 attempts, not the tiny volume of a reserve who rarely shoots. Without that penalty, 3.1 threes, 1.4 steals and 85.7% free throws on 3.3 attempts are an appealing supporting line. Charlotte presents a different rotation, and 51 games make both opportunity and availability worth watching. He is not a rebounding or blocking solution, with 3.0 boards and 0.3 blocks. At ADP 116 against our No. 98 ranking, he is useful if those frontcourt jobs are already filled. Do not keep adding attractive shooters if doing so leaves the same two categories unwinnable."
+        },
+        {
+          "name": "Cason Wallace",
+          "yahooAdp": 118.2,
+          "yahooPreRank": 76,
+          "note": "Wallace is a specialist whose value depends on what the first nine picks accomplished. His 2.0 steals and 0.9 turnovers can help a productive offense compete in another category without adding much ball-handling risk. Removing 43.2% FG makes the fit easier, but 8.6 points, 1.3 threes and 2.6 assists still limit what he can fix. Nor can 80.9% free throws on fewer than one attempt cancel a high-volume weakness. Near ADP 118, he makes sense when points and passing are already secure. If you are still short of both threes and steals, Allen or Sheppard offers a broader offensive contribution; if the steals rate is the priority, Wallace is the more focused purchase."
+        },
+        {
+          "name": "Toumani Camara",
+          "yahooAdp": 110.1,
+          "yahooPreRank": 97,
+          "note": "Camara can add boards and shooting without asking for another high-usage roster spot. His 5.1 rebounds and 2.6 threes are useful late, and the 44.0% field-goal rate that hurts balanced teams disappears here. The rest is less specialized than his defensive reputation might suggest: 1.1 steals help, but 0.4 blocks do not replace a rim protector. Free throws are the remaining percentage issue, although 70.7% on only 1.6 attempts is easier to absorb than a larger-volume weakness. His 82-game season supports the recent workload case. Our No. 104 ranking is close to his ADP near 110; choose him for wing rebounding and threes rather than imagining every defensive wing supplies the same category mix."
+        }
+      ]
+    },
+    {
+      "round": 11,
+      "candidates": [
+        {
+          "name": "Reed Sheppard",
+          "yahooAdp": 120.8,
+          "yahooPreRank": 56,
+          "note": "Sheppard's appeal is not just that you can ignore his 43.0% shooting. He paired 2.8 threes with 1.5 steals and 0.7 blocks, giving a late guard slot some of the defensive coverage a perimeter-heavy roster often lacks. Just 1.5 turnovers help as well. The 82-game season shows what he delivered when available, but VanVleet's expected return makes the next workload uncertain. Our No. 85 projection is much higher than ADP 121, while Yahoo's pre-rank of 56 may prevent that discount from reaching your room. I would not pay the latter price without firmer role evidence. Around the tenth-to-eleventh turn, the shooting and defense are worth considering if minutes still look attainable."
+        },
+        {
+          "name": "Saddiq Bey",
+          "yahooAdp": 120.1,
+          "yahooPreRank": 109,
+          "note": "Bey is a useful way to finish the offense without adding another expensive creator. His 17.7 points, 2.1 threes and 5.6 rebounds came with only 0.9 turnovers, and removing 45.1% FG makes the scoring easier to accept. His 84.1% free throws on 4.1 attempts also carry more weight than the rates of many low-usage late picks. The defensive limitation is substantial: 0.1 blocks offer virtually nothing, and 0.9 steals are not a specialist contribution. With our No. 102 ranking ahead of ADP 120, he is a reasonable target at the tenth-to-eleventh turn. Prefer him when points and rebounding remain unfinished; prefer Wallace or Wiggins if the offensive categories are already strong and defense is the problem."
+        },
+        {
+          "name": "P.J. Washington",
+          "yahooAdp": 115.8,
+          "yahooPreRank": 178,
+          "note": "Washington is a better fit here than on a team protecting FG%, but the remaining free-throw penalty still needs an honest calculation. He shot 68.7% on 3.3 attempts, enough volume to matter after Luka or Edwards. What you receive is seven rebounds, 1.0 steals and 1.1 blocks from a forward, useful coverage for a guard-heavy opening. His 1.4 threes are secondary rather than a major shooting contribution, and 56 games add availability risk. Our No. 124 ranking sits below his ADP near 116, so I would wait for an eleventh-round fall. A strong foul-line foundation can make the trade worthwhile; a roster already struggling there should not call this a harmless defensive patch."
+        }
+      ]
+    },
+    {
+      "round": 12,
+      "candidates": [
+        {
+          "name": "Donte DiVincenzo",
+          "yahooAdp": null,
+          "yahooPreRank": null,
+          "note": "DiVincenzo is a legitimate late consideration because the 40.6% shooting penalty disappears while his 3.0 threes and 1.3 steals remain. The 3.8 assists also provide more passing than many final-round shooters, with only 1.4 turnovers. He played all 82 games, but Minnesota's Ball-Edwards backcourt makes unchanged minutes and usage uncertain. His 74.3% free throws are another remaining cost, limited by 1.3 attempts rather than absent altogether. Our No. 90 ranking reflects a useful category profile; the saved Yahoo snapshot has no reliable ADP, so a final-round listing is not a prediction that he will fall that far. Consider him earlier than other endgame options if the role is clear, without paying for last season's workload automatically."
+        },
+        {
+          "name": "Herbert Jones",
+          "yahooAdp": null,
+          "yahooPreRank": 147,
+          "note": "Jones is a steals specialist made easier to use by the punt, not a hidden complete player. His 38.3% FG no longer damages the roster, but 8.9 points, 1.4 threes and 3.4 rebounds still make the opportunity cost obvious. The reason to take him is 1.6 steals, ideally after enough offense has been drafted that a quiet scoring night will not matter. Wallace supplied more steals with fewer turnovers, so Jones is an alternative if that option is gone rather than the first specialist to chase. His 56 games also limit the recent availability case. Near our No. 142 valuation, use a final pick if steals are the clear need; there is no saved Yahoo ADP to justify a precise expected draft slot."
+        },
+        {
+          "name": "Jay Huff",
+          "yahooAdp": null,
+          "yahooPreRank": null,
+          "note": "Huff can supply late blocks without requiring you to give up every three-pointer from a center slot. His 1.9 blocks and 1.5 threes are the attraction, while 82.8% free throws avoid the obvious penalty attached to some cheaper bigs. That rate came on only 1.2 attempts, so it will not repair the team's foul shooting. Nor do 4.0 rebounds solve the structural rebounding problem. Indiana's addition of Zubac makes the minutes behind last season's line uncertain, despite Huff playing all 82 games. With no reliable Yahoo ADP in the snapshot, treat him as a final-pick role bet. If you already have enough blocks but lack boards, another specialist in the same category is the wrong finishing piece."
+        },
+        {
+          "name": "Kristaps Porziņģis",
+          "yahooAdp": 98.8,
+          "yahooPreRank": 148,
+          "note": "Treat Porziņģis as a conditional late stash, not the ninth-round frontcourt solution suggested by the older ADP. NBA.com reported him out indefinitely with a health issue on September 29. His 32-game baseline already required caution, even before that update. The appeal when available is clear: 1.7 threes, 1.2 blocks and 84.2% free throws on 4.9 attempts are useful from a center, while 44.6% FG no longer hurts. But only 5.2 rebounds mean even the healthy line does not solve every shortage. Our existing No. 117 ranking is not a medical update. With an open IL slot and a final pick, the upside may be worth monitoring; without those conditions, prefer someone who can contribute now."
+        }
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "q": "Should I avoid efficient centers?",
+      "a": "No. Their FG% no longer helps, but the remaining categories may be exactly what you need. Towns supplies rebounds and useful free-throw volume, while Holmgren supplies rebounds and blocks with some threes. Another low-FG guard is not automatically better if the roster already has enough offense."
+    },
+    {
+      "q": "Does a Luka start guarantee strong free throws?",
+      "a": "No. Luka shot 78.0% on ten attempts per game in 2025-26, so his volume can outweigh several smaller positive contributions. Calculate team FT% from total makes and attempts. Strong shooters such as Curry and Bane help, but you still need to measure the combined result before adding a poor foul-shooting center."
+    },
+    {
+      "q": "Can I still compete in turnovers?",
+      "a": "Yes, but not regardless of your picks. One high-usage creator is easier to balance than several, and low-turnover contributors such as Bridges or Bey can help. If you decide to concede turnovers too, treat that as a deliberate two-category build with less margin elsewhere, not an automatic benefit of punting FG%."
+    },
+    {
+      "q": "What changes in eight-category leagues or roto?",
+      "a": "Without turnovers, a second high-usage creator becomes easier to justify, but rebounds, blocks and FT% still need support. In roto, deliberately sacrificing FG% costs standings points for the whole season. This guide's main case is head-to-head categories, where a planned category loss can support a winning weekly combination."
+    },
+    {
+      "q": "Are the sample teams projections or guaranteed draft paths?",
+      "a": "Neither. They illustrate 12-team snake paths using dated Yahoo prices and sum eight players' historical per-game lines with equal appearances. FT% is weighted by attempts. Availability, new roles, weekly schedules, roster eligibility and your room's prices can all change the result; use the category decisions rather than expecting to draft every listed name."
+    }
   ]
 };
 
