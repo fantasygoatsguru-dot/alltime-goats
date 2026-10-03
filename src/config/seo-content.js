@@ -294,13 +294,13 @@ export const SEO_CONTENT = {
     // and must never appear here — serving a crawler content a visitor cannot
     // read is cloaking, and it would also give the paid build away for free.
     content: `
-      <p>Punt FT% starts with a player whose volume at the line makes a balanced roster difficult. Giannis Antetokounmpo is the clearest 2026-27 example: in 2025-26 he averaged 27.6 points on 62.4% shooting while making 65.0% of 9.9 free throws. His move to Miami creates a new frontcourt partnership with Bam Adebayo, so the exact usage split remains a projection.</p>
+      <p>Giannis Antetokounmpo is the clearest reason to stop chasing free-throw percentage. He made 65.0% on 9.9 attempts a game in 2025-26, enough volume that adding one excellent shooter is unlikely to rescue the team total. Remove that problem and his 27.6 points, 9.8 rebounds and 62.4% FG become much easier to build around. This guide is written for a 12-team, nine-category head-to-head league, where the aim is a reliable route to five weekly category wins.</p>
 
-      <p>The build can make rebounds, field-goal percentage and blocks easier to win, but none is automatic. Giannis and Zion Williamson bring efficient scoring without many threes; Alperen Sengun brings 6.2 assists from center; Mobley and Clingan offer more rim protection. Pick the frontcourt profile that covers what your first selection did not.</p>
+      <p>The next picks still have different jobs to do. Giannis averaged only 0.7 blocks, so he needs a teammate who can supply rim protection. Jalen Duren gives you much more FG% volume than Rudy Gobert, while Gobert offers more blocks. Alperen Sengun adds 6.2 assists from center. Those differences matter more than simply collecting players with poor free-throw percentages.</p>
 
-      <p>Threes are the pressure point, followed by assists and sometimes steals. A roster full of low-three bigs can give away several categories at once, while Giannis, Sengun and another high-usage creator can create a turnover problem. Spend meaningful draft capital on shooting and passing before the late rounds.</p>
+      <p>Shooting and turnovers are the easiest categories to lose by accident. Jamal Murray's threes and assists or Trey Murphy III's shooting and steals can be worth buying even when their strong FT% goes unused. Giannis, Sengun and Stephon Castle each averaged 3.2 turnovers, so combining them requires a separate plan for ball security. Daniels and Pritchard offer ways to add passing with a smaller turnover cost.</p>
 
-      <p>The live table removes FT% from corrected 2025-26 production. It is a historical category view, not a 2026-27 projection. Compare it with the <a href="/guides/top-150">projected Top 150</a> and check the <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> before drafting; the guide's round targets use a September 26 market snapshot.</p>
+      <p>The live table uses corrected 2025-26 production with FT% removed. For the coming season's outlook, compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges retain the September 26 ADP snapshot and use Yahoo standard pre-ranks checked October 3.</p>
     `,
     keywords: ['punt ft', 'punt free throw percentage', 'punt ft% fantasy basketball', 'fantasy basketball punt build', '9-cat punt strategy', 'big man fantasy basketball draft']
   },
@@ -308,11 +308,13 @@ export const SEO_CONTENT = {
   '/guides/punt-blocks': {
     title: 'Punt Blocks Strategy 2026-27',
     content: `
-      <p>Punt Blocks is a nine-category build that concentrates on points, threes, assists, steals and free throws. It works when those guard strengths are paired with enough rebounding, FG% and ball security to keep five or more categories competitive. Nikola Jokić is an unusually easy start because his 12.9 rebounds and 10.7 assists cover both sides of the plan.</p>
+      <p>Punt blocks gives you room to spend on scoring, passing and shooting without paying extra for rim protection. Karl-Anthony Towns is a useful example: his 11.9 rebounds and 85.8% FT come with only 0.5 blocks. Remove that weakness and the next pick can strengthen the backcourt instead of compensating with a shot blocker. This guide assumes a 12-team, nine-category head-to-head league, with the aim of building several ways to reach five weekly category wins.</p>
 
-      <p>The build's common failure is a guard run that also loses rebounds and field-goal percentage, then lets turnovers become another weak category. Karl-Anthony Towns, Bam Adebayo and rebounding wings such as Josh Hart or Dyson Daniels can help cover the boards. A Luka or Harden start requires later low-turnover choices unless you intend a second punt.</p>
+      <p>The strongest version still has a frontcourt. Jokić supplies rebounds and efficient shooting alongside elite assists. Shai Gilgeous-Alexander gives you accurate volume in both percentages but needs more help on the boards. Bam Adebayo illustrates why rebounding and FG% must be judged separately: ten rebounds came with 44.2% shooting on 15.7 attempts. Jalen Duren provides much stronger FG%, with a larger free-throw cost to accommodate.</p>
 
-      <p>The live table removes blocks from corrected 2025-26 production. It shows how players performed in that build last season; health, team and role changes still matter for the 2026-27 draft. Use the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> alongside this historical board. The written round targets use Yahoo's September 26 ADP and pre-rank snapshot.</p>
+      <p>Turnovers and steals also need deliberate picks. A roster full of scoring guards may still need a Murphy or Anunoby for defense, while Quickley and Pritchard can add passing with fewer turnovers than another primary creator. Free-throw rates need their attempt volume too: Daniels' 61.5% on 1.6 attempts is a different problem from a weak shooter taking six or ten a game. Those distinctions determine which player fits the surrounding roster.</p>
+
+      <p>The live board uses corrected 2025-26 production with blocks removed. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> for the coming season. Written draft ranges retain the September 26 ADP snapshot and use Yahoo standard pre-ranks checked October 3.</p>
     `,
     keywords: ['punt blocks', 'punt strategy fantasy basketball', 'fantasy basketball punt build', '9-cat punt blocks', 'fantasy basketball draft strategy', 'category punting']
   },
