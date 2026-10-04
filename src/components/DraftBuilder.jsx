@@ -4,7 +4,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { supabase, CURRENT_SEASON } from '../utils/supabase';
+import { supabase } from '../utils/supabase';
+import { HISTORICAL_STATS_SEASON } from '../config/season';
 import { CATEGORIES, categoryByKey } from '../config/guides-content';
 import RadarView from './RadarView';
 
@@ -39,7 +40,7 @@ const norm = (s) =>
 /**
  * Interactive per-round mock draft. The reader picks one candidate per round;
  * a live radar and written analysis respond to the selected roster using real
- * current-season z-scores.
+ * historical baseline z-scores.
  *
  * rounds: [{ round, candidates: [{ name, note, yahooAdp, yahooPreRank }] }]
  */
@@ -56,7 +57,7 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
         const { data, error } = await supabase
           .from('player_period_averages')
           .select('player_name, points_z, three_pointers_z, rebounds_z, assists_z, steals_z, blocks_z, fg_percentage_z, ft_percentage_z, turnovers_z, points_per_game, three_pointers_per_game, rebounds_per_game, assists_per_game, steals_per_game, blocks_per_game, turnovers_per_game, field_goals_per_game, field_goals_attempted_per_game, free_throws_per_game, free_throws_attempted_per_game')
-          .eq('season', CURRENT_SEASON)
+          .eq('season', HISTORICAL_STATS_SEASON)
           .eq('period_type', 'season')
           .order('total_value', { ascending: false })
           .limit(600);

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { getMatchupDates } from '../utils/fantasyCalendar';
 import {
     Box,
     Grid,
@@ -300,48 +301,7 @@ const Matchup = () => {
                 return `${parts[2]}-${parts[0]}-${parts[1]}`;
             };
     
-    // Get current matchup week dates (Monday to Sunday) in Eastern Time
-const getCurrentWeekDates = () => {
-    const now = new Date();
-    
-    // Get current date/time components in Eastern Time
-    const easternTimeString = now.toLocaleString('en-US', { 
-        timeZone: 'America/New_York',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    });
-    
-    const [datePart, timePart] = easternTimeString.split(', ');
-    const [month, day, year] = datePart.split('/');
-    const [hour, minute, second] = timePart.split(':');
-    
-    // Create date object representing "today" in Eastern Time
-    const easternNow = new Date(year, month - 1, day, hour, minute, second);
-    
-    const dayOfWeek = easternNow.getDay();
-    // Monday = 1, Sunday = 0 → move so that Monday is start of week
-    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-
-    const weekStart = new Date(easternNow);
-    weekStart.setDate(easternNow.getDate() + daysToMonday + 1); // ✅ Shift forward by 1 day
-    weekStart.setHours(0, 0, 0, 0);
-
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    weekEnd.setHours(23, 59, 59, 999);
-
-    const todayDateStr = getEasternDateString(now);
-
-    return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
-};
-;
-    
-            const { weekStart, weekEnd, currentDate, todayDateStr } = getCurrentWeekDates();
+            const { weekStart, weekEnd, currentDate, todayDateStr, numDaysInWeek } = await getMatchupDates(matchup);
             
     
             // Get player IDs and their NBA teams
@@ -471,8 +431,7 @@ const getCurrentWeekDates = () => {
                 
                 const dailyProjections = [];
                 
-                // Create all 7 days, using weekStart as the base
-                for (let i = 0; i < 7; i++) {
+                for (let i = 0; i < numDaysInWeek; i++) {
                     const dayDate = new Date(weekStart);
                     dayDate.setDate(weekStart.getDate() + i);
                     

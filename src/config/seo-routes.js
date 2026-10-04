@@ -1,6 +1,8 @@
 // Shared SEO configuration for all routes
 // Used by both prerender script and SEOHead component
 
+import { STATS_SEASON } from './season.js';
+
 export const seoRoutes = [
   {
     path: '/',
@@ -42,8 +44,8 @@ export const seoRoutes = [
   },
   {
     path: '/season-games',
-    title: 'Top Season Games | Best Fantasy Performances 2025-26 | Fantasy Goats Guru',
-    description: 'Discover the best fantasy basketball performances of the 2025-26 season. Filter by player, team, and stats to find the highest-scoring games.',
+    title: `Top Season Games | Best Fantasy Performances ${STATS_SEASON} | Fantasy Goats Guru`,
+    description: `Discover the best fantasy basketball performances of the ${STATS_SEASON} season. Filter by player, team, and stats to find the highest-scoring games.`,
     changefreq: 'daily',
     priority: 0.8,
   },

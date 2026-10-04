@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { getMatchupDates } from '../utils/fantasyCalendar';
 import { Box, Typography, Alert, FormControl, Select, MenuItem, CircularProgress, Tooltip, Grid, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useAuth } from "../contexts/AuthContext";
@@ -534,70 +535,7 @@ const MatchupProjection = () => {
                 return `${parts[2]}-${parts[0]}-${parts[1]}`;
             };
 
-            // Calculate explicit week dates based on API response
-            const getExplicitWeekDates = () => {
-                const now = new Date();
-
-                // Get current date/time components in Eastern Time
-                const easternTimeString = now.toLocaleString('en-US', {
-                    timeZone: 'America/New_York',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                });
-
-                const [datePart, timePart] = easternTimeString.split(', ');
-                const [month, day, year] = datePart.split('/');
-                const [hour, minute, second] = timePart.split(':');
-
-                // Create date object representing "today" in Eastern Time
-                const easternNow = new Date(year, month - 1, day, hour, minute, second);
-                const todayDateStr = getEasternDateString(now);
-
-                let weekStart, weekEnd;
-
-                if (matchup.week_start && matchup.week_end) {
-                    const [sYear, sMonth, sDay] = matchup.week_start.split('-');
-                    // We parse explicitly as 12-noon Eastern to avoid local offset issues shifting it into previous/next day
-                    weekStart = new Date(`${matchup.week_start}T12:00:00-05:00`);
-
-                    const [eYear, eMonth, eDay] = matchup.week_end.split('-');
-                    weekEnd = new Date(`${matchup.week_end}T23:59:59-05:00`);
-                } else {
-                    // Fallback to old behavior if missing format
-                    const dayOfWeek = easternNow.getDay();
-                    const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-
-                    // Construct an EST date directly using the string parsing
-                    const fallbackStart = new Date(easternNow);
-                    fallbackStart.setDate(easternNow.getDate() + daysToMonday);
-                    const sYear = fallbackStart.getFullYear();
-                    const sMonth = String(fallbackStart.getMonth() + 1).padStart(2, '0');
-                    const sDay = String(fallbackStart.getDate()).padStart(2, '0');
-
-                    weekStart = new Date(`${sYear}-${sMonth}-${sDay}T12:00:00-05:00`);
-
-                    const fallbackEnd = new Date(fallbackStart);
-                    fallbackEnd.setDate(fallbackStart.getDate() + 6);
-                    const eYear = fallbackEnd.getFullYear();
-                    const eMonth = String(fallbackEnd.getMonth() + 1).padStart(2, '0');
-                    const eDay = String(fallbackEnd.getDate()).padStart(2, '0');
-
-                    weekEnd = new Date(`${eYear}-${eMonth}-${eDay}T23:59:59-05:00`);
-                }
-
-                return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
-            };
-
-            const { weekStart, weekEnd, currentDate, todayDateStr } = getExplicitWeekDates();
-
-            // Matchups differ in length (e.g., All Star week is 14 days)
-            const diffTime = Math.abs(weekEnd - weekStart);
-            const numDaysInWeek = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+            const { weekStart, weekEnd, currentDate, todayDateStr, numDaysInWeek } = await getMatchupDates(matchup);
 
 
             // Get player IDs and their NBA teams
@@ -1182,4 +1120,3 @@ const MatchupProjection = () => {
 };
 
 export default MatchupProjection;
-

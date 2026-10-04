@@ -319,7 +319,7 @@ export default function Guide({ onRequireSignIn }) {
                 </Typography>
                 <RankingTable
                   puntKey={guide.puntKey}
-                  season={board.dataSeason}
+                  season={board.dataSeason ?? PRIOR_SEASON}
                   limit={board.limit}
                   minGames={board.minGames}
                   freeLimit={board.freeLimit}
@@ -337,7 +337,7 @@ export default function Guide({ onRequireSignIn }) {
                 <Typography sx={{ color: '#2c3440', fontSize: '1.02rem', lineHeight: 1.7, mb: 2.5 }}>
                   Draft your own punt-{punt?.name.toLowerCase()} team. Add any players you like — as many per
                   round as you want — and the Your Team panel tracks your radar (against an average opponent),
-                  cumulated per-game totals and category analysis, live from this season's numbers.
+                  cumulated per-game totals and category analysis using {PRIOR_SEASON} results.
                 </Typography>
                 <DraftBuilder rounds={guide.roundTargets} puntKey={guide.puntKey} />
               </>

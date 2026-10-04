@@ -11,11 +11,27 @@
 // (e.g. a Netlify deploy preview) when testing.
 
 const DEFAULT_URL = "https://fantasygoats.guru/data/schedule.json";
+import { type FantasyWeeks, matchupDates } from "./fantasy-calendar.ts";
 
 // date (YYYY-MM-DD, US Eastern) → tricodes of the teams playing that day
 export type Schedule = Record<string, string[]>;
 
 let cached: Schedule | null = null;
+let cachedWeeks: FantasyWeeks | null = null;
+
+export async function getMatchupDates(matchup: { week_start?: string; week_end?: string } = {}) {
+  if (matchup.week_start && matchup.week_end) return matchupDates({}, matchup);
+  if (!cachedWeeks) {
+    const scheduleUrl = Deno.env.get("SCHEDULE_URL") ?? DEFAULT_URL;
+    const weeksUrl = Deno.env.get("WEEKS_URL") ?? new URL("weeks.json", scheduleUrl).href;
+    const response = await fetch(weeksUrl);
+    if (!response.ok) throw new Error(`Failed to load fantasy weeks: HTTP ${response.status}`);
+    const data = await response.json();
+    if (!data.weeks || !Object.keys(data.weeks).length) throw new Error("Fantasy matchup calendar is empty");
+    cachedWeeks = data.weeks;
+  }
+  return matchupDates(cachedWeeks!, matchup);
+}
 
 /**
  * Fetches the schedule once per function instance.

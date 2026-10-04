@@ -6,8 +6,6 @@
 //
 // Reconciliation, not "yesterday only": each run asks ESPN what games happened
 // and fetches whatever the DB is missing, so a one-day outage self-heals.
-// Deliberately does NOT read public/data/schedule.json — SCHEDULE_SEASON and
-// STATS_SEASON are intentionally out of sync during the autumn rollover.
 //
 // Name resolution is delegated to _shared/player-ids.ts (loadNameIndex /
 // idx.resolve), NOT reimplemented here. That module is the one proven against
@@ -18,7 +16,7 @@
 // reintroduce that.
 import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { STATS_SEASON } from "../_shared/season.ts";
+import { STATS_SEASON, seasonDateRange } from "../_shared/season.ts";
 import {
   fetchBoxScore,
   fetchScoreboard,
@@ -165,6 +163,9 @@ serve(async (req) => {
         today.toISOString().slice(0, 10),
       );
     }
+
+    const seasonRange = seasonDateRange(season);
+    dates = dates.filter(date => date >= seasonRange.start && date <= seasonRange.end);
 
     const idx: NameIndex = await loadNameIndex(
       asNameIndexClient(supabase),

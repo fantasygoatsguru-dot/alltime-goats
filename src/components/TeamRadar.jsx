@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
-import { supabase, CURRENT_SEASON } from '../utils/supabase';
+import { supabase } from '../utils/supabase';
+import { HISTORICAL_STATS_SEASON } from '../config/season';
 import { CATEGORIES } from '../config/guides-content';
 import RadarView from './RadarView';
 
@@ -28,7 +29,7 @@ export default function TeamRadar({ teams = [] }) {
         const { data, error } = await supabase
           .from('player_period_averages')
           .select('player_name, points_z, three_pointers_z, rebounds_z, assists_z, steals_z, blocks_z, fg_percentage_z, ft_percentage_z, turnovers_z')
-          .eq('season', CURRENT_SEASON)
+          .eq('season', HISTORICAL_STATS_SEASON)
           .eq('period_type', 'season')
           .order('total_value', { ascending: false })
           .limit(600);

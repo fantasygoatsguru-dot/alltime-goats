@@ -1,4 +1,5 @@
 import { SLEEPERS, BUSTS } from './sleepers-busts-2026-27.js';
+import { STATS_SEASON } from './season.js';
 import { guideBySlug, guideAccess } from './guides-content.js';
 
 // Crawlable roster blocks for the sleepers and busts guides.
@@ -75,7 +76,7 @@ export const SEO_CONTENT = {
   },
   
   '/rankings': {
-    title: 'Fantasy Basketball Player Rankings 2025-26',
+    title: `Fantasy Basketball Player Rankings ${STATS_SEASON}`,
     content: `
       <p>Welcome to the most comprehensive fantasy basketball player rankings available. Our rankings use advanced statistical analysis including Z-scores to provide accurate player valuations across all nine standard categories: points, three-pointers made, rebounds, assists, steals, blocks, field goal percentage, free throw percentage, and turnovers.</p>
       
@@ -91,9 +92,9 @@ export const SEO_CONTENT = {
   },
   
   '/season-games': {
-    title: 'Top Fantasy Basketball Performances 2025-26',
+    title: `Top Fantasy Basketball Performances ${STATS_SEASON}`,
     content: `
-      <p>Discover the best individual fantasy basketball performances of the 2025-26 NBA season. Our game log analysis highlights monster stat lines, league-winning performances, and historic fantasy outputs that can help you identify players on hot streaks or those with exceptional upside.</p>
+      <p>Discover the best individual fantasy basketball performances of the ${STATS_SEASON} NBA season. Our game log analysis highlights monster stat lines, league-winning performances, and historic fantasy outputs that can help you identify players on hot streaks or those with exceptional upside.</p>
       
       <p>Individual game performances matter in fantasy basketball, especially in daily fantasy sports and when evaluating player consistency. A player who regularly puts up 40+ fantasy point performances provides more value than one who averages the same points but with high variance. Use our game logs to identify reliable fantasy producers and avoid boom-bust players.</p>
       

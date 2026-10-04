@@ -123,7 +123,7 @@ Caches player information.
 | position_type | TEXT | Position type |
 | eligible_positions | TEXT[] | Array of eligible positions |
 | stats | JSONB | Player statistics |
-| season | TEXT | Season (default: 2025-26) |
+| season | TEXT | Season (default: 2026-27 after the rollover migration) |
 | created_at | TIMESTAMPTZ | Record creation time |
 | updated_at | TIMESTAMPTZ | Last update time |
 
@@ -294,4 +294,3 @@ For issues or questions:
 2. Review YAHOO_SETUP.md for detailed setup instructions
 3. Check Supabase logs for errors
 4. Consult Yahoo Developer documentation
-

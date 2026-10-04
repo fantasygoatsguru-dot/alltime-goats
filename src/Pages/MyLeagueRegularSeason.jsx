@@ -29,7 +29,7 @@ import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
 import YahooConnect from "../components/YahooConnect";
-import { supabase } from "../utils/supabase";
+import { supabase, CURRENT_SEASON } from "../utils/supabase";
 
 const MyLeagueRegularSeason = () => {
   const { isAuthenticated } = useAuth();
@@ -246,7 +246,7 @@ const MyLeagueRegularSeason = () => {
           .from("player_period_averages")
           .select("*")
           .in("player_id", uniqueNbaIds)
-          .eq("season", "2025-26")
+          .eq("season", CURRENT_SEASON)
           .eq("period_type", "season");
         if (error) throw error;
         
@@ -684,4 +684,3 @@ const MyLeagueRegularSeason = () => {
 };
 
 export default MyLeagueRegularSeason;
-

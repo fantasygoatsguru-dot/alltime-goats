@@ -1,11 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getYahooGameId } from "../_shared/yahoo-season.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const YAHOO_CLIENT_ID = Deno.env.get("YAHOO_CLIENT_ID") || "";
 const YAHOO_CLIENT_SECRET = Deno.env.get("YAHOO_CLIENT_SECRET") || "";
-const GAME_ID = "466"; // NBA 2025-26 season
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -242,13 +242,14 @@ serve(async (req) => {
     if (!userId) throw new Error("User ID is required");
 
     const accessToken = await getAccessToken(userId);
+    const GAME_ID = await getYahooGameId(endpoint => makeYahooRequest(accessToken, endpoint));
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // ──────────────────────────────────────────────────────────
     // 1. Get User Leagues
     // ──────────────────────────────────────────────────────────
     if (action === "getUserLeagues") {
-      const raw = await makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=nba/leagues`);
+      const raw = await makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=${GAME_ID}/leagues`);
       const leagues = parseLeagues(raw);
 
       return new Response(
@@ -874,7 +875,7 @@ serve(async (req) => {
       if (!leagueId) throw new Error("League ID is required");
       if (!week) throw new Error("Week is required");
 
-      const leagueKey = `${GAME_ID}.l.${leagueId}`; // GAME_ID must be 466 for 2024-25
+      const leagueKey = `${GAME_ID}.l.${leagueId}`;
       console.log(`[getScoreboard] Requesting: ${leagueKey} | week: ${week}`);
 
       let scoreboardData;

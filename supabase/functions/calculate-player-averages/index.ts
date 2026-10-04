@@ -30,7 +30,7 @@
 // scheduled run cannot drift apart.
 import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { STATS_SEASON } from "../_shared/season.ts";
+import { STATS_SEASON, REGULAR_SEASON_START, seasonDateRange } from "../_shared/season.ts";
 import { type Averages, computeZScores, type PeriodType } from "../_shared/zscore.ts";
 import { fetchScoreboard } from "../_shared/espn.ts";
 import { addDays, assertFresh } from "../_shared/freshness.ts";
@@ -52,8 +52,6 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
-
-const SEASON_START = "2025-10-21";
 
 const espnHadGames = async (date: string) =>
   (await fetchScoreboard(date)).length > 0;
@@ -85,6 +83,14 @@ serve(async (req) => {
   };
 
   try {
+    const seasonRange = seasonDateRange(season);
+    const today = new Date().toISOString().slice(0, 10);
+    if (season === STATS_SEASON && today < REGULAR_SEASON_START) {
+      await finish("ok", 0);
+      return new Response(JSON.stringify({ ok: true, season, skipped: "Regular season has not started" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const { data: newest, error: nErr } = await supabase
       .from("player_game_logs")
       .select("game_date")
@@ -95,9 +101,7 @@ serve(async (req) => {
     if (nErr || !newest) throw new Error(`no game logs for ${season}`);
 
     const newestLog: string = newest.game_date;
-    const today = new Date().toISOString().slice(0, 10);
-
-    await assertFresh(newestLog, today, espnHadGames);
+    await assertFresh(newestLog, today < seasonRange.end ? today : seasonRange.end, espnHadGames);
 
     // The anchor for the rolling windows: the season's newest game day, but
     // never later than today. In practice newestLog can never be after
@@ -107,7 +111,7 @@ serve(async (req) => {
     const anchor: string = newestLog < today ? newestLog : today;
 
     const periods: { type: PeriodType; start: string }[] = [
-      { type: "season", start: SEASON_START },
+      { type: "season", start: seasonRange.start },
       { type: "60_days", start: addDays(anchor, -60) },
       { type: "30_days", start: addDays(anchor, -30) },
       { type: "7_days", start: addDays(anchor, -7) },

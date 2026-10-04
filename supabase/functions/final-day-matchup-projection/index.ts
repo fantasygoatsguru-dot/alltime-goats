@@ -3,7 +3,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { teamsPlayingOn } from "../_shared/schedule.ts";
+import { teamsPlayingOn, getMatchupDates } from "../_shared/schedule.ts";
+import { getYahooGameId } from "../_shared/yahoo-season.ts";
 import { STATS_SEASON } from "../_shared/season.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -12,7 +13,6 @@ const resendSenderEmail = Deno.env.get('RESEND_SENDER_EMAIL')!;
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const YAHOO_CLIENT_ID = Deno.env.get('YAHOO_CLIENT_ID')!;
 const YAHOO_CLIENT_SECRET = Deno.env.get('YAHOO_CLIENT_SECRET')!;
-const GAME_ID = "466";           
 const CURRENT_SEASON = STATS_SEASON;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
@@ -236,6 +236,7 @@ async function parseRoster(raw: any): Promise<YahooPlayerDTO[]> {
 async function getCurrentMatchup(userId: string, leagueId: string) {
   console.log(`[MATCHUP] user ${userId} – league ${leagueId}`);
   const token = await getAccessToken(userId);
+  const GAME_ID = await getYahooGameId(endpoint => makeYahooRequest(token, endpoint, userId));
   const leagueKey = `${GAME_ID}.l.${leagueId}`;
 
   // Find user's team
@@ -360,42 +361,10 @@ async function getCurrentMatchup(userId: string, leagueId: string) {
   return {
     team1: { name: team1Raw.name, players: team1Players },
     team2: { name: team2Raw.name, players: team2Players },
+    week_start: matchup.week_start,
+    week_end: matchup.week_end,
     stats,
   };
-}
-
-// ───── Get week dates helper ─────
-function getCurrentWeekDates() {
-  const now = new Date();
-  const easternTimeString = now.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-  const [datePart, timePart] = easternTimeString.split(', ');
-  const [month, day, year] = datePart.split('/');
-  const [hour, minute, second] = timePart.split(':');
-  const easternNow = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
-
-  const dayOfWeek = easternNow.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-
-  const weekStart = new Date(easternNow);
-  weekStart.setDate(easternNow.getDate() + daysToMonday + 1); // Tuesday start
-  weekStart.setHours(0, 0, 0, 0);
-
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6); // Monday end
-  weekEnd.setHours(23, 59, 59, 999);
-
-  const todayDateStr = getEasternDateString(now);
-
-  return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
 }
 
 // ───── Calculate final-day projection ─────
@@ -406,7 +375,7 @@ async function calculateFinalDayProjection(matchup: any, currentStats: any) {
   console.log(`[PROJ] Total players: ${allPlayers.length}, Yahoo IDs: ${yahooIds.join(', ')}`);
 
   // Get week dates
-  const { todayDateStr } = getCurrentWeekDates();
+  const { todayDateStr } = await getMatchupDates(matchup);
   console.log(`[PROJ] Today (EST): ${todayDateStr}`);
 
   // Load schedule for today
@@ -801,7 +770,8 @@ serve(async (req) => {
 
         // Get first league
         const token = await getAccessToken(p.user_id);
-        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=nba/leagues`, p.user_id);
+        const gameId = await getYahooGameId(endpoint => makeYahooRequest(token, endpoint, p.user_id));
+        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=${gameId}/leagues`, p.user_id);
         
         const user = leaguesResp?.fantasy_content?.users?.[0]?.user;
         if (!user) { console.log('No user found'); continue; }
@@ -816,6 +786,8 @@ serve(async (req) => {
 
         // Get current matchup with stats from Yahoo API
         const matchup = await getCurrentMatchup(p.user_id, leagueId);
+        const dates = await getMatchupDates(matchup);
+        if (dates.todayDateStr !== getEasternDateString(dates.weekEnd)) continue;
         
         // Extract current stats from matchup
         const currentStats = matchup.stats || { categories: {} };

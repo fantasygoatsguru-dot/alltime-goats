@@ -3,7 +3,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getSchedule } from "../_shared/schedule.ts";
+import { getSchedule, getMatchupDates } from "../_shared/schedule.ts";
+import { getYahooGameId } from "../_shared/yahoo-season.ts";
 import { STATS_SEASON } from "../_shared/season.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -12,7 +13,6 @@ const resendSenderEmail = Deno.env.get('RESEND_SENDER_EMAIL')!;
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const YAHOO_CLIENT_ID = Deno.env.get('YAHOO_CLIENT_ID')!;
 const YAHOO_CLIENT_SECRET = Deno.env.get('YAHOO_CLIENT_SECRET')!;
-const GAME_ID = "466";           
 const CURRENT_SEASON = STATS_SEASON;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
@@ -174,38 +174,6 @@ function getEasternDateString(date: Date): string {
   return `${parts[2]}-${parts[0]}-${parts[1]}`;
 }
 
-function getCurrentWeekDates() {
-  const now = new Date();
-  const easternTimeString = now.toLocaleString('en-US', {
-    timeZone: 'America/New_York',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-  const [datePart, timePart] = easternTimeString.split(', ');
-  const [month, day, year] = datePart.split('/');
-  const [hour, minute, second] = timePart.split(':');
-  const easternNow = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(second));
-
-  const dayOfWeek = easternNow.getDay(); // 0 = Sunday, 1 = Monday, etc.
-  const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-
-  const weekStart = new Date(easternNow);
-  weekStart.setDate(easternNow.getDate() + daysToMonday + 1); // Tuesday start
-  weekStart.setHours(0, 0, 0, 0);
-
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6); // Monday end
-  weekEnd.setHours(23, 59, 59, 999);
-
-  const todayDateStr = getEasternDateString(now);
-
-  return { weekStart, weekEnd, currentDate: easternNow, todayDateStr };
-}
 
 // ───── DTOs (exactly like the working file) ─────
 interface YahooTeamDTO {
@@ -273,6 +241,7 @@ async function parseRoster(raw: any): Promise<YahooPlayerDTO[]> {
 async function getCurrentMatchup(userId: string, leagueId: string) {
   console.log(`[MATCHUP] user ${userId} – league ${leagueId}`);
   const token = await getAccessToken(userId);
+  const GAME_ID = await getYahooGameId(endpoint => makeYahooRequest(token, endpoint, userId));
   const leagueKey = `${GAME_ID}.l.${leagueId}`;
 
 
@@ -324,6 +293,8 @@ async function getCurrentMatchup(userId: string, leagueId: string) {
   return {
     team1: { name: team1Raw.name, players: team1Players },
     team2: { name: team2Raw.name, players: team2Players },
+    week_start: matchup.week_start,
+    week_end: matchup.week_end,
   };
 }
 
@@ -335,7 +306,7 @@ async function calculateDayByDayProjection(matchup: any) {
   console.log(`[PROJ] Total players: ${allPlayers.length}, Yahoo IDs: ${yahooIds.join(', ')}`);
 
   // Get week dates
-  const { weekStart, todayDateStr } = getCurrentWeekDates();
+  const { weekStart, todayDateStr, numDaysInWeek } = await getMatchupDates(matchup);
   console.log(`[PROJ] Week start: ${getEasternDateString(weekStart)}, Today: ${todayDateStr}`);
 
   // Map Yahoo → NBA
@@ -352,7 +323,7 @@ async function calculateDayByDayProjection(matchup: any) {
   const nbaIds = Array.from(idMap.values()).filter(Boolean);
   if (!nbaIds.length) {
     console.warn('[PROJ] No NBA IDs found');
-    return createEmptyDayByDayProjection(matchup, weekStart);
+    return createEmptyDayByDayProjection(matchup, weekStart, numDaysInWeek);
   }
 
   const { data: averages } = await supabase
@@ -372,7 +343,7 @@ async function calculateDayByDayProjection(matchup: any) {
 
   const schedule = await getSchedule();
 
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < numDaysInWeek; i++) {
     const dayDate = new Date(weekStart);
     dayDate.setDate(weekStart.getDate() + i);
     const dateStr = getEasternDateString(dayDate);
@@ -496,9 +467,9 @@ async function calculateDayByDayProjection(matchup: any) {
   };
 }
 
-function createEmptyDayByDayProjection(matchup: any, weekStart: Date) {
+function createEmptyDayByDayProjection(matchup: any, weekStart: Date, numDaysInWeek: number) {
   const dailyProjections: any[] = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < numDaysInWeek; i++) {
     const dayDate = new Date(weekStart);
     dayDate.setDate(weekStart.getDate() + i);
     dailyProjections.push({
@@ -683,7 +654,8 @@ serve(async (req) => {
 
         // get first league
         const token = await getAccessToken(p.user_id);
-        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=nba/leagues`, p.user_id);
+        const gameId = await getYahooGameId(endpoint => makeYahooRequest(token, endpoint, p.user_id));
+        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=${gameId}/leagues`, p.user_id);
         
         const user = leaguesResp?.fantasy_content?.users?.[0]?.user;
         if (!user) { console.log('no user found'); continue; }

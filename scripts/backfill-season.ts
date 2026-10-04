@@ -19,6 +19,7 @@
  *
  *   ...same, plus --commit    to actually upsert
  */
+import { STATS_SEASON, seasonDateRange } from "../supabase/functions/_shared/season.ts";
 import {
   fetchBoxScore,
   fetchScoreboard,
@@ -36,13 +37,17 @@ const argOf = (name: string): string | undefined => {
 
 const FROM = argOf("from");
 const TO = argOf("to");
-const SEASON = argOf("season") ?? "2025-26";
+const SEASON = argOf("season") ?? STATS_SEASON;
 const COMMIT = args.includes("--commit");
+const seasonRange = seasonDateRange(SEASON);
+if (FROM && TO && (FROM < seasonRange.start || TO > seasonRange.end || FROM > TO)) {
+  throw new Error(`Backfill dates must fall within ${SEASON}; pass --season explicitly for historical data`);
+}
 
 if (!FROM || !TO) {
   console.error(
     "usage: backfill-season.ts --from YYYY-MM-DD --to YYYY-MM-DD " +
-      "[--season 2025-26] [--commit]",
+      "[--season YYYY-YY] [--commit]",
   );
   Deno.exit(2);
 }

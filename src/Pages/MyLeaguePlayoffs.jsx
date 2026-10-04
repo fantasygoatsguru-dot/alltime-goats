@@ -31,7 +31,7 @@ import { useLeague } from "../contexts/LeagueContext";
 import YahooConnect from "../components/YahooConnect";
 import { getGameCountStyle } from "../utils/gameCountStyle";
 import { CURRENT_GUIDE_SEASON } from "../config/guides-content";
-import { supabase } from "../utils/supabase";
+import { supabase, CURRENT_SEASON } from "../utils/supabase";
 import { DEFAULT_PLAYOFF_START_WEEK, playoffRoundCount, playoffStartOptions, playoffWeeksFor } from "../utils/playoffCalendar";
 
 const MyLeaguePlayoffs = () => {
@@ -240,7 +240,7 @@ const MyLeaguePlayoffs = () => {
           .from("player_period_averages")
           .select("*")
           .in("player_id", uniqueNbaIds)
-          .eq("season", "2025-26")
+          .eq("season", CURRENT_SEASON)
           .eq("period_type", "season");
         if (error) throw error;
 

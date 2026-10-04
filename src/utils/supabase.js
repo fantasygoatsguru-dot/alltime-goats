@@ -1,5 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
-import { STATS_SEASON, STATS_SEASON_START } from "../config/season";
+import { STATS_SEASON } from "../config/season";
+import { getFantasyWeeks } from './fantasyCalendar';
+import { easternDate, fantasyWeekForDate } from '../../supabase/functions/_shared/fantasy-calendar.ts';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
@@ -222,31 +224,18 @@ export const fetchWeeklyMatchupResults = async (team1PlayersList, team2PlayersLi
 
         if (error) throw error;
 
-        const getWeekFromDate = (dateStr) => {
-            const date = new Date(dateStr);
-            const startDate = new Date(STATS_SEASON_START);
-            const diffTime = date - startDate;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            return Math.floor(diffDays / 7) + 1;
-        };
-
-        const getCurrentWeek = () => {
-            const now = new Date();
-            const startDate = new Date(STATS_SEASON_START);
-            const diffTime = now - startDate;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            return Math.floor(diffDays / 7) + 1;
-        };
-
-        const currentWeek = getCurrentWeek();
+        const weeks = await getFantasyWeeks();
+        const today = easternDate();
         const weeksData = {};
         
         data.forEach(game => {
-            const week = getWeekFromDate(game.game_date);
+            const period = fantasyWeekForDate(weeks, game.game_date);
+            if (!period) return;
+            const week = period.number;
             if (!weeksData[week]) {
                 weeksData[week] = { 
                     week, 
-                    weekStart: game.game_date,
+                    weekStart: period.start,
                     team1Stats: {}, 
                     team2Stats: {} 
                 };
@@ -337,7 +326,7 @@ export const fetchWeeklyMatchupResults = async (team1PlayersList, team2PlayersLi
             };
         });
 
-        return results.filter(result => result.week < currentWeek);
+        return results.filter(result => weeks[result.week].end < today);
     } catch (error) {
         console.error('Error fetching weekly matchup results:', error);
         throw error;
@@ -345,4 +334,3 @@ export const fetchWeeklyMatchupResults = async (team1PlayersList, team2PlayersLi
 };
 
 export { supabase, CURRENT_SEASON };
-

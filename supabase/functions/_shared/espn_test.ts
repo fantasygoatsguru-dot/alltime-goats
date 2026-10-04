@@ -60,6 +60,15 @@ function jsonResponse(status: number, body: unknown = {}): Response {
   });
 }
 
+Deno.test("preseason and postseason games cannot enter regular-season stats", async () => {
+  const games = await withStubbedScoreboard([
+    { ...mockEvent("preseason", "STD", "BOS", "NYK"), season: { type: 1 } },
+    { ...mockEvent("regular", "STD", "BOS", "NYK"), season: { type: 2 } },
+    { ...mockEvent("playoffs", "STD", "BOS", "NYK"), season: { type: 3 } },
+  ]);
+  assertEquals(games.map(game => game.id), ["regular"]);
+});
+
 // Runs fetchScoreboard against a scripted sequence of fetch outcomes (each
 // either a Response or an Error to reject with — once the script runs out,
 // the last outcome repeats). The backoff sleep is replaced with an

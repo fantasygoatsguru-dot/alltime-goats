@@ -613,10 +613,10 @@ const Rankings = () => {
             {displayedPlayers.length === 0 && !loading ? (
                 <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1 }}>
                     <Typography variant="body1" sx={{ mb: 1, fontWeight: 600 }}>
-                        No data available for {getPeriodLabel(periodType)}
+                        No {CURRENT_SEASON} data available for {getPeriodLabel(periodType)}
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#666' }}>
-                        Period averages need to be calculated first.
+                        Stats will appear after regular-season games are played and the daily update runs.
                     </Typography>
                 </Box>
             ) : (

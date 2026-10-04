@@ -239,6 +239,7 @@ export async function fetchScoreboard(dateStr: string): Promise<EspnGame[]> {
   const games: EspnGame[] = [];
 
   for (const ev of body?.events ?? []) {
+    if (ev?.season?.type != null && Number(ev.season.type) !== 2) continue;
     const comp = ev?.competitions?.[0];
     const cs = comp?.competitors ?? [];
     const home = cs.find((c: { homeAway: string }) => c.homeAway === "home");

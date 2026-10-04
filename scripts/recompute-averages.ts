@@ -18,6 +18,7 @@
  *     --season 2025-26
  *   ...plus --commit  to actually upsert
  */
+import { STATS_SEASON, seasonDateRange } from "../supabase/functions/_shared/season.ts";
 import {
   type Averages,
   computeZScores,
@@ -29,8 +30,8 @@ const argOf = (n: string) => {
   const i = args.indexOf(`--${n}`);
   return i === -1 ? undefined : args[i + 1];
 };
-const SEASON = argOf("season") ?? "2025-26";
-const SEASON_START = argOf("season-start") ?? "2025-10-21";
+const SEASON = argOf("season") ?? STATS_SEASON;
+const SEASON_START = argOf("season-start") ?? seasonDateRange(SEASON).start;
 const COMMIT = args.includes("--commit");
 
 const URL_ = Deno.env.get("VITE_SUPABASE_URL");
