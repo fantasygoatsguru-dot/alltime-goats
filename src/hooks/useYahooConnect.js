@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
+import { YAHOO_ENABLED } from '../config/yahoo';
 
 // Shared Yahoo "connect your league" action. Yahoo is a per-tool data-source
 // integration (not the app login), so this is invoked contextually from the
@@ -10,6 +11,7 @@ export const useYahooConnect = () => {
   const [connecting, setConnecting] = useState(false);
 
   const connect = async () => {
+    if (!YAHOO_ENABLED) return;
     setConnecting(true);
     try {
       // Remember where to come back to after the Yahoo round-trip.

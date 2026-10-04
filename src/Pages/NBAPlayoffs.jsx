@@ -26,6 +26,8 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { useAuth } from "../contexts/AuthContext";
+import { YAHOO_ENABLED } from "../config/yahoo";
+import YahooConnect from "../components/YahooConnect";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase } from "../utils/supabase";
 import { DEFAULT_PLAYOFF_START_WEEK, playoffRoundCount, playoffStartOptions, playoffWeeksFor } from "../utils/playoffCalendar";
@@ -293,7 +295,9 @@ const NBAPlayoffs = () => {
           2026–27 NBA Fantasy Playoff Schedule — Games Per Week
         </Typography>
 
-        {!isAuthenticated ? (
+        {!isAuthenticated && !YAHOO_ENABLED ? (
+          <YahooConnect variant="button" />
+        ) : !isAuthenticated ? (
         <Button
           variant="outlined"
           onClick={handleMyLeagueClick}
@@ -367,7 +371,7 @@ const NBAPlayoffs = () => {
           <Tooltip
             title={
               !isAuthenticated
-                ? "Connect to Yahoo to filter your teams"
+                ? (YAHOO_ENABLED ? "Connect to Yahoo to filter your teams" : "Yahoo league sync is temporarily unavailable")
                 : showMyTeamsOnly
                 ? "Showing only teams with your players"
                 : "Filter to show only teams with your players"

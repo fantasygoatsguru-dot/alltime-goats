@@ -63,6 +63,11 @@ import SEOContent from './SEOContent';
 import AdSlot from './AdSlot';
 import { AD_SLOTS, DISPLAY_AD_PATHS } from '../config/ads';
 import AuthModal from './AuthModal';
+import { YAHOO_ENABLED } from '../config/yahoo';
+
+// While Yahoo is paused, the nav tooltips on Yahoo tools say so instead of
+// inviting a connect that would fail.
+const yahooTip = (text) => (YAHOO_ENABLED ? text : 'Yahoo league sync is temporarily unavailable');
 
 // === ICON WRAPPER FOR RESPONSIVE SIZING ===
 const IconWrapper = ({ children }) => {
@@ -316,7 +321,7 @@ const AlltimeLayout = () => {
       icon: <MatchupIcon />,
       requiresAuth: true,
       requiresPremium: true,
-      tooltip: 'Connect to Yahoo to view your matchups',
+      tooltip: yahooTip('Connect to Yahoo to view your matchups'),
       premiumTooltip: 'Requires a Season Pass'
     },
     {
@@ -325,7 +330,7 @@ const AlltimeLayout = () => {
       icon: <UltimateWinnerIcon />,
       requiresAuth: true,
       requiresPremium: true,
-      tooltip: 'Connect to Yahoo to view head-to-head matrix',
+      tooltip: yahooTip('Connect to Yahoo to view head-to-head matrix'),
       premiumTooltip: 'Requires a Season Pass'
     },
     {
@@ -334,7 +339,7 @@ const AlltimeLayout = () => {
       icon: <CategoryBreakdownIcon />,
       requiresAuth: true,
       requiresPremium: true,
-      tooltip: 'Connect to Yahoo to view category breakdown',
+      tooltip: yahooTip('Connect to Yahoo to view category breakdown'),
       premiumTooltip: 'Requires a Season Pass'
     },
   ];
@@ -354,7 +359,7 @@ const AlltimeLayout = () => {
       icon: <MyTeamIcon />,
       requiresAuth: true,
       requiresPremium: true,
-      tooltip: 'Connect to Yahoo to view your playoff schedule',
+      tooltip: yahooTip('Connect to Yahoo to view your playoff schedule'),
       premiumTooltip: 'Requires a Season Pass'
     },
     {
@@ -363,7 +368,7 @@ const AlltimeLayout = () => {
       icon: <MyTeamIcon />,
       requiresAuth: true,
       requiresPremium: true,
-      tooltip: 'Connect to Yahoo to view your league schedule',
+      tooltip: yahooTip('Connect to Yahoo to view your league schedule'),
       premiumTooltip: 'Requires a Season Pass'
     },
   ];
@@ -553,7 +558,7 @@ const AlltimeLayout = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
-    if (code && !isAuthenticated) {
+    if (code && !isAuthenticated && YAHOO_ENABLED) {
       const returnPath = sessionStorage.getItem('oauth_return_path') || '/matchup';
       sessionStorage.removeItem('oauth_return_path');
 
@@ -1001,7 +1006,7 @@ const AlltimeLayout = () => {
                 lived only in the profile menu, which does not render until you
                 are signed in or already connected — leaving a new visitor with
                 no way in from the header. */}
-            {!isAuthenticated && (
+            {!isAuthenticated && YAHOO_ENABLED && (
               <Tooltip title="Connect your Yahoo league — no account needed">
                 <Button
                   variant="outlined"
@@ -1199,7 +1204,7 @@ const AlltimeLayout = () => {
             </MenuItem>
           )}
 
-          {!isAuthenticated && (
+          {!isAuthenticated && YAHOO_ENABLED && (
             <MenuItem
               onClick={() => { setMobileMenuAnchor(null); handleYahooConnect(); }}
               disabled={yahooConnecting}
@@ -1368,7 +1373,7 @@ const AlltimeLayout = () => {
           <ConfirmationNumberOutlined sx={{ mr: 1, color: '#4a90e2' }} /> Passes
         </MenuItem>
         <MenuItem onClick={() => { setProfileAnchorEl(null); navigate('/about'); }}>About us</MenuItem>
-        {!isAuthenticated && (
+        {!isAuthenticated && YAHOO_ENABLED && (
           <MenuItem onClick={() => { setProfileAnchorEl(null); handleYahooConnect(); }} disabled={yahooConnecting}>
             <SportsBasketballIcon sx={{ mr: 1, color: '#4a90e2' }} /> Connect Yahoo league
           </MenuItem>

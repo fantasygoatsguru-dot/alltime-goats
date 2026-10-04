@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { supabase } from '../utils/supabase';
+import { YAHOO_ENABLED } from '../config/yahoo';
 
 // Exported so a subtree can re-publish a modified copy of this value.
 // components/DemoLeague.jsx is the only consumer that does so — see the note
@@ -128,6 +129,12 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      // Yahoo paused: don't restore or refresh a stored connection, so no
+      // Yahoo calls run anywhere. The stored data is left for when it returns.
+      if (!YAHOO_ENABLED) {
+        setLoading(false);
+        return;
+      }
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
       if (storedUser) {
         try {
@@ -164,6 +171,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData) => {
+    if (!YAHOO_ENABLED) return;
     const userDataWithTimestamp = {
       ...userData,
       expiresAt: userData.expiresAt || new Date(Date.now() + 3600 * 1000).toISOString(),

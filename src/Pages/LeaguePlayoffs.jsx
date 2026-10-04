@@ -29,6 +29,8 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import SportsBasketballIcon from "@mui/icons-material/SportsBasketball";
 import { useAuth } from "../contexts/AuthContext";
+import { YAHOO_ENABLED } from "../config/yahoo";
+import YahooConnect from "../components/YahooConnect";
 import { useLeague } from "../contexts/LeagueContext";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
 import { DEFAULT_PLAYOFF_START_WEEK, playoffRoundCount, playoffStartOptions, playoffWeeksFor } from "../utils/playoffCalendar";
@@ -907,7 +909,10 @@ const LeaguePlayoffs = () => {
       )}
 
       {/* ── Connect to Yahoo Prompt (when not logged in) ───────────── */}
-      {!isAuthenticated && (
+      {!isAuthenticated && !YAHOO_ENABLED && (
+        <Box sx={{ mt: 4 }}><YahooConnect variant="nudge" /></Box>
+      )}
+      {!isAuthenticated && YAHOO_ENABLED && (
         <Box
           sx={{
             mt: 4,

@@ -33,6 +33,7 @@ import {
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 import { useLeague } from "../contexts/LeagueContext";
+import { YAHOO_ENABLED, YAHOO_PAUSED_NOTICE } from "../config/yahoo";
 import { supabase, CURRENT_SEASON } from "../utils/supabase";
 const FantasyChat = () => {
   const { user } = useAuth();
@@ -270,7 +271,9 @@ const FantasyChat = () => {
   if (!selectedLeague) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
-        <Alert severity="info">Connect to Yahoo Fantasy to use AI Assistant</Alert>
+        <Alert severity="info">
+          {YAHOO_ENABLED ? "Connect to Yahoo Fantasy to use AI Assistant" : `${YAHOO_PAUSED_NOTICE.title}. ${YAHOO_PAUSED_NOTICE.body}`}
+        </Alert>
       </Box>
     );
   }

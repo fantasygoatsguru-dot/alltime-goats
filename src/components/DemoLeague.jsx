@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { AuthContext, useAuth } from '../contexts/AuthContext';
 import { LeagueProvider } from '../contexts/LeagueContext';
 import YahooConnect from './YahooConnect';
+import { YAHOO_ENABLED } from '../config/yahoo';
 import { DEMO_TEAMS, DEMO_LEAGUE_SETTINGS } from '../fixtures/demoLeague';
 
 const ACCENT = '#4a90e2';
@@ -68,7 +69,9 @@ const DemoLeague = ({ toolName, children }) => {
             <Box component="span" sx={{ fontWeight: 700, color: ACCENT }}>Demo league.</Box>{' '}
             Real players and live stats, sample rosters.{' '}
             <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-              Connect your Yahoo league to run {toolName || 'this tool'} on your own team.
+              {YAHOO_ENABLED
+                ? `Connect your Yahoo league to run ${toolName || 'this tool'} on your own team.`
+                : `Running ${toolName || 'this tool'} on your own Yahoo team will be back once Yahoo league sync returns.`}
             </Box>
           </Typography>
           <YahooConnect variant="button" label="Use my league" />

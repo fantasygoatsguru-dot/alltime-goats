@@ -14,6 +14,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useAuth } from "../contexts/AuthContext";
+import { YAHOO_ENABLED } from '../config/yahoo';
 
 // Account sign-in surface (Supabase Auth). This is the "who you are" layer that
 // owns entitlements — separate from the Yahoo "connect your league" integration.
@@ -75,7 +76,7 @@ const AuthModal = ({ open, onClose }) => {
           Sign in
         </Typography>
         <Typography variant="body2" sx={{ textAlign: "center", color: "text.secondary", mb: 3 }}>
-          Your Fantasy Goats Guru account. Connect Yahoo separately once you're in.
+          Your Fantasy Goats Guru account.{YAHOO_ENABLED && " Connect Yahoo separately once you're in."}
         </Typography>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}

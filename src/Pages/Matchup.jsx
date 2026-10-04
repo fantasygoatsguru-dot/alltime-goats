@@ -49,6 +49,7 @@ import {
     Legend,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
+import { YAHOO_ENABLED } from "../config/yahoo";
 import { useLeague } from "../contexts/LeagueContext";
 import { 
     supabase, 
@@ -1176,7 +1177,7 @@ const Matchup = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
 
-        if (code && !userId) {
+        if (code && !userId && YAHOO_ENABLED) {
             hasProcessedCallback.current = true;
             window.history.replaceState({}, document.title, "/matchup");
             

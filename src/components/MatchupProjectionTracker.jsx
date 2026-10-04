@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { YAHOO_ENABLED, YAHOO_PAUSED_NOTICE } from "../config/yahoo";
 
 // Team identity colors — used throughout the dense stats table so a team's
 // numbers stay glanceable without re-reading the header each row.
@@ -222,7 +223,7 @@ const MatchupProjectionTracker = ({
                         fontStyle: 'italic'
                     }}
                 >
-                    Connect to Yahoo account to see projected matchup results
+                    {YAHOO_ENABLED ? 'Connect to Yahoo account to see projected matchup results' : YAHOO_PAUSED_NOTICE.title}
                 </Typography>
             </Box>
         );
