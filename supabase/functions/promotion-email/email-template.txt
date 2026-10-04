@@ -26,4 +26,4 @@ The Fantasy Goats Guru team
 --
 ${reason}
 Unsubscribe: ${unsubscribe_url}
-Fantasy Goats Guru · ${mailing_address}
+© 2026 Fantasy Goats Guru. All rights reserved.

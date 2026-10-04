@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // promotion-email – Season-launch campaign: 2026-27 rankings + draft guide
 //
-// Run once a day by pg_cron (job 'promotion-email-daily'). Each run mails the
+// Run by pg_cron (job 6, 'Send promotional email', Tue-Sat 19:00 UTC). Each run mails the
 // next BATCH_SIZE addresses on mailing_list that have not unsubscribed and have
 // not yet received CAMPAIGN, then stamps them with it. The list drains itself;
 // once it is empty, runs return sent: 0 and the cron job can be unscheduled.
@@ -21,9 +21,6 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
 const resendSenderEmail = Deno.env.get('RESEND_SENDER_EMAIL')!;
 const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-// CAN-SPAM requires a valid postal address in every commercial email (a P.O.
-// box or registered mailbox is fine). The function refuses to send without it.
-const mailingAddress = Deno.env.get('MAILING_ADDRESS')?.trim() ?? '';
 // Optional: where replies go. Without it, replies hit the sender address.
 const replyTo = Deno.env.get('RESEND_REPLY_TO')?.trim() || undefined;
 
@@ -172,9 +169,6 @@ serve(async (req) => {
     if (!HTML_TEMPLATE || !TEXT_TEMPLATE) {
       return jsonResponse({ error: 'Email template failed to load — nothing sent' }, 500);
     }
-    if (!mailingAddress) {
-      return jsonResponse({ error: 'MAILING_ADDRESS secret is not set (required by CAN-SPAM) — nothing sent' }, 500);
-    }
 
     let query = supabase
       .from('mailing_list')
@@ -234,7 +228,6 @@ serve(async (req) => {
       const vars = {
         greeting: greetingFor(manager_nickname),
         unsubscribe_url: unsubscribeUrl,
-        mailing_address: mailingAddress,
         reason: is_site_user ? REASON_SITE_USER : REASON_LEAGUE_MATE,
       };
 
