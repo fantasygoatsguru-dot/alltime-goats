@@ -1,0 +1,29 @@
+${greeting}
+
+Draft season is here, and our 2026-27 rankings and draft guide are live. Here's everything you need before tip-off on October 20:
+
+TOP 150 (free)
+2026-27 nine-category draft ranks refreshed with corrected 2025-26 results. Punt-dependent players are priced for the build most likely to draft them.
+https://fantasygoats.guru/guides/top-150?utm_source=email&utm_medium=promotion&utm_campaign=rankings-guide-2026-27&utm_content=top-150
+
+SLEEPERS (free with an account)
+Fifteen players whose 2026-27 draft ranks beat their September Yahoo ADP, from early guards to late category values.
+https://fantasygoats.guru/guides/sleepers?utm_source=email&utm_medium=promotion&utm_campaign=rankings-guide-2026-27&utm_content=sleepers
+
+BUSTS (free with an account)
+Twelve 2026-27 nine-category price fades where Yahoo ADP sits ahead of our projected rank, even after build fit.
+https://fantasygoats.guru/guides/busts?utm_source=email&utm_medium=promotion&utm_campaign=rankings-guide-2026-27&utm_content=busts
+
+PUNT BLOCKS (free)
+Build a strong perimeter team without giving away rebounds, shooting percentages or turnovers.
+https://fantasygoats.guru/guides/punt-blocks?utm_source=email&utm_medium=promotion&utm_campaign=rankings-guide-2026-27&utm_content=punt-blocks
+
+Browse all guides: https://fantasygoats.guru/guides?utm_source=email&utm_medium=promotion&utm_campaign=rankings-guide-2026-27&utm_content=all-guides
+
+Good luck in your draft,
+The Fantasy Goats Guru team
+
+--
+${reason}
+Unsubscribe: ${unsubscribe_url}
+Fantasy Goats Guru · ${mailing_address}
