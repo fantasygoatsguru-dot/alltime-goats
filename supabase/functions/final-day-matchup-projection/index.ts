@@ -4,8 +4,9 @@
 import { serve } from 'https://deno.land/std@0.192.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { teamsPlayingOn, getMatchupDates } from "../_shared/schedule.ts";
-import { getYahooGameId } from "../_shared/yahoo-season.ts";
 import { STATS_SEASON } from "../_shared/season.ts";
+
+const GAME_ID = "478"; // Yahoo NBA game key for 2026-27 (was 466 for 2025-26)
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
@@ -236,7 +237,6 @@ async function parseRoster(raw: any): Promise<YahooPlayerDTO[]> {
 async function getCurrentMatchup(userId: string, leagueId: string) {
   console.log(`[MATCHUP] user ${userId} – league ${leagueId}`);
   const token = await getAccessToken(userId);
-  const GAME_ID = await getYahooGameId(endpoint => makeYahooRequest(token, endpoint, userId));
   const leagueKey = `${GAME_ID}.l.${leagueId}`;
 
   // Find user's team
@@ -770,8 +770,7 @@ serve(async (req) => {
 
         // Get first league
         const token = await getAccessToken(p.user_id);
-        const gameId = await getYahooGameId(endpoint => makeYahooRequest(token, endpoint, p.user_id));
-        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=${gameId}/leagues`, p.user_id);
+        const leaguesResp = await makeYahooRequest(token, `/users;use_login=1/games;game_keys=nba/leagues`, p.user_id);
         
         const user = leaguesResp?.fantasy_content?.users?.[0]?.user;
         if (!user) { console.log('No user found'); continue; }

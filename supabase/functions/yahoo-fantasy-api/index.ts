@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getYahooGameId } from "../_shared/yahoo-season.ts";
+
+const GAME_ID = "478"; // Yahoo NBA game key for 2026-27 (was 466 for 2025-26)
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -264,7 +265,6 @@ serve(async (req) => {
     if (!userId) throw new Error("User ID is required");
 
     const accessToken = await getAccessToken(userId);
-    const GAME_ID = await getYahooGameId(endpoint => makeYahooRequest(accessToken, endpoint));
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // ──────────────────────────────────────────────────────────
@@ -272,8 +272,8 @@ serve(async (req) => {
     // ──────────────────────────────────────────────────────────
     if (action === "getUserLeagues") {
       const [raw, teamsRaw] = await Promise.all([
-        makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=${GAME_ID}/leagues`),
-        makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=${GAME_ID}/teams`).catch((err) => {
+        makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=nba/leagues`),
+        makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=nba/teams`).catch((err) => {
           console.warn('[getUserLeagues] teams lookup failed, continuing without team names:', err);
           return null;
         }),
