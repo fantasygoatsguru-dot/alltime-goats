@@ -22,6 +22,10 @@ interface YahooLeagueDTO {
   name: string;
   season: string;
   gameId: string;
+  // The caller's own team in this league, for the header switcher. Null if
+  // the teams lookup failed; leagues still load without it.
+  teamName: string | null;
+  teamLogo: string | null;
 }
 
 interface YahooPlayerDTO {
@@ -176,8 +180,26 @@ function parseLeagues(raw: any): YahooLeagueDTO[] {
         name: l.name,
         season: l.season,
         gameId: l.game_id,
+        teamName: null,
+        teamLogo: null,
       };
     });
+}
+
+// The caller's teams for this game, keyed by league_key. A team_key is
+// "<game>.l.<league>.t.<team>", so the league key is everything before ".t.".
+function parseUserTeamsByLeague(raw: any): Map<string, { name: string; logo: string | null }> {
+  const teams = raw?.fantasy_content?.users?.[0]?.user?.games?.[0]?.game?.teams || [];
+  const byLeague = new Map<string, { name: string; logo: string | null }>();
+  for (const item of teams) {
+    const t = item?.team;
+    if (!t?.team_key) continue;
+    byLeague.set(String(t.team_key).split('.t.')[0], {
+      name: t.name,
+      logo: t.team_logos?.[0]?.team_logo?.url ?? t.team_logos?.team_logo?.url ?? null,
+    });
+  }
+  return byLeague;
 }
 
 async function parseRoster(supabase: any, rosterData: any): Promise<YahooPlayerDTO[]> {
@@ -249,8 +271,18 @@ serve(async (req) => {
     // 1. Get User Leagues
     // ──────────────────────────────────────────────────────────
     if (action === "getUserLeagues") {
-      const raw = await makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=${GAME_ID}/leagues`);
-      const leagues = parseLeagues(raw);
+      const [raw, teamsRaw] = await Promise.all([
+        makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=${GAME_ID}/leagues`),
+        makeYahooRequest(accessToken, `/users;use_login=1/games;game_keys=${GAME_ID}/teams`).catch((err) => {
+          console.warn('[getUserLeagues] teams lookup failed, continuing without team names:', err);
+          return null;
+        }),
+      ]);
+      const teamsByLeague = parseUserTeamsByLeague(teamsRaw);
+      const leagues = parseLeagues(raw).map((l) => {
+        const team = teamsByLeague.get(l.leagueKey);
+        return team ? { ...l, teamName: team.name, teamLogo: team.logo } : l;
+      });
 
       return new Response(
         JSON.stringify({ leagues }),

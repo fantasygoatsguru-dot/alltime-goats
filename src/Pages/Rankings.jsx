@@ -22,7 +22,10 @@ import {
     useMediaQuery,
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { supabase, CURRENT_SEASON } from '../utils/supabase';
+import { supabase } from '../utils/supabase';
+// Rankings stay on the finished season until STATS_SEASON has enough games
+// for z-scores to mean something.
+import { HISTORICAL_STATS_SEASON as RANKINGS_SEASON } from '../config/season';
 import { useLeague } from '../contexts/LeagueContext';
 import { useAuth } from '../contexts/AuthContext';
 import YahooConnect from '../components/YahooConnect';
@@ -289,7 +292,7 @@ const Rankings = () => {
                 const { data: periodData, error: periodError } = await supabase
                     .from('player_period_averages')
                     .select('*')
-                    .eq('season', CURRENT_SEASON)
+                    .eq('season', RANKINGS_SEASON)
                     .eq('period_type', periodType)
                     .limit(250)
                     .order('total_value', { ascending: false });
@@ -613,7 +616,7 @@ const Rankings = () => {
             {displayedPlayers.length === 0 && !loading ? (
                 <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#fff', border: '1px solid #ddd', borderRadius: 1 }}>
                     <Typography variant="body1" sx={{ mb: 1, fontWeight: 600 }}>
-                        No {CURRENT_SEASON} data available for {getPeriodLabel(periodType)}
+                        No {RANKINGS_SEASON} data available for {getPeriodLabel(periodType)}
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#666' }}>
                         Stats will appear after regular-season games are played and the daily update runs.

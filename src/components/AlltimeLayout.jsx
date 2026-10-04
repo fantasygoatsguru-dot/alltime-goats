@@ -651,27 +651,20 @@ const AlltimeLayout = () => {
     setAnchor(e.currentTarget);
   };
 
-  // Clicking a parent used to navigate to its first child, so anyone who
-  // clicked "League" expecting a menu was teleported to /matchup. Click now
-  // toggles the panel; hover still opens it for mouse users. This is also what
-  // makes the menus reachable by keyboard and on touch, where hover never fires.
-  const toggleMenu = (setAnchor, current) => (e) => {
+  // Clicking a parent goes straight to its first submenu item; hover still
+  // opens the panel to reach the others. (Desktop only — the mobile drawer
+  // expands sections instead, or its other items would be unreachable.)
+  const goToFirstItem = (submenu) => (e) => {
     e.preventDefault();
     cancelClose();
-    const wasOpen = Boolean(current);
     closeAllMenus();
-    if (!wasOpen) setAnchor(e.currentTarget);
+    navigate(submenu[0].path);
   };
 
   const handleLeagueOpen = openMenu(setLeagueAnchorEl, leagueAnchorEl);
   const handleRankingsOpen = openMenu(setRankingsAnchorEl, rankingsAnchorEl);
   const handleScheduleOpen = openMenu(setScheduleAnchorEl, scheduleAnchorEl);
   const handleAlltimeOpen = openMenu(setAlltimeAnchorEl, alltimeAnchorEl);
-
-  const handleLeagueToggle = toggleMenu(setLeagueAnchorEl, leagueAnchorEl);
-  const handleRankingsToggle = toggleMenu(setRankingsAnchorEl, rankingsAnchorEl);
-  const handleScheduleToggle = toggleMenu(setScheduleAnchorEl, scheduleAnchorEl);
-  const handleAlltimeToggle = toggleMenu(setAlltimeAnchorEl, alltimeAnchorEl);
 
   const renderContent = () => {
     const p = location.pathname;
@@ -773,10 +766,10 @@ const AlltimeLayout = () => {
             <Box sx={{ display: 'flex', gap: 0.75, justifySelf: 'center' }}>
               {navItems.map((item) => {
                 const submenuMap = {
-                  '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: scheduleClose, handleToggle: handleLeagueToggle, defaultPath: '/matchup' },
-                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: scheduleClose, handleToggle: handleRankingsToggle, defaultPath: '/rankings' },
-                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: scheduleClose, handleToggle: handleScheduleToggle, defaultPath: '/nba-playoffs' },
-                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: scheduleClose, handleToggle: handleAlltimeToggle, defaultPath: '/games' },
+                  '/league': { submenu: leagueSubmenu, anchorEl: leagueAnchorEl, handleOpen: handleLeagueOpen, handleClose: scheduleClose, },
+                  '/rankings': { submenu: rankingsSubmenu, anchorEl: rankingsAnchorEl, handleOpen: handleRankingsOpen, handleClose: scheduleClose, },
+                  '/schedule': { submenu: scheduleSubmenu, anchorEl: scheduleAnchorEl, handleOpen: handleScheduleOpen, handleClose: scheduleClose, },
+                  '/alltime': { submenu: alltimeSubmenu, anchorEl: alltimeAnchorEl, handleOpen: handleAlltimeOpen, handleClose: scheduleClose, },
                 };
 
                 const config = submenuMap[item.path];
@@ -797,7 +790,7 @@ const AlltimeLayout = () => {
                   >
                     <Button
                       onMouseEnter={config.handleOpen}
-                      onClick={config.handleToggle}
+                      onClick={goToFirstItem(config.submenu)}
                       onKeyDown={(e) => { if (e.key === 'Escape') closeAllMenus(); }}
                       aria-haspopup="true"
                       aria-expanded={Boolean(config.anchorEl)}
@@ -1055,7 +1048,7 @@ const AlltimeLayout = () => {
               </Button>
             )}
             {isAuthenticated && userLeagues.length > 0 ? (
-              <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
+              <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 }, maxWidth: { xs: 150, sm: 260, md: 320 } }}>
                 <Select
                   value={selectedLeague || ''}
                   onChange={(e) => {
@@ -1074,8 +1067,24 @@ const AlltimeLayout = () => {
                     if (!value) return '';
                     const valueStr = String(value);
                     const selected = userLeagues.find(l => String(l.leagueId) === valueStr);
-                    return selected ? selected.name.split(' ').slice(0, 2).join(' ') : '';
+                    if (!selected) return '';
+                    // Full league name, then your team in that league. Long
+                    // names ellipsize; the team name drops on phones.
+                    return (
+                      <Box component="span" sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <Box component="span" sx={{ fontWeight: 600 }}>{selected.name}</Box>
+                        {selected.teamName && (
+                          <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, color: 'text.secondary' }}>
+                            {' · '}{selected.teamName}
+                          </Box>
+                        )}
+                      </Box>
+                    );
                   }}
+                  title={(() => {
+                    const selected = userLeagues.find(l => String(l.leagueId) === String(selectedLeague));
+                    return selected ? [selected.name, selected.teamName].filter(Boolean).join(' · ') : undefined;
+                  })()}
                   sx={{
                     bgcolor: '#fff',
                     height: 36,
@@ -1094,9 +1103,16 @@ const AlltimeLayout = () => {
                         sx={{
                           fontSize: '0.85rem',
                           opacity: isDisabled ? 0.5 : 1,
+                          display: 'block',
+                          py: 1,
                         }}
                       >
-                        {l.name.split(' ').slice(0, 2).join(' ')}
+                        <Box sx={{ fontWeight: 600, lineHeight: 1.3 }}>{l.name}</Box>
+                        {l.teamName && (
+                          <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', lineHeight: 1.3 }}>
+                            {l.teamName}
+                          </Box>
+                        )}
                       </MenuItem>
                     );
 

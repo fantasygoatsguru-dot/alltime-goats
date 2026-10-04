@@ -28,7 +28,9 @@ import {
   Tooltip,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { supabase, CURRENT_SEASON } from "../utils/supabase";
+import { supabase } from "../utils/supabase";
+// Top Games stays on the finished season until STATS_SEASON has games logged.
+import { HISTORICAL_STATS_SEASON as GAMES_SEASON } from "../config/season";
 import { useLeague } from "../contexts/LeagueContext";
 import { useAuth } from "../contexts/AuthContext";
 import YahooConnect from "../components/YahooConnect";
@@ -232,33 +234,37 @@ const SeasonGames = () => {
         // Calculate date range based on period type
         let dateFilter = null;
         let exactDateFilter = null;
-        const today = new Date();
+
+        // "Last N days" counts back from the season's most recent game, not from
+        // today, so a finished season still shows its final stretch.
+        const { data: latestDateData, error: latestDateError } = await supabase
+          .from('player_game_logs')
+          .select('game_date')
+          .eq('season', GAMES_SEASON)
+          .order('game_date', { ascending: false })
+          .limit(1);
+
+        if (latestDateError) throw latestDateError;
+
+        const latestGameDate = latestDateData?.[0]?.game_date ?? null;
+        const today = latestGameDate ? new Date(`${latestGameDate}T00:00:00Z`) : new Date();
 
         if (periodType === 'last_day') {
-          const { data: latestDateData, error: latestDateError } = await supabase
-            .from('player_game_logs')
-            .select('game_date')
-            .eq('season', CURRENT_SEASON)
-            .order('game_date', { ascending: false })
-            .limit(1);
-
-          if (latestDateError) throw latestDateError;
-
-          if (latestDateData && latestDateData.length > 0) {
-            exactDateFilter = latestDateData[0].game_date;
+          if (latestGameDate) {
+            exactDateFilter = latestGameDate;
             setLatestGameDate(exactDateFilter);
           }
         } else if (periodType === '7_days') {
           const sevenDaysAgo = new Date(today);
-          sevenDaysAgo.setDate(today.getDate() - 7);
+          sevenDaysAgo.setUTCDate(today.getUTCDate() - 7);
           dateFilter = sevenDaysAgo.toISOString().split('T')[0];
         } else if (periodType === '30_days') {
           const thirtyDaysAgo = new Date(today);
-          thirtyDaysAgo.setDate(today.getDate() - 30);
+          thirtyDaysAgo.setUTCDate(today.getUTCDate() - 30);
           dateFilter = thirtyDaysAgo.toISOString().split('T')[0];
         } else if (periodType === '60_days') {
           const sixtyDaysAgo = new Date(today);
-          sixtyDaysAgo.setDate(today.getDate() - 60);
+          sixtyDaysAgo.setUTCDate(today.getUTCDate() - 60);
           dateFilter = sixtyDaysAgo.toISOString().split('T')[0];
         }
 
@@ -267,7 +273,7 @@ const SeasonGames = () => {
           .from('player_game_logs')
           .select('*')
           .order('fantasy_points', { ascending: false })
-          .eq('season', CURRENT_SEASON);
+          .eq('season', GAMES_SEASON);
 
         // Apply date filter based on period
         if (exactDateFilter) {
@@ -522,7 +528,7 @@ const SeasonGames = () => {
               fontSize: '1.25rem',
             }}
           >
-            {CURRENT_SEASON} Season - Top Games
+            {GAMES_SEASON} Season - Top Games
           </Typography>
           <Tooltip
             title={
