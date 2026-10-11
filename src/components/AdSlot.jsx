@@ -23,12 +23,18 @@ import { useEntitlements } from '../hooks/useEntitlements';
  * Pushing before the loader script arrives is fine: `window.adsbygoogle` is a
  * queue the script drains once it loads.
  */
-export default function AdSlot({
+export default function AdSlot(props) {
+  const { pathname } = useLocation();
+  return <AdSlotContent key={pathname} {...props} />;
+}
+
+function AdSlotContent({
   slot,
   format = 'auto',
   layout,
   fullWidthResponsive = true,
   minHeight = 100,
+  lazy = false,
   sx = {},
 }) {
   // In-article and in-feed units are "fluid": AdSense picks the shape from the
@@ -39,11 +45,36 @@ export default function AdSlot({
   const { hasAnyPass, loading } = useEntitlements();
   const { pathname } = useLocation();
   const insRef = useRef(null);
+  const containerRef = useRef(null);
   const pushedFor = useRef(null);
   const [unfilled, setUnfilled] = useState(false);
+  const [ready, setReady] = useState(!lazy);
 
   useEffect(() => {
-    if (loading || hasAnyPass || !slot) return;
+    if (loading || hasAnyPass || !slot || ready) return;
+    if (!lazy || typeof window.IntersectionObserver !== 'function') {
+      setReady(true);
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+    let active = true;
+    const observer = new window.IntersectionObserver((entries) => {
+      if (!active || !entries.some((entry) => entry.isIntersecting)) return;
+      setReady(true);
+      observer.disconnect();
+    }, { rootMargin: `${window.innerHeight || 800}px 0px`, threshold: 0 });
+
+    observer.observe(container);
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
+  }, [loading, hasAnyPass, slot, lazy, ready]);
+
+  useEffect(() => {
+    if (loading || hasAnyPass || !slot || !ready) return;
     const ins = insRef.current;
     if (!ins) return;
     if (pushedFor.current === pathname) return;
@@ -56,10 +87,10 @@ export default function AdSlot({
       // An ad blocker, or a double push — neither should break the page.
       console.warn('AdSense push failed:', e?.message || e);
     }
-  }, [loading, hasAnyPass, slot, pathname]);
+  }, [loading, hasAnyPass, slot, pathname, ready]);
 
   useEffect(() => {
-    if (loading || hasAnyPass || !slot) return;
+    if (loading || hasAnyPass || !slot || !ready) return;
     const ins = insRef.current;
     if (!ins) return;
 
@@ -69,12 +100,12 @@ export default function AdSlot({
     observer.observe(ins, { attributes: true, attributeFilter: ['data-ad-status'] });
     update();
     return () => observer.disconnect();
-  }, [loading, hasAnyPass, slot, pathname]);
+  }, [loading, hasAnyPass, slot, pathname, ready]);
 
   if (loading || hasAnyPass || !slot) return null;
 
   return (
-    <Box key={pathname} sx={{ my: 3, textAlign: 'center', ...sx, ...(unfilled ? { display: 'none' } : {}) }}>
+    <Box ref={containerRef} sx={{ my: 3, textAlign: 'center', ...sx, ...(unfilled ? { display: 'none' } : {}) }}>
       <Typography
         component="span"
         sx={{
@@ -88,7 +119,7 @@ export default function AdSlot({
       >
         Advertisement
       </Typography>
-      <ins
+      {ready && <ins
         ref={insRef}
         className="adsbygoogle"
         style={fluid ? { display: 'block', textAlign: 'center' } : { display: 'block', minHeight }}
@@ -102,7 +133,7 @@ export default function AdSlot({
             serve real ads to localhost anyway, and this keeps your own dev
             loads from counting as impressions against the account. */
         ...(import.meta.env.DEV ? { 'data-adtest': 'on' } : {})}
-      />
+      />}
     </Box>
   );
 }

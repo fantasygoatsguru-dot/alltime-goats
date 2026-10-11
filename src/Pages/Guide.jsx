@@ -45,9 +45,9 @@ function SectionHeading({ id, children }) {
 //
 // Keep paid guides free of ads, while showing ads beside the public content in
 // guides that only require a free sign-in to finish reading.
-function GuideAd({ guide }) {
+function GuideAd({ guide, lazy = true }) {
   if (guide.isPremium) return null;
-  return <AdSlot slot={AD_SLOTS.guideInArticle} layout="in-article" />;
+  return <AdSlot slot={AD_SLOTS.guideInArticle} layout="in-article" lazy={lazy} />;
 }
 
 // What a reader gets for the pass, stated plainly and counted off the guide's
@@ -267,7 +267,7 @@ export default function Guide({ onRequireSignIn }) {
                 is placed inside the prose: free guides run only 3-4 short
                 sections, so an in-prose unit landed barely a screen above this
                 one and both read as a single block of ads at the top. */}
-            <GuideAd guide={guide} />
+            <GuideAd guide={guide} lazy={false} />
 
             {/* The board: an authored projection or write-up list for rankings
                 guides, the live re-ranked z-score table for punt builds. */}
