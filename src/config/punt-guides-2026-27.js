@@ -440,7 +440,7 @@ export const PUNT_ASSISTS = {
   "title": "Punt Assists",
   "season": CONTENT_SEASON,
   "difficulty": "Intermediate",
-  "isPremium": true,
+  "isPremium": false,
   "tagline": "Build around finishers, protect both percentages, and leave the playmaking premium to someone else.",
   "strengths": [
     "pts",
@@ -454,10 +454,9 @@ export const PUNT_ASSISTS = {
     "ft",
     "3pm"
   ],
-  "freeSections": 2,
   "board": {
     "minGames": 30,
-    "freeLimit": 20,
+    "freeLimit": null,
     "previewRows": 4
   },
   "sections": [
