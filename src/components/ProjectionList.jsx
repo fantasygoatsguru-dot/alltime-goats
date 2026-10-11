@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box, Typography, CircularProgress, Chip } from '@mui/material';
-import { ROUNDS, PLAYERS, PRIOR_SEASON } from '../config/top-150-2026-27';
+import { ROUNDS, PLAYERS, PRIOR_SEASON, INJURY_WATCHLIST } from '../config/top-150-2026-27';
 import { usePriorSeasonStats } from '../hooks/usePriorSeasonStats';
 import PlayerNoteCard from './PlayerNoteCard';
 
@@ -41,6 +41,7 @@ export default function ProjectionList({
   players = PLAYERS,
   rounds = ROUNDS,
   priorSeason = PRIOR_SEASON,
+  watchlist = INJURY_WATCHLIST,
   renderInterstitial,
 }) {
   const { statsFor, loading } = usePriorSeasonStats(priorSeason);
@@ -81,6 +82,21 @@ export default function ProjectionList({
           </Box>
         </Box>
       ))}
+      {watchlist.length > 0 && (
+        <Box sx={{ mt: 4, pt: 2, borderTop: '2px solid #dfe5ee' }}>
+          <Typography component="h3" sx={{ fontWeight: 900, fontSize: '1.2rem', color: '#0f2340', mb: 1 }}>
+            Injury watchlist — outside the Top 150
+          </Typography>
+          <Typography sx={{ color: '#5a6472', fontSize: '0.88rem', lineHeight: 1.55, mb: 2 }}>
+            These are monitoring or deep injured-reserve options, not recommendations to spend a standard redraft pick.
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {watchlist.map((player) => (
+              <PlayerNoteCard key={player.name} player={player} prior={statsFor(player.name)} />
+            ))}
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }

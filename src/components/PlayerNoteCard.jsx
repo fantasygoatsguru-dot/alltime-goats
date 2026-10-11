@@ -141,6 +141,22 @@ export default function PlayerNoteCard({ player, prior, accent = '#0f2340' }) {
         )}
 
         <Typography sx={{ color: '#2c3440', fontSize: '0.94rem', lineHeight: 1.6 }}>{player.note}</Typography>
+        {player.sources?.length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 1.25 }}>
+            {player.sources.map((source) => (
+              <Typography
+                key={source.url}
+                component="a"
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ color: '#2f80ed', fontSize: '0.75rem', lineHeight: 1.5 }}
+              >
+                {source.label}
+              </Typography>
+            ))}
+          </Box>
+        )}
       </Box>
     </Box>
   );

@@ -5,7 +5,7 @@ import seoRoutes, { getPublicRoutes } from '../src/config/seo-routes.js';
 import { getSEOContent } from '../src/config/seo-content.js';
 import { getStructuredData, getFaq } from '../src/config/structured-data.js';
 import { guideBySlug } from '../src/config/guides-content.js';
-import { PLAYERS as TOP150, ROUNDS as TOP150_ROUNDS, YAHOO_MARKET_DATE } from '../src/config/top-150-2026-27.js';
+import { PLAYERS as TOP150, ROUNDS as TOP150_ROUNDS, INJURY_WATCHLIST, RANKINGS_UPDATED_AT, YAHOO_ADP_DATE, YAHOO_PRERANK_DATE } from '../src/config/top-150-2026-27.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,6 +97,10 @@ const navHtml = `
 const esc = (s = '') =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+const playerSourcesHtml = (player) => (player.sources || [])
+  .map((source) => ` <a href="${escapeAttr(source.url)}" target="_blank" rel="noopener noreferrer">${esc(source.label)}</a>`)
+  .join('');
+
 const guideBodyHtml = (routePath) => {
   if (!routePath.startsWith('/guides/')) return '';
   const guide = guideBySlug[routePath.slice('/guides/'.length)];
@@ -123,7 +127,8 @@ const guideBodyHtml = (routePath) => {
   // The complete public Top 150 is included in the crawlable page.
   if (guide.projection) {
     out.push(`<h2>The projected top 150 for ${esc(guide.season)}</h2>`);
-    out.push(`<p>Historical stat claims use corrected 2025-26 season data. Yahoo ADP and public pre-rank are a draft-market snapshot from ${esc(YAHOO_MARKET_DATE)}; the order projects 2026-27 value.</p>`);
+    out.push(`<p>Rankings reviewed ${esc(RANKINGS_UPDATED_AT)} for preseason roles, injuries and schedule context. Historical stat claims use corrected 2025-26 season data, not projected averages. Yahoo public pre-ranks were checked ${esc(YAHOO_PRERANK_DATE)}. ADP remains the older ${esc(YAHOO_ADP_DATE)} snapshot because a current ADP table could not be verified.</p>`);
+    out.push('<p>Schedule examples use the <a href="https://ak-static.cms.nba.com/wp-content/uploads/sites/46/2026/08/2026-27-NBA-Regular-Season-Schedule-By-Team.pdf">official 2026–27 team schedules</a>. Dated reports behind individual changes are linked below each updated note.</p>');
     for (const round of TOP150_ROUNDS) {
       const players = TOP150.filter((pl) => pl.rank >= round.from && pl.rank <= round.to);
       if (!players.length) continue;
@@ -131,10 +136,13 @@ const guideBodyHtml = (routePath) => {
       out.push(`<p>${esc(round.blurb)}</p>`);
       out.push(
         `<ul>${players
-          .map((pl) => `<li><strong>${pl.rank}. ${esc(pl.name)} (${esc(pl.team)})</strong>${Number.isFinite(pl.yahooAdp) ? ` — Yahoo ADP ${pl.yahooAdp.toFixed(1)}` : ''}${Number.isFinite(pl.yahooPreRank) ? `, pre-rank ${pl.yahooPreRank}` : ''}. ${esc(pl.note)}</li>`)
+          .map((pl) => `<li><strong>${pl.rank}. ${esc(pl.name)} (${esc(pl.team)})</strong>${Number.isFinite(pl.yahooAdp) ? ` — Yahoo ADP ${pl.yahooAdp.toFixed(1)}` : ''}${Number.isFinite(pl.yahooPreRank) ? `, pre-rank ${pl.yahooPreRank}` : ''}. ${esc(pl.note)}${playerSourcesHtml(pl)}</li>`)
           .join('')}</ul>`
       );
     }
+    out.push('<h3>Injury watchlist — outside the Top 150</h3>');
+    out.push('<p>These are monitoring or deep injured-reserve options, not recommendations to spend a standard redraft pick.</p>');
+    out.push(`<ul>${INJURY_WATCHLIST.map((player) => `<li><strong>${esc(player.name)} (${esc(player.team)})</strong>. ${esc(player.note)}${playerSourcesHtml(player)}</li>`).join('')}</ul>`);
   }
 
   if (guide.roundTargets) {

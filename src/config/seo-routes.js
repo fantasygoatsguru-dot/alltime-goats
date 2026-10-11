@@ -148,7 +148,7 @@ export const seoRoutes = [
   {
     path: '/guides/top-150',
     title: 'Top 150 Fantasy Basketball Rankings 2026-27 | 9-Cat Projections',
-    description: '2026-27 fantasy basketball top 150 projections refreshed with corrected 2025-26 nine-category stats, with player stat lines, games played and category contributions.',
+    description: '2026-27 fantasy basketball Top 150, reviewed October 11 for preseason roles, injuries and schedule context, with dated sources and separate historical stat lines.',
     changefreq: 'weekly',
     priority: 0.9,
   },

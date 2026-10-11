@@ -250,9 +250,9 @@ export const SEO_CONTENT = {
   '/guides/top-150': {
     title: '2026-27 Fantasy Basketball Top 150 Projections',
     content: `
-      <p>This 2026-27 fantasy basketball top 150 is a forward-looking projection refreshed with corrected 2025-26 nine-category production from our player_period_averages data. The order also considers current Yahoo draft prices, expected role, team changes and availability.</p>
+      <p>This 2026-27 fantasy basketball top 150 is a forward-looking draft board reviewed October 11, 2026 for preseason roles, injuries and schedule context. Corrected 2025-26 nine-category production remains the historical baseline, not a forecast of next season's stat line.</p>
 
-      <p>The list is grouped into twelve-player rounds for easier scanning. For players who appeared in 2025-26, each card shows the actual stat line and games played alongside the separate Yahoo ADP and public pre-rank snapshot from September 26, 2026. Injury-returning players without a season line use earlier evidence in their notes.</p>
+      <p>The list is grouped into twelve-player rounds. Yahoo public pre-ranks were checked October 11, 2026; ADP remains the older September 26 snapshot because a current table could not be verified. Historical stat cards stay separate from the editorial order. Dated sources support the updated notes, and a separate injury watchlist distinguishes long-term holds from standard redraft recommendations. This edition retains its existing scope of players with an NBA baseline, excluding the incoming 2026 rookie class.</p>
 
       <p>The historical baseline combines points, threes, rebounds, assists, steals, blocks, shooting-percentage impact and turnovers into nine-category value. Shooting impact accounts for attempts. The projected order also adjusts for expected availability, so it is not simply last season's per-game rank.</p>
 

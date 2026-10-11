@@ -2,6 +2,7 @@
 // Node ESM (via structured-data.js), which does not resolve extensionless paths.
 import { CONTENT_SEASON } from './season.js';
 import { PUNT_GUIDES } from './punt-guides-2026-27.js';
+import { RANKINGS_UPDATED_AT, YAHOO_ADP_DATE, YAHOO_PRERANK_DATE } from './top-150-2026-27.js';
 
 // Editorial content for the Guides section.
 // The live stat cards come from player_period_averages via <RankingTable>,
@@ -481,7 +482,7 @@ export const guides = [
     difficulty: 'Beginner',
     isPremium: false,
     tagline:
-      '2026-27 nine-category draft ranks refreshed with corrected 2025-26 results. Punt-dependent players are priced for the build most likely to draft them.',
+      '2026-27 nine-category draft ranks updated for preseason roles, injuries and schedule context, with corrected 2025-26 results kept separate from the forecast.',
     strengths: [],
     weaknesses: [],
 
@@ -504,9 +505,19 @@ export const guides = [
         id: 'method',
         heading: 'How the projection was built',
         body: [
-          "The baseline is corrected 2025-26 nine-category production from the same database that powers the rankings tool. I combined that value with Yahoo's standard public pre-rank, projected-season rank, current ADP and the previous 2026-27 projection. I then adjusted for minutes, usage, age, injury recovery, verified team moves and the best realistic punt fit for build-dependent players. Yahoo prices show the market; they are not forecasts of fantasy value.",
+          `The baseline remains the corrected 2025-26 nine-category production used in the previous edition, not newly projected stat lines. The ${RANKINGS_UPDATED_AT} review adjusts the existing board for verified preseason participation, health and role information. Yahoo public pre-ranks were checked ${YAHOO_PRERANK_DATE}; ADP is still the ${YAHOO_ADP_DATE} snapshot because a current table could not be verified. Those two market signals are not interchangeable, and neither determines our order.`,
           "Field-goal and free-throw impact use makes and attempts, not percentage alone. Turnovers count too, so a high-volume creator can be valuable in points and assists while costing you a category. Each player's note names the season behind its exact numbers; the rank itself is the forward-looking call.",
           "Availability changes the order. A strong per-game line in a short season can still make a good pick, but the cost of missed games belongs in the draft decision. Players without a 2025-26 line use their earlier production with a larger uncertainty discount.",
+          "Preseason minutes and participation can change confidence in a role or recovery. A hot shooting night cannot establish a new season-long percentage, and a routine rest absence is not a new injury. Re-evaluation dates are checkpoints, not promised returns. The larger moves reflect whether a player can contribute and how much waiting the draft price asks you to accept.",
+        ],
+      },
+      {
+        id: 'schedule',
+        heading: 'How the schedule affects the price',
+        body: [
+          "The NBA season runs October 20, 2026 through April 11, 2027. The release assigns 80 games per team, with two more determined through NBA Cup results. I have not treated unassigned games as missing season volume or projected an extra regular-season game for reaching the Cup final.",
+          "For a concrete H2H example, the weeks March 8–14, March 15–21 and March 22–28 give Golden State 4/3/4 games and Philadelphia 3/4/4. Golden State has a back-to-back in each of those weeks; Philadelphia has them March 17–18 and March 23–24, plus March 8 follows a March 7 game. Those are scheduled opportunities, not guaranteed appearances by Curry, Butler, Embiid or LeBron. The examples use the official team schedule and must be rechecked for changes.",
+          "Your league's actual playoff dates, lineup locks and games limits decide how much those differences matter. This remains a general draft board, not a ranking optimized for an assumed playoff window. Use schedule density and likely workload as tiebreakers within a tier, especially for players returning from injury; do not drop an otherwise better player several rounds solely for a particular March week. In roto, games caps can reduce the importance of team game counts without removing availability risk.",
         ],
       },
       {
@@ -522,8 +533,9 @@ export const guides = [
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          "Team assignments and transaction notes were refreshed against NBA transaction reporting and Yahoo rosters on September 26, 2026. Later camp moves, depth-chart decisions and ADP shifts can change a projection quickly, so check the linked market pages when you draft. The incoming 2026 rookie class is excluded because there is no NBA category baseline yet.",
+          `Injury and preseason reports were reviewed through ${RANKINGS_UPDATED_AT}; dated sources accompany the changed player notes. A missing injury mention is not medical clearance. Team assignments retain the existing offseason transaction baseline unless the review established a change. The incoming 2026 rookie class remains excluded because this edition keeps the existing NBA-baseline scope; it is not a complete ranking of the rookie-inclusive draft pool.`,
           "Injury returns have the widest range of outcomes. Tyrese Haliburton, Kyrie Irving and Damian Lillard have no 2025-26 season line here; their notes use verified 2024-25 numbers and identify the recovery risk. A blank prior-season stat row does not mean a zero projection.",
+          "The injury watchlist below the board is separate from the 150 draft recommendations. It replaces the old assumption that a player's past games played establishes availability after a serious injury. Butler and Porziņģis remain conditional late injury-slot bets inside the board; without spare injured-reserve space, an available player can be the better choice even at their reduced ranks.",
         ],
       },
     ],
