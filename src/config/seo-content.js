@@ -1,4 +1,4 @@
-import { SLEEPERS, BUSTS } from './sleepers-busts-2026-27.js';
+import { SLEEPERS, BUSTS, SLEEPERS_UPDATED_AT, SLEEPERS_YAHOO_ADP_DATE, SLEEPERS_YAHOO_PRERANK_DATE } from './sleepers-busts-2026-27.js';
 import { STATS_SEASON } from './season.js';
 import { guideBySlug, guideAccess } from './guides-content.js';
 
@@ -47,7 +47,9 @@ const rosterBlock = (slug, players) => {
         `${p.tag ? ` — ${esc(p.tag)}` : ''}` +
         `${Number.isFinite(p.yahooAdp) ? `; Yahoo ADP ${p.yahooAdp.toFixed(1)}` : ''}` +
         `${Number.isFinite(p.yahooPreRank) ? `; Yahoo pre-rank ${p.yahooPreRank}` : ''}` +
-        `${Number.isFinite(p.boardRank) ? `; our rank ${p.boardRank}` : ''}. ${esc(p.note)}</li>`
+        `${Number.isFinite(p.boardRank) ? `; our rank ${p.boardRank}` : ''}. ${esc(p.note)}` +
+        (p.sources || []).map((source) => ` <a href="${esc(source.url).replace(/"/g, '&quot;')}" target="_blank" rel="noopener noreferrer">${esc(source.label)}</a>`).join('') +
+        '</li>'
     )
     .join('\n        ');
 
@@ -264,7 +266,7 @@ export const SEO_CONTENT = {
   '/guides/sleepers': {
     title: 'Fantasy Basketball Sleepers 2026-27',
     content: `
-      <p>These 2026-27 sleepers are players whose projected draft rank sits ahead of where Yahoo managers have been selecting them. The comparison uses Yahoo ADP and public pre-rank from September 26, 2026, and the corrected 2025-26 season line beneath each player note. A sleeper can be a second-round guard or a late category specialist; the value comes from the price gap.</p>
+      <p>These fifteen 2026-27 sleeper cases were reviewed ${SLEEPERS_UPDATED_AT} for preseason participation, role and availability. Yahoo public pre-ranks were checked ${SLEEPERS_YAHOO_PRERANK_DATE}; ADP remains the ${SLEEPERS_YAHOO_ADP_DATE} snapshot because current averages could not be verified. These are conditional values at the recommended price, not guarantees that players remain available at an older ADP. The stat lines show actual 2025-26 production, not preseason averages or projections.</p>
 
       <p>Some discounts reflect missed games or a changing depth chart. Others come from a category line the market has yet to price fully, such as steals with assists or blocks from a guard. Each write-up explains the upside and the risk that could close the gap.</p>
 

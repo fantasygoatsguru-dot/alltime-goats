@@ -1,83 +1,102 @@
 // 2026-27 draft value calls for standard 12-team, nine-category leagues.
-// Yahoo ADP and public pre-rank: September 26, 2026 snapshot.
+// Sleepers: October 13 news/pre-ranks; September 26 ADP. Busts: September 26 snapshot.
 // `boardRank` is our projected draft rank; exact stat claims use corrected
 // 2025-26 season averages unless another season is named.
 
+export const SLEEPERS_UPDATED_AT = '2026-10-13';
+export const SLEEPERS_YAHOO_PRERANK_DATE = '2026-10-13';
+export const SLEEPERS_YAHOO_ADP_DATE = '2026-09-26';
+
 export const SLEEPERS = [
   {
-    name: 'Jamal Murray', team: 'DEN', tag: 'Round 2 target',
+    name: 'Jamal Murray', team: 'DEN', tag: 'Round 2 value if available',
     yahooAdp: 20.5, yahooPreRank: 9, boardRank: 7,
-    note: "Yahoo's own pre-rank puts Murray in the top ten, yet drafts are letting him reach the middle of round two. He averaged 25.4 points, 3.3 threes and 7.1 assists in 75 games, with 88.7% free throws and only 2.3 turnovers. Those are first-round guard numbers in nine-category play, and his established role beside Jokić gives the projection a firmer base than a speculative breakout. The discount disappears if your room takes him near Yahoo's pre-rank; at the current ADP, he is one of the clearest early values.",
+    note: "An early-round value rather than an undiscovered player. Murray's 25.4 points, 3.3 threes and 7.1 assists last season came with 88.7% free throws and only 2.3 turnovers, which is why our board is much more enthusiastic than his September draft price. He played 26 minutes on October 11; Denver also added DeMar DeRozan. The extra creator is a reason to leave some room for lower usage, not to abandon a proven partnership with Jokić. A quiet exhibition shooting night carries little weight against that full-season line. Yahoo still lists him ninth, so the old ADP of 20.5 is a possible discount to watch for, not a promise that he reaches your second pick. I like him in round two; at a top-ten price, you are buying our projection rather than exploiting a hidden bargain.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1627750/jamal-murray' }],
   },
   {
-    name: 'Lauri Markkanen', team: 'UTA', tag: 'Round 3 target',
+    name: 'Lauri Markkanen', team: 'UTA', tag: 'Round 3–4 value',
     yahooAdp: 38.7, yahooPreRank: 18, boardRank: 20,
-    note: "The market is treating Markkanen like a fourth-round player despite a 26.6-point, 2.7-three season with 89.6% free throws on meaningful volume. His 1.5 turnovers are especially useful for a high-scoring forward, and Utah's addition of Jaren Jackson Jr. does not erase the shooting role. The 42 games played and the Jazz's late-season habits explain the discount, so pair him with durable early picks. Yahoo's pre-rank is 18; if his draft cost stays close to 39, the gap is large enough to accept that risk.",
+    note: "Markkanen offers a way to add scoring without the usual turnover bill. Last season he averaged 26.6 points and 2.7 threes with 89.6% free throws and just 1.5 turnovers. He returned from neck soreness on October 12, playing 19 minutes. That helps the immediate availability case, but it does not erase a 42-game season or make Utah's spring rotation predictable. Jaren Jackson Jr. and Darryn Peterson give the Jazz other mouths to feed; I would not build this pick around another scoring increase. The attraction is a forward who can protect FT% while supplying volume shooting. Yahoo's pre-rank of 18 already recognizes that profile. If he lasts into round three or toward the September ADP of 38.7, the risk is easier to carry alongside durable early picks.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1628374/lauri-markkanen' }],
   },
   {
-    name: 'Trey Murphy III', team: 'NOP', tag: 'Round 3–4 target',
-    yahooAdp: 40.1, yahooPreRank: 21, boardRank: 24,
-    note: "Murphy is going near the fourth-round turn even though his 21.5 points, 3.2 threes and 1.5 steals solve three scarce categories at once. He also shot 47.0% from the field and 88.6% from the line, making him easier to pair with a high-usage guard than most volume shooters. His 5.7 rebounds give him a little more insulation when the three-point shot is quiet. Yahoo ranks him 21st before the draft; the ADP near 40 is the opportunity.",
+    name: 'Trey Murphy III', team: 'NOP', tag: 'Round 3–4 value',
+    yahooAdp: 40.1, yahooPreRank: 21, boardRank: 23,
+    note: "Murphy is particularly useful after a first-round guard: he adds wing rebounds and steals without forcing you to repair either percentage. His 21.5 points, 3.2 threes, 1.5 steals and 5.7 rebounds last season came on 47.0% shooting and 88.6% free throws. He attempted six threes in each of his first two preseason appearances. The willingness to shoot is more relevant here than whether a handful of attempts fell. You are paying for a complementary scorer whose best categories do not require him to dominate every possession. Yahoo has him 21st, close to our valuation, so calling him a sleeper only makes sense if your room lets him slide. Round three is attractive; a fourth-round fall is excellent value, but the old ADP near 40 should not be treated as his current availability.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630530/trey-murphy-iii' }],
   },
   {
-    name: 'Derrick White', team: 'BOS', tag: 'Round 4 target',
-    yahooAdp: 47.1, yahooPreRank: 26, boardRank: 29,
-    note: "White is a guard who can give you 2.7 threes, 5.4 assists and 1.3 blocks without forcing a turnover punt. He played 77 games and averaged only 1.7 turnovers, a combination that lets him balance an early scorer. The 39.5% shooting is a real FG% cost, so he fits best behind efficient first picks or in a punt-FG% build. Boston's Tatum return and Paul George addition may change the shot count, but a fourth-round ADP still underprices the defensive guard line.",
+    name: 'Derrick White', team: 'BOS', tag: 'Round 4 value',
+    yahooAdp: 47.1, yahooPreRank: 25, boardRank: 29,
+    note: "Blocks are usually something you buy from a center. White supplied 1.3 per game alongside 2.7 threes and 5.4 assists, giving a roster more freedom with its remaining big-man slots. His 77 games and 1.7 turnovers also matter when your first pick carries a heavy offensive workload. He returned from rest for 26 minutes against Philadelphia on October 10. That is participation evidence, not a reason to extrapolate his exhibition scoring into a new season average. Boston's returning and incoming scorers make the shot distribution less straightforward, and last season's 39.5% FG remains a genuine cost. He fits especially well in punt-FG% or behind efficient bigs. The updated Yahoo pre-rank is 25, so a fourth-round opportunity would be a fall to capitalize on, not the default price to expect.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1628401/derrick-white' }],
   },
   {
-    name: 'Dyson Daniels', team: 'ATL', tag: 'Round 6 value',
+    name: 'Dyson Daniels', team: 'ATL', tag: 'Round 4–5 build fit',
     yahooAdp: 62.9, yahooPreRank: 20, boardRank: 33,
-    note: "Yahoo's pre-rank recognizes Daniels as a top-20 category player, while drafters are waiting until roughly pick 63. His 2.0 steals came with 6.8 rebounds and 5.9 assists across 76 games; few guards can cover all three categories that strongly. The 0.3 threes and 61.5% free throws make him a particularly good punt-threes or punt-FT% fit, though only 1.6 free-throw attempts soften the latter cost. Draft him for that build at the market price, not as a substitute for your primary scorer.",
+    note: "Draft Daniels to change the shape of your category matchup, not to solve scoring. Last season's 2.0 steals, 6.8 rebounds and 5.9 assists are a rare combination from a guard, especially for punt-threes teams. The catch is substantial: 0.3 threes and 61.5% free throws mean a balanced roster needs shooting elsewhere, even with only 1.6 free-throw attempts limiting the percentage damage. His October 12 absence was listed as rest. I would not convert that into an injury discount or assume a few preseason three-point attempts have fixed his weakest category. Yahoo ranks him 20th, much earlier than our balanced-board valuation. At that price he is a build-specific choice; in rounds four or five he becomes far more appealing. September's ADP near 63 is historical context, not a reason to wait until round six and expect him there.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630700/dyson-daniels' }],
   },
   {
-    name: 'Nickeil Alexander-Walker', team: 'ATL', tag: 'Round 5 target',
+    name: 'Nickeil Alexander-Walker', team: 'ATL', tag: 'Round 4–5 value',
     yahooAdp: 60.1, yahooPreRank: 24, boardRank: 36,
-    note: "Atlanta's larger role produced 20.8 points, 3.2 threes and 1.3 steals over 78 games, a much fuller line than the old defensive-specialist reputation suggests. His 90.2% free throws and 2.1 turnovers give that scoring a clean nine-category shape. The Hawks have changed their perimeter rotation, so last year's usage is not guaranteed, but Yahoo's pre-rank of 24 shows the upside is visible. An ADP around 60 still lets you pay for a step back and profit if most of the role holds.",
+    note: "The useful question is how much of Alexander-Walker's expanded production survives, rather than whether he can break out again. Atlanta already got 20.8 points, 3.2 threes and 1.3 steals from him last season, with 90.2% free throws and 2.1 turnovers. He made four threes in 25 minutes on October 12. That supports keeping the shooting role in the discussion, but one exhibition does not settle the distribution of shots across Atlanta's perimeter. His value is strongest on teams that need points and FT% without adding another turnover-heavy primary creator. Yahoo's pre-rank remains 24; our board is less aggressive. I would welcome a fourth- or fifth-round fall, while passing on the temptation to chase a hot night into round two. The September ADP near 60 is no longer enough, by itself, to call him overlooked.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1629638/nickeil-alexander-walker' }],
   },
   {
     name: 'Austin Reaves', team: 'LAL', tag: 'Round 2 target',
-    yahooAdp: 22.3, yahooPreRank: 17, boardRank: 12,
-    note: "Reaves averaged 22.9 points, 5.5 assists and 2.3 threes while shooting 48.7% from the field and 86.8% at the line. LeBron's move to Philadelphia leaves more creation available beside Luka, although the two guards will still share the ball. Fifty-one games last season explain why drafters are cautious; the role change gives him a path to outproduce a late-second-round cost. He is an especially useful second pick after a big who covers rebounds and blocks but needs guard scoring and FT%.",
+    yahooAdp: 22.3, yahooPreRank: 16, boardRank: 12,
+    note: "Reaves can complement a first-round big without making you sacrifice FG% just to find a second scorer. His 22.9 points and 5.5 assists last season came with 48.7% shooting and 86.8% free throws. He returned from an ankle issue on October 8, delivering eight assists in 25 minutes. The passing is encouraging, but a single game is not proof of a new assist baseline or season-long health. With LeBron now in Philadelphia, there is more creation to distribute beside Luka; that opportunity is already part of the optimistic case, not an extra bonus to add twice. Yahoo has moved him to 16th, narrowing the discount suggested by the September ADP of 22.3. He remains a good second-round target. Taking him much earlier requires accepting both the role projection and the availability risk after a 51-game season.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630559/austin-reaves' }],
   },
   {
-    name: 'Onyeka Okongwu', team: 'ATL', tag: 'Round 5 target',
-    yahooAdp: 54.7, yahooPreRank: 36, boardRank: 37,
-    note: "Okongwu's 1.9 threes, 7.6 rebounds, 1.1 steals and 1.1 blocks give you a combination that usually requires two roster slots. He played 74 games, so this is a real season-long role rather than a short stretch of per-minute promise. His 75.7% free throws and 48.0% FG keep him from being a percentage anchor, but the category coverage is worth more than a fifth-round pick. Yahoo pre-ranks him 36th; the draft room is still buying the old backup label.",
+    name: 'Onyeka Okongwu', team: 'ATL', tag: 'Round 5 value',
+    yahooAdp: 54.7, yahooPreRank: 37, boardRank: 37,
+    note: "Okongwu is not the center to draft when your roster needs one player to carry FG% and rebounds. He is the center who lets you keep adding threes while staying competitive in steals and blocks. Last year's 1.9 threes, 7.6 rebounds, 1.1 steals and 1.1 blocks explain the appeal, with 48.0% FG and 75.7% FT setting realistic limits. He attempted seven threes on October 10; October 12 was a rest absence. The attempt volume is worth monitoring because it tests whether the perimeter role remains part of the offense. It is not a reason to assume a dramatic efficiency improvement. Yahoo's updated pre-rank of 37 is essentially aligned with our board. The sleeper case therefore depends on a fifth-round fall, rather than an argument that Yahoo has missed his development altogether.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630168/onyeka-okongwu' }],
   },
   {
     name: 'Desmond Bane', team: 'ORL', tag: 'Round 5 target',
-    yahooAdp: 52.9, yahooPreRank: 44, boardRank: 38,
-    note: "Bane played all 82 games while averaging 20.1 points, 4.1 assists and 90.8% free throws. The 48.3% field-goal mark and only 2.0 turnovers make him a steadier nine-category scorer than many guards taken a round earlier. Orlando's crowded offense limits the case for a huge scoring jump, so the appeal is reliability at a fifth-round ADP. He is a comfortable fit next to a first pick with a shakier free-throw or availability profile.",
+    yahooAdp: 52.9, yahooPreRank: 44, boardRank: 39,
+    note: "Bane is the steadier option on a list that otherwise includes several health and role bets. Last season he played 82 games, scored 20.1 points per game and shot 48.3% from the field and 90.8% from the line. With only 2.0 turnovers, he can support an aggressive early guard without adding another large efficiency problem. His October 11 absence was listed as rest. I would distinguish that from an injury setback, while still refusing to pencil in another perfect attendance record. Orlando has enough other creators that the value case should work without a leap in usage. Yahoo's pre-rank of 44 is not a major disagreement with our board, but a fifth-round price can still be useful. He is a stronger fit for a balanced roster than for someone hunting a dramatic preseason breakout.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630217/desmond-bane' }],
   },
   {
     name: 'Michael Porter Jr.', team: 'BKN', tag: 'Round 5 target',
-    yahooAdp: 59.6, yahooPreRank: 55, boardRank: 40,
-    note: "Porter's first Brooklyn season brought 24.2 points, 3.4 threes and 7.1 rebounds, enough volume to make a fifth-round ADP look light. Julius Randle's arrival gives the Nets another scorer, so repeating that usage is far from certain. Even a moderate step back leaves a strong source of points, threes and wing boards, provided you can cover his modest blocks and 52-game availability. This is a bet on the shape of the line at pick 60, not on another 24-point season.",
+    yahooAdp: 59.6, yahooPreRank: 55, boardRank: 43,
+    note: "Porter's appeal is the combination of high-volume threes and rebounds from a wing, not an expectation that he repeats every part of his first Brooklyn season. He averaged 24.2 points, 3.4 threes and 7.1 rebounds, but played only 52 games. He returned from wrist soreness on October 12 and scored 22 points in 24 minutes. That is more reassuring than a practice-only clearance, although it does not make the longer-term availability risk disappear. Julius Randle's presence means another scorer has to be accommodated, so leave room for fewer shots. A roster already strong in assists and defensive stats can use Porter's strengths much more easily than one asking him to cover those categories. Yahoo's pre-rank of 55 keeps him in the fifth-round conversation; I prefer that price to paying for last season's peak scoring.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1629008/michael-porter-jr' }],
   },
   {
-    name: 'Alex Sarr', team: 'WAS', tag: 'Round 6 target',
-    yahooAdp: 71.9, yahooPreRank: 59, boardRank: 45,
-    note: "Two blocks a game with 16.3 points and 7.4 rebounds give Sarr an unusually high ceiling for a player available around pick 72. Washington now has Anthony Davis, so minutes and frontcourt pairing matter; that is the main reason not to pay his full best-case price. His 48.2% shooting and 69.2% free throws also need a roster plan. If you already have reliable scoring and FT%, the blocks upside is worth a sixth-round swing.",
+    name: 'Alex Sarr', team: 'WAS', tag: 'Round 6 upside',
+    yahooAdp: 71.9, yahooPreRank: 59, boardRank: 46,
+    note: "Sarr's blocks are still worth pursuing, but this is a frontcourt fit bet rather than a clear runway to a breakout. Last season's 2.0 blocks, 16.3 points and 7.4 rebounds provide the upside. He returned from a foot issue on October 10 and played again October 12. Getting back onto the floor matters more than trying to forecast a season from two short outings. Washington must find a workable balance with Anthony Davis, and Sarr's 48.2% FG and 69.2% FT do not give him the percentage floor of a traditional efficient center. I would take the risk in round six after building reliable scoring and FT%, rather than reach several rounds to secure blocks. Yahoo lists him 59th, so he is already visible to the room; an older ADP near 72 is not a guarantee of a discount.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1642259/alex-sarr' }],
   },
   {
-    name: 'Ryan Rollins', team: 'MIL', tag: 'Round 7 target',
-    yahooAdp: 77.7, yahooPreRank: 58, boardRank: 61,
-    note: "Rollins turned a larger Milwaukee role into 17.3 points, 2.5 threes, 5.6 assists and 1.5 steals across 74 games. Giannis' move to Miami opens more creation, although the Bucks also added Tyler Herro and Jaime Jaquez Jr. The 2.7 turnovers and 79.6% free throws keep him out of the cleanest guard tier, but a seventh-round price leaves room for that cost. He is a better upside buy there than an early-round bet that he becomes Milwaukee's undisputed lead guard.",
+    name: 'Ryan Rollins', team: 'MIL', tag: 'Round 6–7 target',
+    yahooAdp: 77.7, yahooPreRank: 58, boardRank: 59,
+    note: "Rollins has shown enough outside the scoring column to remain interesting even when his jumper is off. On October 11 he recorded three steals and two blocks in 23 minutes. Those defensive totals are not a sustainable nightly projection, but they illustrate why evaluating him only through points would miss part of the case. The stronger foundation remains last season's 17.3 points, 2.5 threes, 5.6 assists and 1.5 steals across 74 games. Milwaukee's new offensive hierarchy brings opportunity and uncertainty, with Tyler Herro also needing the ball. The 2.7 turnovers and 79.6% free throws are reasons not to price him like an established elite point guard. Yahoo's pre-rank of 58 is now close to our board. I like him if he reaches round six or seven; at a fifth-round cost, much of the upside is already being purchased.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1631157/ryan-rollins' }],
   },
   {
-    name: 'Immanuel Quickley', team: 'TOR', tag: 'Round 9 target',
-    yahooAdp: 97.0, yahooPreRank: 69, boardRank: 64,
-    note: "Quickley gave Toronto 5.9 assists, 2.5 threes and 1.3 steals with only 1.5 turnovers in 70 games. That ball security is a real nine-category advantage over later high-usage guards, and he can fit beside a first pick who already produces points. Toronto's addition of Kawhi Leonard may trim some creation, so do not project a sudden leap in assists. Yahoo pre-ranks him 69th, yet the ADP near 97 is a much cheaper way to buy the same stable role.",
+    name: 'Immanuel Quickley', team: 'TOR', tag: 'Round 7–8 target',
+    yahooAdp: 97, yahooPreRank: 69, boardRank: 62,
+    note: "Quickley is a useful answer when your roster needs assists but cannot absorb another high-turnover guard. His 5.9 assists against 1.5 turnovers last season came with 2.5 threes and 1.3 steals. On October 10 he made five threes and handed out four assists without a turnover in 19 minutes. Do not project that shooting percentage forward. The more useful question is whether he can retain a productive mix of passing and off-ball shooting alongside Toronto's other creators. Kawhi Leonard's arrival makes a major usage jump less necessary to the offense and less sensible to assume in a projection. Yahoo lists Quickley 69th, well ahead of the September ADP of 97. I would be comfortable looking in rounds seven or eight if the category fit is right, rather than insist on a ninth-round bargain that may no longer exist.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630193/immanuel-quickley' }],
   },
   {
-    name: 'Jalen Suggs', team: 'ORL', tag: 'Round 10 target',
-    yahooAdp: 111.4, yahooPreRank: 87, boardRank: 72,
-    note: "Suggs' 1.8 steals, 5.5 assists and 0.7 blocks from a guard slot can repair several categories late in a draft. He shot 43.5% and missed 25 games, so the injury and FG% discounts are understandable. A tenth-round ADP gives you room to absorb those flaws while paying for far less defense than he can supply. He fits best with efficient, durable early picks, rather than another guard who already strains FG%.",
+    name: 'Jalen Suggs', team: 'ORL', tag: 'Round 9–10; check health',
+    yahooAdp: 111.4, yahooPreRank: 89, boardRank: 72,
+    note: "Suggs stays on the list as a conditional late value, not a clean bill of health. Illness kept him out on October 11, with his return still unresolved in the reviewed reports. That makes the final preseason availability updates more important than the old ADP of 111.4. Last season's 1.8 steals, 5.5 assists and 0.7 blocks are difficult to replace late in a draft, but 43.5% shooting and 25 missed games explain why the discount exists. Yahoo now lists him 89th. I would rather take him around rounds nine or ten with a healthy guard core already in place than chase our longer-term projection into the middle rounds before his return is clearer. If you have already taken several injured players, choosing a less exciting available guard is a reasonable decision.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630591/jalen-suggs' }],
   },
   {
-    name: 'Reed Sheppard', team: 'HOU', tag: 'Round 10–11 target',
-    yahooAdp: 120.8, yahooPreRank: 56, boardRank: 85,
-    note: "Sheppard made 2.8 threes with 1.5 steals and 0.7 blocks in all 82 games, an unusual mix from a young guard. Fred VanVleet's return makes his minutes uncertain, which explains the distance between Yahoo's pre-rank of 56 and an ADP around 121. The shooting and defensive rates can still pay off at that late cost even if his assists fall short of a lead guard's. Take him for threes and stocks, then treat any larger creation role as upside.",
+    name: 'Reed Sheppard', team: 'HOU', tag: 'Round 9–10 upside',
+    yahooAdp: 120.8, yahooPreRank: 56, boardRank: 86,
+    note: "Sheppard's shooting gives him a route to value even if he is not Houston's primary organizer. He made eight threes across the October 9 and 11 exhibitions, with five turnovers in the latter. The contrast is useful: the shooting can help immediately, while extra creation still has a cost. Last season he supplied 2.8 threes, 1.5 steals and 0.7 blocks over 82 games, so the fantasy appeal is broader than a short hot streak. Fred VanVleet's return leaves a minutes question that two exhibitions cannot settle. Yahoo's pre-rank of 56 is substantially more optimistic than our board. I would not pay that fifth-round price on preseason shooting alone. Around rounds nine or ten he becomes a more interesting category bet; the September ADP near 121 should be treated as an old reference, not a current buying opportunity.",
+    sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1642263/reed-sheppard' }],
   },
 ];
 

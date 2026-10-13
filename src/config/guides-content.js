@@ -3,6 +3,7 @@
 import { CONTENT_SEASON } from './season.js';
 import { PUNT_GUIDES } from './punt-guides-2026-27.js';
 import { RANKINGS_UPDATED_AT, YAHOO_ADP_DATE, YAHOO_PRERANK_DATE } from './top-150-2026-27.js';
+import { SLEEPERS_UPDATED_AT, SLEEPERS_YAHOO_ADP_DATE, SLEEPERS_YAHOO_PRERANK_DATE } from './sleepers-busts-2026-27.js';
 
 // Editorial content for the Guides section.
 // The live stat cards come from player_period_averages via <RankingTable>,
@@ -582,7 +583,7 @@ export const guides = [
     // moment rather than during it.
     requiresLogin: true,
     tagline:
-      'Fifteen players whose 2026-27 draft ranks beat their September Yahoo ADP, from early guards to late category values.',
+      'Fifteen conditional draft values, reviewed October 13 against Yahoo pre-ranks, preseason games and availability news.',
     strengths: [],
     weaknesses: [],
 
@@ -603,7 +604,7 @@ export const guides = [
       previewRows: 2,
       heading: 'The sleepers',
       lead:
-        "Each name has a projected rank ahead of Yahoo ADP in the September 26 snapshot. The cards show ADP, Yahoo pre-rank, our rank and the corrected 2025-26 line; check the live draft room before acting.",
+        `Reviewed ${SLEEPERS_UPDATED_AT} for standard 12-team, nine-category drafts. Yahoo pre-ranks: ${SLEEPERS_YAHOO_PRERANK_DATE}. ADP: ${SLEEPERS_YAHOO_ADP_DATE}, retained as historical context because current ADP could not be verified. Our rank matches the Top 150 board reviewed ${RANKINGS_UPDATED_AT}; stat pills show actual 2025-26 production. Round targets are our buying advice, not predictions that a player will remain available.`,
     },
 
     sections: [
@@ -611,7 +612,7 @@ export const guides = [
         id: 'strategy',
         heading: 'What a sleeper actually is',
         body: [
-          "A sleeper is a player whose projected value exceeds the price at which Yahoo drafts are taking him. That can happen in round two as easily as round ten. The comparison here is between our 2026-27 rank, Yahoo ADP and Yahoo's public pre-rank; last season's category line and current role explain whether the gap is worth buying.",
+          "A sleeper is a player whose expected value exceeds the price your room asks you to pay. That can happen in round two as easily as round ten. Several names on this list are already prominent in Yahoo's public pre-ranks, so they are conditional values if they fall, not undiscovered players. The old ADP explains why they entered the list; it cannot establish what they cost today.",
           "Some gaps reflect healthy skepticism about missed games or a crowded rotation. Others persist because draft rooms lag behind a player's changed role or overlook categories such as steals, blocks and low turnovers. The notes identify the risk instead of treating every gap as a guaranteed bargain.",
         ],
       },
@@ -619,15 +620,15 @@ export const guides = [
         id: 'draft',
         heading: 'How to use this list',
         body: [
-          "Target the Yahoo price shown on each card, adjusting to your room. Jamal Murray and Austin Reaves are early-round value calls; Jalen Suggs and Reed Sheppard are later category bets. Reaching to our rank erases much of the edge. Compare the player's best categories with the roster you have already built.",
-          "Spread role and injury risk across your picks. A roster can carry one health gamble more easily than several, and a late-round breakout candidate is easier to replace if the minutes never arrive. Revisit the case during camp when rotations become clearer.",
+          "Use the round target and the live room together. Jamal Murray and Austin Reaves are second-round opportunities if available; they are not late sleepers. Quickley and Rollins may need to be drafted earlier than their September ADP suggests. Daniels is much easier to justify when your build can absorb his shooting weaknesses. Do not chase a player simply because this page calls him a value.",
+          "Give participation, minutes and role evidence more weight than preseason shooting percentages. A hot exhibition does not settle a season-long usage split. Suggs remains a health-dependent late pick; pairing several unresolved availability bets can leave you short of active players before the season starts. Read the dated sources below the notes and check the final injury reports before drafting.",
         ],
       },
       {
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          "The Yahoo ADP and pre-rank values are a September 26, 2026 snapshot, not live prices. Camp injuries, trades and role decisions can close a value gap quickly. The 2025-26 stat line is historical evidence; our rank is a forward projection.",
+          `News and Yahoo public pre-ranks were checked ${SLEEPERS_UPDATED_AT}; this is not a live feed. The ADP column remains the older ${SLEEPERS_YAHOO_ADP_DATE} snapshot, not a refreshed market average. Public pre-rank is also not the same as Yahoo expert rank or a league-specific custom order. The 2025-26 line is historical evidence, the Top 150 rank is an editorial projection, and the round targets reflect the latest sleeper review.`,
         ],
       },
     ],
@@ -643,7 +644,7 @@ export const guides = [
       },
       {
         q: 'Why does Yahoo pre-rank sometimes disagree with ADP?',
-        a: 'Pre-rank is Yahoo’s ordering; ADP measures where people actually draft. When the two diverge, the price you can usually pay is ADP, while pre-rank helps reveal what the platform already recognizes.',
+        a: 'Public pre-rank is an ordering, while ADP summarizes selections from drafts. They are different signals, and these snapshots have different dates. September ADP may understate today’s cost after preseason news. Use your live room rather than assume a player will last to that old average.',
       },
     ],
   },
