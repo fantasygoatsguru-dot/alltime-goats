@@ -81,6 +81,10 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
   }, [rows]);
 
   const pickedNames = useMemo(() => [...picks], [picks]);
+  const missingNames = useMemo(
+    () => pickedNames.filter(name => !byName.has(norm(name))),
+    [pickedNames, byName],
+  );
 
   // Picked players with their live stat rows (for player-level narrative).
   const pickedRows = useMemo(
@@ -230,10 +234,11 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
                         <Typography sx={{ fontWeight: 800, color: '#0f2340', fontSize: '1.02rem' }}>
                           {c.name}
                         </Typography>
-                        {(Number.isFinite(c.yahooAdp) || Number.isFinite(c.yahooPreRank)) && (
+                        {(Number.isFinite(c.boardRank) || Number.isFinite(c.yahooAdp) || Number.isFinite(c.yahooPreRank)) && (
                           <Typography sx={{ ml: 'auto', color: '#78828f', fontSize: '0.72rem', fontWeight: 700, textAlign: 'right' }}>
                             {Number.isFinite(c.yahooAdp) ? `Yahoo ADP ${c.yahooAdp.toFixed(1)}` : 'Yahoo ADP unavailable'}
                             {Number.isFinite(c.yahooPreRank) ? ` · pre-rank ${c.yahooPreRank}` : ''}
+                            {Number.isFinite(c.boardRank) ? ` · overall #${c.boardRank}` : ''}
                           </Typography>
                         )}
                       </Box>
@@ -277,12 +282,12 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
           >
             <Typography sx={{ fontWeight: 900, fontSize: '0.95rem' }}>Your team</Typography>
             <Box sx={{ px: 1, py: 0.15, borderRadius: 5, bgcolor: 'rgba(255,255,255,0.16)', fontSize: '0.72rem', fontWeight: 800 }}>
-              {teamValues.count} {teamValues.count === 1 ? 'player' : 'players'}
+              {pickedNames.length} {pickedNames.length === 1 ? 'player' : 'players'}
             </Box>
           </Box>
 
           <Box sx={{ p: 1.5, maxHeight: { md: 'calc(100vh - 140px)' }, overflowY: { md: 'auto' } }}>
-                {teamValues.count === 0 ? (
+                {pickedNames.length === 0 ? (
                   <Box sx={{ py: 3, textAlign: 'center', color: '#98a2b1' }}>
                     <Typography sx={{ fontSize: '0.83rem', lineHeight: 1.5 }}>
                       Add a player in any round to see your team’s strengths and weaknesses take shape.
@@ -297,7 +302,7 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
                         sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', py: 0.25 }}
                       >
                         <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, color: '#0f2340', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                          Roster · {teamValues.count}
+                          Roster · {pickedNames.length}
                         </Typography>
                         <IconButton size="small" sx={{ p: 0.25, color: '#7a8290' }} aria-label={rosterOpen ? 'Hide players' : 'Show players'}>
                           {rosterOpen ? <KeyboardArrowUpIcon sx={{ fontSize: 18 }} /> : <KeyboardArrowDownIcon sx={{ fontSize: 18 }} />}
@@ -318,7 +323,15 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
                       </Collapse>
                     </Box>
 
-                    <RadarView series={radarSeries} height={230} showLegend />
+                    {missingNames.length > 0 && (
+                      <Typography role="status" sx={{ fontSize: '0.78rem', color: '#785211', mb: 1 }}>
+                        Historical stats cover {teamValues.count} of {pickedNames.length} selected players.
+                        No matching season data for {missingNames.join(', ')}. They remain on your roster
+                        but are excluded from the radar, totals and analysis, not counted as zero.
+                        These are historical results, not projections.
+                      </Typography>
+                    )}
+                    {teamValues.count > 0 && <RadarView series={radarSeries} height={230} showLegend />}
 
                     {cumStats && (
                       <Box sx={{ mt: 0.5, mb: 1.25 }}>

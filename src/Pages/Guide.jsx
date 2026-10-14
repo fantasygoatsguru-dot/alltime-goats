@@ -343,6 +343,11 @@ export default function Guide({ onRequireSignIn }) {
                   round as you want — and the Your Team panel tracks your radar (against an average opponent),
                   cumulated per-game totals and category analysis using {PRIOR_SEASON} results.
                 </Typography>
+                {guide.marketNote && (
+                  <Typography sx={{ color: '#5a6472', fontSize: '0.88rem', lineHeight: 1.6, mb: 2.5 }}>
+                    {guide.marketNote}
+                  </Typography>
+                )}
                 <DraftBuilder rounds={guide.roundTargets} puntKey={guide.puntKey} />
               </>
             )}
@@ -380,6 +385,13 @@ export default function Guide({ onRequireSignIn }) {
               <>
                 <GuideAd guide={guide} />
                 <SectionHeading id="examples">Example teams</SectionHeading>
+                {guide.puntKey && (
+                  <Typography sx={{ color: '#5a6472', fontSize: '0.88rem', lineHeight: 1.6, mb: 2.5 }}>
+                    These rosters illustrate category trade-offs using historical results, not a current
+                    pick-by-pick draft. Use the updated round targets for buying ranges; do not assume
+                    every player in an example will be available together.
+                  </Typography>
+                )}
 
                 {guide.isPremium && !unlocked ? (
                   // Premium guides keep the roster blueprints gated until a Draft Pass is purchased.
