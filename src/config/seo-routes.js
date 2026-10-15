@@ -141,7 +141,7 @@ export const seoRoutes = [
   {
     path: '/guides',
     title: 'Fantasy Basketball Strategy Guides 2026-27 | Rankings & Punt Strategy',
-    description: 'Fantasy basketball strategy guides for 2026-27, with a projected top 150 refreshed against corrected 2025-26 stats, sleepers and busts, and punt builds with live re-ranked boards.',
+    description: 'Fantasy basketball strategy guides for 2026-27, with a projected top 150 based on 2025-26 stats, sleepers and busts, and punt builds with live re-ranked boards.',
     changefreq: 'weekly',
     priority: 0.8,
   },
@@ -155,7 +155,7 @@ export const seoRoutes = [
   {
     path: '/guides/sleepers',
     title: 'Fantasy Basketball Sleepers 2026-27 | 9-Cat Value Picks',
-    description: 'A rebuilt 2026-27 sleeper shortlist with new additions, explained removals, October 13 Yahoo pre-ranks, preseason evidence and realistic draft targets.',
+    description: '2026-27 fantasy basketball sleepers with category-specific value, Yahoo draft prices, preseason role analysis and realistic buying ranges.',
     changefreq: 'weekly',
     priority: 0.8,
   },

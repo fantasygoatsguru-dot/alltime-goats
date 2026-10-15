@@ -56,17 +56,17 @@ export const PUNT_FT = syncPuntGuide({
       "id": "draft",
       "heading": "Where the value sits in the draft",
       "body": [
-        "Giannis still changes what the following picks need to accomplish: passing and threes are usually more urgent than a third interior finisher. Murray is a second-round guard option, while Flagg supplies broader forward production but leaves more shooting to buy later. Their current ranks inform the cost; neither is automatically the best punt-FT% fit just because he appears earlier overall.",
-        "The revised ranges bring White, Murphy and Daniels into the third-round discussion, with Clingan, Okongwu and Bane considered in round four. Yahoo's older averages may let someone fall, but planning on every one of those discounts is not a realistic draft. Daniels is especially useful for passing and steals when FT% is removed; if the roster already has Amen and several non-shooters, Murphy may still solve the more important problem.",
-        "Kessler's improved practice status supports round four rather than the old fifth-round-only caution. Queta's established interior categories also deserve more credit later. Hartenstein can add center assists, but his reviewed ankle issue needs checking; Claxton's hamstring and Nurkić's toe injury require even more caution about immediate games. Nurkić is only a final-pick injury-slot option here, not a cheap healthy solution to missing rebounds."
+        "Giannis gives you a foundation in scoring, rebounds and FG%, leaving passing and threes as priorities for the following picks. Murray is a second-round guard option, while Flagg supplies broader forward production but leaves more shooting to buy later. Choose between them according to the categories your first pick leaves short.",
+        "White, Murphy and Daniels belong in the third-round discussion, with Clingan, Okongwu and Bane considered in round four. Daniels is especially useful for passing and steals when FT% is removed; if the roster already has Amen and several non-shooters, Murphy may solve the more important problem. A player falling is a bonus, not a draft plan.",
+        "Kessler is a fourth-round option if his practice progress translates into game availability. Queta supplies rebounds and efficient finishing later. Hartenstein adds center assists, but check his ankle status; Claxton's hamstring and Nurkić's toe injury also complicate immediate availability. Nurkić is a final-pick injury-slot option, not a healthy solution to missing rebounds."
       ]
     },
     {
       "id": "ranking-update",
-      "heading": "How this refresh uses the new board",
+      "heading": "How to use the board and draft targets",
       "body": [
-        "Updated October 14 to match the revised Top 150, including Flagg and Durant ahead of Kawhi. Rank and Yahoo price fields now come from the same source as that board. The injury context is the board's dated review, not a new live-news feed. The September ADP and October public pre-rank remain separate snapshots.",
-        "The live table still removes this guide's punted category from corrected 2025-26 NBA production. It has not been replaced with the overall draft order. Incoming rookies have no historical NBA row; their written recommendations are projections and their absence from a historical radar is not a zero forecast. The example rosters below retain their original historical lines for category comparison, not as current eight-pick draft scripts."
+        "The Top 150 estimates overall draft value; this guide focuses on the categories you intend to win. A player's best fit and sensible buying range can differ from his overall rank.",
+        "The table and example-team totals use 2025-26 NBA results with the punted category excluded from value. Written recommendations account for role and availability. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
       ]
     }
   ],
@@ -98,7 +98,7 @@ export const PUNT_FT = syncPuntGuide({
         "Payton Pritchard",
         "Jaden McDaniels"
       ],
-      "note": "Murray and Murphy give this team the shooting a Giannis-Mobley start needs, while Daniels adds passing and steals without another large turnover total. Okongwu keeps some threes in the center slot, and Pritchard fills out the backcourt. The eight historical lines combine for 151.5 points, 51.5 rebounds, 36.9 assists and 14.2 threes at 51.4% FG, with 5.8 blocks and 15.8 turnovers. Blocks are still worth strengthening later; the team should not assume that a big-heavy opening has already won them. Giannis' 36-game season remains the major availability risk. The current queue can take Daniels, White and Murphy several rounds before these older combinations suggest. Preserve the perimeter-category jobs, not these exact eight names."
+      "note": "Murray and Murphy give this team the shooting a Giannis-Mobley start needs, while Daniels adds passing and steals without another large turnover total. Okongwu keeps some threes in the center slot, and Pritchard fills out the backcourt. The eight historical lines combine for 151.5 points, 51.5 rebounds, 36.9 assists and 14.2 threes at 51.4% FG, with 5.8 blocks and 15.8 turnovers. Blocks are still worth strengthening later; the team should not assume that a big-heavy opening has already won them. Giannis' 36-game season remains the major availability risk. Daniels, White and Murphy can be expensive in a competitive room. Preserve the perimeter-category balance rather than chasing these exact eight names."
     },
     {
       "name": "Luka with blocks and efficient finishers",
@@ -113,7 +113,7 @@ export const PUNT_FT = syncPuntGuide({
         "Rudy Gobert",
         "Jaden McDaniels"
       ],
-      "note": "Luka supplies the early shooting, Sengun adds frontcourt passing, and Holmgren and Gobert do most of the rim protection. White, Bane and Anunoby keep the supporting cast from becoming all non-shooters. With equal games, these eight historical lines total 149.9 points, 55.0 rebounds, 32.1 assists, 14.3 threes and 8.6 blocks at 49.8% FG. The 17.5 turnovers are the clear cost, so the later picks should favor shooting and ball security over another lead creator. The current queue can take Daniels, White and Murphy several rounds before these older combinations suggest. Preserve the perimeter-category jobs, not these exact eight names."
+      "note": "Luka supplies the early shooting, Sengun adds frontcourt passing, and Holmgren and Gobert do most of the rim protection. White, Bane and Anunoby keep the supporting cast from becoming all non-shooters. With equal games, these eight historical lines total 149.9 points, 55.0 rebounds, 32.1 assists, 14.3 threes and 8.6 blocks at 49.8% FG. The 17.5 turnovers are the clear cost, so the later picks should favor shooting and ball security over another lead creator. Daniels, White and Murphy can be expensive in a competitive room. Preserve the perimeter-category balance rather than chasing these exact eight names."
     }
   ],
   "roundTargets": [
@@ -295,11 +295,11 @@ export const PUNT_FT = syncPuntGuide({
         },
         {
           "name": "Neemias Queta",
-          "note": "Queta offers useful rebounds and rim protection without asking for touches. His 8.4 boards, 1.3 blocks and 65.3% shooting are particularly easy to use when the 70.3% free throws no longer matter. The updated valuation gives that established production more credit than the old late-fallback framing. Round ten is a reasonable place to consider him, provided the roster already has enough scoring, threes and assists. He still competes for center minutes, so buy the existing category contribution rather than an assumed offensive expansion."
+          "note": "Queta offers useful rebounds and rim protection without asking for touches. His 8.4 boards, 1.3 blocks and 65.3% shooting are particularly easy to use when the 70.3% free throws no longer matter. That established production makes him useful when your later picks need to contribute immediately. Round ten is a reasonable place to consider him, provided the roster already has enough scoring, threes and assists. He still competes for center minutes, so buy the existing category contribution rather than an assumed offensive expansion."
         },
         {
           "name": "Collin Murray-Boyles",
-          "note": "Murray-Boyles offers a late frontcourt development bet without needing to become a featured scorer. His rookie five rebounds and 1.9 assists provide a modest baseline, while the reviewed preseason work showed a route to boards and defensive contributions off the bench. This build can tolerate a weak foul-line result more readily, but it cannot ignore missing threes and uncertain minutes. Take him after the perimeter offense is established, not as a substitute for the guard categories an early big-heavy draft failed to buy."
+          "note": "Murray-Boyles offers a late frontcourt development bet without needing to become a featured scorer. His rookie five rebounds and 1.9 assists provide a modest baseline, while the preseason work showed a route to boards and defensive contributions off the bench. This build can tolerate a weak foul-line result more readily, but it cannot ignore missing threes and uncertain minutes. Take him after the perimeter offense is established, not as a substitute for the guard categories an early big-heavy draft failed to buy."
         },
         {
           "name": "P.J. Washington",
@@ -307,7 +307,7 @@ export const PUNT_FT = syncPuntGuide({
         },
         {
           "name": "Nic Claxton",
-          "note": "Claxton's 57.1% shooting, 3.7 assists and 1.1 blocks fit a punt-FT% team better than his 61.6% free throws allow on a balanced roster. Chicago's role is still interesting, but the reviewed hamstring report makes an immediate full workload uncertain. I would move the buying range toward rounds nine or ten rather than pay for a healthy breakout in round eight. A re-evaluation is not a return date. If you need usable games immediately, consider Sharpe's role instead and use the next perimeter pick to protect threes."
+          "note": "Claxton's 57.1% shooting, 3.7 assists and 1.1 blocks fit a punt-FT% team better than his 61.6% free throws allow on a balanced roster. Chicago's role is still interesting, but the hamstring report makes an immediate full workload uncertain. I would move the buying range toward rounds nine or ten rather than pay for a healthy breakout in round eight. A re-evaluation is not a return date. If you need usable games immediately, consider Sharpe's role instead and use the next perimeter pick to protect threes."
         }
       ]
     },
@@ -324,11 +324,11 @@ export const PUNT_FT = syncPuntGuide({
         },
         {
           "name": "Isaiah Hartenstein",
-          "note": "Hartenstein becomes more useful once his 61.0% free throws stop counting. The combination of 9.4 rebounds, 3.5 assists and 62.2% shooting can repair passing without giving back the efficiency advantage of an early Giannis or Duren pick. The revised board no longer treats him as an almost-undraftable center, although its reviewed ankle concern still requires an availability check. Around rounds ten or eleven, I would prefer this category mix to a speculative backup if he is ready to contribute. He is not a blocks specialist, and taking him after several non-shooters leaves the perimeter work unfinished."
+          "note": "Hartenstein becomes more useful once his 61.0% free throws stop counting. The combination of 9.4 rebounds, 3.5 assists and 62.2% shooting can repair passing without giving back the efficiency advantage of an early Giannis or Duren pick. His center passing and rebounding are useful late, provided his ankle allows him to play. Around rounds ten or eleven, I would prefer this category mix to a speculative backup if he is ready to contribute. He is not a blocks specialist, and taking him after several non-shooters leaves the perimeter work unfinished."
         },
         {
           "name": "Tre Jones",
-          "note": "Jones is useful when the team needs assists without more turnovers or a FG% problem. His 5.4 assists came with 1.4 turnovers and 55.3% shooting on 9.5 attempts, a noticeably different package from Suggs. You give up the value of his good free throws, but the remaining line still has a purpose here. His 0.6 threes are the limitation: he fits beside established shooters and becomes harder to use after Amen or Daniels. Giddey remains an important creator in Chicago, so Jones should be valued for the supporting role he has shown rather than a projected takeover of the offense. At a price around 116, he is worth considering slightly before this round if passing is the last major gap. His reviewed hip absence also needs an availability check before you use him as an immediate passing fix."
+          "note": "Jones is useful when the team needs assists without more turnovers or a FG% problem. His 5.4 assists came with 1.4 turnovers and 55.3% shooting on 9.5 attempts, a noticeably different package from Suggs. You give up the value of his good free throws, but the remaining line still has a purpose here. His 0.6 threes are the limitation: he fits beside established shooters and becomes harder to use after Amen or Daniels. Giddey remains an important creator in Chicago, so Jones should be valued for the supporting role he has shown rather than a projected takeover of the offense. At a price around 116, he is worth considering slightly before this round if passing is the last major gap. His hip absence also needs an availability check before you use him as an immediate passing fix."
         }
       ]
     },
@@ -341,7 +341,7 @@ export const PUNT_FT = syncPuntGuide({
         },
         {
           "name": "Jusuf Nurkić",
-          "note": "Nurkić's 10.4 rebounds and 4.8 assists would be valuable in a punt-FT% lineup, but the reviewed toe injury makes him a conditional stash rather than an active center solution. The October re-evaluation window is not a promised return date. I would only consider a final pick with genuinely spare injury space, leaving the earlier rounds for available contributors. Removing his 54.9% free throws helps the eventual fit; it does not recover the games lost while waiting."
+          "note": "Nurkić's 10.4 rebounds and 4.8 assists would be valuable in a punt-FT% lineup, but the toe injury makes him a conditional stash rather than an active center solution. The October re-evaluation window is not a promised return date. I would only consider a final pick with genuinely spare injury space, leaving the earlier rounds for available contributors. Removing his 54.9% free throws helps the eventual fit; it does not recover the games lost while waiting."
         }
       ]
     }
@@ -419,17 +419,17 @@ export const PUNT_ASSISTS = syncPuntGuide({
       "id": "draft",
       "heading": "Draft the complement, not another copy",
       "body": [
-        "The new early order gives Flagg and Durant priority over Kawhi on the overall board. This punt keeps Durant's efficient scoring and Flagg's boards and defense, while sacrificing their passing. Tatum's completed preseason workload also makes the first-round case stronger than the old recovery-stash framing. The next pick should still protect shooting percentages rather than simply add another large point total.",
-        "Murphy and Markkanen move into the third-round buying range, Bane into the fourth, and Brown back to a fifth-round consideration. Brown's turnovers and foul-line costs survive this punt, so the general downgrade is especially relevant. Miller is another fourth-round option if threes are missing and the frontcourt can absorb weaker FG%. Do not assume the September average is still the price in a room organized by the newer pre-ranks.",
-        "McDaniels' efficient defensive production merits an earlier look than round eight, while Queta now fits around round ten when rebounds and blocks are unfinished. Wilson and Lendeborg offer later development bets, not historical stat certainties. Moody and Huff no longer occupy active target slots; compare available roles rather than carrying last season's line into a job or recovery that has changed."
+        "Durant's efficient scoring and Flagg's boards and defense make them useful second-round options even when their passing is discarded. Tatum's preseason workload supports his first-round case, with recovery risk still part of the price. Whatever the opening pick, protect both shooting percentages rather than simply adding another large point total.",
+        "Murphy and Markkanen are third-round targets, Bane fits in the fourth, and Brown is a fifth-round consideration. Brown's turnovers and foul-line costs survive this punt. Miller is another fourth-round option if threes are missing and the frontcourt can absorb weaker FG%. Use the draft-room price to choose between comparable fits.",
+        "McDaniels supplies efficient defensive production around round six, while Queta fits around round ten when rebounds and blocks are unfinished. Wilson and Lendeborg offer development bets rather than established NBA production. For the final picks, favor a clear path to minutes over a past stat line that depends on a different role."
       ]
     },
     {
       "id": "ranking-update",
-      "heading": "How this refresh uses the new board",
+      "heading": "How to use the board and draft targets",
       "body": [
-        "Updated October 14 to match the revised Top 150, including Flagg and Durant ahead of Kawhi. Rank and Yahoo price fields now come from the same source as that board. The injury context is the board's dated review, not a new live-news feed. The September ADP and October public pre-rank remain separate snapshots.",
-        "The live table still removes this guide's punted category from corrected 2025-26 NBA production. It has not been replaced with the overall draft order. Incoming rookies have no historical NBA row; their written recommendations are projections and their absence from a historical radar is not a zero forecast. The example rosters below retain their original historical lines for category comparison, not as current eight-pick draft scripts."
+        "The Top 150 estimates overall draft value; this guide focuses on the categories you intend to win. A player's best fit and sensible buying range can differ from his overall rank.",
+        "The table and example-team totals use 2025-26 NBA results with the punted category excluded from value. Written recommendations account for role and availability. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
       ]
     }
   ],
@@ -510,7 +510,7 @@ export const PUNT_ASSISTS = syncPuntGuide({
         },
         {
           "name": "Kawhi Leonard",
-          "note": "Kawhi's 27.5 points, 1.8 steals and strong percentages still make him attractive, but the revised board puts Flagg and Durant ahead of him. Toronto's new offense and his age leave more uncertainty than the per-game line alone suggests. I would consider him in round two rather than rely on September's third-round ADP. Removing assists keeps the efficient scoring and defense intact. After a risky opening, Durant's shooting or Flagg's broader development case may be a better use of the turn; whichever forward you choose, protect rebounds and FT% with the next picks."
+          "note": "Kawhi's 27.5 points, 1.8 steals and strong percentages make him attractive alongside the other second-round forwards. Toronto's new offense and his age leave more uncertainty than the per-game line alone suggests. I would consider him in round two rather than rely on September's third-round ADP. Removing assists keeps the efficient scoring and defense intact. After a risky opening, Durant's shooting or Flagg's broader development case may be a better use of the turn; whichever forward you choose, protect rebounds and FT% with the next picks."
         },
         {
           "name": "Karl-Anthony Towns",
@@ -768,17 +768,17 @@ export const PUNT_FG = syncPuntGuide({
       "id": "draft",
       "heading": "Where to spend, and where to stop chasing guards",
       "body": [
-        "LaMelo and Trae deserve explicit consideration again. Their revised overall valuations reduce the old discounts, and removing FG% strengthens the specific case for buying their threes and assists in round three. Turnovers still matter, so a Luka opening may need a defensive big more than another lead creator. This is a punt-specific reason to differ from the general board, not a mechanical copy of it.",
-        "Durant remains a second-round option ahead of Kawhi generally, but you give away some of his strongest percentage value here. Keep weighing FT% volume, rebounds and defense. White, Murphy and Markkanen need earlier attention than their old fourth-round labels implied; Bane can merit round four as a counterweight to weaker foul shooters. Miller's return makes his shooting-volume case more usable without proving a new full-season scoring average.",
-        "Late picks must still cover frontcourt defense and the foul line. Peterson is a rookie scoring bet, not a substitute for established assists or blocks. Cameron Johnson can supply complementary shooting once those needs are covered. DiVincenzo, Huff and Porziņģis are no longer active draft targets here; Porziņģis belongs on the main injury watchlist rather than in a plan requiring immediate stretch-center production."
+        "LaMelo and Trae supply the threes and assists this build needs without requiring you to repair their field-goal impact. Both merit third-round consideration, with an earlier case for LaMelo if the roster needs both categories. Turnovers still matter: after Luka, a defensive big may help more than another lead creator.",
+        "Durant is a second-round option, but removing FG% sacrifices one of his strengths. Weigh his remaining FT% volume, rebounds and defense against the alternatives. White, Murphy and Markkanen are third-round targets; Bane can merit round four as a counterweight to weaker foul shooters. Miller offers shooting volume, though his return to action does not establish a full-season workload.",
+        "Late picks must still cover frontcourt defense and the foul line. Peterson is a rookie scoring bet, not a substitute for established assists or blocks. Cameron Johnson can supply complementary shooting once those needs are covered. Avoid relying on an injured stretch center without a return timetable when the roster needs immediate production."
       ]
     },
     {
       "id": "ranking-update",
-      "heading": "How this refresh uses the new board",
+      "heading": "How to use the board and draft targets",
       "body": [
-        "Updated October 14 to match the revised Top 150, including Flagg and Durant ahead of Kawhi. Rank and Yahoo price fields now come from the same source as that board. The injury context is the board's dated review, not a new live-news feed. The September ADP and October public pre-rank remain separate snapshots.",
-        "The live table still removes this guide's punted category from corrected 2025-26 NBA production. It has not been replaced with the overall draft order. Incoming rookies have no historical NBA row; their written recommendations are projections and their absence from a historical radar is not a zero forecast. The example rosters below retain their original historical lines for category comparison, not as current eight-pick draft scripts."
+        "The Top 150 estimates overall draft value; this guide focuses on the categories you intend to win. A player's best fit and sensible buying range can differ from his overall rank.",
+        "The table and example-team totals use 2025-26 NBA results with the punted category excluded from value. Written recommendations account for role and availability. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
       ]
     }
   ],
@@ -896,11 +896,11 @@ export const PUNT_FG = syncPuntGuide({
         },
         {
           "name": "LaMelo Ball",
-          "note": "Ball becomes much easier to build around once his 40.7% shooting no longer drags down the roster. His 3.8 threes and 7.1 assists are the important foundation, not a need to recreate Charlotte's exact usage in Minnesota. The revised board gives those scarce guard categories more credit. I would consider him early in round three for this punt, with a late-second-round case if the roster needs both assists and threes, while still leaving room for availability risk. Pair him with reliable FT% volume and frontcourt defense rather than another guard whose only advantage is a large scoring average."
+          "note": "Ball becomes much easier to build around once his 40.7% shooting no longer drags down the roster. His 3.8 threes and 7.1 assists are the important foundation, not a need to recreate Charlotte's exact usage in Minnesota. I would consider him early in round three for this punt, with a late-second-round case if the roster needs both assists and threes, while still leaving room for availability risk. Pair him with reliable FT% volume and frontcourt defense rather than another guard whose only advantage is a large scoring average."
         },
         {
           "name": "Trae Young",
-          "note": "Young's passing deserves an earlier look here than his general nine-category placement. Even the short injury-hit season supplied eight assists per game, and the reviewed return to games reduced the immediate health discount. Removing FG% helps, but turnovers, modest rebounds and limited blocks remain. Round three is a build-specific price rather than a claim that every roster should draft him there. If Luka is already your anchor, consider whether a defensive big improves the team more than another expensive source of assists."
+          "note": "Young's passing deserves an earlier look here than his general nine-category placement. Even the short injury-hit season supplied eight assists per game, and his return to games offers evidence of participation without guaranteeing a full workload. Removing FG% helps, but turnovers, modest rebounds and limited blocks remain. Round three is a build-specific price rather than a claim that every roster should draft him there. If Luka is already your anchor, consider whether a defensive big improves the team more than another expensive source of assists."
         }
       ]
     },
@@ -1121,17 +1121,17 @@ export const PUNT_THREES = syncPuntGuide({
       "id": "draft",
       "heading": "Use the draft room to choose the next contribution",
       "body": [
-        "Barnes and Amen retain particularly strong fits because they contribute across the remaining categories without much three-point volume to discard. Flagg joins the early-forward discussion ahead of Kawhi on the general board, but Barnes' passing and defense can still make Barnes the better punt-specific choice. The revised general order sets a price reference, not a command to choose the same player for every roster.",
-        "Kessler can be considered around round four after his practice progress, provided you have enough reliable FT% volume. Daniels belongs much earlier than an assumed sixth-round bargain in a queue-driven room. Bane and Markkanen still supply valuable scoring and foul-line support despite the threes you discard. Their earlier buying ranges mean you need alternatives rather than expecting every efficient scorer to fall.",
-        "Boozer and Murray-Boyles add different frontcourt development options: broader offensive creation in the middle rounds versus a later interior and defensive bet. Queta's existing rebounds and blocks merit more than the old final-round pricing. Vučević moves the other way because uncertain minutes and the lost shooting advantage weaken the case. Butler, Coulibaly and Huff leave the active shortlist; a familiar historical line should not override current opportunity or availability."
+        "Barnes and Amen fit particularly well because they contribute across the remaining categories without much three-point volume to discard. Flagg is another early forward option, but Barnes' passing and defense can make him the better choice for this build. Use the overall board as a price reference, then choose the contribution your roster needs.",
+        "Kessler is a fourth-round option if his practice progress holds and you have enough reliable FT% volume. Daniels offers steals and passing in round three. Bane and Markkanen supply valuable scoring and foul-line support despite the threes you discard. Do not pass on a needed category simply because some of that player's value falls outside the build.",
+        "Boozer and Murray-Boyles offer different frontcourt development bets: broader offensive creation in the middle rounds versus interior and defensive help later. Queta supplies established rebounds and blocks around round ten. Vučević is a final-round option because uncertain minutes and the lost shooting advantage limit his appeal. Favor available production over a familiar name without a secure role."
       ]
     },
     {
       "id": "ranking-update",
-      "heading": "How this refresh uses the new board",
+      "heading": "How to use the board and draft targets",
       "body": [
-        "Updated October 14 to match the revised Top 150, including Flagg and Durant ahead of Kawhi. Rank and Yahoo price fields now come from the same source as that board. The injury context is the board's dated review, not a new live-news feed. The September ADP and October public pre-rank remain separate snapshots.",
-        "The live table still removes this guide's punted category from corrected 2025-26 NBA production. It has not been replaced with the overall draft order. Incoming rookies have no historical NBA row; their written recommendations are projections and their absence from a historical radar is not a zero forecast. The example rosters below retain their original historical lines for category comparison, not as current eight-pick draft scripts."
+        "The Top 150 estimates overall draft value; this guide focuses on the categories you intend to win. A player's best fit and sensible buying range can differ from his overall rank.",
+        "The table and example-team totals use 2025-26 NBA results with the punted category excluded from value. Written recommendations account for role and availability. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
       ]
     }
   ],
@@ -1208,11 +1208,11 @@ export const PUNT_THREES = syncPuntGuide({
         },
         {
           "name": "Cooper Flagg",
-          "note": "Flagg's 6.7 rebounds, 4.5 assists, 1.2 steals and 0.9 blocks give this build several useful categories without requiring a three-point breakout. That is a good reason to consider him ahead of Kawhi, as the revised overall board does, rather than valuing every young forward mainly through scoring. Kyrie's return could improve the quality of his opportunities while limiting a usage jump. Pair him with strong FT% volume and efficient interior production; the punt does not promise that all remaining categories take a second-year leap."
+          "note": "Flagg's 6.7 rebounds, 4.5 assists, 1.2 steals and 0.9 blocks give this build several useful categories without requiring a three-point breakout. That combination makes him an alternative to Kawhi when you need broader forward production rather than primarily scoring. Kyrie's return could improve the quality of his opportunities while limiting a usage jump. Pair him with strong FT% volume and efficient interior production; the punt does not promise that all remaining categories take a second-year leap."
         },
         {
           "name": "Kawhi Leonard",
-          "note": "Kawhi's 27.5 points, 1.8 steals and strong percentages still make him attractive, but the revised board puts Flagg and Durant ahead of him. Toronto's new offense and his age leave more uncertainty than the per-game line alone suggests. I would consider him in round two rather than rely on September's third-round ADP. His remaining scoring, steals and percentage impact fit this punt well. The lost threes are not the main cost; availability is. Follow him with dependable frontcourt production rather than building a lineup that needs several recovery bets to work."
+          "note": "Kawhi's 27.5 points, 1.8 steals and strong percentages make him attractive alongside the other second-round forwards. Toronto's new offense and his age leave more uncertainty than the per-game line alone suggests. I would consider him in round two rather than rely on September's third-round ADP. His remaining scoring, steals and percentage impact fit this punt well. The lost threes are not the main cost; availability is. Follow him with dependable frontcourt production rather than building a lineup that needs several recovery bets to work."
         },
         {
           "name": "Scottie Barnes",
@@ -1284,7 +1284,7 @@ export const PUNT_THREES = syncPuntGuide({
         },
         {
           "name": "Matas Buzelis",
-          "note": "Buzelis has a narrower job here than he does in the other punt guides. His unusual pairing of 2.2 threes and 1.5 blocks loses half its appeal once threes no longer count, leaving the blocks as the main reason to take him. The 5.8 rebounds help, but 16.3 points, 46.3% FG and 78.6% FT do not repair every frontcourt weakness. Chicago may offer room for growth; that remains upside rather than a reason to disregard the current line. Our No. {{rank}} ranking and ADP near 62 make the sixth-round range reasonable when rim protection is missing. Moving him to the end of the fifth is a specific roster decision, not a required reach for this punt. The Top 150 review also flags his October ankle exit. Verify game readiness before paying for the role; removing a category does not remove missed-game risk."
+          "note": "Buzelis has a narrower job here than he does in the other punt guides. His unusual pairing of 2.2 threes and 1.5 blocks loses half its appeal once threes no longer count, leaving the blocks as the main reason to take him. The 5.8 rebounds help, but 16.3 points, 46.3% FG and 78.6% FT do not repair every frontcourt weakness. Chicago may offer room for growth; that remains upside rather than a reason to disregard the current line. Our No. {{rank}} ranking and ADP near 62 make the sixth-round range reasonable when rim protection is missing. Consider him near the end of round five if his categories fit; there is no need to reach just because he suits the punt. The Top 150 review also flags his October ankle exit. Verify game readiness before paying for the role; removing a category does not remove missed-game risk."
         },
         {
           "name": "Cameron Boozer",
@@ -1348,7 +1348,7 @@ export const PUNT_THREES = syncPuntGuide({
         },
         {
           "name": "Neemias Queta",
-          "note": "Queta gives away essentially nothing when threes are removed. His 65.3% FG, 8.4 rebounds and 1.3 blocks supply exactly the traditional center production a perimeter-heavy opening can lack. The previous ranking understated that existing contribution; he is now worth considering around round ten rather than only after a large fall. The caution is the rest of the roster: 70.3% free throws and limited scoring become more painful if Amen or Daniels already consumes some of your offensive flexibility. Choose him after securing scoring and foul-line volume, not simply because another non-shooting big looks good on a punt board."
+          "note": "Queta gives away essentially nothing when threes are removed. His 65.3% FG, 8.4 rebounds and 1.3 blocks supply exactly the traditional center production a perimeter-heavy opening can lack. He is worth considering around round ten when those center categories are still needed. The caution is the rest of the roster: 70.3% free throws and limited scoring become more painful if Amen or Daniels already consumes some of your offensive flexibility. Choose him after securing scoring and foul-line volume, not simply because another non-shooting big looks good on a punt board."
         },
         {
           "name": "Collin Murray-Boyles",
@@ -1369,7 +1369,7 @@ export const PUNT_THREES = syncPuntGuide({
         },
         {
           "name": "Tre Jones",
-          "note": "Jones is one of the more useful late guards for this particular punt because the missing threes are a real limitation elsewhere. His 5.4 assists came with only 1.4 turnovers, 55.3% shooting on 9.5 attempts and 84.1% free throws on 3.5 attempts. Those are active contributions in the categories you still care about, not merely the absence of shooting. Chicago offers a path to useful guard minutes, although that is not a guarantee of a larger role. The 14.1 points remain modest and 0.2 blocks add little defense. Our No. {{rank}} ranking is below ADP 116, so I would wait for an eleventh-round fit rather than reach. He makes particular sense when the early bigs supplied finishing but not enough passing. His reviewed hip absence also needs an availability check before you use him as an immediate passing fix."
+          "note": "Jones is one of the more useful late guards for this particular punt because the missing threes are a real limitation elsewhere. His 5.4 assists came with only 1.4 turnovers, 55.3% shooting on 9.5 attempts and 84.1% free throws on 3.5 attempts. Those are active contributions in the categories you still care about, not merely the absence of shooting. Chicago offers a path to useful guard minutes, although that is not a guarantee of a larger role. The 14.1 points remain modest and 0.2 blocks add little defense. Our No. {{rank}} ranking is below ADP 116, so I would wait for an eleventh-round fit rather than reach. He makes particular sense when the early bigs supplied finishing but not enough passing. His hip absence also needs an availability check before you use him as an immediate passing fix."
         }
       ]
     },
@@ -1378,7 +1378,7 @@ export const PUNT_THREES = syncPuntGuide({
       "candidates": [
         {
           "name": "Nikola Vučević",
-          "note": "Vučević can help with boards and center passing, but removing his 1.6 threes takes away part of the reason to choose him over a traditional big. His 8.4 rebounds and 3.3 assists remain useful only to the extent Orlando gives him enough minutes. The revised board now places him later than the September ADP, rather than calling that old price a discount. I would consider him around round twelve if the role is clear and the roster needs passing without another high-turnover guard. Do not rely on his low-volume free throws to offset a major weakness elsewhere."
+          "note": "Vučević can help with boards and center passing, but removing his 1.6 threes takes away part of the reason to choose him over a traditional big. His 8.4 rebounds and 3.3 assists remain useful only to the extent Orlando gives him enough minutes. Wait for a price that accounts for his uncertain role rather than drafting him on name recognition. I would consider him around round twelve if the role is clear and the roster needs passing without another high-turnover guard. Do not rely on his low-volume free throws to offset a major weakness elsewhere."
         }
       ]
     }
@@ -1460,17 +1460,17 @@ export const PUNT_POINTS = syncPuntGuide({
       "id": "draft",
       "heading": "Where the value sits in the draft",
       "body": [
-        "Spend early picks on the contributions that are hardest to replace: Jokić's passing, Wembanyama's blocks, or a forward who combines rebounds, assists and defense. Flagg now enters the early-second-round discussion, but his higher overall rank does not require taking him ahead of Barnes in this particular punt. The scoring upside you discard is part of the reason to keep that distinction.",
-        "White and Daniels need earlier attention than the old fourth- and sixth-round labels suggested. Clingan is a fourth-round target rather than a third-round priority. Okongwu and Bane still provide combinations that prevent a second accidental punt, and their fourth-round buying ranges reflect that. If Amen already supplies rebounding and passing, another weak three-point profile can be less useful than shooting from Anunoby, Pritchard or Quickley. Quickley is now a middle-round option rather than a ninth-round expectation.",
-        "Queta and Hartenstein receive more credit for useful center categories, though the latter's reviewed ankle concern and poor FT% still need a plan. Murray-Boyles and Lendeborg offer later broad-production bets; Green supplies an established frontcourt passing alternative near the end. Huff no longer fills an active slot based on a past blocks-and-threes line without a secure current workload. Keep the last picks flexible instead of stacking narrow specialists simply because they score little."
+        "Spend early picks on the contributions that are hardest to replace: Jokić's passing, Wembanyama's blocks, or a forward who combines rebounds, assists and defense. Flagg is an early-second-round option, but Barnes can be the better fit for this punt. Some of Flagg's appeal comes from scoring upside you will not use.",
+        "White and Daniels are third-round targets. Clingan, Okongwu and Bane offer different ways to fill the next gaps in round four: rebounds and blocks, a broad center line, or shooting and foul-line support. If Amen already supplies rebounding and passing, another weak three-point profile can be less useful than Anunoby, Pritchard or Quickley.",
+        "Queta provides efficient finishing and rebounds later, while Hartenstein adds center passing if his ankle permits. Hartenstein's poor FT% needs support elsewhere. Murray-Boyles and Lendeborg offer development bets; Green supplies established frontcourt passing near the end. Keep the last picks flexible instead of stacking narrow specialists simply because they score little."
       ]
     },
     {
       "id": "ranking-update",
-      "heading": "How this refresh uses the new board",
+      "heading": "How to use the board and draft targets",
       "body": [
-        "Updated October 14 to match the revised Top 150, including Flagg and Durant ahead of Kawhi. Rank and Yahoo price fields now come from the same source as that board. The injury context is the board's dated review, not a new live-news feed. The September ADP and October public pre-rank remain separate snapshots.",
-        "The live table still removes this guide's punted category from corrected 2025-26 NBA production. It has not been replaced with the overall draft order. Incoming rookies have no historical NBA row; their written recommendations are projections and their absence from a historical radar is not a zero forecast. The example rosters below retain their original historical lines for category comparison, not as current eight-pick draft scripts."
+        "The Top 150 estimates overall draft value; this guide focuses on the categories you intend to win. A player's best fit and sensible buying range can differ from his overall rank.",
+        "The table and example-team totals use 2025-26 NBA results with the punted category excluded from value. Written recommendations account for role and availability. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
       ]
     }
   ],
@@ -1492,7 +1492,7 @@ export const PUNT_POINTS = syncPuntGuide({
     {
       "name": "Jokić with guard defense",
       "color": "#16a085",
-      "note": "Jokić supplies the passing that lets this team spend heavily on defense. With equal games, these eight 2025-26 lines total 52.9 rebounds, 33.6 assists and 8.5 blocks, while shooting 50.3% FG and 82.0% FT. That leaves room to compete in both percentages; the more obvious unfinished business is shooting, at 13.4 threes across eight players. Sheppard would help that in the later rounds, whereas another non-shooting center would mostly add to existing strengths. Jackson's 48-game season also makes a dependable next pick attractive. The old path asks too many discounted falls from Amen, White, Bridges and McDaniels. Quickley or Green can provide another route to passing, while Queta offers a later way to buy interior categories.",
+      "note": "Jokić supplies the passing that lets this team spend heavily on defense. With equal games, these eight 2025-26 lines total 52.9 rebounds, 33.6 assists and 8.5 blocks, while shooting 50.3% FG and 82.0% FT. That leaves room to compete in both percentages; the more obvious unfinished business is shooting, at 13.4 threes across eight players. Sheppard would help that in the later rounds, whereas another non-shooting center would mostly add to existing strengths. Jackson's 48-game season also makes a dependable next pick attractive. Do not count on drafting Amen, White, Bridges and McDaniels together at discounts. Quickley or Green can provide another route to passing, while Queta offers a later way to buy interior categories.",
       "roster": [
         "Nikola Jokić",
         "Amen Thompson",
@@ -1507,7 +1507,7 @@ export const PUNT_POINTS = syncPuntGuide({
     {
       "name": "Johnson and Barnes near the turn",
       "color": "#b8860b",
-      "note": "Johnson and Barnes handle enough passing that Duren can be chosen for his rebounding and FG%. White then adds the guard blocks this opening needs, while Bane gives the free-throw volume to support Duren. The eight historical lines combine for 50.3 rebounds, 35.3 assists and 6.3 blocks at 49.4% FG and 82.4% FT. Threes sit at 13.7 and turnovers at 16.6, so the remaining picks should favor shooting and ball security. The old path asks too many discounted falls from Amen, White, Bridges and McDaniels. Quickley or Green can provide another route to passing, while Queta offers a later way to buy interior categories.",
+      "note": "Johnson and Barnes handle enough passing that Duren can be chosen for his rebounding and FG%. White then adds the guard blocks this opening needs, while Bane gives the free-throw volume to support Duren. The eight historical lines combine for 50.3 rebounds, 35.3 assists and 6.3 blocks at 49.4% FG and 82.4% FT. Threes sit at 13.7 and turnovers at 16.6, so the remaining picks should favor shooting and ball security. Do not count on drafting Amen, White, Bridges and McDaniels together at discounts. Quickley or Green can provide another route to passing, while Queta offers a later way to buy interior categories.",
       "roster": [
         "Jalen Johnson",
         "Scottie Barnes",
@@ -1589,7 +1589,7 @@ export const PUNT_POINTS = syncPuntGuide({
         },
         {
           "name": "Onyeka Okongwu",
-          "note": "Okongwu belongs in this conversation because he contributes to almost every category you still care about. His 7.6 rebounds came with 3.1 assists, 1.9 threes and 1.1 each in steals and blocks. Clingan is the better choice if you need a large rebounding advantage; Okongwu gives you more ways to finish a roster that already has one traditional center. That flexibility matters beside Amen or Daniels, whose missing threes have to come from somewhere. The percentages are the limitation: 48.0% FG is ordinary for a big, and 75.7% FT does not help a fragile line. Our Top 150 has him {{rank}} against Yahoo ADP near 55. Round four is a reasonable buying range when the early picks already supply efficient volume; his older ADP near 55 would be a discount, not a reason to assume he will last."
+          "note": "Okongwu belongs in this conversation because he contributes to almost every category you still care about. His 7.6 rebounds came with 3.1 assists, 1.9 threes and 1.1 each in steals and blocks. Clingan is the better choice if you need a large rebounding advantage; Okongwu gives you more ways to finish a roster that already has one traditional center. That flexibility matters beside Amen or Daniels, whose missing threes have to come from somewhere. The percentages are the limitation: 48.0% FG is ordinary for a big, and 75.7% FT does not help a fragile line. Our Top 150 has him {{rank}} against Yahoo ADP near 55. Round four is a reasonable buying range when the early picks already supply efficient volume; his ADP near 55 would be a discount, not a reason to assume he will last."
         },
         {
           "name": "Desmond Bane",
@@ -1636,7 +1636,7 @@ export const PUNT_POINTS = syncPuntGuide({
       "candidates": [
         {
           "name": "Immanuel Quickley",
-          "note": "Quickley's 5.9 assists against 1.5 turnovers are especially useful when points no longer reward a messier high-usage guard. His 2.5 threes and 1.3 steals also help a defense-heavy opening avoid accidentally punting shooting. Toronto's other creators may limit a usage leap, but the existing category balance is enough to make the pick. Consider him around rounds six or seven rather than relying on the old sixth-round price."
+          "note": "Quickley's 5.9 assists against 1.5 turnovers are especially useful when points no longer reward a messier high-usage guard. His 2.5 threes and 1.3 steals also help a defense-heavy opening avoid accidentally punting shooting. Toronto's other creators may limit a usage leap, but the existing category balance is enough to make the pick. Consider him around rounds six or seven when his category mix fills a need."
         }
       ]
     },
@@ -1670,7 +1670,7 @@ export const PUNT_POINTS = syncPuntGuide({
         },
         {
           "name": "Myles Turner",
-          "note": "Turner is worth considering before you leave all of the remaining blocks work to Huff. Last season he made 2.1 threes and blocked 1.6 shots, a useful combination for a team that spent its early picks on passing forwards. The 11.9 points are no concern here, but the other weaknesses still matter: 5.3 rebounds, 44.0% FG and 74.0% FT are a disappointing percentage-and-rebounding package from a center. I would use him beside an efficient rebounder such as Jokić or Duren, with free throws already supported. Milwaukee's changed frontcourt adds uncertainty about his workload, so the case is strongest around his ninth-round ADP. He is a way to buy blocks and shooting together, with a clear cost in the categories traditional centers usually help."
+          "note": "Turner is worth considering when the roster still needs blocks and three-point shooting. Last season he made 2.1 threes and blocked 1.6 shots, a useful combination for a team that spent its early picks on passing forwards. The 11.9 points are no concern here, but the other weaknesses still matter: 5.3 rebounds, 44.0% FG and 74.0% FT are a disappointing percentage-and-rebounding package from a center. I would use him beside an efficient rebounder such as Jokić or Duren, with free throws already supported. Milwaukee's changed frontcourt adds uncertainty about his workload, so the case is strongest around his ninth-round ADP. He is a way to buy blocks and shooting together, with a clear cost in the categories traditional centers usually help."
         }
       ]
     },
@@ -1683,11 +1683,11 @@ export const PUNT_POINTS = syncPuntGuide({
         },
         {
           "name": "Yaxel Lendeborg",
-          "note": "Lendeborg is interesting here because the reviewed preseason contribution extended beyond scoring into rebounding and passing. Golden State's open minutes create an opportunity, but the role and NBA shooting impact are still projections. I would take a later-round chance on the broad contribution rather than chase the point total from a good exhibition. Keep established threes and free-throw volume around him. There is no historical NBA row for the radar, so do not mistake an incomplete team chart for a verdict on this pick."
+          "note": "Lendeborg is interesting here because the preseason contribution extended beyond scoring into rebounding and passing. Golden State's open minutes create an opportunity, but the role and NBA shooting impact are still projections. I would take a later-round chance on the broad contribution rather than chase the point total from a good exhibition. Keep established threes and free-throw volume around him. There is no historical NBA row for the radar, so do not mistake an incomplete team chart for a verdict on this pick."
         },
         {
           "name": "Neemias Queta",
-          "note": "Queta is more than an emergency final-round center now. His 8.4 rebounds, 1.3 blocks and 65.3% shooting have a clear job in a build that does not need scoring from every slot. His small assist total and almost absent threes still make him narrower than a passing or shooting big, and the 70.3% free throws require support. Round ten is a sensible place to consider the existing interior production. If your first picks already dominate rebounds and blocks, use that turn on a guard instead; the updated general rank does not override the roster's unfinished categories."
+          "note": "Queta is more than an emergency final-round center now. His 8.4 rebounds, 1.3 blocks and 65.3% shooting have a clear job in a build that does not need scoring from every slot. His small assist total and almost absent threes still make him narrower than a passing or shooting big, and the 70.3% free throws require support. Round ten is a sensible place to consider the existing interior production. If your first picks already dominate rebounds and blocks, use that turn on a guard instead; the overall rank does not override the roster's unfinished categories."
         },
         {
           "name": "Collin Murray-Boyles",
@@ -1695,7 +1695,7 @@ export const PUNT_POINTS = syncPuntGuide({
         },
         {
           "name": "Tre Jones",
-          "note": "Jones deserves more attention in this build than his general ranking suggests. He produced 5.4 assists with 1.4 turnovers, shot 55.3% FG and made 84.1% of his free throws on 3.5 attempts. Those percentages have enough volume to matter, especially after you have added a lower-efficiency guard. The main sacrifice is shooting from outside: 0.6 threes makes him difficult to pair with several other non-shooters. Chicago still has Giddey to handle a large share of the creation, so I would not project Jones as an unrestricted lead guard. His existing line is enough to make the argument. If assists and FG% are your last two needs, I would consider him around his ADP near 116 rather than insist on waiting until his overall rank of {{rank}}. His reviewed hip absence also needs an availability check before you use him as an immediate passing fix."
+          "note": "Jones deserves more attention in this build than his general ranking suggests. He produced 5.4 assists with 1.4 turnovers, shot 55.3% FG and made 84.1% of his free throws on 3.5 attempts. Those percentages have enough volume to matter, especially after you have added a lower-efficiency guard. The main sacrifice is shooting from outside: 0.6 threes makes him difficult to pair with several other non-shooters. Chicago still has Giddey to handle a large share of the creation, so I would not project Jones as an unrestricted lead guard. His existing line is enough to make the argument. If assists and FG% are your last two needs, I would consider him around his ADP near 116 rather than insist on waiting until his overall rank of {{rank}}. His hip absence also needs an availability check before you use him as an immediate passing fix."
         }
       ]
     },
@@ -1712,7 +1712,7 @@ export const PUNT_POINTS = syncPuntGuide({
         },
         {
           "name": "Isaiah Hartenstein",
-          "note": "Hartenstein's 3.5 assists from center matter more when points are removed, and 9.4 rebounds with 62.2% shooting can support a guard-heavy start. The 61.0% free throws still count, while his reviewed ankle absence means you should verify availability before relying on immediate games. I would consider him around round eleven if the foul line is already protected. He is a passing-and-efficiency alternative to Queta, not a replacement for a specialist whose main job is blocks."
+          "note": "Hartenstein's 3.5 assists from center matter more when points are removed, and 9.4 rebounds with 62.2% shooting can support a guard-heavy start. The 61.0% free throws still count, while his ankle absence means you should verify availability before relying on immediate games. I would consider him around round eleven if the foul line is already protected. He is a passing-and-efficiency alternative to Queta, not a replacement for a specialist whose main job is blocks."
         }
       ]
     },

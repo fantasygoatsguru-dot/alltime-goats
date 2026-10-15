@@ -109,7 +109,7 @@ export const PLAYERS = [
     "team": "BOS",
     "yahooAdp": 9.8,
     "yahooPreRank": 14,
-    "note": "Tatum looks more like a first-round option than a recovery stash now. He scored 23 points with four threes in 27 minutes on October 10. The important change is participation, not the shooting percentage in one exhibition. Last season's 16-game return supplied ten rebounds and 2.9 threes per game, and Brown's departure gives Boston a reason to lean on Tatum's creation again. I am moving him up, but not straight to a top-five price: a full season after the Achilles recovery still carries more workload uncertainty than an ordinary healthy offseason. His rebounding makes him easier to pair with an early guard than a scorer who contributes little outside points and threes.",
+    "note": "Tatum looks more like a first-round option than a recovery stash now. He scored 23 points with four threes in 27 minutes on October 10. The important change is participation, not the shooting percentage in one exhibition. Last season's 16-game return supplied ten rebounds and 2.9 threes per game, and Brown's departure gives Boston a reason to lean on Tatum's creation again. He is a first-round option rather than a top-five certainty: a full season after the Achilles recovery still carries more workload uncertainty than an ordinary healthy offseason. His rebounding makes him easier to pair with an early guard than a scorer who contributes little outside points and threes.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -195,7 +195,7 @@ export const PLAYERS = [
     "team": "CLE",
     "yahooAdp": 13.8,
     "yahooPreRank": 8,
-    "note": "Mitchell is a strong second-round scoring anchor, but fifth overall asked too much of a profile that still needs frontcourt help. His 27.9 points, 3.2 threes, 1.5 steals and 86.5% free throws cover several important guard categories. The limitation is breadth: rebounds and blocks have to come from later picks, and his passing does not create the same advantage as the elite lead creators. Seventy games and 2.8 turnovers made last season useful without making him a top-five foundation. At No. 17, the scoring and shooting are easier to justify without assuming another leap. He fits especially well after a big who supplies boards and rim protection; punt blocks can value him more highly than this overall placement."
+    "note": "Mitchell is a strong second-round scoring anchor whose best pairing is a frontcourt player who covers his gaps. His 27.9 points, 3.2 threes, 1.5 steals and 86.5% free throws cover several important guard categories. The limitation is breadth: rebounds and blocks have to come from later picks, and his passing does not create the same advantage as the elite lead creators. Seventy games and 2.8 turnovers made last season useful without making him a top-five foundation. At No. 17, the scoring and shooting are easier to justify without assuming another leap. He fits especially well after a big who supplies boards and rim protection; punt blocks can value him more highly than this overall placement."
   },
   {
     "rank": 18,
@@ -211,7 +211,7 @@ export const PLAYERS = [
     "team": "IND",
     "yahooAdp": 16.5,
     "yahooPreRank": 12,
-    "note": "Haliburton's appeal is the rare chance to buy elite passing without surrendering turnovers. In 2024–25, his last played season, he averaged 9.2 assists against just 1.6 turnovers, alongside 18.6 points. He returned to unrestricted practice October 12 after the ankle absence. That removes some of the immediate concern behind the previous discount, but practice is not proof of a full regular-season workload after the lost Achilles-recovery year. I am comfortable moving him further into the second round rather than treating him as a first-round certainty. Pair him with another dependable passer so that a managed schedule does not decide your assists category.",
+    "note": "Haliburton's appeal is the rare chance to buy elite passing without surrendering turnovers. In 2024–25, his last played season, he averaged 9.2 assists against just 1.6 turnovers, alongside 18.6 points. He returned to unrestricted practice October 12 after the ankle absence. That removes some of the immediate concern behind the previous discount, but practice is not proof of a full regular-season workload after the lost Achilles-recovery year. The second round is a sensible price; the uncertainty makes a first-round investment harder to justify. Pair him with another dependable passer so that a managed schedule does not decide your assists category.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -271,7 +271,7 @@ export const PLAYERS = [
     "team": "OKC",
     "yahooAdp": 27.7,
     "yahooPreRank": 19,
-    "note": "Holmgren's appeal is still the rare frontcourt combination of blocks, rebounds and free throws that do not demand a punt. His 8.9 rebounds and nearly two blocks last season give the projection substance without needing a huge scoring leap. A quadriceps contusion has kept him out of preseason action, with another absence announced October 10. That warrants a small discount, not the same treatment as a player facing surgery or an established months-long absence. I would still take his balanced category profile before chasing a center whose blocks come with a large foul-line penalty, but I want a practice or game return before moving him back toward the early second round. Do not mistake Oklahoma City's team-wide rest plans for proof that his own injury has cleared.",
+    "note": "Holmgren's appeal is still the rare frontcourt combination of blocks, rebounds and free throws that do not demand a punt. His 8.9 rebounds and nearly two blocks last season give the projection substance without needing a huge scoring leap. A quadriceps contusion has kept him out of preseason action, with another absence announced October 10. That warrants a small discount, not the same treatment as a player facing surgery or an established months-long absence. I would still take his balanced category profile before chasing a center whose blocks come with a large foul-line penalty, but I want a practice or game return before paying an early-second-round price. Do not mistake Oklahoma City's team-wide rest plans for proof that his own injury has cleared.",
     "sources": [
       {
         "label": "NBA player updates · Oct 10, 2026",
@@ -285,7 +285,7 @@ export const PLAYERS = [
     "team": "CLE",
     "yahooAdp": 35.1,
     "yahooPreRank": 49,
-    "note": "Harden remains a way to buy assists and free-throw volume after the most expensive guards are gone. Last season's 7.9 assists were valuable even with 3.5 turnovers, so the sensible pairing is a low-turnover finisher rather than another ball-dominant guard. An ankle issue cost him Cleveland's October 8 preseason opener. I am not turning one missed exhibition into an assumed regular-season absence, but it belongs on the final pre-draft checklist, especially for a veteran whose value depends on handling the ball so much. Donovan Mitchell limits the case for a scoring surge; Harden's passing and foul-line impact are the reasons to buy. Keep the third-round valuation conditional on no more serious update, rather than treating an old ADP as medical reassurance.",
+    "note": "Harden remains a way to buy assists and free-throw volume after the most expensive guards are gone. Last season's 7.9 assists were valuable even with 3.5 turnovers, so the sensible pairing is a low-turnover finisher rather than another ball-dominant guard. An ankle issue cost him Cleveland's October 8 preseason opener. I am not turning one missed exhibition into an assumed regular-season absence, but it belongs on the final pre-draft checklist, especially for a veteran whose value depends on handling the ball so much. Donovan Mitchell limits the case for a scoring surge; Harden's passing and foul-line impact are the reasons to buy. Keep the third-round valuation conditional on no more serious update, rather than treating an ADP as medical reassurance.",
     "sources": [
       {
         "label": "NBA player updates · Oct 8, 2026",
@@ -385,7 +385,7 @@ export const PLAYERS = [
     "team": "CHA",
     "yahooAdp": 46.8,
     "yahooPreRank": 46,
-    "note": "Charlotte's available offense makes Miller more interesting than the old rank suggested. He returned October 11 with 18 points, four threes and four assists in 22 minutes. That clears the specific participation concern behind the earlier shin-injury caution. His 2025–26 averages of 20.2 points and 3.1 threes already support a useful scoring foundation; more creation is upside rather than something we need to invent from one exhibition. The restraint is efficiency: 43.5% shooting and 2.5 turnovers were real costs last season. I am moving him into round four, not projecting a clean leap across every category. He becomes easier to buy earlier in punt-FG%, while a balanced team should pair him with reliable interior shooting.",
+    "note": "Charlotte's available offense gives Miller a route to valuable scoring and three-point volume. He returned October 11 with 18 points, four threes and four assists in 22 minutes. That clears the specific participation concern behind the earlier shin-injury caution. His 2025–26 averages of 20.2 points and 3.1 threes already support a useful scoring foundation; more creation is upside rather than something we need to invent from one exhibition. The restraint is efficiency: 43.5% shooting and 2.5 turnovers were real costs last season. Round four buys that offensive opportunity without requiring a leap across every category. He becomes easier to buy earlier in punt-FG%, while a balanced team should pair him with reliable interior shooting.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -407,7 +407,7 @@ export const PLAYERS = [
     "team": "OKC",
     "yahooAdp": 42.5,
     "yahooPreRank": 35,
-    "note": "The recovery discount was too large once Williams could demonstrate his usual all-around game again. He had 16 points and six assists in 19 minutes on October 7; his next announced absence was rest. That is evidence of participation, not a reason to project his exhibition shooting percentage across a season. Last year's 33 games still matter, but the 5.5 assists and 48.4% shooting show how useful his line can be even without a scoring career year. I am moving him into the fourth round, where the combination of passing, efficient scoring and defensive production is harder to replace than another specialist's extra threes. His 0.7 threes last season remain a roster-building consideration. Follow him with shooting rather than assuming every part of his pre-injury ceiling returns together.",
+    "note": "The recovery discount was too large once Williams could demonstrate his usual all-around game again. He had 16 points and six assists in 19 minutes on October 7; his next announced absence was rest. That is evidence of participation, not a reason to project his exhibition shooting percentage across a season. Last year's 33 games still matter, but the 5.5 assists and 48.4% shooting show how useful his line can be even without a scoring career year. He fits in the fourth round, where the combination of passing, efficient scoring and defensive production is harder to replace than another specialist's extra threes. His 0.7 threes last season remain a roster-building consideration. Follow him with shooting rather than assuming every part of his pre-injury ceiling returns together.",
     "sources": [
       {
         "label": "NBA player updates · Oct 10, 2026",
@@ -459,7 +459,7 @@ export const PLAYERS = [
     "team": "WAS",
     "yahooAdp": 26.8,
     "yahooPreRank": 72,
-    "note": "Young should not be priced as though his 15-game injury season is the most likely shape of the next one. Even that interrupted year produced eight assists per game. On October 12 he delivered 11 assists in 28 minutes. I am reducing the old health discount while keeping a substantial gap from an aggressive second-round valuation. FG%, turnovers and limited defensive production still matter in nine-category leagues, and Washington's other scoring options do not turn him into a clean all-category player. He makes more sense around the fourth round for a team deliberately buying assists and FT% than as a generic best-player-available selection. Removing turnovers or punting FG% strengthens the case; those are changes in format, not evidence that every drafter should pay the same price.",
+    "note": "Young should not be priced as though his 15-game injury season is the most likely shape of the next one. Even that interrupted year produced eight assists per game. On October 12 he delivered 11 assists in 28 minutes. His availability supports a fourth-round investment, but a second-round price leaves too little room for risk. FG%, turnovers and limited defensive production still matter in nine-category leagues, and Washington's other scoring options do not turn him into a clean all-category player. He makes more sense around the fourth round for a team deliberately buying assists and FT% than as a generic best-player-available selection. Removing turnovers or punting FG% strengthens the case; those are changes in format, not evidence that every drafter should pay the same price.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -487,7 +487,7 @@ export const PLAYERS = [
     "team": "LAL",
     "yahooAdp": 38,
     "yahooPreRank": 33,
-    "note": "Kessler's return to full practice on October 11 weakens the reason for leaving him near the end of round five. The Lakers fit offers an obvious route to useful rebounds, blocks and high-percentage finishes, although I still prefer Clingan's larger recent body of work. Last season's 10.8 rebounds and 1.8 blocks came in only five games; neither that sample nor a good practice establishes a durable full-season baseline. The revised price acknowledges the role without assuming a top-25 outcome. Build around interior efficiency and rim protection, then find your threes and assists elsewhere. A balanced roster should also avoid treating the small-sample free-throw result as a guaranteed improvement.",
+    "note": "Kessler's return to full practice on October 11 weakens the reason for leaving him near the end of round five. The Lakers fit offers an obvious route to useful rebounds, blocks and high-percentage finishes, although I still prefer Clingan's larger recent body of work. Last season's 10.8 rebounds and 1.8 blocks came in only five games; neither that sample nor a good practice establishes a durable full-season baseline. The price works without requiring a top-25 outcome. Build around interior efficiency and rim protection, then find your threes and assists elsewhere. A balanced roster should also avoid treating the small-sample free-throw result as a guaranteed improvement.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -539,7 +539,7 @@ export const PLAYERS = [
     "team": "WAS",
     "yahooAdp": 40.5,
     "yahooPreRank": 36,
-    "note": "Davis now deserves credit for getting back on the court, while still carrying a meaningful availability discount. His October 10 outing included 11 rebounds and two blocks in 22 minutes. That is exactly the category shape a drafter wants to see; it is not evidence that he will suddenly play a full season after only 20 games in 2025–26. Washington can use his finishing and defense alongside Trae Young, and a healthy Davis has a much broader scoring and passing profile than a late-round rebound specialist. I am moving him into the fifth-round conversation, not restoring his old first-round price. His own percentages do not require a punt-FT% build. The limiting resource is available games, so he fits better after a dependable start than beside several other recovery bets.",
+    "note": "Davis now deserves credit for getting back on the court, while still carrying a meaningful availability discount. His October 10 outing included 11 rebounds and two blocks in 22 minutes. That is exactly the category shape a drafter wants to see; it is not evidence that he will suddenly play a full season after only 20 games in 2025–26. Washington can use his finishing and defense alongside Trae Young, and a healthy Davis has a much broader scoring and passing profile than a late-round rebound specialist. The fifth round is a reasonable price for the upside and availability risk. His own percentages do not require a punt-FT% build. The limiting resource is available games, so he fits better after a dependable start than beside several other recovery bets.",
     "sources": [
       {
         "label": "NBA player updates · Oct 11, 2026",
@@ -553,7 +553,7 @@ export const PLAYERS = [
     "team": "PHI",
     "yahooAdp": 27.5,
     "yahooPreRank": 94,
-    "note": "Brown's previous season produced 28.5 points and 6.9 rebounds, but that was not a clean nine-category line: 79.5% free throws, 3.6 turnovers and limited blocks left work for the rest of the roster. Philadelphia also has more mouths to feed than the Boston offense he led while Tatum missed time. I am lowering the price rather than assuming improved efficiency will fully replace lost volume. He remains valuable for points and rebounds from a wing, particularly when turnovers are punted. Yahoo's much later public ordering can still make him a bargain; the objection is to paying for last season's scoring role before seeing how the new one settles."
+    "note": "Brown's previous season produced 28.5 points and 6.9 rebounds, but that was not a clean nine-category line: 79.5% free throws, 3.6 turnovers and limited blocks left work for the rest of the roster. Philadelphia also has more mouths to feed than the Boston offense he led while Tatum missed time. Do not assume improved efficiency will fully replace lost volume. He remains valuable for points and rebounds from a wing, particularly when turnovers are punted. Yahoo's much later public ordering can still make him a bargain; the objection is to paying for last season's scoring role before seeing how the new one settles."
   },
   {
     "rank": 53,
@@ -669,7 +669,7 @@ export const PLAYERS = [
     "team": "LAC",
     "yahooAdp": 66.1,
     "yahooPreRank": 53,
-    "note": "Garland has a better route to useful volume than the old ninth-round placement allowed. He supplied 15 points and six assists in 15 minutes in the October 4 opener. The important part is that he was playing his usual offensive role; four made field goals without a miss do not establish a new efficiency level. Ingram's absence leaves more creation to be shared by Garland and the rest of the backcourt, although rookie Keaton Wagler is another ballhandler rather than a reason to project unlimited touches. Last year's 6.7 assists, 2.7 threes and 86.1% free throws already describe a valuable guard. The 45-game season and 2.9 turnovers still call for restraint, but I would now consider him in the sixth round instead of waiting for a price unlikely to survive in an assists-hungry room.",
+    "note": "Garland offers the assists and shooting of a useful middle-round lead guard. He supplied 15 points and six assists in 15 minutes in the October 4 opener. The important part is that he was playing his usual offensive role; four made field goals without a miss do not establish a new efficiency level. Ingram's absence leaves more creation to be shared by Garland and the rest of the backcourt, although rookie Keaton Wagler is another ballhandler rather than a reason to project unlimited touches. Last year's 6.7 assists, 2.7 threes and 86.1% free throws already describe a valuable guard. The 45-game season and 2.9 turnovers still call for restraint, but I would consider him in the sixth round, particularly in a room where assists are going quickly.",
     "sources": [
       {
         "label": "NBA player updates · Oct 5, 2026",
@@ -735,7 +735,7 @@ export const PLAYERS = [
     "team": "MIN",
     "yahooAdp": 89.2,
     "yahooPreRank": 43,
-    "note": "McDaniels should not have to become a featured scorer to justify a middle-round pick. Last season he supplied a steal and a block per game while scoring 14.8 points on 51.5% shooting. That is a useful way to add defense without undoing the efficiency of an early-round foundation. Minnesota's new creators may change the distribution of shots, but I would rather pay for the complementary profile than project a major usage jump. I am moving him ahead of several more volatile guards. Anunoby still offers more threes and steals, so this is not a claim that the two are interchangeable; McDaniels is the cheaper fit when blocks from a wing matter more than another large scoring average."
+    "note": "McDaniels should not have to become a featured scorer to justify a middle-round pick. Last season he supplied a steal and a block per game while scoring 14.8 points on 51.5% shooting. That is a useful way to add defense without undoing the efficiency of an early-round foundation. Minnesota's new creators may change the distribution of shots, but I would rather pay for the complementary profile than project a major usage jump. That steadiness is useful beside a higher-risk lead guard. Anunoby still offers more threes and steals, so this is not a claim that the two are interchangeable; McDaniels is the cheaper fit when blocks from a wing matter more than another large scoring average."
   },
   {
     "rank": 71,
@@ -799,7 +799,7 @@ export const PLAYERS = [
     "team": "BOS",
     "yahooAdp": 80.4,
     "yahooPreRank": 126,
-    "note": "Philadelphia traded George to Boston for Jaylen Brown in July, giving the Celtics a veteran wing who can shoot and generate steals around Tatum. He still averaged 1.7 steals and 2.7 threes, but 37 games make age and health central to the pick. The discounted version of George is appealing; the old first-round expectation is not the price to use. The 1.7 steals and 2.7 threes compare favorably with Anunoby's 1.6 and 2.3, but Anunoby played 30 more games. Take George when you have room for a health bet and need shooting and defense together; a total-season roto team may prefer the steadier option."
+    "note": "Philadelphia traded George to Boston for Jaylen Brown in July, giving the Celtics a veteran wing who can shoot and generate steals around Tatum. He still averaged 1.7 steals and 2.7 threes, but 37 games make age and health central to the pick. George is appealing at a discount that accounts for missed games. The 1.7 steals and 2.7 threes compare favorably with Anunoby's 1.6 and 2.3, but Anunoby played 30 more games. Take George when you have room for a health bet and need shooting and defense together; a total-season roto team may prefer the steadier option."
   },
   {
     "rank": 79,
@@ -815,7 +815,7 @@ export const PLAYERS = [
     "team": "MEM",
     "yahooAdp": 74.9,
     "yahooPreRank": 65,
-    "note": "Edey's preseason return is worth more than another speculative promise of a bigger role. He reached 16 minutes on October 9, with 10 points and five rebounds. That supports a modest rise, not an assumption that the 11.1 rebounds and 1.9 blocks from last season's tiny 11-game sample will scale to a full schedule. Memphis has other frontcourt options, and the useful milestone is sustained playing time without another interruption. For a roster short on boards and blocks, he is now easier to consider than an injured big with no return timetable. Keep a discount for workload and free throws, though. A couple of encouraging exhibitions can reopen the upside case; they cannot give him Clingan's much stronger recent availability record.",
+    "note": "Edey's preseason return is worth more than another speculative promise of a bigger role. He reached 16 minutes on October 9, with 10 points and five rebounds. That is encouraging, but it does not establish that the 11.1 rebounds and 1.9 blocks from last season's tiny 11-game sample will scale to a full schedule. Memphis has other frontcourt options, and the useful milestone is sustained playing time without another interruption. For a roster short on boards and blocks, he is now easier to consider than an injured big with no return timetable. Keep a discount for workload and free throws, though. A couple of encouraging exhibitions can reopen the upside case; they cannot give him Clingan's much stronger recent availability record.",
     "sources": [
       {
         "label": "NBA player updates · Oct 10, 2026",
@@ -829,7 +829,7 @@ export const PLAYERS = [
     "team": "NOP",
     "yahooAdp": 72.3,
     "yahooPreRank": 95,
-    "note": "Murray's 6.4 assists and 1.6 steals in his 14-game return deserve more credit than the old eighth-round placement allowed. Those are useful categories even if his scoring never returns to its best level. The latest reviewed update still lists the October 8 toe absence after his preseason return. I am moving him up modestly on the category case, not claiming that a new medical clearance has arrived. The gap from more optimistic boards remains deliberate: a short return sample and uncertain immediate workload are not the same as an established healthy season. He fits a roster that needs passing and steals and already has dependable starters; do not make him your only plan for either category.",
+    "note": "Murray's 6.4 assists and 1.6 steals in his 14-game return offer a useful source of two scarce guard categories. Those are useful categories even if his scoring never returns to its best level. The latest reviewed update still lists the October 8 toe absence after his preseason return. The category appeal depends on availability; that report is not medical clearance. The gap from more optimistic boards remains deliberate: a short return sample and uncertain immediate workload are not the same as an established healthy season. He fits a roster that needs passing and steals and already has dependable starters; do not make him your only plan for either category.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -859,7 +859,7 @@ export const PLAYERS = [
     "team": "CLE",
     "yahooAdp": 70.2,
     "yahooPreRank": 67,
-    "note": "Allen's value is straightforward: 63.8% shooting, 8.5 rebounds and low turnovers, with 70.9% free throws that are easier to accommodate than those of many traditional centers. The previous placement leaned too heavily on his 56-game season relative to other bigs carrying similar uncertainty. I am bringing him up slightly while keeping the modest block rate in view. He is not a complete answer for rim protection, but he can repair FG% without making you abandon FT%. A punt-FT% team can prefer Gobert's stronger boards-and-blocks package; a balanced roster often has more use for Allen than a raw rebounding comparison suggests."
+    "note": "Allen's value is straightforward: 63.8% shooting, 8.5 rebounds and low turnovers, with 70.9% free throws that are easier to accommodate than those of many traditional centers. His 56-game season warrants an availability discount, and the modest block rate limits how much defensive value you are buying. He is not a complete answer for rim protection, but he can repair FG% without making you abandon FT%. A punt-FT% team can prefer Gobert's stronger boards-and-blocks package; a balanced roster often has more use for Allen than a raw rebounding comparison suggests."
   },
   {
     "rank": 85,
@@ -867,7 +867,7 @@ export const PLAYERS = [
     "team": "POR",
     "yahooAdp": 67.9,
     "yahooPreRank": 77,
-    "note": "Lillard has cleared an important practical hurdle: he played October 7, scoring 15 points with three threes in 19 minutes. That earns a move up from a pure wait-and-see recovery price, but it does not restore his old Milwaukee workload. The 2024–25 baseline of 24.9 points and 7.1 assists predates the Achilles tear, and Ja Morant now shares Portland's backcourt. I want Lillard for shooting, free-throw value and useful secondary creation, not because one exhibition proves he can reproduce every old assist. He is a reasonable seventh-round gamble after a durable opening. Taking him much earlier requires more confidence in minutes and availability than this small sample can provide; taking him with several other recovery bets makes the same uncertainty harder to manage.",
+    "note": "Lillard has cleared an important practical hurdle: he played October 7, scoring 15 points with three threes in 19 minutes. That gives you evidence of game participation, not a guarantee of his Milwaukee workload. The 2024–25 baseline of 24.9 points and 7.1 assists predates the Achilles tear, and Ja Morant now shares Portland's backcourt. I want Lillard for shooting, free-throw value and useful secondary creation, not because one exhibition proves he can reproduce every old assist. He is a reasonable seventh-round gamble after a durable opening. Taking him much earlier requires more confidence in minutes and availability than this small sample can provide; taking him with several other recovery bets makes the same uncertainty harder to manage.",
     "sources": [
       {
         "label": "NBA player updates · Oct 8, 2026",
@@ -881,7 +881,7 @@ export const PLAYERS = [
     "team": "IND",
     "yahooAdp": 64.8,
     "yahooPreRank": 70,
-    "note": "Zubac's 10.5 rebounds and 60.0% shooting are worth paying for when an early guard-heavy start needs a center. Haliburton's return also gives Indiana a route to easier finishes, although better service does not guarantee more minutes or a new scoring ceiling. The old valuation discounted the 48-game season too harshly relative to comparable rebounders. I am moving him up a little, not into the same tier as a major shot blocker: 0.8 blocks remain modest for this roster slot. Prefer him when FG% and rebounds are the holes; prefer a different center if the whole purpose of the pick is to win blocks."
+    "note": "Zubac's 10.5 rebounds and 60.0% shooting are worth paying for when an early guard-heavy start needs a center. Haliburton's return also gives Indiana a route to easier finishes, although better service does not guarantee more minutes or a new scoring ceiling. His 48-game season warrants caution, while 0.8 blocks put him below the strongest rim protectors for defensive impact. Prefer him when FG% and rebounds are the holes; prefer a different center if the whole purpose of the pick is to win blocks."
   },
   {
     "rank": 87,
@@ -969,7 +969,7 @@ export const PLAYERS = [
     "team": "GSW",
     "yahooAdp": 116.8,
     "yahooPreRank": 99,
-    "note": "Podziemski is a more useful late-middle-round pick when his minutes do not depend on beating a healthy, complete Warriors rotation. He was back in the starting lineup October 10. With Butler and Moody still recovering, there is a clearer opportunity to turn last season's broad supporting line into steady early contributions. The 5.1 rebounds, 3.7 assists and 1.1 steals are helpful from a guard, while 1.6 turnovers make him easier to fit beside a high-usage star. I am moving him ahead of several unavailable or less secure options, not projecting a sudden scoring explosion. His 82 games last season are evidence of past availability rather than a guarantee, and the role can tighten when teammates return. Draft him for what the roster needs now, not as a season-long monopoly on backcourt minutes.",
+    "note": "Podziemski is a more useful late-middle-round pick when his minutes do not depend on beating a healthy, complete Warriors rotation. He was back in the starting lineup October 10. With Butler and Moody still recovering, there is a clearer opportunity to turn last season's broad supporting line into steady early contributions. The 5.1 rebounds, 3.7 assists and 1.1 steals are helpful from a guard, while 1.6 turnovers make him easier to fit beside a high-usage star. The appeal is usable production rather than a sudden scoring explosion. His 82 games last season are evidence of past availability rather than a guarantee, and the role can tighten when teammates return. Draft him for what the roster needs now, not as a season-long monopoly on backcourt minutes.",
     "sources": [
       {
         "label": "NBA player updates · Oct 10, 2026",
@@ -987,7 +987,7 @@ export const PLAYERS = [
     "team": "MIL",
     "yahooAdp": 118.7,
     "yahooPreRank": 134,
-    "note": "Porter's 7.4 assists and more than two steals per game explain why the upside remains attractive, but the old rank was too confident about access to that production. His 38-game season and Milwaukee's crowded guard rotation leave a wider range of minutes than a simple per-game comparison suggests. The latest sleeper review also distinguishes a usable bench appearance from a guaranteed lead-guard job. I am moving him later while keeping him above an ordinary assists specialist. The 2.9 turnovers and modest 1.2 threes require support from the rest of the roster; buy the passing and defensive ceiling at a discount rather than filling an early starting spot with assumptions."
+    "note": "Porter's 7.4 assists and more than two steals per game explain the upside, but access to that production depends on his minutes. His 38-game season and Milwaukee's crowded guard rotation leave a wider range of minutes than a simple per-game comparison suggests. A usable bench appearance is not a guaranteed lead-guard job, so leave room in the price for a smaller role. The 2.9 turnovers and modest 1.2 threes require support from the rest of the roster; buy the passing and defensive ceiling at a discount rather than filling an early starting spot with assumptions."
   },
   {
     "rank": 97,
@@ -1161,7 +1161,7 @@ export const PLAYERS = [
     "team": "BOS",
     "yahooAdp": 115.2,
     "yahooPreRank": 116,
-    "note": "Queta's old final-round placement undersold production that already helps a category roster. In 2025–26 he played 76 games, shot 65.3% and averaged 8.4 rebounds with 1.3 blocks. He also collected ten rebounds in 19 minutes on October 10. I am not treating that exhibition as a breakout signal; it simply fits the established reason to draft him. The lack of threes and 70.3% free throws limit how widely he fits, but those costs do not turn him into an interchangeable bench gamble. Choose him ahead of uncertain injury stashes when your final center needs to supply actual rebounds, FG% and blocks.",
+    "note": "Queta offers established center production without needing a scoring breakout. In 2025–26 he played 76 games, shot 65.3% and averaged 8.4 rebounds with 1.3 blocks. He also collected ten rebounds in 19 minutes on October 10. I am not treating that exhibition as a breakout signal; it simply fits the established reason to draft him. The lack of threes and 70.3% free throws limit how widely he fits, but those costs do not turn him into an interchangeable bench gamble. Choose him ahead of uncertain injury stashes when your final center needs to supply actual rebounds, FG% and blocks.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -1197,7 +1197,7 @@ export const PLAYERS = [
     "team": "CHI",
     "yahooAdp": 90.1,
     "yahooPreRank": 104,
-    "note": "Chicago still offers a reasonable path to minutes, but Claxton's hamstring makes the opening workload less dependable. The October 5 update called for a re-evaluation in two weeks, close to the start of the season. That is not the same as a confirmed opening-night return. His 57.1% shooting, 3.7 assists and 1.1 blocks provide useful big-man categories; 61.6% free throws keep him much more attractive to a punt-FT% team than to a balanced roster. I am lowering the price rather than writing off the Bulls role. Sharpe is a relevant alternative if you need early production, though his own shoulder status needs checking. Take Claxton only after deciding that the potential missed games and foul-line cost are both acceptable, rather than treating a new team as an automatic breakout.",
+    "note": "Chicago still offers a reasonable path to minutes, but Claxton's hamstring makes the opening workload less dependable. The October 5 update called for a re-evaluation in two weeks, close to the start of the season. That is not the same as a confirmed opening-night return. His 57.1% shooting, 3.7 assists and 1.1 blocks provide useful big-man categories; 61.6% free throws keep him much more attractive to a punt-FT% team than to a balanced roster. The Bulls role has value, but the price needs to account for the risk. Sharpe is a relevant alternative if you need early production, though his own shoulder status needs checking. Take Claxton only after deciding that the potential missed games and foul-line cost are both acceptable, rather than treating a new team as an automatic breakout.",
     "sources": [
       {
         "label": "Bulls training-camp report · Oct 5, 2026",
@@ -1267,7 +1267,7 @@ export const PLAYERS = [
     "team": "OKC",
     "yahooAdp": 105.4,
     "yahooPreRank": 142,
-    "note": "Hartenstein was too close to the edge of the board for a center who averaged 9.4 rebounds, 3.5 assists and 62.2% shooting. The passing is particularly helpful after a draft start dominated by scoring guards and wings. An ankle issue kept him out of the October 12 exhibition. That prevents a full move toward the more optimistic rankings, and the 47-game previous season still warrants caution. His 61.0% free throws are another genuine cost, so the stronger target audience is punt-FT% or a roster with enough made-free-throw volume to absorb him. I prefer this established category package to many final-round role bets, provided the ankle improves before you need him in the lineup.",
+    "note": "Hartenstein's 9.4 rebounds, 3.5 assists and 62.2% shooting give him several ways to help a roster. The passing is particularly helpful after a draft start dominated by scoring guards and wings. An ankle issue kept him out of the October 12 exhibition. That ankle concern and his 47-game season both warrant an availability discount. His 61.0% free throws are another genuine cost, so the stronger target audience is punt-FT% or a roster with enough made-free-throw volume to absorb him. I prefer this established category package to many final-round role bets, provided the ankle improves before you need him in the lineup.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -1327,7 +1327,7 @@ export const PLAYERS = [
     "team": "LAC",
     "yahooAdp": 63,
     "yahooPreRank": 91,
-    "note": "This is an injured-reserve decision now, not a routine mid-round scoring pick. Ingram will miss the opening of the season after heel and partial Achilles surgery, with no confirmed return date. His 21.5 points and 82.0% free throws from last season explain the appeal if he returns to a large Clippers role, but those numbers cannot replace the weeks spent holding an unavailable player. I am moving him behind healthy contributors and would pass entirely if the league has no spare injured-reserve slot. Unlike a short preseason precaution, this situation has already changed the start of his season. Garland is the more immediate way to invest in the Clippers' offense; Ingram needs a substantial discount and a roster that can wait without sacrificing flexibility.",
+    "note": "This is an injured-reserve decision now, not a routine mid-round scoring pick. Ingram will miss the opening of the season after heel and partial Achilles surgery, with no confirmed return date. His 21.5 points and 82.0% free throws from last season explain the appeal if he returns to a large Clippers role, but those numbers cannot replace the weeks spent holding an unavailable player. Prefer healthy contributors unless you have a spare injured-reserve slot. Unlike a short preseason precaution, this situation has already changed the start of his season. Garland is the more immediate way to invest in the Clippers' offense; Ingram needs a substantial discount and a roster that can wait without sacrificing flexibility.",
     "sources": [
       {
         "label": "Clippers media day · Sep 28, 2026",
@@ -1393,7 +1393,7 @@ export const PLAYERS = [
     "team": "ORL",
     "yahooAdp": 114.7,
     "yahooPreRank": null,
-    "note": "Vučević's 8.4 rebounds, 1.6 threes and only 1.3 turnovers still describe a useful fantasy center. The problem with the previous top-100 price was treating that line as portable to any role. Orlando already has Carter, and there is not enough evidence here to give Vučević his old starter workload by default. I am moving him into the late-round mix, where you can take the shooting if the rotation supports it and move on if it does not. He may fit a punt-blocks roster better than a team desperate for rim protection. Carter is the more appealing alternative when you need efficient boards rather than a center's three-point volume."
+    "note": "Vučević's 8.4 rebounds, 1.6 threes and only 1.3 turnovers still describe a useful fantasy center. Orlando already has Carter, and there is not enough evidence here to give Vučević his old starter workload by default. He belongs in the late-round mix, where you can take the shooting if the rotation supports it and move on if it does not. He may fit a punt-blocks roster better than a team desperate for rim protection. Carter is the more appealing alternative when you need efficient boards rather than a center's three-point volume."
   },
   {
     "rank": 136,
@@ -1554,7 +1554,7 @@ export const INJURY_WATCHLIST = [
   {
     "name": "Moses Moody",
     "team": "GSW",
-    "note": "Moody was limited to light on-court work in the September 28 update after his patellar-tendon injury. That is not clearance for a normal role. His 2.5 threes and low turnovers remain a potentially useful profile later, but the old note's implication that he was a safer full-season option was wrong. I would use the draft pick on an available player and revisit Moody when there is a clearer game-return plan. Do not set a return date from a generic injury-table estimate or mistake a positive rehabilitation update for a fantasy lineup decision.",
+    "note": "Moody was limited to light on-court work in the September 28 update after his patellar-tendon injury. That is not clearance for a normal role. His 2.5 threes and low turnovers remain a potentially useful profile later, but his recovery makes him unsuitable as a dependable full-season pick. I would use the draft pick on an available player and revisit Moody when there is a clearer game-return plan. Do not set a return date from a generic injury-table estimate or mistake a positive rehabilitation update for a fantasy lineup decision.",
     "sources": [
       {
         "label": "NBA player updates · Sep 28, 2026",
@@ -1598,7 +1598,7 @@ export const INJURY_WATCHLIST = [
   {
     "name": "Kristaps Porziņģis",
     "team": "GSW",
-    "note": "Porziņģis remained away from the team October 12, with no confirmed return timetable. I am moving him to the injury watchlist rather than treating an indefinite wait as a normal late-round purchase. His previous shooting-and-blocking combination can become relevant again when the outlook changes. For now, only a roster with genuinely spare injury capacity should consider paying to wait. The report does not establish a diagnosis, and the ranking should not invent one.",
+    "note": "Porziņģis remained away from the team October 12, with no confirmed return timetable. He belongs on the injury watchlist rather than in a plan that depends on immediate production. His previous shooting-and-blocking combination can become relevant again when the outlook changes. For now, only a roster with genuinely spare injury capacity should consider paying to wait. The report does not establish a diagnosis, and the ranking should not invent one.",
     "sources": [
       {
         "label": "NBA availability update · Oct 12",

@@ -232,7 +232,7 @@ export const SEO_CONTENT = {
       
       <p>Our matchup analysis integrates with Yahoo Fantasy Basketball to provide personalized insights based on your actual league and team. See exactly how you match up against your opponent this week and get strategic recommendations for maximizing your chances of winning your head-to-head matchup.</p>
 
-      <p>Most weekly matchups are decided by roster construction rather than by streaming. If you keep losing the same two categories, you are not unlucky — you are built that way, and the fix is a build that concedes one column on purpose. Use the <a href="/guides/top-150">2026-27 projected top 150</a>, refreshed with corrected 2025-26 results, then read the <a href="/guides/punt-ft">punt FT% build</a>, <a href="/guides/punt-blocks">punt blocks build</a>, <a href="/guides/punt-assists">punt assists build</a>, <a href="/guides/punt-fg">punt FG% build</a>, <a href="/guides/punt-threes">punt threes build</a> or <a href="/guides/punt-points">punt points build</a> to see how a board re-ranks once a category comes out of the maths. Track the results with the <a href="/rankings">rankings tool</a> and plan the weeks ahead with the <a href="/nba-regular-season">schedule grid</a>.</p>
+      <p>Most weekly matchups are decided by roster construction rather than by streaming. If you keep losing the same two categories, you are not unlucky — you are built that way, and the fix is a build that concedes one column on purpose. Use the <a href="/guides/top-150">2026-27 projected top 150</a>, based on 2025-26 results, then read the <a href="/guides/punt-ft">punt FT% build</a>, <a href="/guides/punt-blocks">punt blocks build</a>, <a href="/guides/punt-assists">punt assists build</a>, <a href="/guides/punt-fg">punt FG% build</a>, <a href="/guides/punt-threes">punt threes build</a> or <a href="/guides/punt-points">punt points build</a> to see how a board re-ranks once a category comes out of the maths. Track the results with the <a href="/rankings">rankings tool</a> and plan the weeks ahead with the <a href="/nba-regular-season">schedule grid</a>.</p>
     `,
     keywords: ['matchup analyzer', 'fantasy basketball matchup', 'team comparison', 'head-to-head fantasy', 'trade analyzer', 'player comparison']
   },
@@ -240,7 +240,7 @@ export const SEO_CONTENT = {
   '/guides': {
     title: 'Fantasy Basketball Strategy Guides 2026-27',
     content: `
-      <p>Every fantasy basketball draft comes down to two decisions: who is actually worth the pick, and which categories you are willing to lose. Our 2026-27 guides cover both. Start with the <a href="/guides/top-150">projected top 150, refreshed with corrected 2025-26 results</a>, then move to the punt build that matches the roster you end up with.</p>
+      <p>Every fantasy basketball draft comes down to two decisions: who is actually worth the pick, and which categories you are willing to lose. Our 2026-27 guides cover both. Start with the <a href="/guides/top-150">projected top 150, based on 2025-26 results</a>, then move to the punt build that matches the roster you end up with.</p>
 
       <p>The guides are built on Z-score analysis across all nine standard categories: points, three-pointers, rebounds, assists, steals, blocks, field goal percentage, free throw percentage and turnovers. That is the same engine behind our <a href="/rankings">fantasy basketball rankings</a>, so a player's value in a guide and his value in the tool always agree.</p>
 
@@ -256,7 +256,7 @@ export const SEO_CONTENT = {
     content: `
       <p>This 2026-27 fantasy basketball top 150 is a forward-looking draft board reviewed October 13, 2026 against updated Yahoo rankings, independent category boards and player news. Corrected 2025-26 nine-category production remains the historical baseline for returning players, not a forecast of next season's stat line.</p>
 
-      <p>The list is grouped into twelve-player rounds. Yahoo public pre-ranks were checked October 13, 2026; ADP remains the older September 26 snapshot because a current table could not be verified. The review uses RotoBaller and FantasyPros as independent checks, not an order to copy. Eight additions include five incoming rookies whose college and preseason evidence is labeled separately from historical NBA stats. Butler and Porziņģis move to the injury watchlist rather than occupy active draft recommendations.</p>
+      <p>The list is grouped into twelve-player rounds. Yahoo public pre-ranks were checked October 13, 2026; ADP snapshot: September 26. The review uses RotoBaller and FantasyPros as independent checks, not an order to copy. Incoming rookies use college and preseason evidence labeled separately from historical NBA stats. Butler and Porziņģis are on the injury watchlist rather than the active draft board.</p>
 
       <p>The historical baseline combines points, threes, rebounds, assists, steals, blocks, shooting-percentage impact and turnovers into nine-category value. Shooting impact accounts for attempts. The projected order also adjusts for expected availability, so it is not simply last season's per-game rank.</p>
 
@@ -268,7 +268,7 @@ export const SEO_CONTENT = {
   '/guides/sleepers': {
     title: 'Fantasy Basketball Sleepers 2026-27',
     content: `
-      <p>This rebuilt ${SLEEPERS.length}-player shortlist adds five candidates, retains four cases and removes eleven previous names after the ${SLEEPERS_UPDATED_AT} review. Yahoo public pre-ranks were checked ${SLEEPERS_YAHOO_PRERANK_DATE}; available ADP values remain the ${SLEEPERS_YAHOO_ADP_DATE} snapshot because current averages could not be verified. These are conditional values, not guarantees of availability. Stat lines show actual 2025-26 production, not preseason averages or projections.</p>
+      <p>These ${SLEEPERS.length} sleepers offer different ways to buy useful categories at a sensible price, with role and availability risks explained for each. Yahoo public pre-ranks were checked ${SLEEPERS_YAHOO_PRERANK_DATE}; available ADP values remain the ${SLEEPERS_YAHOO_ADP_DATE} snapshot because current averages could not be verified. These are conditional values, not guarantees of availability. Stat lines show actual 2025-26 production, not preseason averages or projections.</p>
 
       <p>Some discounts reflect missed games or a changing depth chart. Others come from a category line the market has yet to price fully, such as steals with assists or blocks from a guard. Each write-up explains the upside and the risk that could close the gap.</p>
 
@@ -305,7 +305,7 @@ export const SEO_CONTENT = {
 
       <p>Shooting and turnovers are the easiest categories to lose by accident. Jamal Murray's threes and assists or Trey Murphy III's shooting and steals can be worth buying even when their strong FT% goes unused. Giannis, Sengun and Stephon Castle each averaged 3.2 turnovers, so combining them requires a separate plan for ball security. Daniels and Pritchard offer ways to add passing with a smaller turnover cost.</p>
 
-      <p>The live table uses corrected 2025-26 production with FT% removed. For the coming season's outlook, compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges retain the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}.</p>
+      <p>The live table uses corrected 2025-26 production with FT% removed. For the coming season's outlook, compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges reference the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}.</p>
     `,
     keywords: ['punt ft', 'punt free throw percentage', 'punt ft% fantasy basketball', 'fantasy basketball punt build', '9-cat punt strategy', 'big man fantasy basketball draft']
   },
@@ -319,7 +319,7 @@ export const SEO_CONTENT = {
 
       <p>Turnovers and steals also need deliberate picks. A roster full of scoring guards may still need a Murphy or Anunoby for defense, while Quickley and Pritchard can add passing with fewer turnovers than another primary creator. Free-throw rates need their attempt volume too: Daniels' 61.5% on 1.6 attempts is a different problem from a weak shooter taking six or ten a game. Those distinctions determine which player fits the surrounding roster.</p>
 
-      <p>The live board uses corrected 2025-26 production with blocks removed. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> for the coming season. Written draft ranges retain the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}.</p>
+      <p>The live board uses corrected 2025-26 production with blocks removed. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a> for the coming season. Written draft ranges reference the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}.</p>
     `,
     keywords: ['punt blocks', 'punt strategy fantasy basketball', 'fantasy basketball punt build', '9-cat punt blocks', 'fantasy basketball draft strategy', 'category punting']
   },
@@ -333,7 +333,7 @@ export const SEO_CONTENT = {
 
       <p>Steals, threes and turnovers still require deliberate choices. Murphy's 1.5 steals and 3.2 threes can complement an early big, while Anunoby offers another way to avoid overloading on rebounders. Low assists alone do not make a player useful: Brown's 3.6 turnovers remain a cost even in this build. In eight-category leagues, turnovers disappear, reducing the advantage of low-usage options.</p>
 
-      <p>The live table removes assists from corrected 2025-26 production; it is a historical view, not a forecast. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges retain the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}. Pre-rank can affect draft-room visibility but is not the same as average draft position.</p>
+      <p>The live table removes assists from corrected 2025-26 production; it is a historical view, not a forecast. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges reference the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}. Pre-rank can affect draft-room visibility but is not the same as average draft position.</p>
     `,
     keywords: ['punt assists', 'punt assists fantasy basketball', '9-cat punt assists', 'fantasy basketball draft strategy', 'punt assists draft board']
   },
@@ -347,7 +347,7 @@ export const SEO_CONTENT = {
 
       <p>Measure FT% from total makes and attempts, not an average of player percentages. Curry's 92.2% on 5.1 attempts and Bane's 90.8% on 4.2 can support a weaker shooter, but the surrounding volume decides the outcome. Low-turnover contributors also matter if you intend to compete in that category. Eight-category leagues remove that constraint; roto adds a season-long standings cost to deliberately sacrificing FG%.</p>
 
-      <p>The live table removes FG% from corrected 2025-26 production and does not forecast the coming season. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges retain the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}. Draft-room pre-rank and average draft position are different signals, and new role or health information can override either dated price.</p>
+      <p>The live table removes FG% from corrected 2025-26 production and does not forecast the coming season. Compare it with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges reference the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}. Draft-room pre-rank and average draft position are different signals, and new role or health information can override either dated price.</p>
     `,
     keywords: ['punt fg', 'punt fg% fantasy basketball', 'punt field goal percentage', '9-cat punt fg', 'fantasy basketball draft strategy']
   },
@@ -361,7 +361,7 @@ export const SEO_CONTENT = {
 
       <p>Points and assists can slip away while you keep adding defenders. Scorers such as Kawhi and Bane can be useful even when their threes are discarded, and passing forwards can reduce the need for an early point guard. Turnovers still count in nine-category leagues. In roto, deliberately sacrificing threes costs standings points across the season, making the strategy less forgiving than in weekly category matchups.</p>
 
-      <p>The live board removes 3PM from corrected 2025-26 production. Compare that historical view with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges retain the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}. Pre-rank can affect draft-room attention, while role changes and availability can alter the value of an older price.</p>
+      <p>The live board removes 3PM from corrected 2025-26 production. Compare that historical view with the <a href="/guides/top-150">projected Top 150</a> and <a href="https://basketball.fantasysports.yahoo.com/nba/draftanalysis">current Yahoo ADP</a>. Written draft ranges reference the ${YAHOO_ADP_DATE} ADP snapshot and use Yahoo standard pre-ranks checked ${YAHOO_PRERANK_DATE}. Pre-rank can affect draft-room attention, while role changes and availability can alter the value of a draft price.</p>
     `,
     keywords: ['punt threes', 'punt three pointers fantasy basketball', 'punt 3pm', '9-cat punt threes', 'fantasy basketball draft strategy']
   },

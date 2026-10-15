@@ -3,7 +3,7 @@
 import { CONTENT_SEASON } from './season.js';
 import { PUNT_GUIDES } from './punt-guides-2026-27.js';
 import { syncPuntGuide } from './punt-guide-market.js';
-import { RANKINGS_UPDATED_AT, YAHOO_ADP_DATE, YAHOO_PRERANK_DATE } from './top-150-2026-27.js';
+import { YAHOO_ADP_DATE, YAHOO_PRERANK_DATE } from './top-150-2026-27.js';
 import { SLEEPERS_UPDATED_AT, SLEEPERS_YAHOO_ADP_DATE, SLEEPERS_YAHOO_PRERANK_DATE } from './sleepers-busts-2026-27.js';
 import { BUSTS_UPDATED_AT, BUSTS_YAHOO_ADP_DATE, BUSTS_YAHOO_PRERANK_DATE } from './sleepers-busts-2026-27.js';
 
@@ -97,17 +97,17 @@ export const guides = [
       "id": "draft",
       "heading": "Where the value sits in the draft",
       "body": [
-        "Start with scoring and percentage support, but keep a real plan for rebounds. Flagg and Durant now sit ahead of Kawhi on the general board and belong in the second-round conversation. Durant offers the cleaner percentage foundation; Flagg keeps more rebounding and passing upside. Neither makes Towns or Bam redundant if your opening guard leaves the frontcourt thin.",
-        "The older ADP should no longer persuade you to wait until round four for Murphy or Markkanen, or round nine for Quickley. The revised buying ranges bring those decisions forward. Bane can be worth a fourth-round selection for his percentage balance even when White's discarded blocks make White less attractive to this particular roster. Brown now needs a larger discount because the punt does not solve his turnovers or uncertain scoring volume.",
-        "Sabonis remains a natural fit rather than a price-free recommendation. His small prior-season sample and reviewed availability concern still matter. At the other end of the draft, Vučević moves into the final-round discussion because Orlando's minutes are uncertain. Cameron Johnson and Harper offer different alternatives: complementary shooting versus developing guard creation. Choose the missing category instead of replacing every removed injury stash with another guard."
+        "Start with scoring and percentage support, but keep a real plan for rebounds. Durant offers an efficient second-round scoring foundation, while Flagg brings rebounding and passing upside. Neither makes Towns or Bam redundant if your opening guard leaves the frontcourt thin.",
+        "Murphy and Markkanen are third-round targets; Quickley can supply passing in the middle rounds. Bane is worth a fourth-round selection when his percentage balance matters more than White's remaining production after blocks are removed. Brown needs a discount because this punt does not solve his turnovers or uncertain scoring volume.",
+        "Sabonis fits the category plan, but his small prior-season sample and availability concern matter at the price. Vučević is a final-round consideration because Orlando's center minutes are uncertain. Cameron Johnson and Harper offer different alternatives: complementary shooting versus developing guard creation. Choose the contribution your roster needs, not simply the biggest name available."
       ]
     },
     {
       "id": "ranking-update",
-      "heading": "How this refresh uses the new board",
+      "heading": "How to use the board and draft targets",
       "body": [
-        "Updated October 14 to match the revised Top 150, including Flagg and Durant ahead of Kawhi. Rank and Yahoo price fields now come from the same source as that board. The injury context is the board's dated review, not a new live-news feed. The September ADP and October public pre-rank remain separate snapshots.",
-        "The live table still removes this guide's punted category from corrected 2025-26 NBA production. It has not been replaced with the overall draft order. Incoming rookies have no historical NBA row; their written recommendations are projections and their absence from a historical radar is not a zero forecast. The example rosters below retain their original historical lines for category comparison, not as current eight-pick draft scripts."
+        "The Top 150 estimates overall draft value; this guide focuses on the categories you intend to win. A player's best fit and sensible buying range can differ from his overall rank.",
+        "The table and example-team totals use 2025-26 NBA results with the punted category excluded from value. Written recommendations account for role and availability. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
       ]
     }
   ],
@@ -139,7 +139,7 @@ export const guides = [
         "De'Aaron Fox",
         "Josh Hart"
       ],
-      "note": "Jokić supplies the efficient rebounding that makes this backcourt possible. Murray and Fox add creation, Murphy and Anunoby cover shooting and steals, and Hart adds boards from the wing. The eight historical lines total 162.0 points, 53.5 rebounds, 42.1 assists and 17.7 threes at 49.1% FG and 83.2% FT. Turnovers reach 17.5, so the later picks should favor ball security rather than another lead guard. Bam helps the boards, but his 44.2% shooting is why the team cannot assume FG% is dominant. At current prices, prioritize the early rebounder and use Quickley or a later shooter when the preferred wing has already gone. Do not assume Murphy, Bane and Anunoby all fall to their old ADP turns."
+      "note": "Jokić supplies the efficient rebounding that makes this backcourt possible. Murray and Fox add creation, Murphy and Anunoby cover shooting and steals, and Hart adds boards from the wing. The eight historical lines total 162.0 points, 53.5 rebounds, 42.1 assists and 17.7 threes at 49.1% FG and 83.2% FT. Turnovers reach 17.5, so the later picks should favor ball security rather than another lead guard. Bam helps the boards, but his 44.2% shooting is why the team cannot assume FG% is dominant. At current prices, prioritize the early rebounder and use Quickley or a later shooter when the preferred wing has already gone. Have alternatives ready if the shooting wings you want are already taken."
     },
     {
       "name": "Mitchell and Towns near the turn",
@@ -154,7 +154,7 @@ export const guides = [
         "Mikal Bridges",
         "Josh Hart"
       ],
-      "note": "Towns and Duren protect rebounds while Mitchell and Bane provide accurate free-throw volume. Daniels and Hart add passing and boards without another high-usage guard, and Bridges keeps turnovers down. These eight historical lines combine for 147.3 points, 54.7 rebounds, 33.0 assists and 10.1 steals at 50.8% FG and 82.5% FT, with 15.7 turnovers. Threes are the next priority at 13.7 across the group. At current prices, prioritize the early rebounder and use Quickley or a later shooter when the preferred wing has already gone. Do not assume Murphy, Bane and Anunoby all fall to their old ADP turns."
+      "note": "Towns and Duren protect rebounds while Mitchell and Bane provide accurate free-throw volume. Daniels and Hart add passing and boards without another high-usage guard, and Bridges keeps turnovers down. These eight historical lines combine for 147.3 points, 54.7 rebounds, 33.0 assists and 10.1 steals at 50.8% FG and 82.5% FT, with 15.7 turnovers. Threes are the next priority at 13.7 across the group. At current prices, prioritize the early rebounder and use Quickley or a later shooter when the preferred wing has already gone. Have alternatives ready if the shooting wings you want are already taken."
     }
   ],
   "roundTargets": [
@@ -192,11 +192,11 @@ export const guides = [
         },
         {
           "name": "Kevin Durant",
-          "note": "Durant's scoring is useful here because it comes with percentage support rather than another problem to repair. His 26 points on 52.0% FG and 87.4% FT fit beside a high-volume guard, while the modest blocks are easy to give up. He now sits ahead of Kawhi on our board. That is not a durability guarantee after a 78-game season; leave room for age-related absences and find your steals elsewhere. He is an early-second-round option, not a player to defer simply because Yahoo orders him later."
+          "note": "Durant's scoring is useful here because it comes with percentage support rather than another problem to repair. His 26 points on 52.0% FG and 87.4% FT fit beside a high-volume guard, while the modest blocks are easy to give up. That is not a durability guarantee after a 78-game season; leave room for age-related absences and find your steals elsewhere. He is an early-second-round option, not a player to defer simply because Yahoo orders him later."
         },
         {
           "name": "Kawhi Leonard",
-          "note": "Kawhi still supplies unusually efficient scoring and steals, but he is no longer a third-round plan in a room following either our board or Yahoo's queue. His 27.5 points, 1.8 steals and 50.8% shooting make sense without blocks; Toronto's new offense and his age keep the availability risk in the price. Flagg and Durant now sit ahead of him on the general board. For this punt, Durant is particularly attractive when both percentages need support, while Flagg offers more growth potential. Take Kawhi in round two when the fit warrants it, not because September's ADP promises another full round to wait."
+          "note": "Kawhi supplies unusually efficient scoring and steals at a second-round price. His 27.5 points, 1.8 steals and 50.8% shooting make sense without blocks; Toronto's new offense and his age keep the availability risk in the price. For this punt, Durant is particularly attractive when both percentages need support, while Flagg offers more growth potential. Take Kawhi in round two when the fit warrants it, not because September's ADP promises another full round to wait."
         },
         {
           "name": "Jamal Murray",
@@ -344,7 +344,7 @@ export const guides = [
         },
         {
           "name": "Tre Jones",
-          "note": "Jones is one of the few late passers who can improve FG% while adding assists. He averaged 5.4 assists with 1.4 turnovers and shot 55.3% on 9.5 attempts, making him a useful follow-up to a low-efficiency early guard. His 84.1% FT on 3.5 attempts helps as well. The tradeoff is 0.6 threes, so he fits a team that has already bought outside shooting. Giddey remains a major creator in Chicago; the argument is for Jones' existing supporting production, not a prediction that he takes over the offense. If percentages and assists are your remaining gaps, his price near 116 can make more sense than another wing who only adds threes. His reviewed hip absence also needs an availability check before you use him as an immediate passing fix."
+          "note": "Jones is one of the few late passers who can improve FG% while adding assists. He averaged 5.4 assists with 1.4 turnovers and shot 55.3% on 9.5 attempts, making him a useful follow-up to a low-efficiency early guard. His 84.1% FT on 3.5 attempts helps as well. The tradeoff is 0.6 threes, so he fits a team that has already bought outside shooting. Giddey remains a major creator in Chicago; the argument is for Jones' existing supporting production, not a prediction that he takes over the offense. If percentages and assists are your remaining gaps, his price near 116 can make more sense than another wing who only adds threes. His hip absence also needs an availability check before you use him as an immediate passing fix."
         }
       ]
     },
@@ -370,15 +370,15 @@ export const guides = [
       "candidates": [
         {
           "name": "Cameron Johnson",
-          "note": "Johnson is a late shooting option when the early frontcourt has already handled rebounds and passing. Denver does not need him to become a primary creator for that role to help, and giving up blocks costs this profile relatively little. Choose him for complementary offense rather than hoping the preseason makes him a steals specialist. The updated board favors a usable role over an indefinite injury stash; keep the pick flexible if regular-season minutes disappoint."
+          "note": "Johnson is a late shooting option when the early frontcourt has already handled rebounds and passing. Denver does not need him to become a primary creator for that role to help, and giving up blocks costs this profile relatively little. Choose him for complementary offense rather than hoping the preseason makes him a steals specialist. Keep the pick flexible if regular-season minutes disappoint."
         },
         {
           "name": "Nikola Vučević",
-          "note": "Vučević can still supply 8.4 rebounds, 3.3 assists and low turnovers, but Orlando's shared center minutes make the old top-100 valuation too optimistic. Removing blocks helps the profile without creating more playing time. I would wait until the last rounds and check the rotation rather than chase the September ADP near 115. If you need boards immediately, a center with an established workload is a better answer than hoping the old scoring role follows him to a new team."
+          "note": "Vučević can still supply 8.4 rebounds, 3.3 assists and low turnovers, but Orlando's shared center minutes limit how much you should pay. Removing blocks helps the profile without creating more playing time. I would wait until the last rounds and check the rotation rather than chase the September ADP near 115. If you need boards immediately, a center with an established workload is a better answer than hoping the old scoring role follows him to a new team."
         },
         {
           "name": "Julian Champagnie",
-          "note": "Champagnie's shooting and rebounding are useful late, but Harper's move into San Antonio's preseason starting group changes the minutes question. The previous fantasy role should not be carried forward automatically. Removing blocks does not protect you from a smaller workload, and the general board now leaves him near the final rounds. Choose him only if threes and wing boards fit the last slot; do not treat him as a dependable starter just because the September price was earlier."
+          "note": "Champagnie's shooting and rebounding are useful late, but Harper's move into San Antonio's preseason starting group changes the minutes question. The previous fantasy role should not be carried forward automatically. Removing blocks does not protect you from a smaller workload, and the uncertain workload makes him a final-round option. Choose him only if threes and wing boards fit the last slot; do not treat him as a dependable starter just because the September price was earlier."
         },
         {
           "name": "Quentin Grimes",
@@ -444,20 +444,20 @@ export const guides = [
         id: 'method',
         heading: 'How the projection was built',
         body: [
-          `The baseline remains the corrected 2025-26 nine-category production used in the previous edition, not newly projected stat lines. The ${RANKINGS_UPDATED_AT} review adjusts the existing board for verified preseason participation, health and role information. Yahoo public pre-ranks were checked ${YAHOO_PRERANK_DATE}; ADP is still the ${YAHOO_ADP_DATE} snapshot because a current table could not be verified. Those two market signals are not interchangeable, and neither determines our order.`,
+          `The rankings use 2025-26 nine-category production as a baseline, with preseason participation, health and role informing the 2026-27 outlook. Yahoo public pre-ranks: ${YAHOO_PRERANK_DATE}; ADP snapshot: ${YAHOO_ADP_DATE}. Pre-rank describes draft-room ordering; ADP describes average selections. Neither determines our projections.`,
           "Field-goal and free-throw impact use makes and attempts, not percentage alone. Turnovers count too, so a high-volume creator can be valuable in points and assists while costing you a category. Each player's note names the season behind its exact numbers; the rank itself is the forward-looking call.",
           "Availability changes the order. A strong per-game line in a short season can still make a good pick, but the cost of missed games belongs in the draft decision. Players without a 2025-26 line use their earlier production with a larger uncertainty discount.",
-          "Preseason minutes and participation can change confidence in a role or recovery. A hot shooting night cannot establish a new season-long percentage, and a routine rest absence is not a new injury. Re-evaluation dates are checkpoints, not promised returns. The larger moves reflect whether a player can contribute and how much waiting the draft price asks you to accept.",
+          "Preseason minutes and participation can change confidence in a role or recovery. A hot shooting night cannot establish a new season-long percentage, and a routine rest absence is not a new injury. Re-evaluation dates are checkpoints, not promised returns. The price must reflect whether a player can contribute and how much waiting the roster can afford.",
         ],
       },
       {
         id: 'ranking-review',
-        heading: 'What changed after checking other boards',
+        heading: 'Where category fit and risk shape the order',
         body: [
           "The October 13 comparison is a challenge to our assumptions, not an average of three rankings. RotoBaller's October 12 category guide and FantasyPros' six-expert draft consensus highlight disagreements worth investigating. Although the FantasyPros URL says rest-of-season, its page currently identifies the displayed data as 2026-27 draft rankings. Yahoo public pre-rank describes the room's ordering, not an independent projection or today's ADP.",
-          "Tatum, Haliburton, Miller, Kessler and Irving move up as participation evidence reduces specific concerns. LaMelo and Trae also rise: the previous order discounted their scarce guard production too heavily. Jamal Murray, Markkanen and Brown move down because last season's usage or availability should not be carried forward without adjustment. Queta and Hartenstein receive more credit for useful center categories; their notes still distinguish role and health risk.",
-          "Some disagreements remain intentional. Cade's turnovers still matter in nine-category play. Daniels' steals are more valuable in a compatible punt than on a balanced roster, while Knueppel's uncertain start still warrants a discount. Dejounte's toe absence prevents a full move toward the optimistic boards. No consensus number overrides a current availability problem, and a Yahoo discount does not make a player intrinsically worse.",
-          "Eight players enter: Boozer, Wilson, Peterson, Dybantsa and Lendeborg from the incoming class, plus Harper, Murray-Boyles and Cameron Johnson. Butler and Porziņģis move to the injury watchlist. Grant, Coulibaly, Huff, Ighodaro, Nesmith and Stewart leave the 150 because their current availability or role-adjusted category case is less compelling than the additions, not because they cannot help a deeper league or a specific punt.",
+          "Participation helps assess the recovery risk for Tatum, Haliburton, Miller, Kessler and Irving. LaMelo and Trae supply scarce assists and threes, while Murray, Markkanen and Brown need prices that account for usage and availability. Queta and Hartenstein offer useful center categories without requiring a scoring breakout.",
+          "Some disagreements remain intentional. Cade's turnovers still matter in nine-category play. Daniels' steals are more valuable in a compatible punt than on a balanced roster, while Knueppel's uncertain start still warrants a discount. Dejounte's toe absence warrants a discount despite his passing and steals. No consensus number overrides a current availability problem, and a Yahoo discount does not make a player intrinsically worse.",
+          "Rookies such as Boozer, Wilson, Peterson, Dybantsa and Lendeborg are evaluated through college evidence, preseason roles and a wider range of outcomes. Harper and Murray-Boyles offer development upside; Cameron Johnson supplies complementary shooting. Butler and Porziņģis belong on the injury watchlist because their uncertain availability calls for a stash decision rather than an active roster plan.",
         ],
       },
       {
@@ -482,9 +482,9 @@ export const guides = [
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          `The ${RANKINGS_UPDATED_AT} review compares the board with Yahoo, RotoBaller and FantasyPros, then checks meaningful disagreements against player roles and availability. Dated sources accompany changed notes; a missing injury mention is not medical clearance. Incoming rookies are now eligible for inclusion. Their college or preseason evidence is labeled explicitly, never displayed as a 2025-26 NBA season.`,
+          "The board draws on player production, roles and availability, with Yahoo, RotoBaller and FantasyPros used as reference points. Dated sources accompany player notes; a missing injury mention is not medical clearance. Rookie college and preseason evidence is labeled separately from historical NBA results.",
           "Injury returns have the widest range of outcomes. Tyrese Haliburton, Kyrie Irving and Damian Lillard have no 2025-26 season line here; their notes use verified 2024-25 numbers and identify the recovery risk. A blank prior-season stat row does not mean a zero projection.",
-          "The injury watchlist below the board is separate from the 150 draft recommendations. Butler and Porziņģis move there because waiting through an uncertain absence is a different decision from filling an active roster spot. Extra injured-reserve capacity can make a stash worthwhile; the general board does not assume that capacity is free.",
+          "The injury watchlist below the board is separate from the 150 draft recommendations. Butler and Porziņģis belong there because waiting through an uncertain absence is a different decision from filling an active roster spot. Extra injured-reserve capacity can make a stash worthwhile; the general board does not assume that capacity is free.",
         ],
       },
     ],
@@ -508,7 +508,7 @@ export const guides = [
       },
       {
         q: 'How are incoming rookies ranked without an NBA baseline?',
-        a: 'The board now includes selected 2026 rookies using verified college and preseason evidence, role expectations and a wider uncertainty allowance. Those are editorial projections, not invented NBA averages. A missing prior-season stat card is expected for a rookie.',
+        a: 'The board includes selected 2026 rookies using verified college and preseason evidence, role expectations and a wider uncertainty allowance. Those are editorial projections, not invented NBA averages. A missing prior-season stat card is expected for a rookie.',
       },
     ],
   },
@@ -531,7 +531,7 @@ export const guides = [
     // moment rather than during it.
     requiresLogin: true,
     tagline:
-      'A rebuilt sleeper shortlist: five new targets, four retained values, and explained removals.',
+      'Fantasy basketball sleepers with useful categories, realistic draft prices and clear role risks.',
     strengths: [],
     weaknesses: [],
 
@@ -552,7 +552,7 @@ export const guides = [
       previewRows: 2,
       heading: 'The sleepers',
       lead:
-        `Reviewed ${SLEEPERS_UPDATED_AT} for standard 12-team, nine-category drafts. Yahoo pre-ranks: ${SLEEPERS_YAHOO_PRERANK_DATE}. ADP: ${SLEEPERS_YAHOO_ADP_DATE}, retained as historical context because current ADP could not be verified. Our rank matches the Top 150 board reviewed ${RANKINGS_UPDATED_AT}; stat pills show actual 2025-26 production. Round targets are our buying advice, not predictions that a player will remain available.`,
+        `For standard 12-team, nine-category drafts. Yahoo pre-ranks: ${SLEEPERS_YAHOO_PRERANK_DATE}; ADP snapshot: ${SLEEPERS_YAHOO_ADP_DATE}. Ranks come from our Top 150; stat pills show 2025-26 results. Use the buying ranges alongside your roster's needs and the price in your room.`,
     },
 
     sections: [
@@ -560,7 +560,7 @@ export const guides = [
         id: 'strategy',
         heading: 'What a sleeper actually is',
         body: [
-          "This is a rebuilt shortlist, not the old list with newer box scores. We compared the current Yahoo public ordering with our Top 150, then checked participation and role evidence. Five additions replace eleven previous names, leaving nine candidates rather than filling a quota. A pre-rank gap is a reason to investigate, not proof of a current ADP discount.",
+          "A sleeper is a player whose useful production can cost less than it should in your draft room. These candidates combine a plausible role with categories worth buying at the stated range. A gap between Yahoo's ordering and our Top 150 is a starting point for that decision, not proof of a bargain.",
           "Some gaps reflect healthy skepticism about missed games or a crowded rotation. Others persist because draft rooms lag behind a player's changed role or overlook categories such as steals, blocks and low turnovers. The notes identify the risk instead of treating every gap as a guaranteed bargain.",
         ],
       },
@@ -568,24 +568,24 @@ export const guides = [
         id: 'draft',
         heading: 'How to use this list',
         body: [
-          "The first five entries are new: Kevin Porter Jr., Norman Powell, Brandin Podziemski, Tari Eason and Draymond Green. Porter is a risky assists-and-steals pick, Powell supplies scoring, Podziemski contributes across several categories, Eason offers bench-role upside, and Green fits teams that already have enough points. Do not draft all five simply because they are new to this list.",
-          "Quickley, Bane, Michael Porter Jr. and Sarr remain as established value cases. Their current pre-ranks leave room relative to our board, although the gap is modest for Bane and Quickley. Use the buying range rather than reaching to our projected rank. ADP is historical where available; no average is invented for Green. Give role evidence more weight than preseason shooting percentages.",
+          "Choose the kind of value your roster needs. Kevin Porter Jr. is a risky assists-and-steals pick, Norman Powell supplies scoring, Brandin Podziemski contributes across several categories, Tari Eason offers bench-role upside, and Draymond Green fits teams that already have enough points. Their weaknesses matter as much as the discount.",
+          "Quickley, Bane, Michael Porter Jr. and Sarr offer established category production. Their current pre-ranks leave room relative to our board, although the gap is modest for Bane and Quickley. Use the buying range rather than reaching to our projected rank. ADP is historical where available; no average is invented for Green. Give role evidence more weight than preseason shooting percentages.",
         ],
       },
       {
         id: 'shortlist-changes',
-        heading: 'Who left the sleeper shortlist, and why',
+        heading: 'When a promising player is not a bargain',
         body: [
-          "Jamal Murray, Lauri Markkanen and Austin Reaves leave because Yahoo already places them ninth, eighteenth and sixteenth. They can still be good early picks, but the sleeper case depended too heavily on September ADP. Trey Murphy III, Derrick White, Dyson Daniels, Nickeil Alexander-Walker, Onyeka Okongwu and Ryan Rollins also leave: their current pre-ranks are near or ahead of our board, so an unverified discount is no longer enough to feature them.",
-          "Reed Sheppard's shooting is interesting, but Yahoo's pre-rank of 56 already asks for more than our projection. Jalen Suggs leaves the active shortlist because unresolved illness weakens the immediate buying case. These are removals from this list, not declarations that the players are undraftable. A genuine fall in your room can change the decision.",
-          "Anthony Black and Khaman Maluach were considered but not added. Black's ankle-related absence makes a practice update insufficient reassurance, while Maluach's Yahoo position is already substantially earlier than our board. A possible rotation opening does not automatically create a bargain. New candidates face the same price and availability checks as old favorites.",
+          "Good players are not necessarily sleepers. Yahoo places Jamal Murray, Lauri Markkanen and Austin Reaves prominently enough that you should expect to pay for their production. Murphy, White, Daniels, Alexander-Walker, Okongwu and Rollins also attract draft-room attention. Treat an actual fall as an opportunity, not something the roster plan depends on.",
+          "Sheppard's shooting is interesting, but Yahoo's pre-rank of 56 asks for more than our projection. Suggs' unresolved illness weakens the immediate buying case. Either could make sense at a sufficient discount; neither deserves a reach simply because the category upside is attractive.",
+          "A possible rotation opening does not automatically create a bargain. Black's ankle-related absence requires more reassurance than a practice update, while Maluach's Yahoo position already carries a substantial development premium. Apply the same price and availability checks to speculative players as to established starters.",
         ],
       },
       {
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          `News and Yahoo public pre-ranks were checked ${SLEEPERS_UPDATED_AT}; this is not a live feed. The ADP column remains the older ${SLEEPERS_YAHOO_ADP_DATE} snapshot, not a refreshed market average. Public pre-rank is also not the same as Yahoo expert rank or a league-specific custom order. The 2025-26 line is historical evidence, the Top 150 rank is an editorial projection, and the round targets reflect the latest sleeper review.`,
+          `News and Yahoo public pre-ranks: ${SLEEPERS_UPDATED_AT}. ADP snapshot: ${SLEEPERS_YAHOO_ADP_DATE}. Public pre-rank differs from Yahoo expert rank and custom league ordering. The stat line shows 2025-26 results; the Top 150 and buying ranges express the forward-looking draft advice.`,
         ],
       },
     ],
@@ -601,7 +601,7 @@ export const guides = [
       },
       {
         q: 'Why does Yahoo pre-rank sometimes disagree with ADP?',
-        a: 'Public pre-rank is an ordering, while ADP summarizes selections from drafts. They are different signals, and these snapshots have different dates. September ADP may understate today’s cost after preseason news. Use your live room rather than assume a player will last to that old average.',
+        a: 'Public pre-rank is an ordering, while ADP summarizes selections from drafts. They are different signals, and these snapshots have different dates. September ADP may understate today’s cost after preseason news. Use your live room rather than assume a player will last to that average.',
       },
     ],
   },
@@ -617,7 +617,7 @@ export const guides = [
     // Freemium, same reasoning as the sleepers list above.
     requiresLogin: true,
     tagline:
-      'Twelve price-sensitive draft cautions, reviewed October 13 with updated Yahoo pre-ranks and preseason availability.',
+      'Twelve draft risks to weigh against price, category fit and availability.',
     strengths: [],
     weaknesses: [],
 
@@ -634,7 +634,7 @@ export const guides = [
       previewRows: 2,
       heading: 'The busts',
       lead:
-        `Reviewed ${BUSTS_UPDATED_AT} for standard 12-team, nine-category drafts. Yahoo public pre-ranks: ${BUSTS_YAHOO_PRERANK_DATE}. ADP remains the historical ${BUSTS_YAHOO_ADP_DATE} snapshot because current averages could not be verified. Our rank matches the Top 150 reviewed ${RANKINGS_UPDATED_AT}; stat pills show actual 2025-26 results. These are price objections, not a do-not-draft list.`,
+        `For standard 12-team, nine-category drafts. Yahoo pre-ranks: ${BUSTS_YAHOO_PRERANK_DATE}; ADP snapshot: ${BUSTS_YAHOO_ADP_DATE}. Ranks come from our Top 150; stat pills show 2025-26 results. These are price and roster-fit cautions, not a do-not-draft list.`,
     },
 
     sections: [
@@ -650,7 +650,7 @@ export const guides = [
         id: 'draft',
         heading: 'How to use this list',
         body: [
-          "Read each tag as an editorial buying range in a twelve-team league, not a prediction of availability. Compare it with the actual pick you would spend. If Brown or Banchero falls toward Yahoo's much later pre-rank, the old third-round objection no longer applies. Davis is a narrower risk-management call now, while Lillard becomes interesting in rounds seven or eight rather than requiring a ninth-round fall.",
+          "Read each tag as a buying range in a twelve-team league, not a prediction of availability. Compare it with the actual pick you would spend. Brown or Banchero can become attractive if their prices fall far enough. Davis is a calculated fifth-round health risk, while Lillard is a seventh- or eighth-round option for a roster with dependable starters.",
           "A punt changes which weaknesses matter, but it does not fix missed games. Castle's turnover cost disappears in eight-category formats; Siakam becomes more appealing when FT% is excluded. Keep those format differences separate from the balanced nine-category board, and do not count a favorable build adjustment twice. One hot or cold exhibition is much weaker evidence than a full-season category profile.",
         ],
       },
@@ -658,7 +658,7 @@ export const guides = [
         id: 'caveats',
         heading: 'What this list does not know',
         body: [
-          `News and public pre-ranks were checked ${BUSTS_UPDATED_AT}; this page is not a live injury or draft feed. The ${BUSTS_YAHOO_ADP_DATE} ADP is an older reference, not today's verified cost. Public pre-rank differs from expert rank and custom league ordering. The historical stat line, Top 150 projection and buying advice answer different questions. Lillard's last played season was 2024-25, not 2025-26.`,
+          `News and Yahoo public pre-ranks: ${BUSTS_UPDATED_AT}. ADP snapshot: ${BUSTS_YAHOO_ADP_DATE}. Public pre-rank differs from expert rank and custom league ordering. Historical results, the Top 150 projection and buying advice answer different questions. Lillard's last played season was 2024-25, not 2025-26.`,
         ],
       },
     ],

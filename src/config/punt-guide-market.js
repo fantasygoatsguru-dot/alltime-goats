@@ -14,7 +14,7 @@ export function syncPuntGuide(guide) {
   );
   return {
     ...guide,
-    marketNote: `Aligned with the current Top 150. Yahoo public pre-ranks: ${YAHOO_PRERANK_DATE}; ADP: ${YAHOO_ADP_DATE} (historical snapshot, not current averages). Overall ranks are not punt ranks. Round labels are buying ranges, not availability guarantees. The radar uses historical NBA results and excludes players without a matching season row.`,
+    marketNote: `Yahoo public pre-ranks: ${YAHOO_PRERANK_DATE}; ADP: ${YAHOO_ADP_DATE} (dated snapshot). Overall ranks are not punt ranks. Round labels are buying ranges, not availability guarantees. The radar uses historical NBA results and excludes players without a matching season row.`,
     sections: guide.sections.map(section => ({
       ...section,
       body: section.body.map(text => resolveText(text)),
