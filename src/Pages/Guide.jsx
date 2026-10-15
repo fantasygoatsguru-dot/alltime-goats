@@ -53,7 +53,8 @@ function GuideAd({ guide, lazy = true }) {
 // What a reader gets for the pass, stated plainly and counted off the guide's
 // own config rather than hand-written per page — a list that drifts from what
 // is actually behind it is worse than no list.
-function Paywall({ guide, hiddenSections }) {
+function Paywall({ guide, hiddenSections, onRequireSignIn }) {
+  const loginOnly = guideAccess(guide) === 'login';
   const rounds = guide.roundTargets?.length || 0;
   const picks = (guide.roundTargets || []).reduce((n, r) => n + r.candidates.length, 0);
 
@@ -84,8 +85,9 @@ function Paywall({ guide, hiddenSections }) {
         </Typography>
       </Box>
       <Typography sx={{ color: '#5a6472', fontSize: '0.95rem', lineHeight: 1.6, mb: 2 }}>
-        You have read the strategy. The part that wins the draft — who to take, and when — comes with a
-        Draft Pass.
+        {loginOnly
+          ? 'Sign in with a free account to read the complete guide, use the draft builder and see the full board. No Draft Pass required.'
+          : 'You have read the strategy. The part that wins the draft — who to take, and when — comes with a Draft Pass.'}
       </Typography>
       <Box component="ul" sx={{ m: 0, mb: 2.5, pl: 2.5, color: '#2c3440' }}>
         {items.map((t) => (
@@ -95,11 +97,12 @@ function Paywall({ guide, hiddenSections }) {
         ))}
       </Box>
       <Button
-        component={RouterLink}
-        to="/pricing"
+        component={loginOnly ? 'button' : RouterLink}
+        to={loginOnly ? undefined : '/pricing'}
+        onClick={loginOnly ? onRequireSignIn : undefined}
         sx={{ textTransform: 'none', fontWeight: 700, bgcolor: '#0f2340', color: '#fff', borderRadius: 2, px: 3, '&:hover': { bgcolor: '#1b3a63' } }}
       >
-        Unlock with Draft Pass
+        {loginOnly ? 'Sign in to read it all — free' : 'Unlock with Draft Pass'}
       </Button>
     </Box>
   );
@@ -140,7 +143,7 @@ export default function Guide({ onRequireSignIn }) {
   // behind this flag; the board gates itself through board.freeLimit, and the
   // FAQs stay public on purpose because structured-data.js emits them as FAQ
   // JSON-LD, so hiding them while serving them to crawlers would be cloaking.
-  const locked = Boolean(guide.isPremium) && !unlocked;
+  const locked = (guide.isPremium || (guide.requiresLogin && guide.type === 'punt')) && !unlocked;
   const visibleSections = locked ? sections.slice(0, guide.freeSections ?? 1) : sections;
   const hiddenSections = sections.length - visibleSections.length;
 
@@ -261,7 +264,7 @@ export default function Guide({ onRequireSignIn }) {
               </Box>
             ))}
 
-            {locked && <Paywall guide={guide} hiddenSections={hiddenSections} />}
+            {locked && <Paywall guide={guide} hiddenSections={hiddenSections} onRequireSignIn={onRequireSignIn} />}
 
             {/* First unit, at the seam between the prose and the board. Nothing
                 is placed inside the prose: free guides run only 3-4 short
@@ -321,7 +324,7 @@ export default function Guide({ onRequireSignIn }) {
                   <strong style={{ color: '#c0392b', textDecoration: 'line-through' }}>{punt?.label}</strong> column is struck out
                   and pulled from the Value total — sort and draft straight off it.
                 </Typography>
-                <RankingTable
+                {access === 'login' && !unlocked ? null : <RankingTable
                   puntKey={guide.puntKey}
                   season={board.dataSeason ?? PRIOR_SEASON}
                   limit={board.limit}
@@ -329,7 +332,7 @@ export default function Guide({ onRequireSignIn }) {
                   freeLimit={board.freeLimit}
                   previewRows={board.previewRows}
                   unlocked={unlocked}
-                />
+                />}
               </>
             )}
 
@@ -381,7 +384,7 @@ export default function Guide({ onRequireSignIn }) {
             )}
 
             {/* Example teams — premium teaser */}
-            {guide.exampleTeams && (
+            {guide.exampleTeams && !(access === 'login' && !unlocked) && (
               <>
                 <GuideAd guide={guide} />
                 <SectionHeading id="examples">Example teams</SectionHeading>

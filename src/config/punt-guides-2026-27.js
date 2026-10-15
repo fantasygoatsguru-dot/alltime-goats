@@ -13,7 +13,8 @@ export const PUNT_FT = syncPuntGuide({
   "title": "Punt FT%",
   "season": CONTENT_SEASON,
   "difficulty": "Beginner",
-  "isPremium": true,
+  "isPremium": false,
+  "requiresLogin": true,
   "tagline": "Build around dominant finishers, then give them the shooting and passing needed to win the matchup.",
   "strengths": [
     "fg",

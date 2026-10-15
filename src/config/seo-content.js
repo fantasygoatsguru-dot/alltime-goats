@@ -293,12 +293,8 @@ export const SEO_CONTENT = {
 
   '/guides/punt-ft': {
     title: 'Punt FT% Strategy 2026-27',
-    // A premium guide, so this block carries ONLY what a signed-out reader sees
-    // on the page: the first two strategy sections and the public FAQs. The round
-    // targets, building blocks and example rosters are behind the Draft Pass
-    // and must never appear here — serving a crawler content a visitor cannot
-    // read is cloaking, and it would also give the paid build away for free.
     content: `
+      <p>Sign in with a free account to access the complete punt FT% guide, draft targets, example teams and full draft board. No Draft Pass required.</p>
       <p>Giannis Antetokounmpo is the clearest reason to stop chasing free-throw percentage. He made 65.0% on 9.9 attempts a game in 2025-26, enough volume that adding one excellent shooter is unlikely to rescue the team total. Remove that problem and his 27.6 points, 9.8 rebounds and 62.4% FG become much easier to build around. This guide is written for a 12-team, nine-category head-to-head league, where the aim is a reliable route to five weekly category wins.</p>
 
       <p>The next picks still have different jobs to do. Giannis averaged only 0.7 blocks, so he needs a teammate who can supply rim protection. Jalen Duren gives you much more FG% volume than Rudy Gobert, while Gobert offers more blocks. Alperen Sengun adds 6.2 assists from center. Those differences matter more than simply collecting players with poor free-throw percentages.</p>

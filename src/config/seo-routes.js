@@ -169,7 +169,7 @@ export const seoRoutes = [
   {
     path: '/guides/punt-ft',
     title: 'Punt FT% Strategy 2026-27 | Live Draft Board | Fantasy Goats Guru',
-    description: 'The complete punt FT% build for 2026-27 fantasy basketball: why conceding the line buys you the best big men in the league, and a live draft board re-ranked with free throw percentage removed.',
+    description: 'Free with login: the complete punt FT% guide for 2026-27 fantasy basketball, with draft targets, example teams and a live board re-ranked with free throw percentage removed.',
     changefreq: 'weekly',
     priority: 0.7,
   },
