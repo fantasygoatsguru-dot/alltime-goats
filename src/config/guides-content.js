@@ -107,7 +107,7 @@ export const guides = [
       "heading": "How to use the board and draft targets",
       "body": [
         "The Top 150 estimates overall draft value; this guide focuses on the categories you intend to win. A player's best fit and sensible buying range can differ from his overall rank.",
-        "The table and example-team totals use 2025-26 NBA results with the punted category excluded from value. Written recommendations account for role and availability. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
+        "The table and example-team totals use 2025-26 per-game results with the punted category excluded from value; they do not forecast games played. Players with a known multi-week absence stay on the table, but their Value is scaled down by the share of a healthy season we expect them to deliver (marked INJ), and the GP column shows each player's 2025-26 sample, so weigh low totals before trusting a high rank. The written round targets are where 2026-27 roles, injuries and known absences are priced in. Rookies without an NBA season row are excluded from the historical radar, not assigned zero projected production. Example rosters illustrate category trade-offs rather than guaranteed draft paths."
       ]
     }
   ],
@@ -177,7 +177,8 @@ export const guides = [
           "name": "Donovan Mitchell",
           "note": "Mitchell is a second-round target overall, with a case near the first-round turn specifically when blocks are removed. His 27.9 points, 3.2 threes and 1.5 steals come with 48.3% FG and 86.5% FT, so the scoring does not require accepting a major percentage weakness. He offers less passing than Harden, but 5.7 assists are a useful start, and the 0.3 blocks cost little to remove. Our Top 150 places him at {{rank}} against Yahoo ADP near 14; his Yahoo pre-rank of {{preRank}} may still push him earlier than our second-round valuation. If he reaches you, Towns is an attractive next pick because Mitchell's 4.5 rebounds need support. That pairing can establish the offense without sacrificing the center categories you still want to win."
         }
-      ]
+      ],
+      "others": ["Tyrese Maxey", "Jayson Tatum", "Jalen Johnson", "Anthony Edwards"]
     },
     {
       "round": 2,
@@ -206,7 +207,8 @@ export const guides = [
           "name": "Karl-Anthony Towns",
           "note": "Towns is the early center whose main weakness fits the plan. His 0.5 blocks no longer matter, leaving 11.9 rebounds, 50.1% FG and 85.8% FT on 5.5 attempts. That free-throw volume is what separates him from the usual rebounding center: he can strengthen the line while filling a position many guard-heavy teams struggle to cover. His 1.5 threes help too, although they are not enough to treat him as a substitute for a high-volume shooter. The 2.5 turnovers remain a cost. Around the first/second-round turn, I particularly like him beside Mitchell or another scoring guard; managers picking near the very top should not count on him surviving until their second selection."
         }
-      ]
+      ],
+      "others": ["Stephen Curry", "Devin Booker", "Cade Cunningham", "LaMelo Ball"]
     },
     {
       "round": 3,
@@ -243,7 +245,8 @@ export const guides = [
           "name": "Domantas Sabonis",
           "note": "The category fit is obvious: Sabonis supplies rebounds and passing while contributing almost no blocks. The latest season is much less reassuring as a projection base. He played only 19 games, averaging 11.4 rebounds and 4.1 assists, with 54.3% FG and 72.7% FT. His earlier passing ceiling is appealing, but a return to that level needs to be earned through health and workload rather than assumed. Yahoo's ADP near 27 is ahead of our rank of {{rank}}, so I would want some room in the price or a particularly strong need for boards and center assists. He also adds little shooting and 2.7 turnovers. A good punt fit does not make all of those costs disappear."
         }
-      ]
+      ],
+      "others": ["Jaylen Brown", "Amen Thompson", "Josh Giddey", "Trae Young"]
     },
     {
       "round": 4,
@@ -252,7 +255,8 @@ export const guides = [
           "name": "Desmond Bane",
           "note": "Bane is the guard I would look for when the early picks already supply creation and the roster needs dependable scoring and percentages. He played all 82 games, averaged 20.1 points and 4.1 assists, and shot 48.3% FG with 90.8% FT on 4.2 attempts. His two turnovers are manageable for that workload. White offers more blocks, but that advantage has no value in this build; Bane's much stronger FG% becomes the more useful distinction. He gives you two threes rather than the volume of Murphy, so the choice depends on whether shooting quantity or overall efficiency is the priority. Around the fourth round, he fits particularly well after a riskier early selection."
         }
-      ]
+      ],
+      "others": ["Michael Porter Jr.", "Nickeil Alexander-Walker", "LeBron James", "Deni Avdija"]
     },
     {
       "round": 5,
@@ -273,7 +277,8 @@ export const guides = [
           "name": "Payton Pritchard",
           "note": "Pritchard gives you much of the guard production this build wants while contributing almost nothing in the category you are removing. He made 2.7 threes and averaged 5.2 assists with 1.4 turnovers and only 0.1 blocks. That makes him especially attractive compared with paying several rounds more for White and then discarding White's rim protection. His 46.3% FG still needs support, and 89.0% FT on 1.7 attempts is helpful rather than enough to carry the line. Boston's changed offense may trim some creation, so I would value a repeat of the supporting role rather than another usage increase. After an early scoring guard and a rebounding big, he can finish the passing without making turnovers worse."
         }
-      ]
+      ],
+      "others": ["Ryan Rollins", "VJ Edgecombe", "Darius Garland", "Paolo Banchero"]
     },
     {
       "round": 6,
@@ -294,7 +299,8 @@ export const guides = [
           "name": "Jaden McDaniels",
           "note": "McDaniels can still help a punt-blocks roster, but I would choose him for a specific reason rather than automatically carry over his value from another build. His one block disappears, leaving 51.5% FG, 83.5% FT, 1.1 steals and 1.4 threes. Those percentages are useful after a low-efficiency guard, while the 4.2 rebounds and 2.7 assists are more modest contributions. Hart does much more for rebounding and passing at a similar draft stage. McDaniels is the choice when those categories are already covered and the wing slot needs efficient scoring and steals. Minnesota's new backcourt may change his shot opportunities, but defense remains the reason to expect him to earn minutes."
         }
-      ]
+      ],
+      "others": ["Ty Jerome", "Paul George", "Julius Randle", "Ja Morant"]
     },
     {
       "round": 7,
@@ -303,7 +309,8 @@ export const guides = [
           "name": "De'Aaron Fox",
           "note": "Fox is useful when you need assists but cannot afford another serious FG% penalty. His 6.2 assists came with 48.6% shooting and 2.3 turnovers, a more manageable balance than several earlier lead guards. He also made 1.8 threes, so the shot distribution is not as restrictive as a non-shooting passer's. The 76.0% FT on 3.4 attempts is the cost to check, especially if the frontcourt already includes Duren or Bam. Pritchard is the better shooting-and-ball-security option; Fox adds more scoring, assists and steals. Sharing San Antonio's creation with Castle and Wembanyama limits the case for a scoring rebound. I would use him to fill a specific passing gap around his seventh-round price."
         }
-      ]
+      ],
+      "others": ["Pascal Siakam", "Jalen Suggs", "Reed Sheppard", "Stephon Castle"]
     },
     {
       "round": 8,
@@ -320,7 +327,8 @@ export const guides = [
           "name": "Josh Hart",
           "note": "Hart solves a problem that another scoring wing usually cannot. His 7.4 rebounds are substantial from a perimeter slot, and 4.8 assists with 1.9 turnovers keep the passing useful without adding another lead guard. He shot 50.8% FG, so those extra boards do not come with a shooting penalty from the field. His 72.0% FT needs context: on 1.9 attempts it is a manageable drag if the earlier picks supply accurate volume. The 12.0 points and 1.5 threes are modest, which makes him a much better fit after established scorers than on a team still chasing offense. Around the end of round eight, I would prioritize him when rebounding is the last major weakness."
         }
-      ]
+      ],
+      "others": ["Kevin Porter Jr.", "Grayson Allen", "Brandin Podziemski", "Miles Bridges"]
     },
     {
       "round": 9,
@@ -329,7 +337,8 @@ export const guides = [
           "name": "CJ McCollum",
           "note": "McCollum remains a practical way to add offense after the primary creators are gone. His 18.7 points and 2.5 threes came with 3.9 assists and 1.8 turnovers, so he can support the backcourt without needing to run the whole fantasy team. Atlanta re-signed him, but the workload alongside Daniels and the other creators still matters. His 45.5% FG and 77.2% FT on 3.1 attempts are the reason I would not treat him as an automatic percentage-friendly veteran. Powell gives you more scoring and stronger FT% at an earlier price; Quickley offers more assists. McCollum fits when your first picks have covered the percentages and the remaining need is points and shooting."
         }
-      ]
+      ],
+      "others": ["Bennedict Mathurin", "Toumani Camara", "Andrew Wiggins", "Cedric Coward"]
     },
     {
       "round": 10,
@@ -346,7 +355,8 @@ export const guides = [
           "name": "Tre Jones",
           "note": "Jones is one of the few late passers who can improve FG% while adding assists. He averaged 5.4 assists with 1.4 turnovers and shot 55.3% on 9.5 attempts, making him a useful follow-up to a low-efficiency early guard. His 84.1% FT on 3.5 attempts helps as well. The tradeoff is 0.6 threes, so he fits a team that has already bought outside shooting. Giddey remains a major creator in Chicago; the argument is for Jones' existing supporting production, not a prediction that he takes over the offense. If percentages and assists are your remaining gaps, his price near 116 can make more sense than another wing who only adds threes. His hip absence also needs an availability check before you use him as an immediate passing fix."
         }
-      ]
+      ],
+      "others": ["Andrew Nembhard", "Devin Vassell", "Ajay Mitchell", "Tari Eason"]
     },
     {
       "round": 11,
@@ -363,7 +373,8 @@ export const guides = [
           "name": "DeMar DeRozan",
           "note": "DeRozan is a useful late choice when the team needs scoring and free throws more than another outside shooter. He averaged 18.1 points and 4.1 assists with only 1.2 turnovers, shooting 49.5% FG and 86.5% FT on 5.5 attempts. That is enough volume to support a weaker free-throw shooter elsewhere. Denver's offense will run through Jokić, so the new role could reduce some touches; the efficiency and ball security are the reasons to consider him. His 0.6 threes and 2.9 rebounds are real limitations. After several shooting guards and a dependable center, he can help the remaining categories; after a low-three opening, another scorer is not the same as the shooter you need."
         }
-      ]
+      ],
+      "others": ["Jrue Holiday", "RJ Barrett", "Anthony Black", "Coby White"]
     },
     {
       "round": 12,
@@ -379,12 +390,9 @@ export const guides = [
         {
           "name": "Julian Champagnie",
           "note": "Champagnie's shooting and rebounding are useful late, but Harper's move into San Antonio's preseason starting group changes the minutes question. The previous fantasy role should not be carried forward automatically. Removing blocks does not protect you from a smaller workload, and the uncertain workload makes him a final-round option. Choose him only if threes and wing boards fit the last slot; do not treat him as a dependable starter just because the September price was earlier."
-        },
-        {
-          "name": "Quentin Grimes",
-          "note": "Grimes is a final-pick option for secondary passing and shooting if the Lakers give him a steady wing role. He averaged 13.4 points, 3.3 assists and 1.7 threes while shooting 84.0% FT, a usable supporting line without much dependence on blocks. Luka and Reaves will handle most of the creation, so a major usage increase is a poor basis for the pick. Our rank of {{rank}} is later than Yahoo ADP around 120; I would prefer a fall rather than chase him for the new team. He does more passing than Moody but supplies fewer threes and more turnovers. Let the last open category determine which of those profiles belongs on the roster."
         }
-      ]
+      ],
+      "others": ["Kelly Oubre Jr.", "Dillon Brooks", "Aaron Gordon", "Davion Mitchell"]
     }
   ],
   "faqs": [
@@ -457,7 +465,7 @@ export const guides = [
           "The October 13 comparison is a challenge to our assumptions, not an average of three rankings. RotoBaller's October 12 category guide and FantasyPros' six-expert draft consensus highlight disagreements worth investigating. Although the FantasyPros URL says rest-of-season, its page currently identifies the displayed data as 2026-27 draft rankings. Yahoo public pre-rank describes the room's ordering, not an independent projection or today's ADP.",
           "Participation helps assess the recovery risk for Tatum, Haliburton, Miller, Kessler and Irving. LaMelo and Trae supply scarce assists and threes, while Murray, Markkanen and Brown need prices that account for usage and availability. Queta and Hartenstein offer useful center categories without requiring a scoring breakout.",
           "Some disagreements remain intentional. Cade's turnovers still matter in nine-category play. Daniels' steals are more valuable in a compatible punt than on a balanced roster, while Knueppel's uncertain start still warrants a discount. Dejounte's toe absence warrants a discount despite his passing and steals. No consensus number overrides a current availability problem, and a Yahoo discount does not make a player intrinsically worse.",
-          "Rookies such as Boozer, Wilson, Peterson, Dybantsa and Lendeborg are evaluated through college evidence, preseason roles and a wider range of outcomes. Harper and Murray-Boyles offer development upside; Cameron Johnson supplies complementary shooting. Butler and Porziņģis belong on the injury watchlist because their uncertain availability calls for a stash decision rather than an active roster plan.",
+          "Rookies such as Boozer, Wilson, Peterson, Dybantsa and Lendeborg are evaluated through college evidence, preseason roles and a wider range of outcomes. Harper and Murray-Boyles offer development upside; Cameron Johnson supplies complementary shooting. Butler and Porziņģis are ranked late as stashes: Butler at No. 118 because his early-2027 timeline still leaves about half a season of strong production, Porziņģis at No. 142 because no timetable makes his higher ceiling a bench decision.",
         ],
       },
       {
@@ -484,7 +492,7 @@ export const guides = [
         body: [
           "The board draws on player production, roles and availability, with Yahoo, RotoBaller and FantasyPros used as reference points. Dated sources accompany player notes; a missing injury mention is not medical clearance. Rookie college and preseason evidence is labeled separately from historical NBA results.",
           "Injury returns have the widest range of outcomes. Tyrese Haliburton, Kyrie Irving and Damian Lillard have no 2025-26 season line here; their notes use verified 2024-25 numbers and identify the recovery risk. A blank prior-season stat row does not mean a zero projection.",
-          "The injury watchlist below the board is separate from the 150 draft recommendations. Butler and Porziņģis belong there because waiting through an uncertain absence is a different decision from filling an active roster spot. Extra injured-reserve capacity can make a stash worthwhile; the general board does not assume that capacity is free.",
+          "Injured players are ranked inside the board, priced for the games they are expected to miss, and each card shows the injury status. Butler and Porziņģis sit in the final rounds because waiting through an absence costs a roster spot; extra injured-reserve capacity makes them more attractive. Players whose return is too late or too uncertain for their level, such as DiVincenzo, are left off the board.",
         ],
       },
     ],
@@ -650,7 +658,7 @@ export const guides = [
         id: 'draft',
         heading: 'How to use this list',
         body: [
-          "Read each tag as a buying range in a twelve-team league, not a prediction of availability. Compare it with the actual pick you would spend. Brown or Banchero can become attractive if their prices fall far enough. Davis is a calculated fifth-round health risk, while Lillard is a seventh- or eighth-round option for a roster with dependable starters.",
+          "Read each tag as a buying range in a twelve-team league, not a prediction of availability. Compare it with the actual pick you would spend. Brown or Banchero can become attractive if their prices fall far enough. Davis is a calculated fourth-round health risk, while Lillard is a seventh- or eighth-round option for a roster with dependable starters.",
           "A punt changes which weaknesses matter, but it does not fix missed games. Castle's turnover cost disappears in eight-category formats; Siakam becomes more appealing when FT% is excluded. Keep those format differences separate from the balanced nine-category board, and do not count a favorable build adjustment twice. One hot or cold exhibition is much weaker evidence than a full-season category profile.",
         ],
       },

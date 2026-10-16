@@ -167,14 +167,6 @@ export const PLAYERS = [
   },
   {
     "rank": 14,
-    "name": "Kawhi Leonard",
-    "team": "TOR",
-    "yahooAdp": 29.3,
-    "yahooPreRank": 15,
-    "note": "When he played, Kawhi was still an elite fantasy producer: 27.5 points, 1.8 steals and excellent percentages in 65 games. A September trade sent him from the Clippers back to Toronto for Brandon Ingram, putting that line in a different offense beside Scottie Barnes. The Yahoo discount reflects real age and availability risk, but the per-game upside makes him hard to pass at this spot. Kawhi's 50.8% shooting and 88.8% free throws make his efficiency more useful than that of most high-scoring wings. He is a more comfortable roto pick than a streaky volume shooter when healthy, yet the new Toronto fit and his age make pairing him with another injury gamble unwise."
-  },
-  {
-    "rank": 15,
     "name": "Jamal Murray",
     "team": "DEN",
     "yahooAdp": 20.5,
@@ -182,7 +174,7 @@ export const PLAYERS = [
     "note": "Last season finally gave Murray the full-volume fantasy line managers have waited for: 25.4 points, 3.3 threes and 7.1 assists across 75 games. His 2.3 turnovers and 88.7% free throws make that much cleaner in nine-category leagues than the usual high-usage guard line. The correction here is the price, not a loss of faith in the player. With DeMar DeRozan joining Denver, a first-round valuation asks Murray to repeat nearly everything that went right while absorbing another scorer. I prefer him in the second round, behind younger foundations with broader rebounding or defensive contributions. That still leaves room to beat his September ADP; it no longer treats last season's best-case volume as the default."
   },
   {
-    "rank": 16,
+    "rank": 15,
     "name": "Scottie Barnes",
     "team": "TOR",
     "yahooAdp": 14.1,
@@ -190,15 +182,15 @@ export const PLAYERS = [
     "note": "Barnes helps in almost every category without needing a huge scoring night to matter. He played 80 games and averaged 7.5 rebounds, 5.9 assists, 1.4 steals and 1.4 blocks, a remarkably useful mix for a forward. Toronto's addition of Kawhi Leonard may trim his scoring share, but the passing and defense should remain the reasons to draft him. His 1.4 steals and 1.4 blocks are a better defensive combination than most forwards offer, and they do not depend on being Toronto's leading scorer. Barnes fits balanced nine-category and roto builds especially well; a punt-threes team can also treat his 0.8 triples as a smaller cost."
   },
   {
-    "rank": 17,
+    "rank": 16,
     "name": "Donovan Mitchell",
     "team": "CLE",
     "yahooAdp": 13.8,
     "yahooPreRank": 8,
-    "note": "Mitchell is a strong second-round scoring anchor whose best pairing is a frontcourt player who covers his gaps. His 27.9 points, 3.2 threes, 1.5 steals and 86.5% free throws cover several important guard categories. The limitation is breadth: rebounds and blocks have to come from later picks, and his passing does not create the same advantage as the elite lead creators. Seventy games and 2.8 turnovers made last season useful without making him a top-five foundation. At No. 17, the scoring and shooting are easier to justify without assuming another leap. He fits especially well after a big who supplies boards and rim protection; punt blocks can value him more highly than this overall placement."
+    "note": "Mitchell is a strong second-round scoring anchor whose best pairing is a frontcourt player who covers his gaps. His 27.9 points, 3.2 threes, 1.5 steals and 86.5% free throws cover several important guard categories. The limitation is breadth: rebounds and blocks have to come from later picks, and his passing does not create the same advantage as the elite lead creators. Seventy games and 2.8 turnovers made last season useful without making him a top-five foundation. At No. 16, the scoring and shooting are easier to justify without assuming another leap. He fits especially well after a big who supplies boards and rim protection; punt blocks can value him more highly than this overall placement."
   },
   {
-    "rank": 18,
+    "rank": 17,
     "name": "Karl-Anthony Towns",
     "team": "NYK",
     "yahooAdp": 15,
@@ -206,7 +198,7 @@ export const PLAYERS = [
     "note": "Towns is one of the easiest early centers to fit around a guard-heavy start. His 11.9 rebounds and 85.8% free throws come with solid field-goal impact and some threes, so he solves problems without creating the usual big-man penalty at the line. Half a block a game means he cannot be your main source of rim protection. Compared with Duren, Towns gives up a great deal of FG% impact but adds threes and much better free throws. That makes KAT an unusually useful center for roto or a balanced nine-category team; a punt-blocks build can turn his 0.5 blocks from a flaw into an easy category sacrifice."
   },
   {
-    "rank": 19,
+    "rank": 18,
     "name": "Tyrese Haliburton",
     "team": "IND",
     "yahooAdp": 16.5,
@@ -220,7 +212,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 20,
+    "rank": 19,
     "name": "Stephen Curry",
     "team": "GSW",
     "yahooAdp": 23.9,
@@ -234,7 +226,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 21,
+    "rank": 20,
     "name": "Amen Thompson",
     "team": "HOU",
     "yahooAdp": 23.6,
@@ -242,7 +234,7 @@ export const PLAYERS = [
     "note": "Amen does his best work in categories most guards cannot supply: 7.8 rebounds on 53.4% shooting, plus 1.5 steals. The assists are valuable too, but Fred VanVleet's return could reduce the point-guard time that helped him reach 5.3 a game. The almost empty three-point column means your other perimeter picks need to shoot. Amen's 0.3 threes make him a much better fit for a punt-threes or FG%-focused team than for a roster already short on spacing. Compared with Dyson Daniels, he gives up some steals but offers more scoring and stronger shooting from the field."
   },
   {
-    "rank": 22,
+    "rank": 21,
     "name": "Trey Murphy III",
     "team": "NOP",
     "yahooAdp": 40.1,
@@ -250,7 +242,7 @@ export const PLAYERS = [
     "note": "Murphy's 3.2 threes and 1.5 steals are already a rare pairing, and his 21.5 points make him much more than a shooting specialist. He is far cheaper in Yahoo drafts than this projection, which leaves room to wait if your league follows that market. His rebounds and assists are useful rather than carrying categories, so a point guard or rebounding big still makes sense beside him. Murphy's 88.6% free throws and only 1.8 turnovers make those threes easier to use in roto than a lower-efficiency gunner's. In a head-to-head punt-blocks build, his 0.4 blocks cost almost nothing while the shooting and steals gain importance."
   },
   {
-    "rank": 23,
+    "rank": 22,
     "name": "Bam Adebayo",
     "team": "MIA",
     "yahooAdp": 30.1,
@@ -258,12 +250,20 @@ export const PLAYERS = [
     "note": "Bam's case is built on 20 points, ten rebounds and helpful assists and steals from a center, not on dominant blocks. His 44.2% field-goal mark last season also removes some of the efficiency cushion managers expect from a big. Miami's addition of Giannis changes the frontcourt hierarchy, so this rank assumes Bam keeps enough touches and minutes to preserve the broad line. The new Giannis pairing also puts two frontcourt players with limited block rates in the same offense, so Bam is less of a defensive-category fix than his position suggests. In a punt-blocks build his 0.7 blocks are less costly, and his assists and steals from center become more valuable."
   },
   {
-    "rank": 24,
+    "rank": 23,
     "name": "Lauri Markkanen",
     "team": "UTA",
     "yahooAdp": 38.7,
     "yahooPreRank": 18,
     "note": "Markkanen's 26.6 points, 89.6% free throws and only 1.5 turnovers explain why his per-game line deserves early-round attention. They do not establish an equally strong full-season floor. He played 42 games, and Utah now has Jaren Jackson Jr. plus another young scorer in Darryn Peterson. I am taking a little more room for both missed games and a smaller share of the offense rather than copying the old scoring average forward. The big-man eligibility remains useful when you need shooting without another poor free-throw shooter. Punt-assists teams can justify paying toward the top of this range; a balanced team should not chase Yahoo's second-round ordering simply because the percentages look attractive."
+  },
+  {
+    "rank": 24,
+    "name": "Kawhi Leonard",
+    "team": "TOR",
+    "yahooAdp": 29.3,
+    "yahooPreRank": 15,
+    "note": "When he played, Kawhi was still an elite fantasy producer: 27.5 points, 1.8 steals and excellent percentages in 65 games. A September trade sent him from the Clippers back to Toronto for Brandon Ingram, putting that line in a different offense beside Scottie Barnes. The per-game line still belongs in the early second round; the full-season line does not. Kawhi is 35, he has not cleared 70 games since 2016–17, and Toronto now asks him to share creation with Scottie Barnes and Immanuel Quickley in an unfamiliar offense. No. 24 keeps him at the end of round two, close to his Yahoo pre-rank, rather than paying a top-15 price for a season that has to go right in health and fit at once. Kawhi's 50.8% shooting and 88.8% free throws make his efficiency more useful than that of most high-scoring wings. He is a more comfortable roto pick than a streaky volume shooter when healthy, yet the new Toronto fit and his age make pairing him with another injury gamble unwise."
   },
   {
     "rank": 25,
@@ -303,11 +303,25 @@ export const PLAYERS = [
   },
   {
     "rank": 28,
+    "name": "Trae Young",
+    "team": "WAS",
+    "yahooAdp": 26.8,
+    "yahooPreRank": 72,
+    "note": "Young should not be priced as though his 15-game injury season is the most likely shape of the next one. Even that interrupted year produced eight assists per game. On October 12 he delivered 11 assists in 28 minutes. That return deserves more credit than the previous fourth-round price gave it: an eight-assist guard with strong free-throw impact and real three-point volume is scarce, and very few players left after pick 25 can move assists by themselves. No. 28 puts him in the third round, around his September ADP, without paying a second-round price for a 15-game sample. FG%, turnovers and limited defensive production still matter in nine-category leagues, and Washington's other scoring options do not turn him into a clean all-category player. He makes the most sense for a team deliberately buying assists and FT%, with an efficient frontcourt pick to follow, rather than as a generic best-player-available selection. Removing turnovers or punting FG% strengthens the case; those are changes in format, not evidence that every drafter should pay the same price.",
+    "sources": [
+      {
+        "label": "NBA role/game review · checked Oct 13, 2026",
+        "url": "https://www.nba.com/player/1629027/trae-young"
+      }
+    ]
+  },
+  {
+    "rank": 29,
     "name": "LaMelo Ball",
     "team": "MIN",
     "yahooAdp": 26,
     "yahooPreRank": 62,
-    "note": "Ball belongs in the third-round discussion rather than behind most of the early middle-round specialists. Last season's 3.8 threes and 7.1 assists are difficult to replace with two ordinary middle-round picks. He had seven assists in 22 minutes on October 12. That does not settle the Edwards partnership, but it gives no reason to assume Ball's playmaking disappears. The 40.7% shooting remains a serious cost, and I would not value him as a balanced-roto second-round anchor. No. 28 gives his scarce assists and shooting more weight without pretending the efficiency cost has disappeared. In a punt-FG% build he can go earlier; in a neutral build, surround him with efficient frontcourt volume. Yahoo's later public pre-rank is a reason to watch for a discount, not a reason to downgrade his ability.",
+    "note": "Ball belongs in the third-round discussion rather than behind most of the early middle-round specialists. Last season's 3.8 threes and 7.1 assists are difficult to replace with two ordinary middle-round picks. He had seven assists in 22 minutes on October 12. That does not settle the Edwards partnership, but it gives no reason to assume Ball's playmaking disappears. The 40.7% shooting remains a serious cost, and I would not value him as a balanced-roto second-round anchor. No. 29 gives his scarce assists and shooting more weight without pretending the efficiency cost has disappeared. In a punt-FG% build he can go earlier; in a neutral build, surround him with efficient frontcourt volume. Yahoo's later public pre-rank is a reason to watch for a discount, not a reason to downgrade his ability.",
     "sources": [
       {
         "label": "NBA role/game review · checked Oct 13, 2026",
@@ -316,7 +330,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 29,
+    "rank": 30,
     "name": "Devin Booker",
     "team": "PHX",
     "yahooAdp": 26.9,
@@ -324,7 +338,7 @@ export const PLAYERS = [
     "note": "Booker offers a dependable scoring and free-throw foundation, and his six assists keep him from being a points-only pick. Phoenix's addition of Miles Bridges adds another scorer around him, but Booker remains the offense's best bet for high-volume creation. The modest steals and 3.2 turnovers are the categories to balance with later picks. Booker's 6.0 assists make him a more complete guard than a pure scoring specialist, though Maxey gives you more steals at a similar early price. He fits balanced roto teams if you can find defense later; a punt-steals build makes the 0.8 steals less of a concern."
   },
   {
-    "rank": 30,
+    "rank": 31,
     "name": "Derrick White",
     "team": "BOS",
     "yahooAdp": 47.1,
@@ -332,7 +346,7 @@ export const PLAYERS = [
     "note": "White's fantasy value is easy to miss if you stop at the 16.5 points. He averaged 2.7 threes, 5.4 assists and 1.3 blocks from a guard spot, a combination that fits almost any build. The 39.5% field-goal shooting is a real cost, so pair him with an efficient frontcourt player rather than asking him to anchor a percentage. Few guards can approach White's 1.3 blocks, so he fits a build that needs rim protection without using another center slot. Compared with Bane, the defensive ceiling is higher but the FG% cost is much steeper; roto managers should know which percentage their roster can repair."
   },
   {
-    "rank": 31,
+    "rank": 32,
     "name": "Evan Mobley",
     "team": "CLE",
     "yahooAdp": 30,
@@ -340,7 +354,7 @@ export const PLAYERS = [
     "note": "Mobley gives you nine rebounds and 1.7 blocks while keeping the field-goal category strong, a straightforward way to balance an early guard pick. His free throws fell to 60.6% last season, so the old assumption that he is safe at the line no longer works. Draft him for the defensive and rebounding floor, then protect FT% or lean into a punt. The FT% hit is more serious than Holmgren's, even though both can provide blocks and good FG% from center. Mobley becomes much easier to draft in a punt-FT% head-to-head build; in roto, his free-throw attempts make the percentage a real team-wide decision."
   },
   {
-    "rank": 32,
+    "rank": 33,
     "name": "Jalen Brunson",
     "team": "NYK",
     "yahooAdp": 21.9,
@@ -348,20 +362,12 @@ export const PLAYERS = [
     "note": "Brunson gives you reliable points and assists without the extreme turnovers of some high-usage guards. He averaged 26 points and 6.8 assists across 74 games, so the role and availability are both easier to trust than many players in this range. He adds little in steals, rebounds or blocks; those categories should guide your next picks. His 2.4 turnovers are controlled for a 6.8-assist lead guard, making him more comfortable in nine-category than several flashier creators. Brunson's 0.8 steals mean he pairs better with a defensive wing such as Anunoby than with another score-first guard."
   },
   {
-    "rank": 33,
+    "rank": 34,
     "name": "Josh Giddey",
     "team": "CHI",
     "yahooAdp": 23.8,
     "yahooPreRank": 61,
     "note": "The appeal of Giddey is not hard to see: 8.3 rebounds and 9.1 assists from a guard can fix two categories in one pick. Chicago's new rotation may change the exact usage, but that out-of-position production remains his calling card. The 3.6 turnovers and 76.3% free throws are the reason this rank assumes a punt-turnovers build rather than a balanced roster. He is one of the best guards for a punt-turnovers team because the 9.1 assists and 8.3 rebounds can reshape a matchup. Eight-category leagues give him the same turnover relief, while a roto roster that already has Cade or Luka should be cautious about stacking another 3.6 turnovers."
-  },
-  {
-    "rank": 34,
-    "name": "Dyson Daniels",
-    "team": "ATL",
-    "yahooAdp": 62.9,
-    "yahooPreRank": 20,
-    "note": "Two steals a game make Daniels a category changer, and the 6.8 rebounds and 5.9 assists are unusually helpful from a guard. His 0.3 threes and 61.5% free throws can pull a balanced roster in the wrong direction, though. Draft him when you already have shooting and free-throw volume, then let his defense and playmaking do the work. He gives you more steals and assists than Amen, but the 61.5% free throws and almost no threes make roster construction stricter. Daniels is at his best in a punt-FT% or punt-threes head-to-head plan; do not drop him into a balanced roto team just because the steal rate is exciting."
   },
   {
     "rank": 35,
@@ -373,14 +379,6 @@ export const PLAYERS = [
   },
   {
     "rank": 36,
-    "name": "Nickeil Alexander-Walker",
-    "team": "ATL",
-    "yahooAdp": 60.1,
-    "yahooPreRank": 24,
-    "note": "The new Atlanta role turned Alexander-Walker into a real scorer, not merely a steals specialist. He averaged 20.8 points and 3.2 threes while hitting 90.2% at the line, and he played 78 games. Yahoo's much later ADP leaves a possible discount if the Hawks keep that offensive workload intact. Compared with Brandon Miller, his 90.2% free throws and 1.3 steals make the scoring package more balanced even if the shot volume changes. He works in roto as an efficient guard-category supplement, while points-league managers may care more about whether the 20.8-point role repeats."
-  },
-  {
-    "rank": 37,
     "name": "Brandon Miller",
     "team": "CHA",
     "yahooAdp": 46.8,
@@ -394,15 +392,21 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 38,
-    "name": "Onyeka Okongwu",
-    "team": "ATL",
-    "yahooAdp": 54.7,
-    "yahooPreRank": 37,
-    "note": "Okongwu's line is broader than that of a traditional shot blocker: 15.2 points, 7.6 rebounds, 1.9 threes and contributions in both defensive categories. He does not dominate FG% the way some centers do, so the shooting volume matters as much as the percentage. At his Yahoo price, the appeal is getting several useful categories from one mid-round frontcourt slot. The 1.9 threes separate him from Clingan and other traditional centers, while 1.1 steals and 1.1 blocks keep the defense useful. He is an appealing nine-category choice for a roster that needs a center without sacrificing shooting; a punt-threes team would capture less of what makes him special."
+    "rank": 37,
+    "name": "Anthony Davis",
+    "team": "WAS",
+    "yahooAdp": 40.5,
+    "yahooPreRank": 36,
+    "note": "Davis now deserves credit for getting back on the court, while still carrying a meaningful availability discount. His October 10 outing included 11 rebounds and two blocks in 22 minutes. That is exactly the category shape a drafter wants to see; it is not evidence that he will suddenly play a full season after only 20 games in 2025–26. Washington can use his finishing and defense alongside Trae Young, and a healthy Davis has a much broader scoring and passing profile than a late-round rebound specialist. The early fourth round is a better reflection of that ceiling: few players outside the top 30 can supply elite rebounds, blocks and FG% together, and the price still leaves room for a managed workload. Do not pay his Yahoo pre-rank of 36 on hope alone, but waiting for round five gives up too much category upside. His own percentages do not require a punt-FT% build. The limiting resource is available games, so he fits better after a dependable start than beside several other recovery bets.",
+    "sources": [
+      {
+        "label": "NBA player updates · Oct 11, 2026",
+        "url": "https://www.nba.com/player/203076/anthony-davis"
+      }
+    ]
   },
   {
-    "rank": 39,
+    "rank": 38,
     "name": "Jalen Williams",
     "team": "OKC",
     "yahooAdp": 42.5,
@@ -414,6 +418,14 @@ export const PLAYERS = [
         "url": "https://www.nba.com/player/1631114/jalen-williams"
       }
     ]
+  },
+  {
+    "rank": 39,
+    "name": "Jaylen Brown",
+    "team": "PHI",
+    "yahooAdp": 27.5,
+    "yahooPreRank": 94,
+    "note": "Brown's previous season produced 28.5 points and 6.9 rebounds, but that was not a clean nine-category line: 79.5% free throws, 3.6 turnovers and limited blocks left work for the rest of the roster. Philadelphia also has more mouths to feed than the Boston offense he led while Tatum missed time. Do not assume improved efficiency will fully replace lost volume. He remains valuable for points and rebounds from a wing, particularly when turnovers are punted. Even a reduced share of Philadelphia's offense leaves a strong scoring and rebounding floor for a wing, and that floor is worth more than the fifth-round placement implied. No. 39 is an early fourth-round price, still well behind his September ADP near 28. Yahoo's much later public ordering can make him a bargain; the objection is to paying for last season's scoring role before seeing how the new one settles."
   },
   {
     "rank": 40,
@@ -455,17 +467,11 @@ export const PLAYERS = [
   },
   {
     "rank": 44,
-    "name": "Trae Young",
-    "team": "WAS",
-    "yahooAdp": 26.8,
-    "yahooPreRank": 72,
-    "note": "Young should not be priced as though his 15-game injury season is the most likely shape of the next one. Even that interrupted year produced eight assists per game. On October 12 he delivered 11 assists in 28 minutes. His availability supports a fourth-round investment, but a second-round price leaves too little room for risk. FG%, turnovers and limited defensive production still matter in nine-category leagues, and Washington's other scoring options do not turn him into a clean all-category player. He makes more sense around the fourth round for a team deliberately buying assists and FT% than as a generic best-player-available selection. Removing turnovers or punting FG% strengthens the case; those are changes in format, not evidence that every drafter should pay the same price.",
-    "sources": [
-      {
-        "label": "NBA role/game review · checked Oct 13, 2026",
-        "url": "https://www.nba.com/player/1629027/trae-young"
-      }
-    ]
+    "name": "Dyson Daniels",
+    "team": "ATL",
+    "yahooAdp": 62.9,
+    "yahooPreRank": 20,
+    "note": "Two steals a game make Daniels a category changer, and the 6.8 rebounds and 5.9 assists are unusually helpful from a guard. His 0.3 threes and 61.5% free throws can pull a balanced roster in the wrong direction, though. Draft him when you already have shooting and free-throw volume, then let his defense and playmaking do the work. No. 44 moves him from the third round into the fourth: a player who needs a specific build should not cost the same pick as a broader category anchor, and his September ADP near 63 suggests the room will not force you to reach. He gives you more steals and assists than Amen, but the 61.5% free throws and almost no threes make roster construction stricter. Daniels is at his best in a punt-FT% or punt-threes head-to-head plan; do not drop him into a balanced roto team just because the steal rate is exciting."
   },
   {
     "rank": 45,
@@ -483,6 +489,14 @@ export const PLAYERS = [
   },
   {
     "rank": 46,
+    "name": "Nickeil Alexander-Walker",
+    "team": "ATL",
+    "yahooAdp": 60.1,
+    "yahooPreRank": 24,
+    "note": "The new Atlanta role turned Alexander-Walker into a real scorer, not merely a steals specialist. He averaged 20.8 points and 3.2 threes while hitting 90.2% at the line, and he played 78 games. That was his first season with this kind of usage, though, and Atlanta's offense also has to feed Jalen Johnson, CJ McCollum and Okongwu's expanded role. No. 46 prices a partial step back rather than a full repeat of the career year. Yahoo's ADP near 60 still leaves a possible discount if the Hawks keep that offensive workload intact. Compared with Brandon Miller, his 90.2% free throws and 1.3 steals make the scoring package more balanced even if the shot volume changes. He works in roto as an efficient guard-category supplement, while points-league managers may care more about whether the 20.8-point role repeats."
+  },
+  {
+    "rank": 47,
     "name": "Walker Kessler",
     "team": "LAL",
     "yahooAdp": 38,
@@ -496,7 +510,15 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 47,
+    "rank": 48,
+    "name": "Onyeka Okongwu",
+    "team": "ATL",
+    "yahooAdp": 54.7,
+    "yahooPreRank": 37,
+    "note": "Okongwu's line is broader than that of a traditional shot blocker: 15.2 points, 7.6 rebounds, 1.9 threes and contributions in both defensive categories. He does not dominate FG% the way some centers do, so the shooting volume matters as much as the percentage. At his Yahoo price, the appeal is getting several useful categories from one mid-round frontcourt slot. No. 48 is the end of round four rather than the middle of it: 48.0% from the field is light for a center, and none of his categories is dominant enough to justify taking him well ahead of his market price near 55. The 1.9 threes separate him from Clingan and other traditional centers, while 1.1 steals and 1.1 blocks keep the defense useful. He is an appealing nine-category choice for a roster that needs a center without sacrificing shooting; a punt-threes team would capture less of what makes him special."
+  },
+  {
+    "rank": 49,
     "name": "Deni Avdija",
     "team": "POR",
     "yahooAdp": 39.6,
@@ -504,7 +526,7 @@ export const PLAYERS = [
     "note": "Avdija's 23.8 points, 6.8 rebounds and 6.6 assists were a breakout line, but Portland's offense has changed around him. The Blazers brought in Ja Morant and are getting Damian Lillard back, so the old creation load is unlikely to repeat. He still brings valuable wing rebounding and passing; His place here assumes a punt-turnovers team can use his wing volume even if the new backcourt takes some creation away. Giddey offered more assists and rebounds, but Avdija scored 6.8 more points per game last season. The 3.7 turnovers make both players easier to use in eight-category or punt-turnovers leagues; in roto, Portland's new backcourt adds another reason to be conservative."
   },
   {
-    "rank": 48,
+    "rank": 50,
     "name": "Alex Sarr",
     "team": "WAS",
     "yahooAdp": 71.9,
@@ -512,7 +534,7 @@ export const PLAYERS = [
     "note": "Sarr gives you a path to two blocks a night without spending a first-round pick, and his 16.3 points add some scoring upside. He appeared in 48 games, so availability is part of the decision. Free throws are the main category to protect; the defensive ceiling remains the reason to take him ahead of a safer mid-round scorer. He blocks more shots than Jackson at a later price, yet the 69.2% free throws make the full category tradeoff less friendly. Sarr is especially compelling for a punt-FT% team; roto managers should ask whether the block gain offsets the percentage and missed games."
   },
   {
-    "rank": 49,
+    "rank": 51,
     "name": "LeBron James",
     "team": "PHI",
     "yahooAdp": 38.3,
@@ -520,7 +542,7 @@ export const PLAYERS = [
     "note": "LeBron still averaged 20.6 points and 7.1 assists at 41, which is remarkable production from a player entering another season. He left the Lakers for Philadelphia in July, joining Maxey and Brown in a far more crowded creation setup. The assists and field-goal efficiency should remain useful, but age, turnovers and a likely smaller workload keep this below his Yahoo draft price. His 7.1 assists still exceed Maxey's 6.6, but the 73.5% free throws and 3.0 turnovers are real nine-category costs. In a points league, scoring and passing may outweigh those percentage concerns; in roto, sharing the ball with Maxey and Brown keeps the range of outcomes wider."
   },
   {
-    "rank": 50,
+    "rank": 52,
     "name": "Joel Embiid",
     "team": "PHI",
     "yahooAdp": 50.8,
@@ -532,28 +554,6 @@ export const PLAYERS = [
         "url": "https://ak-static.cms.nba.com/wp-content/uploads/sites/46/2026/08/2026-27-NBA-Regular-Season-Schedule-By-Team.pdf"
       }
     ]
-  },
-  {
-    "rank": 51,
-    "name": "Anthony Davis",
-    "team": "WAS",
-    "yahooAdp": 40.5,
-    "yahooPreRank": 36,
-    "note": "Davis now deserves credit for getting back on the court, while still carrying a meaningful availability discount. His October 10 outing included 11 rebounds and two blocks in 22 minutes. That is exactly the category shape a drafter wants to see; it is not evidence that he will suddenly play a full season after only 20 games in 2025–26. Washington can use his finishing and defense alongside Trae Young, and a healthy Davis has a much broader scoring and passing profile than a late-round rebound specialist. The fifth round is a reasonable price for the upside and availability risk. His own percentages do not require a punt-FT% build. The limiting resource is available games, so he fits better after a dependable start than beside several other recovery bets.",
-    "sources": [
-      {
-        "label": "NBA player updates · Oct 11, 2026",
-        "url": "https://www.nba.com/player/203076/anthony-davis"
-      }
-    ]
-  },
-  {
-    "rank": 52,
-    "name": "Jaylen Brown",
-    "team": "PHI",
-    "yahooAdp": 27.5,
-    "yahooPreRank": 94,
-    "note": "Brown's previous season produced 28.5 points and 6.9 rebounds, but that was not a clean nine-category line: 79.5% free throws, 3.6 turnovers and limited blocks left work for the rest of the roster. Philadelphia also has more mouths to feed than the Boston offense he led while Tatum missed time. Do not assume improved efficiency will fully replace lost volume. He remains valuable for points and rebounds from a wing, particularly when turnovers are punted. Yahoo's much later public ordering can still make him a bargain; the objection is to paying for last season's scoring role before seeing how the new one settles."
   },
   {
     "rank": 53,
@@ -1207,6 +1207,22 @@ export const PLAYERS = [
   },
   {
     "rank": 118,
+    "name": "Jimmy Butler III",
+    "team": "GSW",
+    "yahooAdp": null,
+    "yahooPreRank": null,
+    "availability": 0.3,
+    "status": "Knee · targeting early 2027",
+    "note": "Butler is ranked as an injured-reserve stash, not a full-season contributor. Golden State's October 2 update targeted early 2027 for his knee recovery without confirming a date, so the realistic expectation is roughly 30 to 35 games after a ramp-up. When he played last season he was still efficient: 19.8 points on 52.0% shooting, 86.2% at the line, 4.8 assists and 1.4 steals in 38 games. Half a season of that line is worth more than most healthy players available after pick 110, which is why he belongs in round ten rather than off the board. The cost is the roster spot until then. Draft him only if your league has an injured-reserve slot or a bench deep enough to carry an empty spot through December. In head-to-head, a return before your fantasy playoffs is what matters; in roto, the missed months are counting stats you cannot recover.",
+    "sources": [
+      {
+        "label": "NBA recovery update · checked Oct 13",
+        "url": "https://www.nba.com/player/202710/jimmy-butler"
+      }
+    ]
+  },
+  {
+    "rank": 119,
     "name": "Collin Murray-Boyles",
     "team": "TOR",
     "yahooAdp": null,
@@ -1224,7 +1240,7 @@ export const PLAYERS = [
     "yahooPreRank": 113
   },
   {
-    "rank": 119,
+    "rank": 120,
     "name": "Tari Eason",
     "team": "HOU",
     "yahooAdp": 117.1,
@@ -1238,7 +1254,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 120,
+    "rank": 121,
     "name": "Ayo Dosunmu",
     "team": "MIN",
     "yahooAdp": 114.9,
@@ -1246,7 +1262,7 @@ export const PLAYERS = [
     "note": "Chicago sent Dosunmu to Minnesota in February and he signed a new deal there, but the Wolves also brought in LaMelo Ball. His 51.7% shooting and 1.4 turnovers are unusually clean for a guard, so he can help without heavy usage. The crowded Ball-Edwards backcourt makes minutes the obstacle to a larger fantasy leap. His 51.7% shooting and 87.6% free throws make the 14.8 points unusually efficient for a guard. That gives him more category value than a points-league projection alone might suggest, especially beside a volume shooter who drags FG%."
   },
   {
-    "rank": 121,
+    "rank": 122,
     "name": "DeMar DeRozan",
     "team": "DEN",
     "yahooAdp": 116.2,
@@ -1254,7 +1270,7 @@ export const PLAYERS = [
     "note": "DeRozan left Sacramento for Denver in free agency, where Jokić should create easier scoring chances but also command the offense. He still averaged 18.1 points and shot 86.5% at the line while rarely turning it over. The 0.6 threes and little rebounding make him a late category-specific pick rather than a broad fantasy anchor. His 18.1 points, 4.1 assists and 1.2 turnovers make him a cleaner nine-category scorer than many high-volume wings. He is particularly useful for a team that needs points without adding another three-turnover guard, though his 0.6 threes mean a punt-threes roster fits him most naturally."
   },
   {
-    "rank": 122,
+    "rank": 123,
     "name": "Andrew Nembhard",
     "team": "IND",
     "yahooAdp": 114.3,
@@ -1262,7 +1278,7 @@ export const PLAYERS = [
     "note": "Nembhard's 7.7 assists look like a bargain at this draft price, but they came while Haliburton missed the season. Indiana's star point guard is returning, so some creation duties should move back to him. Nembhard still supplies threes and useful points; pay for a complementary guard, not the full injury-replacement role. The 7.7 assists would rank among the best late sources of dimes, and 2.4 turnovers are manageable beside that volume. Davion Mitchell offers fewer points and threes but a slightly cleaner assist-to-turnover ratio; Nembhard is the better fit when you need scoring along with playmaking."
   },
   {
-    "rank": 123,
+    "rank": 124,
     "name": "Isaiah Hartenstein",
     "team": "OKC",
     "yahooAdp": 105.4,
@@ -1276,7 +1292,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 124,
+    "rank": 125,
     "name": "Devin Vassell",
     "team": "SAS",
     "yahooAdp": 116.5,
@@ -1284,7 +1300,7 @@ export const PLAYERS = [
     "note": "Vassell made 2.5 threes with fewer than one turnover a game, a pleasant combination for a late guard or wing. He does not produce enough assists or steals to carry those categories, and San Antonio's backcourt gives him limited creation upside. Take him when you need clean shooting volume rather than a breakout lead option. His 2.5 threes and 0.9 turnovers help a nine-category team that already has its primary playmakers. Compared with Grimes, Vassell brings more shooting but less passing; both need a scoring rebound to become more than late-round complements."
   },
   {
-    "rank": 125,
+    "rank": 126,
     "name": "Ajay Mitchell",
     "team": "OKC",
     "yahooAdp": 117.2,
@@ -1292,7 +1308,7 @@ export const PLAYERS = [
     "note": "Mitchell gave Oklahoma City 13.6 points, 1.2 steals and efficient free throws in 57 games. His path to a bigger role is harder to see on a deep Thunder roster, so the value comes from useful two-way minutes at a late cost. He works as a depth pick after you have already secured primary scoring and assists. He shot 48.5% from the field and 87.0% at the line while adding 3.6 assists, a clean profile for a secondary guard. Gillespie gives more threes and a larger workload, so Mitchell fits best when efficiency and a possible role jump matter more than a proven volume floor."
   },
   {
-    "rank": 126,
+    "rank": 127,
     "name": "P.J. Washington",
     "team": "DAL",
     "yahooAdp": 115.8,
@@ -1300,7 +1316,7 @@ export const PLAYERS = [
     "note": "Washington supplies seven rebounds, a steal and a block from the forward slot, enough defensive value to remain useful without a big scoring night. Dallas' healthier creators may reduce his touches, and 68.7% free throws are a real weakness. He fits a roster that needs frontcourt defense and already has free-throw impact in place. The 7.0 boards, 1.0 steals and 1.1 blocks supply defensive help from a forward slot even when his shot is inconsistent. John Collins shoots more efficiently but contributes less across the defensive categories; Washington is the better nine-category fit if your centers already cover FG%."
   },
   {
-    "rank": 127,
+    "rank": 128,
     "name": "Coby White",
     "team": "CHA",
     "yahooAdp": 88.5,
@@ -1314,7 +1330,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 128,
+    "rank": 129,
     "name": "Jrue Holiday",
     "team": "POR",
     "yahooAdp": 117.3,
@@ -1322,9 +1338,11 @@ export const PLAYERS = [
     "note": "Holiday still supplied 6.1 assists and 2.6 threes for Portland, but the backcourt is far more crowded now that Morant has arrived and Lillard is returning. Those changes make last year's creation load a poor projection. His defensive reputation does not add much fantasy value on its own; draft the minutes and role you can verify. His 6.1 assists and 2.6 threes show he can still handle a useful guard role when healthy. Nembhard offers more passing and played four more games last season; Holiday's veteran profile makes more sense as a late roto stabilizer than a breakout bet."
   },
   {
-    "rank": 129,
+    "rank": 130,
     "name": "Brandon Ingram",
     "team": "LAC",
+    "availability": 0.5,
+    "status": "Heel/Achilles surgery · no date",
     "yahooAdp": 63,
     "yahooPreRank": 91,
     "note": "This is an injured-reserve decision now, not a routine mid-round scoring pick. Ingram will miss the opening of the season after heel and partial Achilles surgery, with no confirmed return date. His 21.5 points and 82.0% free throws from last season explain the appeal if he returns to a large Clippers role, but those numbers cannot replace the weeks spent holding an unavailable player. Prefer healthy contributors unless you have a spare injured-reserve slot. Unlike a short preseason precaution, this situation has already changed the start of his season. Garland is the more immediate way to invest in the Clippers' offense; Ingram needs a substantial discount and a roster that can wait without sacrificing flexibility.",
@@ -1336,7 +1354,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 130,
+    "rank": 131,
     "name": "Draymond Green",
     "team": "GSW",
     "yahooAdp": null,
@@ -1350,7 +1368,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 131,
+    "rank": 132,
     "name": "Cameron Johnson",
     "team": "DEN",
     "yahooAdp": null,
@@ -1364,7 +1382,7 @@ export const PLAYERS = [
     "yahooPreRank": 181
   },
   {
-    "rank": 132,
+    "rank": 133,
     "name": "RJ Barrett",
     "team": "TOR",
     "yahooAdp": 111.5,
@@ -1372,7 +1390,7 @@ export const PLAYERS = [
     "note": "Barrett's 19.3 points on 49.1% shooting make him a useful late source of scoring, with 5.3 rebounds on top. Toronto's trade for Kawhi Leonard could take away some attempts, while 71.7% free throws and low defensive stats already limit the nine-category line. He fits better as a final scoring piece than as a category foundation. The 19.3 points on 49.1% shooting give him a stronger FG% case than most scoring wings this late. Mathurin shoots free throws better, while Barrett adds more rebounds and assists; a punt-FT% or points team can focus on the volume and worry less about his 71.7% at the line."
   },
   {
-    "rank": 133,
+    "rank": 134,
     "name": "Wendell Carter Jr.",
     "team": "ORL",
     "yahooAdp": 113.4,
@@ -1380,7 +1398,7 @@ export const PLAYERS = [
     "note": "Carter's 78 games, 7.4 rebounds, 51.2% shooting and 79.2% free throws make him a plausible late balanced-roster center. The concern is sharing Orlando's frontcourt with Vučević, not an inability to contribute. I am narrowing the old, overly large gap between the two rather than declaring that camp has settled their minutes. Carter gives up some shooting and passing upside but does not need a high-usage role to supply useful boards. He still leaves you looking elsewhere for blocks. Take him when those percentages and rebounds fit the last roster slot; do not buy him as a hidden high-volume scorer."
   },
   {
-    "rank": 134,
+    "rank": 135,
     "name": "John Collins",
     "team": "DET",
     "yahooAdp": 116.5,
@@ -1388,7 +1406,7 @@ export const PLAYERS = [
     "note": "A July sign-and-trade moved Collins from the Clippers to Detroit, placing him next to Jalen Duren in a different frontcourt mix. His 55.1% shooting and 5.3 rebounds provide a useful floor, but only 0.7 blocks limit the usual big-man appeal. The rank depends on stable minutes more than a return to his old scoring peak. He shot 55.1% from the floor, well ahead of P.J. Washington's 45.0%, but Washington gives more rebounds and blocks. Collins fits a roster that needs efficient forward scoring; nine-category teams looking for defensive repair should lean toward Washington."
   },
   {
-    "rank": 135,
+    "rank": 136,
     "name": "Nikola Vučević",
     "team": "ORL",
     "yahooAdp": 114.7,
@@ -1396,9 +1414,11 @@ export const PLAYERS = [
     "note": "Vučević's 8.4 rebounds, 1.6 threes and only 1.3 turnovers still describe a useful fantasy center. Orlando already has Carter, and there is not enough evidence here to give Vučević his old starter workload by default. He belongs in the late-round mix, where you can take the shooting if the rotation supports it and move on if it does not. He may fit a punt-blocks roster better than a team desperate for rim protection. Carter is the more appealing alternative when you need efficient boards rather than a center's three-point volume."
   },
   {
-    "rank": 136,
+    "rank": 137,
     "name": "Jusuf Nurkić",
     "team": "UTA",
+    "availability": 0.75,
+    "status": "Toe tear · re-evaluation early Nov",
     "yahooAdp": 112.8,
     "yahooPreRank": null,
     "note": "The toe injury changes Nurkić from an inexpensive source of boards and center assists into a conditional stash. Utah announced a partial plantar plate tear and a four-week re-evaluation on October 8. A re-evaluation is not a promise to play that day, so the missed opening stretch needs to be paid for in the draft price. His 10.4 rebounds and 4.8 assists last season are genuinely unusual late-round production, but only 41 games and 54.9% free throws already made him a specialized purchase. I would consider him late for a punt-FT% roster with injury space, not reach to secure the old line. Jackson and Utah's other bigs may absorb work while he is out; do not assume those temporary minutes establish the permanent rotation.",
@@ -1410,7 +1430,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 137,
+    "rank": 138,
     "name": "Tre Jones",
     "team": "CHI",
     "yahooAdp": 116,
@@ -1424,7 +1444,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 138,
+    "rank": 139,
     "name": "Khaman Maluach",
     "team": "PHX",
     "yahooAdp": null,
@@ -1442,7 +1462,7 @@ export const PLAYERS = [
     ]
   },
   {
-    "rank": 139,
+    "rank": 140,
     "name": "Julian Champagnie",
     "team": "SAS",
     "yahooAdp": 110.9,
@@ -1450,7 +1470,7 @@ export const PLAYERS = [
     "note": "Champagnie played every game and supplied 2.4 threes with 5.8 rebounds, a useful combination from a late wing pick. San Antonio's stars keep his usage modest, which limits points and assists. He is a sensible choice when your roster needs reliable shooting and boards more than another speculative creator. The 2.4 threes, 5.8 boards and 0.8 turnovers make him a quiet nine-category glue player. He offers less scoring than Vassell but more rebounding from the same Spurs wing group, so team need should determine which one you take late."
   },
   {
-    "rank": 140,
+    "rank": 141,
     "name": "Zach LaVine",
     "team": "SAC",
     "yahooAdp": 103.7,
@@ -1458,7 +1478,23 @@ export const PLAYERS = [
     "note": "LaVine still scored 19.2 points and made 2.5 threes, but a 39-game season makes availability the first question. Sacramento's changing lineup also gives less certainty about his shot volume than the old name value suggests. The Yahoo cost is earlier than this ranking; take him only if you can carry the missed-game risk and need scoring. His 19.2 points and 88.0% free throws still address two categories that tend to dry up early in drafts. Powell gave more points and threes over 19 more games, so LaVine is the cheaper head-to-head scoring bet rather than the safer roto choice."
   },
   {
-    "rank": 141,
+    "rank": 142,
+    "name": "Kristaps Porziņģis",
+    "team": "GSW",
+    "yahooAdp": null,
+    "yahooPreRank": null,
+    "availability": 0.35,
+    "status": "Away from team · no timetable",
+    "note": "Porziņģis is the higher-ceiling final-round stash. He remained away from the team on October 12 with no confirmed return timetable, and last season's 32 games extend a long pattern of missed time, so this rank assumes a large share of the season is lost. The per-game profile explains why he is on the board at all: 16.7 points, 1.7 threes, 1.2 blocks and 84.2% free throws in 24 minutes is a rare stretch-big combination. At No. 142 the price is a bench spot, not a starting-lineup plan. The report does not establish a diagnosis, and the ranking should not invent one. Move him up only when Golden State gives a concrete timeline, and drop him without regret if a healthy contributor needs the spot.",
+    "sources": [
+      {
+        "label": "NBA availability update · Oct 12",
+        "url": "https://www.nba.com/player/204001/kristaps-porzingis"
+      }
+    ]
+  },
+  {
+    "rank": 143,
     "name": "Aaron Gordon",
     "team": "DEN",
     "yahooAdp": 112.5,
@@ -1466,7 +1502,7 @@ export const PLAYERS = [
     "note": "Gordon's 16.2 points and 5.8 rebounds are useful when he plays, but last season ended at 36 games. Denver also added DeMar DeRozan, which can take some offensive possessions from its forwards. He remains a good complement to Jokić in real basketball; in fantasy, the health and reduced usage possibilities make him a late pick. He supplied 16.2 points on 49.7% shooting with 5.8 rebounds, useful numbers when Denver could keep him on the floor. Collins offers a stronger FG% rate and more games, while Gordon's 2.7 assists add a little more creation; both require a health and role discount."
   },
   {
-    "rank": 142,
+    "rank": 144,
     "name": "Kelly Oubre Jr.",
     "team": "IND",
     "yahooAdp": 117.4,
@@ -1474,7 +1510,7 @@ export const PLAYERS = [
     "note": "Oubre left Philadelphia for Indiana, where his place in a healthier Pacers rotation will decide the minutes. He averaged 1.4 steals and 14.1 points, a useful late-wing mix when the role is secure. His assists are thin, and he is not an efficiency anchor, so target him for defense and secondary scoring. The 1.4 steals and 5.0 rebounds are useful wing categories even if his 14.1 points do not carry a points-league roster. He can help a nine-category team that missed steals, but 50 games make him a less secure volume pick than Champagnie; Moody's injury recovery makes him a watchlist option rather than a healthy alternative."
   },
   {
-    "rank": 143,
+    "rank": 145,
     "name": "Davion Mitchell",
     "team": "MIA",
     "yahooAdp": 118.6,
@@ -1482,7 +1518,7 @@ export const PLAYERS = [
     "note": "Mitchell's 6.5 assists and 49.0% shooting were helpful from a Miami guard, especially with only 1.5 turnovers. Giannis' arrival changes the offense, but the bigger fantasy issue remains his 64.6% free throws and limited scoring. He works as a late assists source if the rest of your roster can absorb that line. His 6.5 assists and 1.5 turnovers are an unusually clean passing combination in the late rounds. Tre Jones is friendlier to FT% and offers more scoring; Mitchell fits a punt-FT% roster or a team that needs dimes without adding turnover pain."
   },
   {
-    "rank": 144,
+    "rank": 146,
     "name": "Jaime Jaquez Jr.",
     "team": "MIL",
     "yahooAdp": 106.1,
@@ -1490,7 +1526,7 @@ export const PLAYERS = [
     "note": "Miami sent Jaquez to Milwaukee in the July Giannis package, giving him a different route to minutes and creation. He averaged 15.4 points and 4.7 assists on 50.7% shooting, a well-rounded offensive base for this price. The Bucks' new rotation could lift or squeeze him, so treat the old role as evidence rather than a promise. The 15.4 points, 5.0 rebounds and 4.7 assists give him an appealing multi-category line from a wing. Podziemski offers better threes and a longer recent workload, while Jaquez brings more scoring and FG%; points leagues may prefer the latter combination."
   },
   {
-    "rank": 145,
+    "rank": 147,
     "name": "Jalen Green",
     "team": "PHX",
     "yahooAdp": 103,
@@ -1498,7 +1534,7 @@ export const PLAYERS = [
     "note": "Green's 32-game Phoenix season did little to resolve the old fantasy question: can the scoring volume outweigh 42.2% shooting and a thin assist line? The Suns now have Miles Bridges beside Devin Booker, adding competition for shots. He has the talent to beat this rank, but the role and health have to cooperate before the nine-category case is strong. His 17.8 points and 2.2 threes in 32 games hint at a late scoring payoff, but 42.2% shooting and 74.7% free throws can hurt both percentages. He is easier to use in a punt-FG% or points league than in balanced roto, where the small sample and efficiency risks compound."
   },
   {
-    "rank": 146,
+    "rank": 148,
     "name": "Santi Aldama",
     "team": "DAL",
     "yahooAdp": null,
@@ -1506,7 +1542,7 @@ export const PLAYERS = [
     "note": "Memphis traded Aldama to Dallas in July, making his 6.7 rebounds and 1.6 threes part of a crowded Mavericks frontcourt. The stretch-big profile is useful, but the team must give him enough minutes around Cooper Flagg and its centers. His 66.7% free throws mean the role needs to be substantial before this becomes more than a late flier. The 14.0 points, 6.7 boards and 1.6 threes can fill several late roster holes from a forward or center slot. Washington supplies more steals and blocks, so Aldama is the better fit when offense and rebounds matter more than defensive stocks."
   },
   {
-    "rank": 147,
+    "rank": 149,
     "name": "Herbert Jones",
     "team": "NOP",
     "yahooAdp": null,
@@ -1514,35 +1550,27 @@ export const PLAYERS = [
     "note": "Jones' 1.6 steals still create a reason to draft him, and he added 1.4 threes despite another uneven offensive season. The 38.3% field-goal shooting is too damaging to ignore in a balanced build. He makes most sense when your early roster is efficient and you need one late defensive specialist. His 1.6 steals remain a category weapon, but 38.3% shooting makes the cost of those steals unusually high. A punt-FG% head-to-head team can draft him for defense; balanced roto teams may prefer Wallace's similar steals rate and much lighter shooting penalty."
   },
   {
-    "rank": 148,
+    "rank": 150,
     "name": "Dillon Brooks",
     "team": "PHX",
     "yahooAdp": 114.9,
     "yahooPreRank": 171,
     "note": "Brooks' 20.2 points look tempting this late, but the full line includes 43.5% shooting, only 1.8 assists and little shot blocking. Phoenix now has more scoring options around Booker, so last year's volume may be difficult to repeat. Take him if you need points and threes; do not mistake the scoring average for broad nine-category value. His 20.2 points and 2.3 threes were a bigger scoring contribution than Oubre or Moody supplied, though he gives less across rebounds and assists. He fits a late points or threes need; in roto, the 43.5% FG and uncertain Phoenix usage deserve a discount."
-  },
-  {
-    "rank": 149,
-    "name": "Ace Bailey",
-    "team": "UTA",
-    "yahooAdp": 118.1,
-    "yahooPreRank": 147,
-    "note": "Bailey's first year gave Utah 1.9 threes and some blocks from the wing, enough to see a category-friendly path if his role grows. The 44.3% shooting and 75.0% free throws show why the rookie line was not yet a finished fantasy product. He is a final-round upside pick rather than a safe source of any one category. At 13.8 points, 1.9 threes and 0.7 blocks as a rookie, he already showed a useful wing scoring-and-defense mix. A healthy shooting specialist may have a steadier floor, while Bailey gives a head-to-head manager more room for a second-year leap."
-  },
-  {
-    "rank": 150,
-    "name": "Quentin Grimes",
-    "team": "LAL",
-    "yahooAdp": 120.4,
-    "yahooPreRank": 129,
-    "note": "Grimes left Philadelphia for the Lakers in free agency, where Luka and Reaves will drive most of the offense. His 13.4 points, 1.7 threes and solid free throws can still matter in a stable wing role. Do not draft him for a creation leap; the appeal is reliable complementary minutes and a low-cost shooting floor. His 13.4 points, 3.3 assists and 84.0% free throws form a tidy late guard line without a glaring category sink. Vassell gives more threes and fewer turnovers, while Grimes supplies more passing; a balanced roto team can choose based on its final guard-category gap."
   }
 ];
 
-export const INJURY_WATCHLIST = [
+// Injured players who are not on the board: returns too late or too uncertain
+// for a redraft pick at their level. Not rendered anywhere. They exist so the
+// live punt tables (RankingTable) still discount them instead of ranking them
+// on last season's per-game line, and so round-target "others" can reject them.
+// A player with a concrete timetable and enough value belongs in PLAYERS,
+// ranked where the missed games put him, with `availability` and `status`.
+export const UNRANKED_INJURIES = [
   {
     "name": "Donte DiVincenzo",
     "team": "MIN",
+    "availability": 0.1,
+    "status": "Achilles · late-season at best",
     "note": "A late-season return from the Achilles tear is still only a possibility, not an established date. His 82 regular-season games last year came before that injury and must not be presented as a safe workload forecast. The old threes-and-steals line is worth remembering for a later waiver decision, but I would not spend a standard redraft pick or an ordinary bench spot waiting on it. A deep league with a genuinely spare injured-reserve slot can make a different decision; even there, check whether a return would occur before your fantasy playoffs finish.",
     "sources": [
       {
@@ -1554,6 +1582,8 @@ export const INJURY_WATCHLIST = [
   {
     "name": "Moses Moody",
     "team": "GSW",
+    "availability": 0.5,
+    "status": "Patellar tendon · no return plan",
     "note": "Moody was limited to light on-court work in the September 28 update after his patellar-tendon injury. That is not clearance for a normal role. His 2.5 threes and low turnovers remain a potentially useful profile later, but his recovery makes him unsuitable as a dependable full-season pick. I would use the draft pick on an available player and revisit Moody when there is a clearer game-return plan. Do not set a return date from a generic injury-table estimate or mistake a positive rehabilitation update for a fantasy lineup decision.",
     "sources": [
       {
@@ -1565,6 +1595,8 @@ export const INJURY_WATCHLIST = [
   {
     "name": "Kyle Filipowski",
     "team": "UTA",
+    "availability": 0.4,
+    "status": "Back surgery · no timetable",
     "note": "The October 10 update described recovery from back surgery without a return timetable. Nurkić's injury therefore does not make Filipowski an automatic early-season beneficiary. His 7.2 rebounds and 2.6 assists last season remain interesting, but they are not available production until he is cleared to play. I would leave him outside the standard redraft board for now rather than use a final pick on two separate assumptions: a prompt recovery and a large role. He belongs on a watchlist for a later minutes opportunity, not in a plan that needs an immediate center contribution.",
     "sources": [
       {
@@ -1576,33 +1608,13 @@ export const INJURY_WATCHLIST = [
   {
     "name": "Mark Williams",
     "team": "PHX",
+    "availability": 0.4,
+    "status": "Shoulder surgery · no timetable",
     "note": "Williams is without a confirmed return timetable after September shoulder surgery. A healthy interior scorer can have considerable fantasy value, but a standard redraft roster should not pay for months of waiting as if they were free. I am leaving him outside the active Top 150 and considering Phoenix's available centers instead. Managers with extra injury slots can monitor him as a stash, provided the opportunity cost and the league's playoff dates make sense. Revisit the ranking when there is concrete progress toward playing rather than assuming the best-case calendar becomes the actual one.",
     "sources": [
       {
         "label": "Suns shoulder-surgery announcement · Sep 11, 2026",
         "url": "https://cdn-uat.nba.com/news/phoenix-suns-mark-williams-injury"
-      }
-    ]
-  },
-  {
-    "name": "Jimmy Butler III",
-    "team": "GSW",
-    "note": "Golden State's October 2 update targeted early 2027 for Butler's knee recovery, without confirming a return date. He moves out of the standard draft board rather than occupying a nominal final-round recommendation that really requires spare injured-reserve space. Managers with extra injury slots can still consider the stash, but its value depends on how long that slot remains available and when the league's playoffs end. A recognizable name is not a substitute for usable games.",
-    "sources": [
-      {
-        "label": "NBA recovery update · checked Oct 13",
-        "url": "https://www.nba.com/player/202710/jimmy-butler"
-      }
-    ]
-  },
-  {
-    "name": "Kristaps Porziņģis",
-    "team": "GSW",
-    "note": "Porziņģis remained away from the team October 12, with no confirmed return timetable. He belongs on the injury watchlist rather than in a plan that depends on immediate production. His previous shooting-and-blocking combination can become relevant again when the outlook changes. For now, only a roster with genuinely spare injury capacity should consider paying to wait. The report does not establish a diagnosis, and the ranking should not invent one.",
-    "sources": [
-      {
-        "label": "NBA availability update · Oct 12",
-        "url": "https://www.nba.com/player/204001/kristaps-porzingis"
       }
     ]
   }

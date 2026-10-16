@@ -16,6 +16,17 @@ import { Link as RouterLink } from 'react-router-dom';
 import { supabase, CURRENT_SEASON } from '../utils/supabase';
 import { CATEGORIES, categoryByKey } from '../config/guides-content';
 import { GATED_CLASS } from '../config/guides-content';
+import { PLAYERS, UNRANKED_INJURIES } from '../config/top-150-2026-27';
+
+// Every player with an editorial availability discount, on or off the Top 150.
+const AVAILABILITY = [...PLAYERS, ...UNRANKED_INJURIES].filter((p) => Number.isFinite(p.availability));
+
+const norm = (s) =>
+  (s || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 
 // Same colour ramp the Rankings tool uses, so the numbers read identically
 // across the app.
@@ -41,6 +52,15 @@ const zBackground = (value) => {
  * not the one the guide is written for), and `minGames` drops small-sample
  * players who would otherwise ride a hot twenty games into the top 50.
  *
+ * Last season's per-game line says nothing about games a player is already
+ * known to miss. `injuries` (default: every Top 150 or unranked-injury entry with an
+ * `availability` factor) scales a player's positive Value by that factor before
+ * ranking — the share of a healthy season's value we expect, including the cost
+ * of holding the roster spot while he is out. He stays on the board, just where
+ * the missed games put him: a player out until 2027 cannot sit at No. 12 on
+ * last season's averages. Category z-scores stay as played, so the stat line is
+ * still readable. The GP column keeps the 2025-26 sample visible for everyone.
+ *
  * Free rows render fully; rows past `freeLimit` are blurred behind an unlock
  * prompt. `unlocked` (the caller's Draft Pass check — Guide.jsx passes
  * useEntitlements().hasPass('draft')) drops the gate entirely and renders all
@@ -57,12 +77,14 @@ export default function RankingTable({
   freeLimit = 20,
   previewRows = 4,
   unlocked = false,
+  injuries = AVAILABILITY,
 }) {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const punt = categoryByKey[puntKey];
+  const injuryByKey = useMemo(() => new Map(injuries.map((p) => [norm(p.name), p])), [injuries]);
 
   useEffect(() => {
     let active = true;
@@ -96,18 +118,32 @@ export default function RankingTable({
   // Re-rank with the punted category removed from the z-score total.
   const ranked = useMemo(() => {
     if (!players.length) return [];
-    const included = CATEGORIES.filter((c) => c.key !== puntKey).map((c) => c.zKey);
-    const sqrtN = Math.sqrt(included.length);
+    // Only scale positive value: multiplying a negative total would lift it.
+    const value = (p, keys) => {
+      const raw = keys.reduce((acc, z) => acc + (p[z] || 0), 0) / Math.sqrt(keys.length);
+      const factor = p.injury?.availability ?? 1;
+      return raw > 0 ? raw * factor : raw;
+    };
+    const allKeys = CATEGORIES.map((c) => c.zKey);
+    const puntKeys = CATEGORIES.filter((c) => c.key !== puntKey).map((c) => c.zKey);
 
-    const withAdjusted = players.map((p, idx) => {
-      const sum = included.reduce((acc, z) => acc + (p[z] || 0), 0);
-      return { ...p, originalRank: idx + 1, adjusted: sum / sqrtN };
-    });
+    const withInjury = players.map((p) => ({ ...p, injury: injuryByKey.get(norm(p.player_name)) }));
+    // Movement arrows compare against the same discounted board without the
+    // punt, so they show what the punt does, not what the injury does.
+    const baseRank = new Map(
+      withInjury
+        .map((p) => [p, value(p, allKeys)])
+        .sort((a, b) => b[1] - a[1])
+        .map(([p], idx) => [p, idx + 1]),
+    );
 
-    return withAdjusted
+    return withInjury
+      .map((p) => ({ ...p, originalRank: baseRank.get(p), adjusted: value(p, puntKeys) }))
       .sort((a, b) => b.adjusted - a.adjusted)
       .map((p, idx) => ({ ...p, adjustedRank: idx + 1, rankChange: p.originalRank - (idx + 1) }));
-  }, [players, puntKey]);
+  }, [players, puntKey, injuryByKey]);
+
+  const discounted = ranked.filter((p) => p.injury);
 
   if (loading) {
     return (
@@ -165,9 +201,21 @@ export default function RankingTable({
       </TableCell>
       <TableCell sx={{ py: 0.75, fontWeight: 600, color: '#1a1a1a', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
         {p.player_name}
+        {p.injury && (
+          <Typography
+            component="span"
+            title={`${p.injury.status} — Value scaled to ${Math.round(p.injury.availability * 100)}% for expected missed games`}
+            sx={{ ml: 0.75, px: 0.6, py: 0.1, borderRadius: 1, bgcolor: '#fdecea', color: '#b03a2e', fontSize: '0.6rem', fontWeight: 800, letterSpacing: 0.3, verticalAlign: 'middle' }}
+          >
+            INJ ×{p.injury.availability}
+          </Typography>
+        )}
       </TableCell>
       <TableCell align="center" sx={{ py: 0.75, color: '#666', fontSize: '0.72rem', fontWeight: 600 }}>
         {p.team_abbreviation}
+      </TableCell>
+      <TableCell align="center" sx={{ py: 0.75, color: '#666', fontSize: '0.72rem', fontVariantNumeric: 'tabular-nums' }}>
+        {p.games_played ?? '–'}
       </TableCell>
       <TableCell align="center" sx={{ py: 0.75, fontWeight: 800, color: '#0f2340', fontSize: '0.82rem' }}>
         {p.adjusted.toFixed(2)}
@@ -207,6 +255,7 @@ export default function RankingTable({
                 <TableCell align="center" sx={headCellSx}>#</TableCell>
                 <TableCell sx={headCellSx}>Player</TableCell>
                 <TableCell align="center" sx={headCellSx}>Team</TableCell>
+                <TableCell align="center" sx={headCellSx}>GP</TableCell>
                 <TableCell align="center" sx={{ ...headCellSx, bgcolor: '#16325c' }}>Value</TableCell>
                 {CATEGORIES.map((c) => (
                   <TableCell
@@ -229,7 +278,7 @@ export default function RankingTable({
               {/* Locked teaser rows — blurred behind the unlock prompt. */}
               {lockedRows.length > 0 && (
                 <TableRow>
-                  <TableCell colSpan={4 + CATEGORIES.length} sx={{ p: 0, position: 'relative' }}>
+                  <TableCell colSpan={5 + CATEGORIES.length} sx={{ p: 0, position: 'relative' }}>
                     <Box className={GATED_CLASS} sx={{ position: 'relative' }}>
                       <Box sx={{ filter: 'blur(4px)', pointerEvents: 'none', userSelect: 'none', opacity: 0.6 }}>
                         <Table size="small" sx={{ minWidth: 720 }}>
@@ -277,6 +326,19 @@ export default function RankingTable({
         </TableContainer>
       </Box>
 
+      {discounted.length > 0 && (
+        <Box sx={{ px: 2, py: 1.25, borderTop: '1px solid #eef1f4', bgcolor: '#fff8f0' }}>
+          <Typography sx={{ fontSize: '0.75rem', color: '#7a5a2e', lineHeight: 1.5 }}>
+            <strong>Injury discount:</strong>{' '}
+            {discounted.map((p) => `${p.player_name} (${p.injury.status}, ×${p.injury.availability})`).join('; ')}.
+            {' '}Value is scaled by the share of a healthy season we expect each to deliver; the category
+            columns still show the {season} line as played. Ranked players&apos; notes in the{' '}
+            <RouterLink to="/guides/top-150" style={{ color: '#7a5a2e' }}>Top 150</RouterLink> explain the timeline;
+            the rest are off that board because their return is too late or too uncertain for a redraft pick.
+          </Typography>
+        </Box>
+      )}
+
       <Box
         sx={{
           display: 'flex',
@@ -291,7 +353,7 @@ export default function RankingTable({
         }}
       >
         <Typography sx={{ fontSize: '0.75rem', color: '#7a8290' }}>
-          Live z-scores, {season} season ·{' '}
+          {season} per-game z-scores · Value discounted for known injuries ·{' '}
           {punt ? (
             <>
               <strong style={{ color: '#c0392b' }}>{punt.label}</strong> removed from Value

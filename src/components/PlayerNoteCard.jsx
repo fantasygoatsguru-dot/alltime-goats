@@ -93,6 +93,23 @@ export default function PlayerNoteCard({ player, prior, accent = '#0f2340' }) {
               {player.tag}
             </Typography>
           )}
+          {player.status && (
+            <Typography
+              sx={{
+                fontSize: '0.68rem',
+                fontWeight: 800,
+                letterSpacing: 0.3,
+                color: '#b03a2e',
+                bgcolor: '#fdecea',
+                border: '1px solid #f5c6c0',
+                px: 0.9,
+                py: 0.25,
+                borderRadius: 1,
+              }}
+            >
+              INJURY · {player.status}
+            </Typography>
+          )}
         </Box>
 
         {/* Last season's actual line — the evidence under the write-up. */}

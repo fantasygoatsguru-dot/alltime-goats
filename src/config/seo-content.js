@@ -256,7 +256,7 @@ export const SEO_CONTENT = {
     content: `
       <p>This 2026-27 fantasy basketball top 150 is a forward-looking draft board reviewed October 13, 2026 against updated Yahoo rankings, independent category boards and player news. Corrected 2025-26 nine-category production remains the historical baseline for returning players, not a forecast of next season's stat line.</p>
 
-      <p>The list is grouped into twelve-player rounds. Yahoo public pre-ranks were checked October 13, 2026; ADP snapshot: September 26. The review uses RotoBaller and FantasyPros as independent checks, not an order to copy. Incoming rookies use college and preseason evidence labeled separately from historical NBA stats. Butler and Porziņģis are on the injury watchlist rather than the active draft board.</p>
+      <p>The list is grouped into twelve-player rounds. Yahoo public pre-ranks were checked October 13, 2026; ADP snapshot: September 26. The review uses RotoBaller and FantasyPros as independent checks, not an order to copy. Incoming rookies use college and preseason evidence labeled separately from historical NBA stats. Injured players such as Butler and Porziņģis are ranked late, priced for the games they are expected to miss.</p>
 
       <p>The historical baseline combines points, threes, rebounds, assists, steals, blocks, shooting-percentage impact and turnovers into nine-category value. Shooting impact accounts for attempts. The projected order also adjusts for expected availability, so it is not simply last season's per-game rank.</p>
 

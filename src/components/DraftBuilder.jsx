@@ -42,7 +42,7 @@ const norm = (s) =>
  * a live radar and written analysis respond to the selected roster using real
  * historical baseline z-scores.
  *
- * rounds: [{ round, candidates: [{ name, note, yahooAdp, yahooPreRank }] }]
+ * rounds: [{ round, candidates: [{ name, note, yahooAdp, yahooPreRank }], others?: [name] }]
  */
 export default function DraftBuilder({ rounds = [], puntKey }) {
   const [rows, setRows] = useState([]);
@@ -181,7 +181,7 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
       {/* Rounds */}
       <Box sx={{ order: { xs: 2, md: 1 }, minWidth: 0 }}>
         {rounds.map((r) => {
-          const pickedInRound = r.candidates.filter((c) => picks.has(c.name)).map((c) => c.name);
+          const pickedInRound = [...r.candidates.map((c) => c.name), ...(r.others || [])].filter((nm) => picks.has(nm));
           return (
             <Box key={r.round} sx={{ mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25, flexWrap: 'wrap' }}>
@@ -249,6 +249,35 @@ export default function DraftBuilder({ rounds = [], puntKey }) {
                   );
                 })}
               </Box>
+              {/* Extra names for the same buying range, without a write-up.
+                  Clicking one adds it to the team like a written target. */}
+              {r.others?.length > 0 && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap', mt: 1.25 }}>
+                  <Typography sx={{ color: '#78828f', fontSize: '0.76rem', fontWeight: 700, mr: 0.25 }}>
+                    Other relevant targets:
+                  </Typography>
+                  {r.others.map((nm) => {
+                    const selected = picks.has(nm);
+                    return (
+                      <Chip
+                        key={nm}
+                        label={nm}
+                        size="small"
+                        clickable
+                        onClick={() => togglePick(nm)}
+                        icon={selected ? <CheckCircleIcon sx={{ fontSize: 14 }} /> : <AddIcon sx={{ fontSize: 14 }} />}
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '0.72rem',
+                          bgcolor: selected ? '#e8f0fe' : '#f4f6f9',
+                          color: selected ? '#1a4b8f' : '#3a4451',
+                          '& .MuiChip-icon': { color: selected ? TEAM_COLOR : '#8a94a1' },
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
             </Box>
           );
         })}

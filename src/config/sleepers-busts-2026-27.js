@@ -28,13 +28,13 @@ export const SLEEPERS = [
   },
   {
     name: "Tari Eason", team: 'HOU', tag: "Round 11; bench upside",
-    yahooAdp: 117.1, yahooPreRank: 132, boardRank: 119,
+    yahooAdp: 117.1, yahooPreRank: 132, boardRank: 120,
     note: "Eason does not need to win a starting job to help a category team. Across the October 9 and 11 exhibitions he played 24 and 22 minutes, collecting nine and six rebounds. The activity is encouraging, but the case should not hinge on repeating one big scoring night. Last season's 6.3 rebounds and 1.2 steals explain the fantasy attraction, while 41.6% shooting warns against treating an athletic forward as an automatic FG% helper. Houston's crowded rotation still puts a ceiling on the minutes you can safely assume. Yahoo's pre-rank of 132 leaves room to take a measured late gamble rather than pay for a breakout in advance. I like him around round eleven, especially after a stable core or in punt-FG%. Keep the roster spot flexible if the regular-season role is smaller than hoped.",
     sources: [{"label":"NBA game log and news — checked October 13","url":"https://www.nba.com/player/1631106/tari-eason"}],
   },
   {
     name: "Draymond Green", team: 'GSW', tag: "Round 12–13; punt-points fit",
-    yahooAdp: null, yahooPreRank: 192, boardRank: 130,
+    yahooAdp: null, yahooPreRank: 192, boardRank: 131,
     note: "A player can be a sleeper because managers stop wanting his particular strengths, even when everyone knows his name. Green's 5.5 assists and 5.5 rebounds last season came with just 8.4 points, making him a much better fit for punt-points than for a roster short on scoring. He supplied five assists and seven rebounds in 23 minutes on October 10. That is an illustration of the category mix, not evidence that his prime production is returning. Yahoo lists him 192nd, substantially later than our 130; there is no verified ADP attached to this addition. I would use a round-twelve or round-thirteen pick if frontcourt passing completes the build. Age, rest and turnovers still matter, and I would rather leave him to another manager than draft him into a team that needs points and threes.",
     sources: [{"label":"NBA game log and news — checked October 13","url":"https://www.nba.com/player/203110/draymond-green"}],
   },
@@ -58,7 +58,7 @@ export const SLEEPERS = [
   },
   {
     name: "Alex Sarr", team: 'WAS', tag: "Round 6 upside",
-    yahooAdp: 71.9, yahooPreRank: 59, boardRank: 48,
+    yahooAdp: 71.9, yahooPreRank: 59, boardRank: 50,
     note: "Sarr's blocks are still worth pursuing, but this is a frontcourt fit bet rather than a clear runway to a breakout. Last season's 2.0 blocks, 16.3 points and 7.4 rebounds provide the upside. He returned from a foot issue on October 10 and played again October 12. Getting back onto the floor matters more than trying to forecast a season from two short outings. Washington must find a workable balance with Anthony Davis, and Sarr's 48.2% FG and 69.2% FT do not give him the percentage floor of a traditional efficient center. I would take the risk in round six after building reliable scoring and FT%, rather than reach several rounds to secure blocks. Yahoo lists him 59th, so he is already visible to the room; an ADP near 72 is not a guarantee of a discount.",
     sources: [{"label":"NBA game log and news — checked October 13","url":"https://www.nba.com/player/1642259/alex-sarr"}],
   },
@@ -71,20 +71,20 @@ export const BUSTS_YAHOO_ADP_DATE = '2026-09-26';
 export const BUSTS = [
   {
     name: 'LaMelo Ball', team: 'MIN', tag: 'Round 3; efficiency risk',
-    yahooAdp: 26, yahooPreRank: 62, boardRank: 28,
-    note: "Ball's passing has not disappeared simply because he now shares a backcourt with Anthony Edwards. He had seven assists in 22 minutes on October 12 after a rest absence. That is a reason to soften the idea that the new team automatically destroys his fantasy role. The more durable objection is nine-category efficiency: last season's 7.1 assists and 3.8 threes came with 40.7% shooting on 17.3 attempts. A balanced roster has to pay for that volume somewhere else. Our No. 28 valuation supports a third-round price, close to September's ADP of 26, with an earlier case in punt-FG%. This is a roster-fit warning rather than a broad call to fade him. Yahoo's current pre-rank of 62 already discounts him more than our board does. If your room follows that order, he can become a useful pick rather than a player to avoid.",
+    yahooAdp: 26, yahooPreRank: 62, boardRank: 29,
+    note: "Ball's passing has not disappeared simply because he now shares a backcourt with Anthony Edwards. He had seven assists in 22 minutes on October 12 after a rest absence. That is a reason to soften the idea that the new team automatically destroys his fantasy role. The more durable objection is nine-category efficiency: last season's 7.1 assists and 3.8 threes came with 40.7% shooting on 17.3 attempts. A balanced roster has to pay for that volume somewhere else. Our No. 29 valuation supports a third-round price, close to September's ADP of 26, with an earlier case in punt-FG%. This is a roster-fit warning rather than a broad call to fade him. Yahoo's current pre-rank of 62 already discounts him more than our board does. If your room follows that order, he can become a useful pick rather than a player to avoid.",
     sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1630163/lamelo-ball' }],
   },
   {
-    name: 'Trae Young', team: 'WAS', tag: 'Round 4; assists need',
-    yahooAdp: 26.8, yahooPreRank: 72, boardRank: 44,
-    note: "Young is back on the court, so the case against him should not read as though his rehabilitation has stalled. He delivered 11 assists in 28 minutes on October 12. That is useful evidence of participation and playmaking, not proof that a 15-game season can be ignored. His recent baseline of 17.9 points and 8.0 assists comes from too small a sample to resolve how much scoring returns. Assists are worth paying for, but FG%, turnovers and limited defensive production make an early third-round investment harder to balance. The September ADP of 26.8 is the price I object to; Yahoo's pre-rank of 72 is a very different proposition. Around round four he becomes defensible for a team needing creation, and a further fall can make him attractive. A punt-turnovers build still needs a plan for shooting efficiency.",
+    name: 'Trae Young', team: 'WAS', tag: 'Round 3; assists need',
+    yahooAdp: 26.8, yahooPreRank: 72, boardRank: 28,
+    note: "Young is back on the court, so the case against him should not read as though his rehabilitation has stalled. He delivered 11 assists in 28 minutes on October 12. That is useful evidence of participation and playmaking, not proof that a 15-game season can be ignored. His recent baseline of 17.9 points and 8.0 assists comes from too small a sample to resolve how much scoring returns. Assists are worth paying for, and our board now meets the September ADP of 26.8 in the third round. The warning is about roster fit rather than price: FG%, turnovers and limited defensive production make him a poor match for a team that has already spent its early picks on inefficient guards. Yahoo's pre-rank of 72 is a very different proposition, and any fall from the third round makes him attractive for a team needing creation. A punt-turnovers build still needs a plan for shooting efficiency.",
     sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1629027/trae-young' }],
   },
   {
-    name: 'Jaylen Brown', team: 'PHI', tag: 'Round 5; value if he falls',
-    yahooAdp: 27.5, yahooPreRank: 94, boardRank: 52,
-    note: "Brown does not need to play badly for an expensive pick to disappoint. Last season's 28.5 points and 5.1 assists came with Boston's expanded opportunity; Philadelphia has other established creators in Tyrese Maxey and LeBron James. He scored 18 points on October 8; his October 10 absence was rest. There is no need to manufacture an injury concern from that sequence. The question is how much scoring and passing remain once the full offense settles, because 3.6 turnovers and 79.5% free throws already limited the nine-category return. I would not pay the old ADP near 28 just because the preseason scoring looks comfortable. Round five offers a more reasonable balance. Yahoo's pre-rank of 94 goes much further than this caution: if Brown actually falls that far, the original bust objection has largely vanished.",
+    name: 'Jaylen Brown', team: 'PHI', tag: 'Round 4; value if he falls',
+    yahooAdp: 27.5, yahooPreRank: 94, boardRank: 39,
+    note: "Brown does not need to play badly for an expensive pick to disappoint. Last season's 28.5 points and 5.1 assists came with Boston's expanded opportunity; Philadelphia has other established creators in Tyrese Maxey and LeBron James. He scored 18 points on October 8; his October 10 absence was rest. There is no need to manufacture an injury concern from that sequence. The question is how much scoring and passing remain once the full offense settles, because 3.6 turnovers and 79.5% free throws already limited the nine-category return. I would not pay the old ADP near 28 just because the preseason scoring looks comfortable. Early round four offers a more reasonable balance. Yahoo's pre-rank of 94 goes much further than this caution: if Brown actually falls that far, the original bust objection has largely vanished.",
     sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1627759/jaylen-brown' }],
   },
   {
@@ -113,14 +113,14 @@ export const BUSTS = [
   },
   {
     name: 'Walker Kessler', team: 'LAL', tag: 'Round 4; check availability',
-    yahooAdp: 38, yahooPreRank: 33, boardRank: 46,
+    yahooAdp: 38, yahooPreRank: 33, boardRank: 47,
     note: "The appeal of Kessler beside Luka is obvious: a center can produce useful rebounds and blocks without needing plays called for him. The difficulty is deciding how much availability and development to pay for after only five games in 2025-26. His 10.8 rebounds and 1.8 blocks are real results, but not a large enough sample to establish a new season-long floor. He returned to full practice October 11 after a finger injury. That improves the immediate outlook without yet providing exhibition game evidence in the reviewed log. Yahoo's pre-rank of 33 and the ADP of 38 both remain earlier than our board. Round four is a reasonable buying range with another reliable big already secured, rather than chasing scarce blocks into round three. His small-sample 70.0% FT mark also deserves caution rather than automatic acceptance.",
     sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1631117/walker-kessler' }],
   },
   {
-    name: 'Anthony Davis', team: 'WAS', tag: 'Round 5; softer fade',
-    yahooAdp: 40.5, yahooPreRank: 36, boardRank: 51,
-    note: "Davis offers elite frontcourt upside, but his availability makes the price crucial. He had 11 rebounds and two blocks in 22 minutes on October 10; October 12 was rest. The recent participation makes a blanket avoidance stance difficult to defend when the per-game ceiling is this high. Last season he averaged 11.1 rebounds and 1.7 blocks, but only played 20 games. That availability gap still matters more than whether one exhibition produced a double-double. Washington also has to distribute frontcourt opportunities with Alex Sarr, so I would not assume every part of the old role expands. Our board places Davis at the start of round five. I prefer that cost to Yahoo's pre-rank of 36, but the September ADP of 40.5 is close enough that roster fit should decide. With durable early picks, he is a reasonable calculated risk if he slips.",
+    name: 'Anthony Davis', team: 'WAS', tag: 'Round 4; health-priced',
+    yahooAdp: 40.5, yahooPreRank: 36, boardRank: 37,
+    note: "Davis offers elite frontcourt upside, but his availability makes the price crucial. He had 11 rebounds and two blocks in 22 minutes on October 10; October 12 was rest. The recent participation makes a blanket avoidance stance difficult to defend when the per-game ceiling is this high. Last season he averaged 11.1 rebounds and 1.7 blocks, but only played 20 games. That availability gap still matters more than whether one exhibition produced a double-double. Washington also has to distribute frontcourt opportunities with Alex Sarr, so I would not assume every part of the old role expands. Our board places Davis at the start of round four, just behind Yahoo's pre-rank of 36 and slightly ahead of the September ADP of 40.5. At that price the caution is about roster construction rather than value: with durable early picks he is a reasonable calculated risk, but he should not be the second or third recovery bet on the same roster.",
     sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/203076/anthony-davis' }],
   },
   {
@@ -137,7 +137,7 @@ export const BUSTS = [
   },
   {
     name: 'Dillon Brooks', team: 'PHX', tag: 'Round 12 or later',
-    yahooAdp: 114.9, yahooPreRank: 171, boardRank: 148,
+    yahooAdp: 114.9, yahooPreRank: 171, boardRank: 150,
     note: "Brooks has given the optimistic side something to point to: he scored 24 points on October 7 and 15 on October 10. I would not dismiss productive games, but neither establishes that his regular-season shot volume survives unchanged alongside Phoenix's other scorers. Last season's 20.2 points and 2.3 threes came with 43.5% FG, 3.6 rebounds and 1.8 assists. That leaves less to fall back on when shots are scarce than the scoring average alone suggests. The objection is to September's ADP of 114.9, not to using him as a late points-and-threes option. Around round twelve he is easier to replace if the role disappoints, particularly in punt-FG%. Yahoo's pre-rank of 171 already reflects considerable skepticism. If he is available near the end of your draft, assess the category need rather than treating him as undraftable.",
     sources: [{ label: "NBA game log and news — checked October 13", url: 'https://www.nba.com/player/1628415/dillon-brooks' }],
   },
