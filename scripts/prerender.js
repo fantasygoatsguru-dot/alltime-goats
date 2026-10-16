@@ -5,7 +5,7 @@ import seoRoutes, { getPublicRoutes } from '../src/config/seo-routes.js';
 import { getSEOContent } from '../src/config/seo-content.js';
 import { getStructuredData, getFaq } from '../src/config/structured-data.js';
 import { guideBySlug } from '../src/config/guides-content.js';
-import { PLAYERS as TOP150, ROUNDS as TOP150_ROUNDS, INJURY_WATCHLIST, RANKINGS_UPDATED_AT, YAHOO_ADP_DATE, YAHOO_PRERANK_DATE } from '../src/config/top-150-2026-27.js';
+import { PLAYERS as TOP150, ROUNDS as TOP150_ROUNDS, RANKINGS_UPDATED_AT, YAHOO_ADP_DATE, YAHOO_PRERANK_DATE } from '../src/config/top-150-2026-27.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -136,13 +136,10 @@ const guideBodyHtml = (routePath) => {
       out.push(`<p>${esc(round.blurb)}</p>`);
       out.push(
         `<ul>${players
-          .map((pl) => `<li><strong>${pl.rank}. ${esc(pl.name)} (${esc(pl.team)})</strong>${Number.isFinite(pl.yahooAdp) ? ` — Yahoo ADP ${pl.yahooAdp.toFixed(1)}` : ''}${Number.isFinite(pl.yahooPreRank) ? `, pre-rank ${pl.yahooPreRank}` : ''}. ${esc(pl.note)}${playerSourcesHtml(pl)}</li>`)
+          .map((pl) => `<li><strong>${pl.rank}. ${esc(pl.name)} (${esc(pl.team)})</strong>${pl.status ? ` — injury: ${esc(pl.status)}` : ''}${Number.isFinite(pl.yahooAdp) ? ` — Yahoo ADP ${pl.yahooAdp.toFixed(1)}` : ''}${Number.isFinite(pl.yahooPreRank) ? `, pre-rank ${pl.yahooPreRank}` : ''}. ${esc(pl.note)}${playerSourcesHtml(pl)}</li>`)
           .join('')}</ul>`
       );
     }
-    out.push('<h3>Injury watchlist — outside the Top 150</h3>');
-    out.push('<p>These are monitoring or deep injured-reserve options, not recommendations to spend a standard redraft pick.</p>');
-    out.push(`<ul>${INJURY_WATCHLIST.map((player) => `<li><strong>${esc(player.name)} (${esc(player.team)})</strong>. ${esc(player.note)}${playerSourcesHtml(player)}</li>`).join('')}</ul>`);
   }
 
   if (guide.roundTargets) {
@@ -154,6 +151,7 @@ const guideBodyHtml = (routePath) => {
           .map((c) => `<li><strong>${esc(c.name)}</strong>. ${esc(c.note)}</li>`)
           .join('')}</ul>`
       );
+      if (r.others?.length) out.push(`<p>Other relevant targets: ${r.others.map(esc).join(', ')}.</p>`);
     }
   }
 
