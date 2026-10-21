@@ -29,8 +29,7 @@ import {
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { supabase } from "../utils/supabase";
-// Top Games stays on the finished season until STATS_SEASON has games logged.
-import { HISTORICAL_STATS_SEASON as GAMES_SEASON } from "../config/season";
+import { STATS_SEASON as GAMES_SEASON } from "../config/season";
 import { useLeague } from "../contexts/LeagueContext";
 import { useAuth } from "../contexts/AuthContext";
 import YahooConnect from "../components/YahooConnect";

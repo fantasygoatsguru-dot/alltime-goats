@@ -34,7 +34,7 @@ Supabase Edge Functions are deployed separately from the front end via `supabase
 **To add a page you must touch three places:** (1) add a `<Route>` in `App.jsx`, (2) add a `path === '...'` branch in `AlltimeLayout.renderContent()`, and (3) add the nav entry to the relevant submenu array (`leagueSubmenu`, `rankingsSubmenu`, `scheduleSubmenu`, `alltimeSubmenu`) near the top of `AlltimeLayout`. Missing any one silently breaks navigation or rendering.
 
 ### Two data-access modules with different scopes
-- `src/utils/supabase.js` — creates and exports the shared `supabase` client, and handles **current-season** data (`player_period_averages`, `player_game_logs`). It no longer defines the season itself: `CURRENT_SEASON` is an alias for `STATS_SEASON` from `src/config/season.js`, and the fantasy-week anchor comes from `STATS_SEASON_START` in the same file. See "Season rollover" below.
+- `src/utils/supabase.js` — creates and exports the shared `supabase` client, and handles **current-season** data (`player_period_averages`, `player_game_logs`). It no longer defines the season itself: `CURRENT_SEASON` is an alias for `STATS_SEASON` from `src/config/season.js`. Fantasy-week dates come from `public/data/weeks.json` (via `src/utils/fantasyCalendar.js`). See "Season rollover" below.
 - `src/api.js` — **all-time historical** data (`alltime_player_info`, `alltime_player_season_averages`, `alltime_player_game_logs`), plus affiliate links/clicks and blog comments/likes. Uses a recurring **two-step query pattern**: filter demographics in `alltime_player_info` to get `player_id`s, then filter the stats table by those IDs (PostgREST can't join arbitrarily here).
 
 The core domain concept throughout is **9-category z-score fantasy analysis** (points, 3pt, rebounds, assists, steals, blocks, FG%, FT%, turnovers). Team strength = summing per-player z-scores per category.
@@ -45,7 +45,7 @@ Each season-dependent value flips when **its own** data is ready, so they are de
 
 Front end, `src/config/season.js`:
 - `STATS_SEASON` — the season in `player_period_averages`. Flip once ~15-20 games are played and z-scores mean something (late November). `CURRENT_SEASON` in `utils/supabase.js` is just an alias for it, kept so existing `import { supabase, CURRENT_SEASON }` call sites still work.
-- `STATS_SEASON_START` — Monday of fantasy week 1 for `STATS_SEASON`. Flips **together** with it.
+- `HISTORICAL_STATS_SEASON` — the last finished season. Draft tools (`TeamRadar`, `DraftBuilder`) and the guides' "prior-season" stat baseline read it. Rankings and Top Games read `STATS_SEASON`.
 - `CONTENT_SEASON` — what guides/titles/SEO are written for. Flips early, in draft season. `CURRENT_GUIDE_SEASON` in `guides-content.js` derives from it.
 - `SCHEDULE_SEASON` — what `public/data/*.json` hold.
 

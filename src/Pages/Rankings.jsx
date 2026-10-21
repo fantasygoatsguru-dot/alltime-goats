@@ -23,9 +23,7 @@ import {
 } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { supabase } from '../utils/supabase';
-// Rankings stay on the finished season until STATS_SEASON has enough games
-// for z-scores to mean something.
-import { HISTORICAL_STATS_SEASON as RANKINGS_SEASON } from '../config/season';
+import { STATS_SEASON as RANKINGS_SEASON } from '../config/season';
 import { useLeague } from '../contexts/LeagueContext';
 import { useAuth } from '../contexts/AuthContext';
 import YahooConnect from '../components/YahooConnect';
